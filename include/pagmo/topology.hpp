@@ -68,36 +68,15 @@ namespace pagmo
 
 // Detect the get_connections() method.
 template <typename T>
-class has_get_connections
-{
-    template <typename U>
-    using get_connections_t = decltype(std::declval<const U &>().get_connections(std::size_t(0)));
-    static const bool implementation_defined
-        = std::is_same<std::pair<std::vector<std::size_t>, vector_double>, detected_t<get_connections_t, T>>::value;
-
-public:
-    // Value of the type trait.
-    static const bool value = implementation_defined;
+concept HasGetConnections = requires(const T &t) {
+    { t.get_connections(std::size_t(0)) } -> std::same_as<std::pair<std::vector<std::size_t>, vector_double>>;
 };
-
-template <typename T>
-const bool has_get_connections<T>::value;
 
 // Detect the push_back() method.
 template <typename T>
-class has_push_back
-{
-    template <typename U>
-    using push_back_t = decltype(std::declval<U &>().push_back());
-    static const bool implementation_defined = std::is_same<void, detected_t<push_back_t, T>>::value;
-
-public:
-    // Value of the type trait.
-    static const bool value = implementation_defined;
+concept HasPushBack = requires(T &t) {
+    { t.push_back() } -> std::same_as<void>;
 };
-
-template <typename T>
-const bool has_push_back<T>::value;
 
 #if !defined(PAGMO_DOXYGEN_INVOKED)
 
@@ -120,15 +99,8 @@ using bgl_graph_t
 
 // Detect the to_bgl() method.
 template <typename T>
-class has_to_bgl
-{
-    template <typename U>
-    using to_bgl_t = decltype(std::declval<const U &>().to_bgl());
-    static const bool implementation_defined = std::is_same<bgl_graph_t, detected_t<to_bgl_t, T>>::value;
-
-public:
-    // Value of the type trait.
-    static const bool value = implementation_defined;
+concept HasToBgl = requires(const T &t) {
+    { t.to_bgl() } -> std::same_as<bgl_graph_t>;
 };
 
 namespace detail
@@ -146,21 +118,10 @@ struct disable_udt_checks : std::false_type {
 
 // Detect user-defined topologies (UDT).
 template <typename T>
-class is_udt
-{
-    static const bool implementation_defined
-        = detail::disjunction<detail::conjunction<std::is_same<T, uncvref_t<T>>, std::is_default_constructible<T>,
-                                                  std::is_copy_constructible<T>, std::is_move_constructible<T>,
-                                                  std::is_destructible<T>, has_get_connections<T>, has_push_back<T>>,
-                              detail::disable_udt_checks<T>>::value;
-
-public:
-    // Value of the type trait.
-    static const bool value = implementation_defined;
-};
-
-template <typename T>
-const bool is_udt<T>::value;
+concept IsUdt
+    = (std::is_same_v<T, uncvref_t<T>> && std::is_default_constructible_v<T> && std::is_copy_constructible_v<T>
+       && std::is_move_constructible_v<T> && std::is_destructible_v<T> && HasGetConnections<T> && HasPushBack<T>)
+      || detail::disable_udt_checks<T>::value;
 
 namespace detail
 {
@@ -224,34 +185,40 @@ struct PAGMO_DLL_PUBLIC_INLINE_CLASS topo_inner final : topo_inner_base {
         return get_extra_info_impl(m_value);
     }
     // Implementation of the optional methods.
-    template <typename U, enable_if_t<has_to_bgl<U>::value, int> = 0>
+    template <typename U>
+        requires(HasToBgl<U>)
     static bgl_graph_t to_bgl_impl(const U &value)
     {
         return value.to_bgl();
     }
-    template <typename U, enable_if_t<!has_to_bgl<U>::value, int> = 0>
+    template <typename U>
+        requires(!HasToBgl<U>)
     [[noreturn]] static bgl_graph_t to_bgl_impl(const U &value)
     {
         pagmo_throw(not_implemented_error,
                     "The to_bgl() method has been invoked, but it is not implemented in a UDT of type '"
                         + get_name_impl(value) + "'");
     }
-    template <typename U, enable_if_t<has_name<U>::value, int> = 0>
+    template <typename U>
+        requires(HasName<U>)
     static std::string get_name_impl(const U &value)
     {
         return value.get_name();
     }
-    template <typename U, enable_if_t<!has_name<U>::value, int> = 0>
+    template <typename U>
+        requires(!HasName<U>)
     static std::string get_name_impl(const U &)
     {
         return detail::type_name<U>();
     }
-    template <typename U, enable_if_t<has_extra_info<U>::value, int> = 0>
+    template <typename U>
+        requires(HasExtraInfo<U>)
     static std::string get_extra_info_impl(const U &value)
     {
         return value.get_extra_info();
     }
-    template <typename U, enable_if_t<!has_extra_info<U>::value, int> = 0>
+    template <typename U>
+        requires(!HasExtraInfo<U>)
     static std::string get_extra_info_impl(const U &)
     {
         return "";
@@ -295,15 +262,14 @@ BOOST_CLASS_TRACKING(pagmo::detail::topo_inner_base, boost::serialization::track
 namespace pagmo
 {
 
+// Topology concept definitions
+class PAGMO_DLL_PUBLIC topology;
+template <typename T>
+concept TopoGenericCtorEnabler = !std::same_as<topology, uncvref_t<T>> && IsUdt<uncvref_t<T>>;
+
 // Topology class.
 class PAGMO_DLL_PUBLIC topology
 {
-    // Enable the generic ctor only if T is not a topology (after removing
-    // const/reference qualifiers), and if T is a udt.
-    template <typename T>
-    using generic_ctor_enabler = enable_if_t<
-        detail::conjunction<detail::negation<std::is_same<topology, uncvref_t<T>>>, is_udt<uncvref_t<T>>>::value, int>;
-
 public:
     // Default constructor.
     topology();
@@ -313,7 +279,8 @@ private:
 
 public:
     // Generic constructor.
-    template <typename T, generic_ctor_enabler<T> = 0>
+    template <typename T>
+        requires(TopoGenericCtorEnabler<T>)
     explicit topology(T &&x) : m_ptr(std::make_unique<detail::topo_inner<uncvref_t<T>>>(std::forward<T>(x)))
     {
         generic_ctor_impl();
@@ -327,7 +294,8 @@ public:
     // Copy assignment.
     topology &operator=(const topology &);
     // Generic assignment.
-    template <typename T, generic_ctor_enabler<T> = 0>
+    template <typename T>
+        requires(TopoGenericCtorEnabler<T>)
     topology &operator=(T &&x)
     {
         return (*this) = topology(std::forward<T>(x));

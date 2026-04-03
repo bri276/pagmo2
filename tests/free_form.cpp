@@ -50,7 +50,7 @@ using namespace pagmo;
 
 BOOST_AUTO_TEST_CASE(basic_test)
 {
-    BOOST_CHECK(is_udt<free_form>::value);
+    BOOST_CHECK(IsUdt<free_form>::value);
 
     free_form f0;
     BOOST_CHECK(f0.num_vertices() == 0u);

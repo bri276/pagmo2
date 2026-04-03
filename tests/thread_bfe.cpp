@@ -56,7 +56,7 @@ static std::mt19937 rng;
 
 BOOST_AUTO_TEST_CASE(basic_tests)
 {
-    BOOST_CHECK(is_udbfe<thread_bfe>::value);
+    BOOST_CHECK(IsUdBfe<thread_bfe>::value);
 
     bfe bfe0{thread_bfe{}};
     BOOST_CHECK(bfe0.get_name() == "Multi-threaded batch fitness evaluator");

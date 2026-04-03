@@ -29,6 +29,7 @@ see https://www.gnu.org/licenses/. */
 #ifndef PAGMO_PROBLEMS_TRANSLATE_HPP
 #define PAGMO_PROBLEMS_TRANSLATE_HPP
 
+#include <concepts>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -43,6 +44,11 @@ see https://www.gnu.org/licenses/. */
 namespace pagmo
 {
 
+// Translate concept definitions
+class PAGMO_DLL_PUBLIC translate;
+template <typename T>
+concept TranslateCtorEnabler = std::constructible_from<problem, T &&>;
+
 /// The translate meta-problem.
 /**
  * This meta-problem translates the whole search space of an input problem
@@ -56,9 +62,6 @@ public:
     translate();
 
 private:
-    // Enabler for the ctor from UDP or problem. In this case we also allow construction from type problem.
-    template <typename T>
-    using ctor_enabler = enable_if_t<std::is_constructible<problem, T &&>::value, int>;
     // Implementation of the generic ctor.
     void generic_ctor_impl(const vector_double &);
 
@@ -82,7 +85,8 @@ public:
      * not equal to the problem dimension \f$ n_x\f$.
      * @throws unspecified any exception thrown by the pagmo::problem constructor.
      */
-    template <typename T, ctor_enabler<T> = 0>
+    template <typename T>
+        requires(TranslateCtorEnabler<T>)
     explicit translate(T &&p, const vector_double &translation)
         : m_problem(std::forward<T>(p)), m_translation(translation)
     {

@@ -103,7 +103,7 @@ struct bf2 {
 
 BOOST_AUTO_TEST_CASE(basic_tests)
 {
-    BOOST_CHECK(is_udbfe<default_bfe>::value);
+    BOOST_CHECK(IsUdBfe<default_bfe>::value);
 
     bfe bfe0{};
     BOOST_CHECK(bfe0.is<default_bfe>());

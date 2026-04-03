@@ -99,7 +99,7 @@ struct udt00 {
     template <typename Archive>
     void serialize(Archive &ar, unsigned)
     {
-        ar &n_pushed;
+        ar & n_pushed;
     }
     int n_pushed = 0;
 };
@@ -146,10 +146,10 @@ BOOST_AUTO_TEST_CASE(topology_type_traits_test)
     BOOST_CHECK(!has_push_back<npb00>::value);
     BOOST_CHECK(!has_push_back<npb01>::value);
 
-    BOOST_CHECK(!is_udt<void>::value);
-    BOOST_CHECK(is_udt<udt00>::value);
-    BOOST_CHECK(!is_udt<gc00>::value);
-    BOOST_CHECK(!is_udt<pb00>::value);
+    BOOST_CHECK(!IsUdt<void>::value);
+    BOOST_CHECK(IsUdt<udt00>::value);
+    BOOST_CHECK(!IsUdt<gc00>::value);
+    BOOST_CHECK(!IsUdt<pb00>::value);
 }
 
 BOOST_AUTO_TEST_CASE(topology_basic_tests)

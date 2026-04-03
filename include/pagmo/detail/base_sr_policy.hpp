@@ -29,6 +29,7 @@ see https://www.gnu.org/licenses/. */
 #ifndef PAGMO_DETAIL_BASE_SR_POLICY_HPP
 #define PAGMO_DETAIL_BASE_SR_POLICY_HPP
 
+#include <concepts>
 #include <type_traits>
 
 #include <boost/numeric/conversion/cast.hpp>
@@ -57,12 +58,14 @@ class PAGMO_DLL_PUBLIC base_sr_policy
     struct ptag {
     };
     // Absolute migration rate.
-    template <typename T, enable_if_t<std::is_integral<T>::value, int> = 0>
+    template <typename T>
+        requires(std::is_integral_v<T>)
     explicit base_sr_policy(ptag, T n) : m_migr_rate(boost::numeric_cast<pop_size_t>(n))
     {
     }
     // Fractional migration rate.
-    template <typename T, enable_if_t<std::is_floating_point<T>::value, int> = 0>
+    template <typename T>
+        requires(std::is_floating_point_v<T>)
     explicit base_sr_policy(ptag, T x) : m_migr_rate(static_cast<double>(x))
     {
         verify_fp_ctor();
@@ -70,8 +73,8 @@ class PAGMO_DLL_PUBLIC base_sr_policy
 
 public:
     // Constructor from fractional or absolute migration policy.
-    template <typename T,
-              enable_if_t<detail::disjunction<std::is_integral<T>, std::is_floating_point<T>>::value, int> = 0>
+    template <typename T>
+        requires(std::is_integral_v<T> || std::is_floating_point_v<T>)
     explicit base_sr_policy(T x) : base_sr_policy(ptag{}, x)
     {
     }

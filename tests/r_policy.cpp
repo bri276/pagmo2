@@ -62,9 +62,9 @@ using namespace pagmo;
 
 BOOST_AUTO_TEST_CASE(type_traits_tests)
 {
-    BOOST_CHECK(!is_udrp<void>::value);
-    BOOST_CHECK(!is_udrp<int>::value);
-    BOOST_CHECK(!is_udrp<double>::value);
+    BOOST_CHECK(!IsUdrp<void>::value);
+    BOOST_CHECK(!IsUdrp<int>::value);
+    BOOST_CHECK(!IsUdrp<double>::value);
 
     struct udrp00 {
         individuals_group_t replace(const individuals_group_t &, const vector_double::size_type &,
@@ -73,10 +73,10 @@ BOOST_AUTO_TEST_CASE(type_traits_tests)
                                     const vector_double &, const individuals_group_t &) const;
     };
 
-    BOOST_CHECK(is_udrp<udrp00>::value);
-    BOOST_CHECK(!is_udrp<const udrp00>::value);
-    BOOST_CHECK(!is_udrp<const udrp00 &>::value);
-    BOOST_CHECK(!is_udrp<udrp00 &>::value);
+    BOOST_CHECK(IsUdrp<udrp00>::value);
+    BOOST_CHECK(!IsUdrp<const udrp00>::value);
+    BOOST_CHECK(!IsUdrp<const udrp00 &>::value);
+    BOOST_CHECK(!IsUdrp<udrp00 &>::value);
 
     struct no_udrp00 {
         void replace(const individuals_group_t &, const vector_double::size_type &, const vector_double::size_type &,
@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE(type_traits_tests)
                      const vector_double::size_type &, const vector_double &, const individuals_group_t &) const;
     };
 
-    BOOST_CHECK(!is_udrp<no_udrp00>::value);
+    BOOST_CHECK(!IsUdrp<no_udrp00>::value);
 
     struct no_udrp01 {
         individuals_group_t replace(const individuals_group_t &, const vector_double::size_type &,
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE(type_traits_tests)
                                     const vector_double &, const individuals_group_t &);
     };
 
-    BOOST_CHECK(!is_udrp<no_udrp01>::value);
+    BOOST_CHECK(!IsUdrp<no_udrp01>::value);
 
     struct no_udrp02 {
         no_udrp02() = delete;
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE(type_traits_tests)
                                     const vector_double &, const individuals_group_t &) const;
     };
 
-    BOOST_CHECK(!is_udrp<no_udrp02>::value);
+    BOOST_CHECK(!IsUdrp<no_udrp02>::value);
 }
 
 struct udrp1 {
@@ -531,7 +531,7 @@ struct udrp_a {
     template <typename Archive>
     void serialize(Archive &ar, unsigned)
     {
-        ar &state;
+        ar & state;
     }
     int state = 42;
 };

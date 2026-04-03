@@ -18,6 +18,9 @@ project(pagmo VERSION 2.19.1 LANGUAGES CXX C)
 # Setup module path.
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules" "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/yacma")
 
+# Include CPM for modern dependency management
+include(cmake_modules/CPM.cmake)
+
 message(STATUS "System name: ${CMAKE_SYSTEM_NAME}")
 enable_testing()
 
@@ -45,6 +48,9 @@ mark_as_advanced(PAGMO_ENABLE_IPO)
 
 # Build static library instead of dynamic.
 option(PAGMO_BUILD_STATIC_LIBRARY "Build pagmo as a static library, instead of dynamic." OFF)
+
+# Ensure all targets are built with position-independent code
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Detect if we can enable the fork_island UDI.
 include(CheckIncludeFileCXX)
@@ -164,27 +170,74 @@ if (YACMA_COMPILER_IS_CLANGXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQU
     unset (_PAGMO_CLANG_SUPPORTS_ASSUME_UNIQUE_VTABLES)
 endif ()
 
-# TBB. Try to find it first in config mode (supported
-# since version 2021 after the oneTBB rename), and, if this
-# fails, fall back to our own FindTBB.cmake. This is of course
-# not an ideal solution, but it should work until oneTBB
-# becomes widely deployed.
-find_package(TBB QUIET CONFIG)
-if(NOT TBB_FOUND)
-    message(STATUS "TBB not found using config mode, retrying in module mode.")
-    find_package(TBB REQUIRED MODULE)
+# TBB using CPM with proper target handling
+CPMFindPackage(
+  NAME TBB
+  GITHUB_REPOSITORY oneapi-src/oneTBB
+  VERSION 2021.10.0
+  GIT_TAG v2021.10.0
+  OPTIONS "TBB_TEST OFF" "TBB_BUILD_TESTS OFF"
+)
+
+# Handle TBB target - create a working wrapper
+if(TARGET TBB::tbb)
+    message(STATUS "TBB::tbb target available")
+    
+    # Create a wrapper interface target to work around include issues
+    if(NOT TARGET pagmo_tbb_wrapper)
+        add_library(pagmo_tbb_wrapper INTERFACE)
+        # Add proper include directory 
+        if(EXISTS "${CMAKE_CURRENT_BINARY_DIR}/_deps/tbb-src/include")
+            target_include_directories(pagmo_tbb_wrapper INTERFACE "${CMAKE_CURRENT_BINARY_DIR}/_deps/tbb-src/include")
+        endif()
+        # Link to the actual TBB library files without problematic includes
+        get_target_property(TBB_LIBS TBB::tbb INTERFACE_LINK_LIBRARIES)
+        if(TBB_LIBS AND NOT "${TBB_LIBS}" STREQUAL "TBB_LIBS-NOTFOUND")
+            target_link_libraries(pagmo_tbb_wrapper INTERFACE ${TBB_LIBS})
+        endif()
+        # Try to link to compiled libraries directly
+        if(TARGET tbb)
+            target_link_libraries(pagmo_tbb_wrapper INTERFACE tbb)
+        endif()
+    endif()
+elseif(TARGET tbb)
+    message(STATUS "tbb target available, creating wrapper")
+    add_library(pagmo_tbb_wrapper INTERFACE)
+    target_link_libraries(pagmo_tbb_wrapper INTERFACE tbb)
+    # Also create TBB::tbb alias for compatibility
+    add_library(TBB::tbb ALIAS tbb)
 else()
-    message(STATUS "TBB found using config mode.")
+    message(FATAL_ERROR "No TBB target found")
 endif()
+
+# Debug: Check what TBB targets exist
+get_property(ALL_TARGETS DIRECTORY PROPERTY BUILDSYSTEM_TARGETS)
+foreach(target ${ALL_TARGETS})
+    if("${target}" MATCHES "[Tt][Bb][Bb]")
+        message(STATUS "Found TBB-related target: ${target}")
+    endif()
+endforeach()
 
 # Eigen3
 if(PAGMO_WITH_EIGEN3)
-    find_package(Eigen3 REQUIRED NO_MODULE)
+    CPMFindPackage(
+      NAME Eigen3
+      GITLAB_REPOSITORY libeigen/eigen
+      VERSION 3.4.0
+      GIT_TAG 3.4.0
+      OPTIONS "EIGEN_BUILD_DOC OFF" "EIGEN_BUILD_TESTING OFF"
+    )
 endif()
 
 # NLopt
 if(PAGMO_WITH_NLOPT)
-    find_package(NLopt 2.6 REQUIRED NO_MODULE)
+    CPMFindPackage(
+      NAME NLopt
+      GITHUB_REPOSITORY stevengj/nlopt
+      VERSION 2.7.1
+      GIT_TAG v2.7.1
+      OPTIONS "NLOPT_PYTHON OFF" "NLOPT_OCTAVE OFF" "NLOPT_MATLAB OFF" "NLOPT_GUILE OFF" "NLOPT_SWIG OFF" "NLOPT_TESTS OFF"
+    )
 endif()
 
 # Ipopt
@@ -198,8 +251,42 @@ if(PAGMO_BUILD_TESTS)
     set(_PAGMO_FIND_BOOST_UNIT_TEST_FRAMEWORK TRUE)
 endif()
 
-# Boost setup.
-include(PagmoFindBoost)
+# Boost configuration using CPM with interface targets
+set(_PAGMO_REQUIRED_BOOST_LIBS serialization)
+if(PAGMO_BUILD_TESTS)
+    list(APPEND _PAGMO_REQUIRED_BOOST_LIBS unit_test_framework)
+endif()
+
+# Use CPM for Boost to ensure reliable component availability
+message(STATUS "Using CPM for Boost to ensure reliable component availability")
+CPMAddPackage(
+    NAME Boost
+    VERSION 1.83.0
+    URL https://github.com/boostorg/boost/releases/download/boost-1.83.0/boost-1.83.0.tar.xz
+    OPTIONS
+        "BOOST_ENABLE_CMAKE ON"
+        "BOOST_INCLUDE_LIBRARIES serialization\\\\;test\\\\;system\\\\;filesystem"
+        "CMAKE_POSITION_INDEPENDENT_CODE ON"
+    DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+)
+
+# Verify CPM-provided Boost targets exist
+message(STATUS "Required Boost libraries: ${_PAGMO_REQUIRED_BOOST_LIBS}")
+if(TARGET boost_serialization)
+    message(STATUS "boost_serialization target available")
+else()
+    message(FATAL_ERROR "boost_serialization target not found")
+endif()
+
+if(PAGMO_BUILD_TESTS)
+    if(TARGET boost_unit_test_framework)
+        message(STATUS "boost_unit_test_framework target available")
+    elseif(TARGET boost_test)
+        message(STATUS "boost_test target available")
+    else()
+        message(FATAL_ERROR "No Boost unit test framework target found")
+    endif()
+endif()
 
 # List of source files.
 set(PAGMO_SRC_FILES
@@ -346,6 +433,9 @@ else()
     set_target_properties(pagmo PROPERTIES VISIBILITY_INLINES_HIDDEN TRUE)
 endif()
 
+# Ensure position-independent code for all configurations
+set_target_properties(pagmo PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
 # Setup common to both static and shared variants.
 target_compile_options(pagmo PRIVATE
     "$<$<CONFIG:Debug>:${PAGMO_CXX_FLAGS_DEBUG}>"
@@ -354,10 +444,10 @@ target_compile_options(pagmo PRIVATE
     "$<$<CONFIG:MinSizeRel>:${PAGMO_CXX_FLAGS_RELEASE}>"
 )
 
-# Set the minimum C++ standard to C++17, both when building
+# Set the minimum C++ standard to C++23, both when building
 # and consuming pagmo.
-target_compile_features(pagmo PUBLIC cxx_std_17)
-# Enforce vanilla C++17 when compiling pagmo.
+target_compile_features(pagmo PUBLIC cxx_std_23)
+# Enforce vanilla C++23 when compiling pagmo.
 set_property(TARGET pagmo PROPERTY CXX_EXTENSIONS NO)
 # NOTE: make sure the include directories from the current build
 # are included first, so that if there is already a pagmo installation
@@ -384,8 +474,25 @@ endif()
 # Threads.
 target_link_libraries(pagmo PUBLIC Threads::Threads)
 
-# Boost.
-target_link_libraries(pagmo PUBLIC Boost::boost Boost::serialization)
+# Boost linking - use PRIVATE to avoid export issues
+if(TARGET boost_boost)
+    target_link_libraries(pagmo PRIVATE boost_boost)
+    # Also need to expose boost headers publicly for pagmo's public API
+    get_target_property(BOOST_INCLUDE_DIRS boost_boost INTERFACE_INCLUDE_DIRECTORIES)
+    if(BOOST_INCLUDE_DIRS)
+        target_include_directories(pagmo PUBLIC ${BOOST_INCLUDE_DIRS})
+    endif()
+    message(STATUS "Linked with boost_boost (private)")
+endif()
+
+target_link_libraries(pagmo PRIVATE boost_serialization)
+# Expose serialization headers publicly since pagmo's API uses them
+get_target_property(BOOST_SERIAL_INCLUDE_DIRS boost_serialization INTERFACE_INCLUDE_DIRECTORIES)
+if(BOOST_SERIAL_INCLUDE_DIRS)
+    target_include_directories(pagmo PUBLIC ${BOOST_SERIAL_INCLUDE_DIRS})
+endif()
+message(STATUS "Linked with boost_serialization (private)")
+
 # NOTE: quench warnings from Boost when building the library.
 target_compile_definitions(pagmo PRIVATE BOOST_ALLOW_DEPRECATED_HEADERS)
 
@@ -393,7 +500,7 @@ target_compile_definitions(pagmo PRIVATE BOOST_ALLOW_DEPRECATED_HEADERS)
 # NOTE: TBB is a private dependency because
 # all uses of TBB are limited to the .cpp files,
 # thus fully encapsulated in the pagmo library.
-target_link_libraries(pagmo PRIVATE TBB::tbb)
+target_link_libraries(pagmo PRIVATE pagmo_tbb_wrapper)
 
 if(PAGMO_WITH_EIGEN3)
     # Link pagmo to eigen3.

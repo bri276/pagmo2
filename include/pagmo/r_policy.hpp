@@ -30,6 +30,7 @@ see https://www.gnu.org/licenses/. */
 #define PAGMO_R_POLICY_HPP
 
 #include <cassert>
+#include <concepts>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -64,22 +65,12 @@ namespace pagmo
 
 // Check if T has a replace() member function conforming to the UDRP requirements.
 template <typename T>
-class has_replace
-{
-    template <typename U>
-    using replace_t = decltype(std::declval<const U &>().replace(
-        std::declval<const individuals_group_t &>(), std::declval<const vector_double::size_type &>(),
-        std::declval<const vector_double::size_type &>(), std::declval<const vector_double::size_type &>(),
-        std::declval<const vector_double::size_type &>(), std::declval<const vector_double::size_type &>(),
-        std::declval<const vector_double &>(), std::declval<const individuals_group_t &>()));
-    static const bool implementation_defined = std::is_same<detected_t<replace_t, T>, individuals_group_t>::value;
-
-public:
-    static const bool value = implementation_defined;
+concept HasReplace = requires(const T &t, const individuals_group_t &inds, const vector_double::size_type &nx,
+                              const vector_double::size_type &nix, const vector_double::size_type &nobj,
+                              const vector_double::size_type &nec, const vector_double::size_type &nic,
+                              const vector_double &tol, const individuals_group_t &migrants) {
+    { t.replace(inds, nx, nix, nobj, nec, nic, tol, migrants) } -> std::same_as<individuals_group_t>;
 };
-
-template <typename T>
-const bool has_replace<T>::value;
 
 namespace detail
 {
@@ -96,21 +87,15 @@ struct disable_udrp_checks : std::false_type {
 
 // Detect UDRPs
 template <typename T>
-class is_udrp
-{
-    static const bool implementation_defined
-        = detail::disjunction<detail::conjunction<std::is_same<T, uncvref_t<T>>, std::is_default_constructible<T>,
-                                                  std::is_copy_constructible<T>, std::is_move_constructible<T>,
-                                                  std::is_destructible<T>, has_replace<T>>,
-                              detail::disable_udrp_checks<T>>::value;
-
-public:
-    // Value of the type trait.
-    static const bool value = implementation_defined;
+concept IsUdrp = requires(T) {
+    std::is_same<T, uncvref_t<T>>::value;
+    std::is_default_constructible<T>::value;
+    std::is_copy_constructible<T>::value;
+    std::is_move_constructible<T>::value;
+    std::is_destructible<T>::value;
+    requires HasReplace<T>;
+    detail::disable_udrp_checks<T>::value;
 };
-
-template <typename T>
-const bool is_udrp<T>::value;
 
 namespace detail
 {
@@ -121,7 +106,8 @@ struct PAGMO_DLL_PUBLIC_INLINE_CLASS r_pol_inner_base {
     virtual individuals_group_t replace(const individuals_group_t &, const vector_double::size_type &,
                                         const vector_double::size_type &, const vector_double::size_type &,
                                         const vector_double::size_type &, const vector_double::size_type &,
-                                        const vector_double &, const individuals_group_t &) const = 0;
+                                        const vector_double &, const individuals_group_t &) const
+        = 0;
     virtual std::string get_name() const = 0;
     virtual std::string get_extra_info() const = 0;
     virtual std::type_index get_type_index() const = 0;
@@ -169,22 +155,26 @@ struct PAGMO_DLL_PUBLIC_INLINE_CLASS r_pol_inner final : r_pol_inner_base {
     {
         return get_extra_info_impl(m_value);
     }
-    template <typename U, enable_if_t<has_name<U>::value, int> = 0>
+    template <typename U>
+        requires HasName<U>
     static std::string get_name_impl(const U &value)
     {
         return value.get_name();
     }
-    template <typename U, enable_if_t<!has_name<U>::value, int> = 0>
+    template <typename U>
+        requires(!HasName<U>)
     static std::string get_name_impl(const U &)
     {
         return detail::type_name<U>();
     }
-    template <typename U, enable_if_t<has_extra_info<U>::value, int> = 0>
+    template <typename U>
+        requires HasExtraInfo<U>
     static std::string get_extra_info_impl(const U &value)
     {
         return value.get_extra_info();
     }
-    template <typename U, enable_if_t<!has_extra_info<U>::value, int> = 0>
+    template <typename U>
+        requires(!HasExtraInfo<U>)
     static std::string get_extra_info_impl(const U &)
     {
         return "";
@@ -228,14 +218,14 @@ BOOST_CLASS_TRACKING(pagmo::detail::r_pol_inner_base, boost::serialization::trac
 namespace pagmo
 {
 
+// R_policy concept definitions
+class PAGMO_DLL_PUBLIC r_policy;
+template <typename T>
+concept RpolGenericCtorEnabler = !std::is_same_v<r_policy, uncvref_t<T>> && IsUdrp<uncvref_t<T>>;
+
 // Replacement policy.
 class PAGMO_DLL_PUBLIC r_policy
 {
-    // Enable the generic ctor only if T is not an r_policy (after removing
-    // const/reference qualifiers), and if T is a udrp.
-    template <typename T>
-    using generic_ctor_enabler = enable_if_t<
-        detail::conjunction<detail::negation<std::is_same<r_policy, uncvref_t<T>>>, is_udrp<uncvref_t<T>>>::value, int>;
     // Implementation of the generic ctor.
     void generic_ctor_impl();
 
@@ -243,7 +233,8 @@ public:
     // Default constructor.
     r_policy();
     // Constructor from a UDRP.
-    template <typename T, generic_ctor_enabler<T> = 0>
+    template <typename T>
+        requires(RpolGenericCtorEnabler<T>)
     explicit r_policy(T &&x) : m_ptr(std::make_unique<detail::r_pol_inner<uncvref_t<T>>>(std::forward<T>(x)))
     {
         generic_ctor_impl();
@@ -257,7 +248,8 @@ public:
     // Copy assignment operator
     r_policy &operator=(const r_policy &);
     // Assignment from a UDRP.
-    template <typename T, generic_ctor_enabler<T> = 0>
+    template <typename T>
+        requires(RpolGenericCtorEnabler<T>)
     r_policy &operator=(T &&x)
     {
         return (*this) = r_policy(std::forward<T>(x));

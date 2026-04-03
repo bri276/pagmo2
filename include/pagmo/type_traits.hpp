@@ -29,6 +29,7 @@ see https://www.gnu.org/licenses/. */
 #ifndef PAGMO_TYPE_TRAITS_HPP
 #define PAGMO_TYPE_TRAITS_HPP
 
+#include <concepts>
 #include <cstddef>
 #include <initializer_list>
 #include <string>
@@ -68,23 +69,9 @@ struct nonesuch {
 // NOTE: we used to have custom implementations
 // of these utilities in pre-C++17, but now we don't
 // need them any more.
-template <typename... Args>
-using conjunction = std::conjunction<Args...>;
-
-template <typename... Args>
-using disjunction = std::disjunction<Args...>;
-
-template <typename T>
-using negation = std::negation<T>;
-
-template <std::size_t... Ints>
-using index_sequence = std::index_sequence<Ints...>;
-
-template <std::size_t N>
-using make_index_sequence = std::make_index_sequence<N>;
 
 template <typename T, typename F, std::size_t... Is>
-void apply_to_each_item(T &&t, const F &f, index_sequence<Is...>)
+void apply_to_each_item(T &&t, const F &f, std::index_sequence<Is...>)
 {
     (void)std::initializer_list<int>{0, (void(f(std::get<Is>(std::forward<T>(t)))), 0)...};
 }
@@ -97,7 +84,7 @@ template <class Tuple, class F>
 void tuple_for_each(Tuple &&t, const F &f)
 {
     apply_to_each_item(std::forward<Tuple>(t), f,
-                       make_index_sequence<std::tuple_size<typename std::decay<Tuple>::type>::value>{});
+                       std::make_index_sequence<std::tuple_size<typename std::decay<Tuple>::type>::value>{});
 }
 
 } // namespace detail
@@ -136,12 +123,12 @@ using enable_if_t = typename std::enable_if<B, T>::type;
 namespace detail
 {
 
-// SFINAE enablers for floating point types
+// Concept enablers for floating point types
 template <typename T>
-using enable_if_is_floating_point = enable_if_t<std::is_floating_point<T>::value, int>;
+concept IsFloatingPoint = std::is_floating_point_v<T>;
 
 template <typename T>
-using enable_if_is_not_floating_point = enable_if_t<!std::is_floating_point<T>::value, int>;
+concept IsNotFloatingPoint = !std::is_floating_point_v<T>;
 
 } // namespace detail
 
@@ -151,7 +138,7 @@ using uncvref_t = std::remove_cv_t<std::remove_reference_t<T>>;
 
 /// Detect \p set_seed() method.
 /**
- * This type trait will be \p true if \p T provides a method with
+ * This concept will be satisfied if \p T provides a method with
  * the following signature:
  * @code{.unparsed}
  * void set_seed(unsigned);
@@ -160,23 +147,13 @@ using uncvref_t = std::remove_cv_t<std::remove_reference_t<T>>;
  * (see pagmo::problem and pagmo::algorithm).
  */
 template <typename T>
-class has_set_seed
-{
-    template <typename U>
-    using set_seed_t = decltype(std::declval<U &>().set_seed(1u));
-    static const bool implementation_defined = std::is_same<void, detected_t<set_seed_t, T>>::value;
-
-public:
-    /// Value of the type trait.
-    static const bool value = implementation_defined;
+concept HasSetSeed = requires(T &t) {
+    { t.set_seed(1u) } -> std::same_as<void>;
 };
-
-template <typename T>
-const bool has_set_seed<T>::value;
 
 /// Detect \p has_set_seed() method.
 /**
- * This type trait will be \p true if \p T provides a method with
+ * This concept will be satisfied if \p T provides a method with
  * the following signature:
  * @code{.unparsed}
  * bool has_set_seed() const;
@@ -185,23 +162,13 @@ const bool has_set_seed<T>::value;
  * (see pagmo::problem and pagmo::algorithm).
  */
 template <typename T>
-class override_has_set_seed
-{
-    template <typename U>
-    using has_set_seed_t = decltype(std::declval<const U &>().has_set_seed());
-    static const bool implementation_defined = std::is_same<bool, detected_t<has_set_seed_t, T>>::value;
-
-public:
-    /// Value of the type trait.
-    static const bool value = implementation_defined;
+concept OverrideHasSetSeed = requires(const T &t) {
+    { t.has_set_seed() } -> std::same_as<bool>;
 };
-
-template <typename T>
-const bool override_has_set_seed<T>::value;
 
 /// Detect \p get_name() method.
 /**
- * This type trait will be \p true if \p T provides a method with
+ * This concept will be satisfied if \p T provides a method with
  * the following signature:
  * @code{.unparsed}
  * std::string get_name() const;
@@ -210,23 +177,13 @@ const bool override_has_set_seed<T>::value;
  * (see pagmo::problem and pagmo::algorithm).
  */
 template <typename T>
-class has_name
-{
-    template <typename U>
-    using get_name_t = decltype(std::declval<const U &>().get_name());
-    static const bool implementation_defined = std::is_same<std::string, detected_t<get_name_t, T>>::value;
-
-public:
-    /// Value of the type trait.
-    static const bool value = implementation_defined;
+concept HasName = requires(const T &t) {
+    { t.get_name() } -> std::same_as<std::string>;
 };
-
-template <typename T>
-const bool has_name<T>::value;
 
 /// Detect \p get_extra_info() method.
 /**
- * This type trait will be \p true if \p T provides a method with
+ * This concept will be satisfied if \p T provides a method with
  * the following signature:
  * @code{.unparsed}
  * std::string get_extra_info() const;
@@ -235,23 +192,13 @@ const bool has_name<T>::value;
  * (see pagmo::problem and pagmo::algorithm).
  */
 template <typename T>
-class has_extra_info
-{
-    template <typename U>
-    using get_extra_info_t = decltype(std::declval<const U &>().get_extra_info());
-    static const bool implementation_defined = std::is_same<std::string, detected_t<get_extra_info_t, T>>::value;
-
-public:
-    /// Value of the type trait.
-    static const bool value = implementation_defined;
+concept HasExtraInfo = requires(const T &t) {
+    { t.get_extra_info() } -> std::same_as<std::string>;
 };
-
-template <typename T>
-const bool has_extra_info<T>::value;
 
 /// Detect \p get_thread_safety() method.
 /**
- * This type trait will be \p true if \p T provides a method with
+ * This concept will be satisfied if \p T provides a method with
  * the following signature:
  * @code{.unparsed}
  * pagmo::thread_safety get_thread_safety() const;
@@ -260,19 +207,9 @@ const bool has_extra_info<T>::value;
  * (see pagmo::problem and pagmo::algorithm).
  */
 template <typename T>
-class has_get_thread_safety
-{
-    template <typename U>
-    using get_thread_safety_t = decltype(std::declval<const U &>().get_thread_safety());
-    static const bool implementation_defined = std::is_same<thread_safety, detected_t<get_thread_safety_t, T>>::value;
-
-public:
-    /// Value of the type trait.
-    static const bool value = implementation_defined;
+concept HasGetThreadSafety = requires(const T &t) {
+    { t.get_thread_safety() } -> std::same_as<thread_safety>;
 };
-
-template <typename T>
-const bool has_get_thread_safety<T>::value;
 
 } // namespace pagmo
 

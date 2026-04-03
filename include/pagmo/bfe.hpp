@@ -30,6 +30,7 @@ see https://www.gnu.org/licenses/. */
 #define PAGMO_BFE_HPP
 
 #include <cassert>
+#include <concepts>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -66,19 +67,9 @@ namespace pagmo
 
 // Check if T has a call operator conforming to the UDBFE requirements.
 template <typename T>
-class has_bfe_call_operator
-{
-    template <typename U>
-    using call_t
-        = decltype(std::declval<const U &>()(std::declval<const problem &>(), std::declval<const vector_double &>()));
-    static const bool implementation_defined = std::is_same<detected_t<call_t, T>, vector_double>::value;
-
-public:
-    static const bool value = implementation_defined;
+concept HasBfeCallOperator = requires(const T &t, const problem &prob, const vector_double &dvs) {
+    { t(prob, dvs) } -> std::same_as<vector_double>;
 };
-
-template <typename T>
-const bool has_bfe_call_operator<T>::value;
 
 namespace detail
 {
@@ -95,20 +86,15 @@ struct disable_udbfe_checks : std::false_type {
 
 // Check if T is a UDBFE.
 template <typename T>
-class is_udbfe
-{
-    static const bool implementation_defined
-        = detail::disjunction<detail::conjunction<std::is_same<T, uncvref_t<T>>, std::is_default_constructible<T>,
-                                                  std::is_copy_constructible<T>, std::is_move_constructible<T>,
-                                                  std::is_destructible<T>, has_bfe_call_operator<T>>,
-                              detail::disable_udbfe_checks<T>>::value;
-
-public:
-    static const bool value = implementation_defined;
+concept IsUdBfe = requires(T) {
+    std::is_same<T, uncvref_t<T>>::value;
+    std::is_default_constructible<T>::value;
+    std::is_copy_constructible<T>::value;
+    std::is_move_constructible<T>::value;
+    std::is_destructible<T>::value;
+    requires HasBfeCallOperator<T>;
+    detail::disable_udbfe_checks<T>::value;
 };
-
-template <typename T>
-const bool is_udbfe<T>::value;
 
 namespace detail
 {
@@ -167,32 +153,38 @@ struct PAGMO_DLL_PUBLIC_INLINE_CLASS bfe_inner final : bfe_inner_base {
         return get_thread_safety_impl(m_value);
     }
     // Implementation of the optional methods.
-    template <typename U, enable_if_t<has_name<U>::value, int> = 0>
+    template <typename U>
+        requires HasName<U>
     static std::string get_name_impl(const U &value)
     {
         return value.get_name();
     }
-    template <typename U, enable_if_t<!has_name<U>::value, int> = 0>
+    template <typename U>
+        requires(!HasName<U>)
     static std::string get_name_impl(const U &)
     {
         return detail::type_name<U>();
     }
-    template <typename U, enable_if_t<has_extra_info<U>::value, int> = 0>
+    template <typename U>
+        requires HasExtraInfo<U>
     static std::string get_extra_info_impl(const U &value)
     {
         return value.get_extra_info();
     }
-    template <typename U, enable_if_t<!has_extra_info<U>::value, int> = 0>
+    template <typename U>
+        requires(!HasExtraInfo<U>)
     static std::string get_extra_info_impl(const U &)
     {
         return "";
     }
-    template <typename U, enable_if_t<has_get_thread_safety<U>::value, int> = 0>
+    template <typename U>
+        requires HasGetThreadSafety<U>
     static thread_safety get_thread_safety_impl(const U &value)
     {
         return value.get_thread_safety();
     }
-    template <typename U, enable_if_t<!has_get_thread_safety<U>::value, int> = 0>
+    template <typename U>
+        requires(!HasGetThreadSafety<U>)
     static thread_safety get_thread_safety_impl(const U &)
     {
         return thread_safety::basic;
@@ -236,19 +228,14 @@ BOOST_CLASS_TRACKING(pagmo::detail::bfe_inner_base, boost::serialization::track_
 namespace pagmo
 {
 
+// BFE concept definitions
+class PAGMO_DLL_PUBLIC bfe;
+template <typename T>
+concept BfeGenericCtorEnabler = (!std::is_same_v<bfe, uncvref_t<T>> && IsUdBfe<uncvref_t<T>>)
+                                || std::is_same_v<vector_double(const problem &, const vector_double &), uncvref_t<T>>;
+
 class PAGMO_DLL_PUBLIC bfe
 {
-    // Enable the generic ctor only if T is not a bfe (after removing
-    // const/reference qualifiers), and if T is a udbfe. Additionally,
-    // enable the ctor also if T is a function type (in that case, we
-    // will convert the function type to a function pointer in
-    // the machinery below).
-    template <typename T>
-    using generic_ctor_enabler = enable_if_t<
-        detail::disjunction<
-            detail::conjunction<detail::negation<std::is_same<bfe, uncvref_t<T>>>, is_udbfe<uncvref_t<T>>>,
-            std::is_same<vector_double(const problem &, const vector_double &), uncvref_t<T>>>::value,
-        int>;
     // Dispatching for the generic ctor. We have a special case if T is
     // a function type, in which case we will manually do the conversion to
     // function pointer and delegate to the other overload.
@@ -269,7 +256,8 @@ public:
     // Default ctor.
     bfe();
     // Constructor from a UDBFE.
-    template <typename T, generic_ctor_enabler<T> = 0>
+    template <typename T>
+        requires BfeGenericCtorEnabler<T>
     explicit bfe(T &&x) : bfe(std::forward<T>(x), std::is_function<uncvref_t<T>>{})
     {
         generic_ctor_impl();
@@ -283,7 +271,8 @@ public:
     // Copy assignment operator
     bfe &operator=(const bfe &);
     // Assignment from a UDBFE.
-    template <typename T, generic_ctor_enabler<T> = 0>
+    template <typename T>
+        requires BfeGenericCtorEnabler<T>
     bfe &operator=(T &&x)
     {
         return (*this) = bfe(std::forward<T>(x));

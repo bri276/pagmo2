@@ -51,7 +51,7 @@ using namespace pagmo;
 
 BOOST_AUTO_TEST_CASE(basic_tests)
 {
-    BOOST_CHECK(is_udbfe<member_bfe>::value);
+    BOOST_CHECK(IsUdBfe<member_bfe>::value);
 
     bfe bfe0{member_bfe{}};
     BOOST_CHECK(bfe0.get_name() == "Member function batch fitness evaluator");

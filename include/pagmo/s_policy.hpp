@@ -30,6 +30,7 @@ see https://www.gnu.org/licenses/. */
 #define PAGMO_S_POLICY_HPP
 
 #include <cassert>
+#include <concepts>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -64,22 +65,12 @@ namespace pagmo
 
 // Check if T has a select() member function conforming to the UDSP requirements.
 template <typename T>
-class has_select
-{
-    template <typename U>
-    using select_t = decltype(std::declval<const U &>().select(
-        std::declval<const individuals_group_t &>(), std::declval<const vector_double::size_type &>(),
-        std::declval<const vector_double::size_type &>(), std::declval<const vector_double::size_type &>(),
-        std::declval<const vector_double::size_type &>(), std::declval<const vector_double::size_type &>(),
-        std::declval<const vector_double &>()));
-    static const bool implementation_defined = std::is_same<detected_t<select_t, T>, individuals_group_t>::value;
-
-public:
-    static const bool value = implementation_defined;
-};
-
-template <typename T>
-const bool has_select<T>::value;
+concept HasSelect
+    = requires(const T &t, const individuals_group_t &inds, const vector_double::size_type &nx,
+               const vector_double::size_type &nix, const vector_double::size_type &nobj,
+               const vector_double::size_type &nec, const vector_double::size_type &nic, const vector_double &tol) {
+          { t.select(inds, nx, nix, nobj, nec, nic, tol) } -> std::same_as<individuals_group_t>;
+      };
 
 namespace detail
 {
@@ -96,21 +87,10 @@ struct disable_udsp_checks : std::false_type {
 
 // Detect UDSPs
 template <typename T>
-class is_udsp
-{
-    static const bool implementation_defined
-        = detail::disjunction<detail::conjunction<std::is_same<T, uncvref_t<T>>, std::is_default_constructible<T>,
-                                                  std::is_copy_constructible<T>, std::is_move_constructible<T>,
-                                                  std::is_destructible<T>, has_select<T>>,
-                              detail::disable_udsp_checks<T>>::value;
-
-public:
-    // Value of the type trait.
-    static const bool value = implementation_defined;
-};
-
-template <typename T>
-const bool is_udsp<T>::value;
+concept IsUdsp
+    = (std::is_same_v<T, uncvref_t<T>> && std::is_default_constructible_v<T> && std::is_copy_constructible_v<T>
+       && std::is_move_constructible_v<T> && std::is_destructible_v<T> && HasSelect<T>)
+      || detail::disable_udsp_checks<T>::value;
 
 namespace detail
 {
@@ -121,7 +101,8 @@ struct PAGMO_DLL_PUBLIC_INLINE_CLASS s_pol_inner_base {
     virtual individuals_group_t select(const individuals_group_t &, const vector_double::size_type &,
                                        const vector_double::size_type &, const vector_double::size_type &,
                                        const vector_double::size_type &, const vector_double::size_type &,
-                                       const vector_double &) const = 0;
+                                       const vector_double &) const
+        = 0;
     virtual std::string get_name() const = 0;
     virtual std::string get_extra_info() const = 0;
     virtual std::type_index get_type_index() const = 0;
@@ -169,22 +150,26 @@ struct PAGMO_DLL_PUBLIC_INLINE_CLASS s_pol_inner final : s_pol_inner_base {
     {
         return get_extra_info_impl(m_value);
     }
-    template <typename U, enable_if_t<has_name<U>::value, int> = 0>
+    template <typename U>
+        requires(HasName<U>)
     static std::string get_name_impl(const U &value)
     {
         return value.get_name();
     }
-    template <typename U, enable_if_t<!has_name<U>::value, int> = 0>
+    template <typename U>
+        requires(!HasName<U>)
     static std::string get_name_impl(const U &)
     {
         return detail::type_name<U>();
     }
-    template <typename U, enable_if_t<has_extra_info<U>::value, int> = 0>
+    template <typename U>
+        requires(HasExtraInfo<U>)
     static std::string get_extra_info_impl(const U &value)
     {
         return value.get_extra_info();
     }
-    template <typename U, enable_if_t<!has_extra_info<U>::value, int> = 0>
+    template <typename U>
+        requires(!HasExtraInfo<U>)
     static std::string get_extra_info_impl(const U &)
     {
         return "";
@@ -228,14 +213,14 @@ BOOST_CLASS_TRACKING(pagmo::detail::s_pol_inner_base, boost::serialization::trac
 namespace pagmo
 {
 
+// S_policy concept definitions
+class PAGMO_DLL_PUBLIC s_policy;
+template <typename T>
+concept SpolGenericCtorEnabler = !std::is_same_v<s_policy, uncvref_t<T>> && IsUdsp<uncvref_t<T>>;
+
 // Selection policy.
 class PAGMO_DLL_PUBLIC s_policy
 {
-    // Enable the generic ctor only if T is not an s_policy (after removing
-    // const/reference qualifiers), and if T is a udsp.
-    template <typename T>
-    using generic_ctor_enabler = enable_if_t<
-        detail::conjunction<detail::negation<std::is_same<s_policy, uncvref_t<T>>>, is_udsp<uncvref_t<T>>>::value, int>;
     // Implementation of the generic ctor.
     void generic_ctor_impl();
 
@@ -243,7 +228,8 @@ public:
     // Default constructor.
     s_policy();
     // Constructor from a UDSP.
-    template <typename T, generic_ctor_enabler<T> = 0>
+    template <typename T>
+        requires SpolGenericCtorEnabler<T>
     explicit s_policy(T &&x) : m_ptr(std::make_unique<detail::s_pol_inner<uncvref_t<T>>>(std::forward<T>(x)))
     {
         generic_ctor_impl();
@@ -257,7 +243,8 @@ public:
     // Copy assignment operator
     s_policy &operator=(const s_policy &);
     // Assignment from a UDSP.
-    template <typename T, generic_ctor_enabler<T> = 0>
+    template <typename T>
+        requires SpolGenericCtorEnabler<T>
     s_policy &operator=(T &&x)
     {
         return (*this) = s_policy(std::forward<T>(x));
