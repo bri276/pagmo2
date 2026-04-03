@@ -115,10 +115,15 @@ struct disable_udi_checks : std::false_type {
  * Types satisfying this type trait can be used as user-defined islands (UDI) in pagmo::island.
  */
 template <typename T>
-concept IsUdi
-    = (std::is_same_v<T, uncvref_t<T>> && std::is_default_constructible_v<T> && std::is_copy_constructible_v<T>
-       && std::is_move_constructible_v<T> && std::is_destructible_v<T> && HasRunEvolve<T>)
-      || detail::disable_udi_checks<T>::value;
+concept IsUdi = requires(T) {
+    std::is_same<T, uncvref_t<T>>::value;
+    std::is_default_constructible<T>::value;
+    std::is_copy_constructible<T>::value;
+    std::is_move_constructible<T>::value;
+    std::is_destructible<T>::value;
+    requires HasRunEvolve<T>;
+    detail::disable_udi_checks<T>::value;
+};
 
 namespace detail
 {

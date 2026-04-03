@@ -87,10 +87,15 @@ struct disable_udsp_checks : std::false_type {
 
 // Detect UDSPs
 template <typename T>
-concept IsUdsp
-    = (std::is_same_v<T, uncvref_t<T>> && std::is_default_constructible_v<T> && std::is_copy_constructible_v<T>
-       && std::is_move_constructible_v<T> && std::is_destructible_v<T> && HasSelect<T>)
-      || detail::disable_udsp_checks<T>::value;
+concept IsUdsp = requires(T) {
+    std::is_same<T, uncvref_t<T>>::value;
+    std::is_default_constructible<T>::value;
+    std::is_copy_constructible<T>::value;
+    std::is_move_constructible<T>::value;
+    std::is_destructible<T>::value;
+    requires HasSelect<T>;
+    detail::disable_udsp_checks<T>::value;
+};
 
 namespace detail
 {

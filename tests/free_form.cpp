@@ -27,7 +27,6 @@ GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
 #define BOOST_TEST_MODULE free_form
-#define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
@@ -50,7 +49,7 @@ using namespace pagmo;
 
 BOOST_AUTO_TEST_CASE(basic_test)
 {
-    BOOST_CHECK(IsUdt<free_form>::value);
+    BOOST_CHECK(IsUdt<free_form>);
 
     free_form f0;
     BOOST_CHECK(f0.num_vertices() == 0u);

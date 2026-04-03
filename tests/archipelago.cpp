@@ -33,7 +33,6 @@ see https://www.gnu.org/licenses/. */
 #endif
 
 #define BOOST_TEST_MODULE archipelago_test
-#define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>

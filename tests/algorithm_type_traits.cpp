@@ -27,7 +27,6 @@ GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
 #define BOOST_TEST_MODULE algorithm_type_traits
-#define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
 #include <utility>
@@ -61,11 +60,11 @@ struct hsv_04 {
 
 BOOST_AUTO_TEST_CASE(has_set_verbose_test)
 {
-    BOOST_CHECK((!has_set_verbosity<hsv_00>::value));
-    BOOST_CHECK((has_set_verbosity<hsv_01>::value));
-    BOOST_CHECK((has_set_verbosity<hsv_02>::value));
-    BOOST_CHECK((has_set_verbosity<hsv_03>::value));
-    BOOST_CHECK((!has_set_verbosity<hsv_04>::value));
+    BOOST_CHECK((!HasSetVerbosity<hsv_00>));
+    BOOST_CHECK((HasSetVerbosity<hsv_01>));
+    BOOST_CHECK((HasSetVerbosity<hsv_02>));
+    BOOST_CHECK((HasSetVerbosity<hsv_03>));
+    BOOST_CHECK((!HasSetVerbosity<hsv_04>));
 }
 
 struct hev_00 {
@@ -94,10 +93,10 @@ struct hev_05 {
 
 BOOST_AUTO_TEST_CASE(has_evolve_test)
 {
-    BOOST_CHECK((!has_evolve<hev_00>::value));
-    BOOST_CHECK((has_evolve<hev_01>::value));
-    BOOST_CHECK((!has_evolve<hev_02>::value));
-    BOOST_CHECK((!has_evolve<hev_03>::value));
-    BOOST_CHECK((!has_evolve<hev_04>::value));
-    BOOST_CHECK((!has_evolve<hev_05>::value));
+    BOOST_CHECK((!HasEvolve<hev_00>));
+    BOOST_CHECK((HasEvolve<hev_01>));
+    BOOST_CHECK((!HasEvolve<hev_02>));
+    BOOST_CHECK((!HasEvolve<hev_03>));
+    BOOST_CHECK((!HasEvolve<hev_04>));
+    BOOST_CHECK((!HasEvolve<hev_05>));
 }

@@ -129,10 +129,15 @@ struct disable_uda_checks : std::false_type {
  * Types satisfying this concept can be used as user-defined algorithms (UDA) in pagmo::algorithm.
  */
 template <typename T>
-concept IsUda
-    = (std::is_same_v<T, uncvref_t<T>> && std::is_default_constructible_v<T> && std::is_copy_constructible_v<T>
-       && std::is_move_constructible_v<T> && std::is_destructible_v<T> && HasEvolve<T>)
-      || detail::disable_uda_checks<T>::value;
+concept IsUda = requires(T) {
+    std::is_same<T, uncvref_t<T>>::value;
+    std::is_default_constructible<T>::value;
+    std::is_copy_constructible<T>::value;
+    std::is_move_constructible<T>::value;
+    std::is_destructible<T>::value;
+    requires HasEvolve<T>;
+    detail::disable_uda_checks<T>::value;
+};
 
 // Concept for enabling generic constructor - algorithm must not be the same type and must be a UDA
 class PAGMO_DLL_PUBLIC algorithm;

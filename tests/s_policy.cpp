@@ -34,7 +34,6 @@ see https://www.gnu.org/licenses/. */
 #endif
 
 #define BOOST_TEST_MODULE s_policy_test
-#define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
 #include <initializer_list>
@@ -62,9 +61,9 @@ using namespace pagmo;
 
 BOOST_AUTO_TEST_CASE(type_traits_tests)
 {
-    BOOST_CHECK(!is_udsp<void>::value);
-    BOOST_CHECK(!is_udsp<int>::value);
-    BOOST_CHECK(!is_udsp<double>::value);
+    BOOST_CHECK(!IsUdsp<void>);
+    BOOST_CHECK(!IsUdsp<int>);
+    BOOST_CHECK(!IsUdsp<double>);
 
     struct udsp00 {
         individuals_group_t select(const individuals_group_t &, const vector_double::size_type &,
@@ -73,10 +72,10 @@ BOOST_AUTO_TEST_CASE(type_traits_tests)
                                    const vector_double &) const;
     };
 
-    BOOST_CHECK(is_udsp<udsp00>::value);
-    BOOST_CHECK(!is_udsp<const udsp00>::value);
-    BOOST_CHECK(!is_udsp<const udsp00 &>::value);
-    BOOST_CHECK(!is_udsp<udsp00 &>::value);
+    BOOST_CHECK(IsUdsp<udsp00>);
+    BOOST_CHECK(!IsUdsp<const udsp00>);
+    BOOST_CHECK(!IsUdsp<const udsp00 &>);
+    BOOST_CHECK(!IsUdsp<udsp00 &>);
 
     struct no_udsp00 {
         void select(const individuals_group_t &, const vector_double::size_type &, const vector_double::size_type &,
@@ -84,7 +83,7 @@ BOOST_AUTO_TEST_CASE(type_traits_tests)
                     const vector_double::size_type &, const vector_double &) const;
     };
 
-    BOOST_CHECK(!is_udsp<no_udsp00>::value);
+    BOOST_CHECK(!IsUdsp<no_udsp00>);
 
     struct no_udsp01 {
         individuals_group_t select(const individuals_group_t &, const vector_double::size_type &,
@@ -93,7 +92,7 @@ BOOST_AUTO_TEST_CASE(type_traits_tests)
                                    const vector_double &);
     };
 
-    BOOST_CHECK(!is_udsp<no_udsp01>::value);
+    BOOST_CHECK(!IsUdsp<no_udsp01>);
 
     struct no_udsp02 {
         no_udsp02() = delete;
@@ -103,7 +102,7 @@ BOOST_AUTO_TEST_CASE(type_traits_tests)
                                    const vector_double &) const;
     };
 
-    BOOST_CHECK(!is_udsp<no_udsp02>::value);
+    BOOST_CHECK(!IsUdsp<no_udsp02>);
 }
 
 struct udsp1 {
@@ -492,7 +491,7 @@ struct udsp_a {
     template <typename Archive>
     void serialize(Archive &ar, unsigned)
     {
-        ar &state;
+        ar & state;
     }
     int state = 42;
 };

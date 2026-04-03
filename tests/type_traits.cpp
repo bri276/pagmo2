@@ -27,7 +27,6 @@ GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
 #define BOOST_TEST_MODULE type_traits_test
-#define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
 #include <type_traits>
@@ -79,10 +78,10 @@ struct ygts1 {
 
 BOOST_AUTO_TEST_CASE(type_traits_has_get_thread_safety_test)
 {
-    BOOST_CHECK((!has_get_thread_safety<s1>::value));
-    BOOST_CHECK((!has_get_thread_safety<s2>::value));
-    BOOST_CHECK((!has_get_thread_safety<s3>::value));
-    BOOST_CHECK((!has_get_thread_safety<ngts1>::value));
-    BOOST_CHECK((!has_get_thread_safety<ngts2>::value));
-    BOOST_CHECK((has_get_thread_safety<ygts1>::value));
+    BOOST_CHECK((!HasGetThreadSafety<s1>));
+    BOOST_CHECK((!HasGetThreadSafety<s2>));
+    BOOST_CHECK((!HasGetThreadSafety<s3>));
+    BOOST_CHECK((!HasGetThreadSafety<ngts1>));
+    BOOST_CHECK((!HasGetThreadSafety<ngts2>));
+    BOOST_CHECK((HasGetThreadSafety<ygts1>));
 }

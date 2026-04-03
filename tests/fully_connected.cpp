@@ -27,7 +27,6 @@ GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
 #define BOOST_TEST_MODULE fully_connected
-#define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
@@ -210,7 +209,7 @@ BOOST_AUTO_TEST_CASE(basic_test)
 
 BOOST_AUTO_TEST_CASE(to_bgl_test)
 {
-    BOOST_CHECK(has_to_bgl<fully_connected>::value);
+    BOOST_CHECK(HasToBgl<fully_connected>);
 
     auto g0 = fully_connected{}.to_bgl();
     BOOST_CHECK(boost::num_vertices(g0) == 0u);

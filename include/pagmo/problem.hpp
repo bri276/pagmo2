@@ -321,10 +321,16 @@ struct disable_udp_checks : std::false_type {
  * Types satisfying this concept can be used as user-defined problems (UDP) in pagmo::problem.
  */
 template <typename T>
-concept IsUdp
-    = (std::is_same_v<T, uncvref_t<T>> && std::is_default_constructible_v<T> && std::is_copy_constructible_v<T>
-       && std::is_move_constructible_v<T> && std::is_destructible_v<T> && HasFitness<T> && HasBounds<T>)
-      || detail::disable_udp_checks<T>::value;
+concept IsUdp = requires(T) {
+    std::is_same<T, uncvref_t<T>>::value;
+    std::is_default_constructible<T>::value;
+    std::is_copy_constructible<T>::value;
+    std::is_move_constructible<T>::value;
+    std::is_destructible<T>::value;
+    requires HasFitness<T>;
+    requires HasBounds<T>;
+    detail::disable_udp_checks<T>::value;
+};
 
 namespace detail
 {
@@ -912,7 +918,7 @@ public:
      *
      *    This constructor is not enabled if, after the removal of cv and reference qualifiers,
      *    ``T`` is of type :cpp:class:`pagmo::problem` (that is, this constructor does not compete with the copy/move
-     *    constructors of :cpp:class:`pagmo::problem`), or if ``T`` does not satisfy :cpp:class:`pagmo::is_udp`.
+     *    constructors of :cpp:class:`pagmo::problem`), or if ``T`` does not satisfy :cpp:class:`pagmo::IsUdp`.
      *
      * \endverbatim
      *
@@ -960,7 +966,7 @@ public:
      *
      *    This operator is not enabled if, after the removal of cv and reference qualifiers,
      *    ``T`` is of type :cpp:class:`pagmo::problem` (that is, this operator does not compete with the copy/move
-     *    assignment operators of :cpp:class:`pagmo::problem`), or if ``T`` does not satisfy :cpp:class:`pagmo::is_udp`.
+     *    assignment operators of :cpp:class:`pagmo::problem`), or if ``T`` does not satisfy :cpp:class:`pagmo::IsUdp`.
      *
      * \endverbatim
      *

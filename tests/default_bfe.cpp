@@ -27,7 +27,6 @@ GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
 #define BOOST_TEST_MODULE default_bfe_test
-#define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
 #include <initializer_list>
@@ -103,7 +102,7 @@ struct bf2 {
 
 BOOST_AUTO_TEST_CASE(basic_tests)
 {
-    BOOST_CHECK(IsUdBfe<default_bfe>::value);
+    BOOST_CHECK(IsUdBfe<default_bfe>);
 
     bfe bfe0{};
     BOOST_CHECK(bfe0.is<default_bfe>());
