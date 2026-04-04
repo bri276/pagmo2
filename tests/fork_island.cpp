@@ -152,7 +152,7 @@ struct stateful_algo {
     template <typename Archive>
     void serialize(Archive &ar, unsigned)
     {
-        ar &n_evolve;
+        ar & n_evolve;
     }
     mutable int n_evolve = 0;
 };

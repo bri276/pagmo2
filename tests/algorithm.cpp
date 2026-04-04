@@ -56,7 +56,7 @@ using namespace pagmo;
 
 // Complete algorithm stochastic
 struct al_01 {
-    al_01() {};
+    al_01(){};
     population evolve(population pop) const
     {
         return pop;
@@ -89,7 +89,7 @@ PAGMO_S11N_ALGORITHM_EXPORT(al_01)
 
 // Minimal algorithm deterministic
 struct al_02 {
-    al_02() {};
+    al_02(){};
     population evolve(population pop) const
     {
         return pop;
@@ -213,7 +213,7 @@ BOOST_AUTO_TEST_CASE(algorithm_move_constructor_test)
 
 // Algorithm with overrides
 struct al_03 {
-    al_03() {};
+    al_03(){};
     population evolve(population pop) const
     {
         return pop;

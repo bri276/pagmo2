@@ -186,7 +186,7 @@ public:
     {
         return hv2d().compute(points, ref);
     };
-    void verify_before_compute(const std::vector<vector_double> &, const vector_double &) const override{};
+    void verify_before_compute(const std::vector<vector_double> &, const vector_double &) const override {};
     std::shared_ptr<hv_algorithm> clone() const override
     {
         return std::shared_ptr<hv_algorithm>(new hv_fake_algo(*this));

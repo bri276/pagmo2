@@ -317,7 +317,7 @@ struct bf0 {
     }
     vector_double::size_type get_nic() const
     {
-      return 1u;
+        return 1u;
     }
     static unsigned s_counter;
 };
