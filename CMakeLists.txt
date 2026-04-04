@@ -16,10 +16,10 @@ endif()
 project(pagmo VERSION 2.19.1 LANGUAGES CXX C)
 
 # Setup module path.
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules" "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/yacma")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" "${CMAKE_CURRENT_SOURCE_DIR}/cmake/yacma")
 
 # Include CPM for modern dependency management
-include(cmake_modules/CPM.cmake)
+include(cmake/CPM.cmake)
 
 message(STATUS "System name: ${CMAKE_SYSTEM_NAME}")
 enable_testing()
@@ -291,130 +291,130 @@ endif()
 # List of source files.
 set(PAGMO_SRC_FILES
     # Core classes.
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithm.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/population.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/problem.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/bfe.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/island.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/archipelago.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/io.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/rng.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/threading.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/topology.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/r_policy.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/s_policy.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/algorithm.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/population.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/problem.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/bfe.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/island.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/archipelago.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/io.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/rng.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/threading.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/topology.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/r_policy.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/s_policy.cpp"
     # UDP.
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/problems/null_problem.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/problems/cec2006.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/problems/cec2009.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/problems/schwefel.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/problems/rosenbrock.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/problems/hock_schittkowski_71.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/problems/inventory.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/problems/zdt.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/problems/dtlz.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/problems/unconstrain.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/problems/translate.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/problems/decompose.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/problems/golomb_ruler.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/problems/lennard_jones.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/problems/ackley.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/problems/griewank.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/problems/rastrigin.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/problems/minlp_rastrigin.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/problems/luksan_vlcek1.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/problems/wfg.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/problems/cec2013.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/problems/cec2013_data.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/problems/cec2014.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/problems/cec2014_data.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/problems/null_problem.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/problems/cec2006.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/problems/cec2009.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/problems/schwefel.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/problems/rosenbrock.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/problems/hock_schittkowski_71.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/problems/inventory.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/problems/zdt.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/problems/dtlz.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/problems/unconstrain.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/problems/translate.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/problems/decompose.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/problems/golomb_ruler.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/problems/lennard_jones.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/problems/ackley.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/problems/griewank.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/problems/rastrigin.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/problems/minlp_rastrigin.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/problems/luksan_vlcek1.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/problems/wfg.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/problems/cec2013.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/problems/cec2013_data.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/problems/cec2014.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/problems/cec2014_data.cpp"
     # UDA.
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/null_algorithm.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/de.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/pso.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/not_population_based.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/compass_search.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/mbh.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/cstrs_self_adaptive.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/pso_gen.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/ihs.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/sade.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/bee_colony.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/sea.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/sga.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/simulated_annealing.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/moead.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/moead_gen.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/nsga2.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/gaco.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/de1220.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/gwo.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/maco.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/nspso.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/algorithms/null_algorithm.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/algorithms/de.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/algorithms/pso.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/algorithms/not_population_based.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/algorithms/compass_search.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/algorithms/mbh.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/algorithms/cstrs_self_adaptive.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/algorithms/pso_gen.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/algorithms/ihs.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/algorithms/sade.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/algorithms/bee_colony.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/algorithms/sea.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/algorithms/sga.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/algorithms/simulated_annealing.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/algorithms/moead.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/algorithms/moead_gen.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/algorithms/nsga2.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/algorithms/gaco.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/algorithms/de1220.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/algorithms/gwo.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/algorithms/maco.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/algorithms/nspso.cpp"
     # UDI.
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/islands/thread_island.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/islands/thread_island.cpp"
     # UDBFE.
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/batch_evaluators/default_bfe.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/batch_evaluators/member_bfe.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/batch_evaluators/thread_bfe.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/batch_evaluators/default_bfe.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/batch_evaluators/member_bfe.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/batch_evaluators/thread_bfe.cpp"
     # UDT.
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/topologies/base_bgl_topology.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/topologies/unconnected.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/topologies/fully_connected.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/topologies/ring.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/topologies/free_form.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/topologies/base_bgl_topology.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/topologies/unconnected.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/topologies/fully_connected.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/topologies/ring.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/topologies/free_form.cpp"
     # UDRP.
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/r_policies/fair_replace.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/r_policies/fair_replace.cpp"
     # UDSP.
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/s_policies/select_best.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/s_policies/select_best.cpp"
     # Utils.
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/utils/constrained.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/utils/discrepancy.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/utils/generic.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/utils/genetic_operators.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/utils/multi_objective.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/utils/hypervolume.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/utils/hv_algos/hv_algorithm.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/utils/hv_algos/hv_bf_approx.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/utils/hv_algos/hv_bf_fpras.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/utils/hv_algos/hv_hv2d.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/utils/hv_algos/hv_hv3d.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/utils/hv_algos/hv_hvwfg.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/utils/constrained.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/utils/discrepancy.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/utils/generic.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/utils/genetic_operators.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/utils/multi_objective.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/utils/hypervolume.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/utils/hv_algos/hv_algorithm.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/utils/hv_algos/hv_bf_approx.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/utils/hv_algos/hv_bf_fpras.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/utils/hv_algos/hv_hv2d.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/utils/hv_algos/hv_hv3d.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/utils/hv_algos/hv_hvwfg.cpp"
     # Detail.
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/detail/base_sr_policy.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/detail/bfe_impl.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/detail/task_queue.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/detail/prime_numbers.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/detail/gte_getter.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/detail/type_name.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/detail/base_sr_policy.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/detail/bfe_impl.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/detail/task_queue.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/detail/prime_numbers.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/detail/gte_getter.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/detail/type_name.cpp"
 )
 
 # Optional and platform-dependent bits.
 if(PAGMO_WITH_FORK_ISLAND)
     set(PAGMO_SRC_FILES
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/islands/fork_island.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/islands/fork_island.cpp"
         "${PAGMO_SRC_FILES}"
     )
 endif()
 
 if(PAGMO_WITH_EIGEN3)
     set(PAGMO_SRC_FILES
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/cmaes.cpp"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/xnes.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/algorithms/cmaes.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/algorithms/xnes.cpp"
         "${PAGMO_SRC_FILES}"
     )
 endif()
 
 if(PAGMO_WITH_NLOPT)
     set(PAGMO_SRC_FILES
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/nlopt.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/algorithms/nlopt.cpp"
         "${PAGMO_SRC_FILES}"
     )
 endif()
 
 if(PAGMO_WITH_IPOPT)
     set(PAGMO_SRC_FILES
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/algorithms/ipopt.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/algorithms/ipopt.cpp"
         "${PAGMO_SRC_FILES}"
     )
 endif()
@@ -454,7 +454,7 @@ set_property(TARGET pagmo PROPERTY CXX_EXTENSIONS NO)
 # in the prefix path we don't risk including the headers from that
 # one instead.
 target_include_directories(pagmo PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
     $<INSTALL_INTERFACE:include>)
 
@@ -563,8 +563,8 @@ endif()
 
 # Library installation.
 # Installation of the header files.
-install(DIRECTORY include/ DESTINATION include)
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/include/pagmo/config.hpp" DESTINATION include/pagmo)
+install(DIRECTORY pagmo/ DESTINATION include)
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/pagmo/config.hpp" DESTINATION include/pagmo)
 
 # Installation of the library.
 install(TARGETS pagmo
@@ -588,7 +588,7 @@ endif()
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/pagmo-config.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/pagmo-config.cmake" @ONLY)
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/pagmo-config.cmake" DESTINATION "${PAGMO_INSTALL_LIBDIR}/cmake/pagmo")
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/Findpagmo_IPOPT.cmake" "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/PagmoFindBoost.cmake"
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Findpagmo_IPOPT.cmake" "${CMAKE_CURRENT_SOURCE_DIR}/cmake/PagmoFindBoost.cmake"
     DESTINATION "${PAGMO_INSTALL_LIBDIR}/cmake/pagmo")
 install(EXPORT pagmo_export NAMESPACE Pagmo:: DESTINATION "${PAGMO_INSTALL_LIBDIR}/cmake/pagmo")
 # Take care of versioning.
@@ -600,7 +600,7 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/pagmo-config-version.cmake" DESTINATI
 # Uninstall target
 if(NOT TARGET uninstall)
     configure_file(
-        "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/cmake_uninstall.cmake.in"
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
         "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
         IMMEDIATE @ONLY)
 
