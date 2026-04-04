@@ -27,7 +27,6 @@ GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
 #define BOOST_TEST_MODULE unconnected
-#define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
 #include <sstream>
@@ -74,7 +73,7 @@ BOOST_AUTO_TEST_CASE(basic_test)
 
 BOOST_AUTO_TEST_CASE(to_bgl_test)
 {
-    BOOST_CHECK(!has_to_bgl<unconnected>::value);
+    BOOST_CHECK(!HasToBgl<unconnected>);
 
     BOOST_CHECK_EXCEPTION(
         topology{unconnected{}}.to_bgl(), not_implemented_error, [](const not_implemented_error &nie) {

@@ -27,7 +27,6 @@ GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
 #define BOOST_TEST_MODULE topology_test
-#define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
 #include <cstddef>
@@ -99,7 +98,7 @@ struct udt00 {
     template <typename Archive>
     void serialize(Archive &ar, unsigned)
     {
-        ar &n_pushed;
+        ar & n_pushed;
     }
     int n_pushed = 0;
 };
@@ -136,20 +135,20 @@ struct udt01 {
 
 BOOST_AUTO_TEST_CASE(topology_type_traits_test)
 {
-    BOOST_CHECK(!has_get_connections<void>::value);
-    BOOST_CHECK(has_get_connections<gc00>::value);
-    BOOST_CHECK(!has_get_connections<ngc00>::value);
-    BOOST_CHECK(!has_get_connections<ngc01>::value);
+    BOOST_CHECK(!HasGetConnections<void>);
+    BOOST_CHECK(HasGetConnections<gc00>);
+    BOOST_CHECK(!HasGetConnections<ngc00>);
+    BOOST_CHECK(!HasGetConnections<ngc01>);
 
-    BOOST_CHECK(!has_push_back<void>::value);
-    BOOST_CHECK(has_push_back<pb00>::value);
-    BOOST_CHECK(!has_push_back<npb00>::value);
-    BOOST_CHECK(!has_push_back<npb01>::value);
+    BOOST_CHECK(!HasPushBack<void>);
+    BOOST_CHECK(HasPushBack<pb00>);
+    BOOST_CHECK(!HasPushBack<npb00>);
+    BOOST_CHECK(!HasPushBack<npb01>);
 
-    BOOST_CHECK(!is_udt<void>::value);
-    BOOST_CHECK(is_udt<udt00>::value);
-    BOOST_CHECK(!is_udt<gc00>::value);
-    BOOST_CHECK(!is_udt<pb00>::value);
+    BOOST_CHECK(!IsUdTopology<void>);
+    BOOST_CHECK(IsUdTopology<udt00>);
+    BOOST_CHECK(!IsUdTopology<gc00>);
+    BOOST_CHECK(!IsUdTopology<pb00>);
 }
 
 BOOST_AUTO_TEST_CASE(topology_basic_tests)
@@ -361,8 +360,8 @@ BOOST_AUTO_TEST_CASE(topology_push_back_n_test)
 
 BOOST_AUTO_TEST_CASE(topology_to_bgl_test)
 {
-    BOOST_CHECK(!has_to_bgl<gc00>::value);
-    BOOST_CHECK(has_to_bgl<with_to_bgl>::value);
+    BOOST_CHECK(!HasToBgl<gc00>);
+    BOOST_CHECK(HasToBgl<with_to_bgl>);
 
     BOOST_CHECK_EXCEPTION(topology{udt00{}}.to_bgl(), not_implemented_error, [](const not_implemented_error &nie) {
         return boost::contains(

@@ -27,7 +27,6 @@ GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
 #define BOOST_TEST_MODULE island_test
-#define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
 #include <atomic>
@@ -97,15 +96,15 @@ struct udi_03 {
 
 BOOST_AUTO_TEST_CASE(island_type_traits)
 {
-    BOOST_CHECK(is_udi<thread_island>::value);
-    BOOST_CHECK(!is_udi<int>::value);
-    BOOST_CHECK(!is_udi<const thread_island>::value);
-    BOOST_CHECK(!is_udi<const thread_island &>::value);
-    BOOST_CHECK(!is_udi<thread_island &>::value);
-    BOOST_CHECK(!is_udi<void>::value);
-    BOOST_CHECK(is_udi<udi_01>::value);
-    BOOST_CHECK(!is_udi<udi_02>::value);
-    BOOST_CHECK(is_udi<udi_03>::value);
+    BOOST_CHECK(IsUdIsland<thread_island>);
+    BOOST_CHECK(!IsUdIsland<int>);
+    BOOST_CHECK(!IsUdIsland<const thread_island>);
+    BOOST_CHECK(!IsUdIsland<const thread_island &>);
+    BOOST_CHECK(!IsUdIsland<thread_island &>);
+    BOOST_CHECK(!IsUdIsland<void>);
+    BOOST_CHECK(IsUdIsland<udi_01>);
+    BOOST_CHECK(!IsUdIsland<udi_02>);
+    BOOST_CHECK(IsUdIsland<udi_03>);
 }
 
 // Minimal udrp/udsp to test the constructors

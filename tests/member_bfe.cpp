@@ -27,7 +27,6 @@ GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
 #define BOOST_TEST_MODULE member_bfe_test
-#define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
 #include <initializer_list>
@@ -51,7 +50,7 @@ using namespace pagmo;
 
 BOOST_AUTO_TEST_CASE(basic_tests)
 {
-    BOOST_CHECK(is_udbfe<member_bfe>::value);
+    BOOST_CHECK(IsUdBfe<member_bfe>);
 
     bfe bfe0{member_bfe{}};
     BOOST_CHECK(bfe0.get_name() == "Member function batch fitness evaluator");

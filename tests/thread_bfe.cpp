@@ -27,7 +27,6 @@ GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
 #define BOOST_TEST_MODULE thread_bfe_test
-#define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
 #include <initializer_list>
@@ -56,7 +55,7 @@ static std::mt19937 rng;
 
 BOOST_AUTO_TEST_CASE(basic_tests)
 {
-    BOOST_CHECK(is_udbfe<thread_bfe>::value);
+    BOOST_CHECK(IsUdBfe<thread_bfe>);
 
     bfe bfe0{thread_bfe{}};
     BOOST_CHECK(bfe0.get_name() == "Multi-threaded batch fitness evaluator");

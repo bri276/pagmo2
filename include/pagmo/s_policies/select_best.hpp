@@ -29,6 +29,7 @@ see https://www.gnu.org/licenses/. */
 #ifndef PAGMO_S_POLICIES_SELECT_BEST_HPP
 #define PAGMO_S_POLICIES_SELECT_BEST_HPP
 
+#include <concepts>
 #include <string>
 #include <type_traits>
 
@@ -46,8 +47,8 @@ class PAGMO_DLL_PUBLIC select_best : public detail::base_sr_policy
 {
 public:
     select_best();
-    template <typename T,
-              enable_if_t<detail::disjunction<std::is_integral<T>, std::is_floating_point<T>>::value, int> = 0>
+    template <typename T>
+        requires std::integral<T> || std::floating_point<T>
     explicit select_best(T x) : detail::base_sr_policy(x)
     {
     }

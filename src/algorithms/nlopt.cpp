@@ -723,9 +723,10 @@ nlopt::nlopt(const std::string &algo) : m_algo(algo)
     if (detail::nlopt_names.left.find(m_algo) == detail::nlopt_names.left.end()) {
         // The selected algorithm is unknown or not among the supported ones.
         std::ostringstream oss;
-        std::transform(detail::nlopt_names.left.begin(), detail::nlopt_names.left.end(),
-                       std::ostream_iterator<std::string>(oss, "\n"),
-                       [](const uncvref_t<decltype(*detail::nlopt_names.left.begin())> &v) { return v.first; });
+        std::transform(
+            detail::nlopt_names.left.begin(), detail::nlopt_names.left.end(),
+            std::ostream_iterator<std::string>(oss, "\n"),
+            [](const RemoveConstVolatileRef<decltype(*detail::nlopt_names.left.begin())> &v) { return v.first; });
         pagmo_throw(std::invalid_argument,
                     "unknown/unsupported NLopt algorithm '" + algo + "'. The supported algorithms are:\n" + oss.str());
     }

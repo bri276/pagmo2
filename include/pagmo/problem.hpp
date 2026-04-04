@@ -31,6 +31,7 @@ see https://www.gnu.org/licenses/. */
 
 #include <atomic>
 #include <cassert>
+#include <concepts>
 #include <exception>
 #include <iostream>
 #include <memory>
@@ -79,7 +80,7 @@ namespace pagmo
 
 /// Detect \p fitness() method.
 /**
- * This type trait will be \p true if \p T provides a method with
+ * This concept will be satisfied if \p T provides a method with
  * the following signature:
  * @code{.unparsed}
  * vector_double fitness(const vector_double &) const;
@@ -88,20 +89,13 @@ namespace pagmo
  * (see pagmo::problem).
  */
 template <typename T>
-class has_fitness
-{
-    template <typename U>
-    using fitness_t = decltype(std::declval<const U &>().fitness(std::declval<const vector_double &>()));
-    static const bool implementation_defined = std::is_same<detected_t<fitness_t, T>, vector_double>::value;
-
-public:
-    /// Value of the type trait.
-    static constexpr bool value = implementation_defined;
+concept HasFitness = requires(const T &t, const vector_double &x) {
+    { t.fitness(x) } -> std::same_as<vector_double>;
 };
 
 /// Detect \p get_nobj() method.
 /**
- * This type trait will be \p true if \p T provides a method with
+ * This concept will be satisfied if \p T provides a method with
  * the following signature:
  * @code{.unparsed}
  * vector_double::size_type get_nobj() const;
@@ -110,20 +104,13 @@ public:
  * (see pagmo::problem).
  */
 template <typename T>
-class has_get_nobj
-{
-    template <typename U>
-    using get_nobj_t = decltype(std::declval<const U &>().get_nobj());
-    static const bool implementation_defined = std::is_same<detected_t<get_nobj_t, T>, vector_double::size_type>::value;
-
-public:
-    /// Value of the type trait.
-    static constexpr bool value = implementation_defined;
+concept HasGetNobj = requires(const T &t) {
+    { t.get_nobj() } -> std::same_as<vector_double::size_type>;
 };
 
 /// Detect \p get_bounds() method.
 /**
- * This type trait will be \p true if \p T provides a method with
+ * This concept will be satisfied if \p T provides a method with
  * the following signature:
  * @code{.unparsed}
  * std::pair<vector_double, vector_double> get_bounds() const;
@@ -132,21 +119,13 @@ public:
  * (see pagmo::problem).
  */
 template <typename T>
-class has_bounds
-{
-    template <typename U>
-    using get_bounds_t = decltype(std::declval<const U &>().get_bounds());
-    static const bool implementation_defined
-        = std::is_same<std::pair<vector_double, vector_double>, detected_t<get_bounds_t, T>>::value;
-
-public:
-    /// Value of the type trait.
-    static constexpr bool value = implementation_defined;
+concept HasBounds = requires(const T &t) {
+    { t.get_bounds() } -> std::same_as<std::pair<vector_double, vector_double>>;
 };
 
 /// Detect \p get_nec() method.
 /**
- * This type trait will be \p true if \p T provides a method with
+ * This concept will be satisfied if \p T provides a method with
  * the following signature:
  * @code{.unparsed}
  * vector_double::size_type get_nec() const;
@@ -155,20 +134,13 @@ public:
  * (see pagmo::problem).
  */
 template <typename T>
-class has_e_constraints
-{
-    template <typename U>
-    using get_nec_t = decltype(std::declval<const U &>().get_nec());
-    static const bool implementation_defined = std::is_same<vector_double::size_type, detected_t<get_nec_t, T>>::value;
-
-public:
-    /// Value of the type trait.
-    static constexpr bool value = implementation_defined;
+concept HasEConstraints = requires(const T &t) {
+    { t.get_nec() } -> std::same_as<vector_double::size_type>;
 };
 
 /// Detect \p get_nic() method.
 /**
- * This type trait will be \p true if \p T provides a method with
+ * This concept will be satisfied if \p T provides a method with
  * the following signature:
  * @code{.unparsed}
  * vector_double::size_type get_nic() const;
@@ -177,20 +149,13 @@ public:
  * (see pagmo::problem).
  */
 template <typename T>
-class has_i_constraints
-{
-    template <typename U>
-    using get_nic_t = decltype(std::declval<const U &>().get_nic());
-    static const bool implementation_defined = std::is_same<vector_double::size_type, detected_t<get_nic_t, T>>::value;
-
-public:
-    /// Value of the type trait.
-    static constexpr bool value = implementation_defined;
+concept HasIConstraints = requires(const T &t) {
+    { t.get_nic() } -> std::same_as<vector_double::size_type>;
 };
 
 /// Detect \p get_nix() method.
 /**
- * This type trait will be \p true if \p T provides a method with
+ * This concept will be satisfied if \p T provides a method with
  * the following signature:
  * @code{.unparsed}
  * vector_double::size_type get_nix() const;
@@ -199,20 +164,13 @@ public:
  * (see pagmo::problem).
  */
 template <typename T>
-class has_integer_part
-{
-    template <typename U>
-    using get_nix_t = decltype(std::declval<const U &>().get_nix());
-    static const bool implementation_defined = std::is_same<vector_double::size_type, detected_t<get_nix_t, T>>::value;
-
-public:
-    /// Value of the type trait.
-    static constexpr bool value = implementation_defined;
+concept HasIntegerPart = requires(const T &t) {
+    { t.get_nix() } -> std::same_as<vector_double::size_type>;
 };
 
 /// Detect \p gradient() method.
 /**
- * This type trait will be \p true if \p T provides a method with
+ * This concept will be satisfied if \p T provides a method with
  * the following signature:
  * @code{.unparsed}
  * vector_double gradient(const vector_double &) const;
@@ -221,20 +179,13 @@ public:
  * (see pagmo::problem).
  */
 template <typename T>
-class has_gradient
-{
-    template <typename U>
-    using gradient_t = decltype(std::declval<const U &>().gradient(std::declval<const vector_double &>()));
-    static const bool implementation_defined = std::is_same<vector_double, detected_t<gradient_t, T>>::value;
-
-public:
-    /// Value of the type trait.
-    static constexpr bool value = implementation_defined;
+concept HasGradient = requires(const T &t, const vector_double &x) {
+    { t.gradient(x) } -> std::same_as<vector_double>;
 };
 
 /// Detect \p has_gradient() method.
 /**
- * This type trait will be \p true if \p T provides a method with
+ * This concept will be satisfied if \p T provides a method with
  * the following signature:
  * @code{.unparsed}
  * bool has_gradient() const;
@@ -243,20 +194,13 @@ public:
  * (see pagmo::problem).
  */
 template <typename T>
-class override_has_gradient
-{
-    template <typename U>
-    using has_gradient_t = decltype(std::declval<const U &>().has_gradient());
-    static const bool implementation_defined = std::is_same<bool, detected_t<has_gradient_t, T>>::value;
-
-public:
-    /// Value of the type trait.
-    static constexpr bool value = implementation_defined;
+concept OverrideHasGradient = requires(const T &t) {
+    { t.has_gradient() } -> std::same_as<bool>;
 };
 
 /// Detect \p gradient_sparsity() method.
 /**
- * This type trait will be \p true if \p T provides a method with
+ * This concept will be satisfied if \p T provides a method with
  * the following signature:
  * @code{.unparsed}
  * sparsity_pattern gradient_sparsity() const;
@@ -265,21 +209,13 @@ public:
  * (see pagmo::problem).
  */
 template <typename T>
-class has_gradient_sparsity
-{
-    template <typename U>
-    using gradient_sparsity_t = decltype(std::declval<const U &>().gradient_sparsity());
-    static const bool implementation_defined
-        = std::is_same<sparsity_pattern, detected_t<gradient_sparsity_t, T>>::value;
-
-public:
-    /// Value of the type trait.
-    static constexpr bool value = implementation_defined;
+concept HasGradientSparsity = requires(const T &t) {
+    { t.gradient_sparsity() } -> std::same_as<sparsity_pattern>;
 };
 
 /// Detect \p hessians() method.
 /**
- * This type trait will be \p true if \p T provides a method with
+ * This concept will be satisfied if \p T provides a method with
  * the following signature:
  * @code{.unparsed}
  * std::vector<vector_double> hessians(const vector_double &) const;
@@ -288,21 +224,13 @@ public:
  * (see pagmo::problem).
  */
 template <typename T>
-class has_hessians
-{
-    template <typename U>
-    using hessians_t = decltype(std::declval<const U &>().hessians(std::declval<const vector_double &>()));
-    static const bool implementation_defined
-        = std::is_same<std::vector<vector_double>, detected_t<hessians_t, T>>::value;
-
-public:
-    /// Value of the type trait.
-    static constexpr bool value = implementation_defined;
+concept HasHessians = requires(const T &t, const vector_double &x) {
+    { t.hessians(x) } -> std::same_as<std::vector<vector_double>>;
 };
 
 /// Detect \p has_hessians() method.
 /**
- * This type trait will be \p true if \p T provides a method with
+ * This concept will be satisfied if \p T provides a method with
  * the following signature:
  * @code{.unparsed}
  * bool has_hessians() const;
@@ -311,20 +239,13 @@ public:
  * (see pagmo::problem).
  */
 template <typename T>
-class override_has_hessians
-{
-    template <typename U>
-    using has_hessians_t = decltype(std::declval<const U &>().has_hessians());
-    static const bool implementation_defined = std::is_same<bool, detected_t<has_hessians_t, T>>::value;
-
-public:
-    /// Value of the type trait.
-    static constexpr bool value = implementation_defined;
+concept OverrideHasHessians = requires(const T &t) {
+    { t.has_hessians() } -> std::same_as<bool>;
 };
 
 /// Detect \p hessians_sparsity() method.
 /**
- * This type trait will be \p true if \p T provides a method with
+ * This concept will be satisfied if \p T provides a method with
  * the following signature:
  * @code{.unparsed}
  * std::vector<sparsity_pattern> hessians_sparsity() const;
@@ -333,21 +254,13 @@ public:
  * (see pagmo::problem).
  */
 template <typename T>
-class has_hessians_sparsity
-{
-    template <typename U>
-    using hessians_sparsity_t = decltype(std::declval<const U &>().hessians_sparsity());
-    static const bool implementation_defined
-        = std::is_same<std::vector<sparsity_pattern>, detected_t<hessians_sparsity_t, T>>::value;
-
-public:
-    /// Value of the type trait.
-    static constexpr bool value = implementation_defined;
+concept HasHessiansSparsity = requires(const T &t) {
+    { t.hessians_sparsity() } -> std::same_as<std::vector<sparsity_pattern>>;
 };
 
 /// Detect \p has_gradient_sparsity() method.
 /**
- * This type trait will be \p true if \p T provides a method with
+ * This concept will be satisfied if \p T provides a method with
  * the following signature:
  * @code{.unparsed}
  * bool has_gradient_sparsity() const;
@@ -356,20 +269,13 @@ public:
  * (see pagmo::problem).
  */
 template <typename T>
-class override_has_gradient_sparsity
-{
-    template <typename U>
-    using has_gradient_sparsity_t = decltype(std::declval<const U &>().has_gradient_sparsity());
-    static const bool implementation_defined = std::is_same<bool, detected_t<has_gradient_sparsity_t, T>>::value;
-
-public:
-    /// Value of the type trait.
-    static constexpr bool value = implementation_defined;
+concept OverrideHasGradientSparsity = requires(const T &t) {
+    { t.has_gradient_sparsity() } -> std::same_as<bool>;
 };
 
 /// Detect \p has_hessians_sparsity() method.
 /**
- * This type trait will be \p true if \p T provides a method with
+ * This concept will be satisfied if \p T provides a method with
  * the following signature:
  * @code{.unparsed}
  * bool has_hessians_sparsity() const;
@@ -378,39 +284,20 @@ public:
  * (see pagmo::problem).
  */
 template <typename T>
-class override_has_hessians_sparsity
-{
-    template <typename U>
-    using has_hessians_sparsity_t = decltype(std::declval<const U &>().has_hessians_sparsity());
-    static const bool implementation_defined = std::is_same<bool, detected_t<has_hessians_sparsity_t, T>>::value;
-
-public:
-    /// Value of the type trait.
-    static constexpr bool value = implementation_defined;
+concept OverrideHasHessiansSparsity = requires(const T &t) {
+    { t.has_hessians_sparsity() } -> std::same_as<bool>;
 };
 
 // Detect the batch_fitness() member function.
 template <typename T>
-class has_batch_fitness
-{
-    template <typename U>
-    using batch_fitness_t = decltype(std::declval<const U &>().batch_fitness(std::declval<const vector_double &>()));
-    static const bool implementation_defined = std::is_same<vector_double, detected_t<batch_fitness_t, T>>::value;
-
-public:
-    static constexpr bool value = implementation_defined;
+concept HasBatchFitness = requires(const T &t, const vector_double &x) {
+    { t.batch_fitness(x) } -> std::same_as<vector_double>;
 };
 
 // Detect the has_batch_fitness() member function.
 template <typename T>
-class override_has_batch_fitness
-{
-    template <typename U>
-    using has_batch_fitness_t = decltype(std::declval<const U &>().has_batch_fitness());
-    static const bool implementation_defined = std::is_same<bool, detected_t<has_batch_fitness_t, T>>::value;
-
-public:
-    static constexpr bool value = implementation_defined;
+concept OverrideHasBatchFitness = requires(const T &t) {
+    { t.has_batch_fitness() } -> std::same_as<bool>;
 };
 
 namespace detail
@@ -428,23 +315,21 @@ struct disable_udp_checks : std::false_type {
 
 /// Detect user-defined problems (UDP).
 /**
- * This type trait will be \p true if \p T is not cv/reference qualified, it is destructible, default, copy and move
- * constructible, and if it satisfies the pagmo::has_fitness and pagmo::has_bounds type traits.
+ * This concept will be satisfied if \p T is not cv/reference qualified, it is destructible, default, copy and move
+ * constructible, and if it satisfies the pagmo::has_fitness and pagmo::has_bounds concepts.
  *
- * Types satisfying this type trait can be used as user-defined problems (UDP) in pagmo::problem.
+ * Types satisfying this concept can be used as user-defined problems (UDP) in pagmo::problem.
  */
 template <typename T>
-class is_udp
-{
-    static const bool implementation_defined
-        = detail::disjunction<detail::conjunction<std::is_same<T, uncvref_t<T>>, std::is_default_constructible<T>,
-                                                  std::is_copy_constructible<T>, std::is_move_constructible<T>,
-                                                  std::is_destructible<T>, has_fitness<T>, has_bounds<T>>,
-                              detail::disable_udp_checks<T>>::value;
-
-public:
-    /// Value of the type trait.
-    static constexpr bool value = implementation_defined;
+concept IsUdProblem = requires(T) {
+    requires IsNotConstVolatileRef<T>;
+    requires std::is_default_constructible_v<T>;
+    requires std::is_copy_constructible_v<T>;
+    requires std::is_move_constructible_v<T>;
+    requires std::is_destructible_v<T>;
+    requires HasFitness<T>;
+    requires HasBounds<T>;
+    requires !detail::disable_udp_checks<T>::value;
 };
 
 namespace detail
@@ -531,7 +416,7 @@ struct PAGMO_DLL_PUBLIC_INLINE_CLASS prob_inner final : prob_inner_base {
     // optional methods
     vector_double batch_fitness([[maybe_unused]] const vector_double &dv) const final
     {
-        if constexpr (pagmo::has_batch_fitness<T>::value) {
+        if constexpr (HasBatchFitness<T>) {
             return m_value.batch_fitness(dv);
         } else {
             pagmo_throw(not_implemented_error,
@@ -541,14 +426,14 @@ struct PAGMO_DLL_PUBLIC_INLINE_CLASS prob_inner final : prob_inner_base {
     }
     bool has_batch_fitness() const final
     {
-        if constexpr (detail::conjunction<pagmo::has_batch_fitness<T>, pagmo::override_has_batch_fitness<T>>::value) {
+        if constexpr (HasBatchFitness<T> && OverrideHasBatchFitness<T>) {
             return m_value.has_batch_fitness();
         } else {
             // This covers the following cases:
             // - has batch fitness, no override (returns true),
             // - no batch fitness, no override (returns false),
             // - no batch fitness, override (returns false).
-            return pagmo::has_batch_fitness<T>::value;
+            return HasBatchFitness<T>;
         }
     }
     vector_double::size_type get_nobj() const final
@@ -620,52 +505,56 @@ struct PAGMO_DLL_PUBLIC_INLINE_CLASS prob_inner final : prob_inner_base {
         return get_thread_safety_impl(m_value);
     }
     // Implementation of the optional methods.
-    template <typename U, enable_if_t<has_get_nobj<U>::value, int> = 0>
+    template <HasGetNobj U>
     static vector_double::size_type get_nobj_impl(const U &value)
     {
         return value.get_nobj();
     }
-    template <typename U, enable_if_t<!has_get_nobj<U>::value, int> = 0>
+    template <typename U>
+        requires(!HasGetNobj<U>)
     static vector_double::size_type get_nobj_impl(const U &)
     {
         return 1u;
     }
-    template <typename U, enable_if_t<pagmo::has_gradient<U>::value, int> = 0>
+    template <typename U>
+        requires(HasGradient<U>)
     static vector_double gradient_impl(const U &value, const vector_double &dv)
     {
         return value.gradient(dv);
     }
-    template <typename U, enable_if_t<!pagmo::has_gradient<U>::value, int> = 0>
+    template <typename U>
+        requires(!HasGradient<U>)
     [[noreturn]] static vector_double gradient_impl(const U &value, const vector_double &)
     {
         pagmo_throw(not_implemented_error,
                     "The gradient has been requested, but it is not implemented in a UDP of type '"
                         + get_name_impl(value) + "'");
     }
-    template <typename U,
-              enable_if_t<detail::conjunction<pagmo::has_gradient<U>, pagmo::override_has_gradient<U>>::value, int> = 0>
+    template <typename U>
+        requires(HasGradient<U> && OverrideHasGradient<U>)
     static bool has_gradient_impl(const U &p)
     {
         return p.has_gradient();
     }
-    template <typename U, enable_if_t<detail::conjunction<pagmo::has_gradient<U>,
-                                                          detail::negation<pagmo::override_has_gradient<U>>>::value,
-                                      int> = 0>
+    template <typename U>
+        requires(HasGradient<U> && !OverrideHasGradient<U>)
     static bool has_gradient_impl(const U &)
     {
         return true;
     }
-    template <typename U, enable_if_t<!pagmo::has_gradient<U>::value, int> = 0>
+    template <typename U>
+        requires(!HasGradient<U>)
     static bool has_gradient_impl(const U &)
     {
         return false;
     }
-    template <typename U, enable_if_t<pagmo::has_gradient_sparsity<U>::value, int> = 0>
+    template <HasGradientSparsity U>
     static sparsity_pattern gradient_sparsity_impl(const U &p)
     {
         return p.gradient_sparsity();
     }
-    template <typename U, enable_if_t<!pagmo::has_gradient_sparsity<U>::value, int> = 0>
+    template <typename U>
+        requires(!HasGradientSparsity<U>)
     [[noreturn]] static sparsity_pattern gradient_sparsity_impl(const U &) // LCOV_EXCL_LINE
     {
         // NOTE: we should never end up here. gradient_sparsity() is called only if m_has_gradient_sparsity
@@ -674,62 +563,64 @@ struct PAGMO_DLL_PUBLIC_INLINE_CLASS prob_inner final : prob_inner_base {
         assert(false); // LCOV_EXCL_LINE
         std::terminate();
     }
-    template <typename U, enable_if_t<detail::conjunction<pagmo::has_gradient_sparsity<U>,
-                                                          pagmo::override_has_gradient_sparsity<U>>::value,
-                                      int> = 0>
+    template <typename U>
+        requires(HasGradientSparsity<U> && OverrideHasGradientSparsity<U>)
     static bool has_gradient_sparsity_impl(const U &p)
     {
         return p.has_gradient_sparsity();
     }
-    template <typename U,
-              enable_if_t<detail::conjunction<pagmo::has_gradient_sparsity<U>,
-                                              detail::negation<pagmo::override_has_gradient_sparsity<U>>>::value,
-                          int> = 0>
+    template <typename U>
+        requires(HasGradientSparsity<U> && !OverrideHasGradientSparsity<U>)
     static bool has_gradient_sparsity_impl(const U &)
     {
         return true;
     }
-    template <typename U, enable_if_t<!pagmo::has_gradient_sparsity<U>::value, int> = 0>
+    template <typename U>
+        requires(!HasGradientSparsity<U>)
     static bool has_gradient_sparsity_impl(const U &)
     {
         return false;
     }
-    template <typename U, enable_if_t<pagmo::has_hessians<U>::value, int> = 0>
+    template <typename U>
+        requires(HasHessians<U>)
     static std::vector<vector_double> hessians_impl(const U &value, const vector_double &dv)
     {
         return value.hessians(dv);
     }
-    template <typename U, enable_if_t<!pagmo::has_hessians<U>::value, int> = 0>
+    template <typename U>
+        requires(!HasHessians<U>)
     [[noreturn]] static std::vector<vector_double> hessians_impl(const U &value, const vector_double &)
     {
         pagmo_throw(not_implemented_error,
                     "The hessians have been requested, but they are not implemented in a UDP of type '"
                         + get_name_impl(value) + "'");
     }
-    template <typename U,
-              enable_if_t<detail::conjunction<pagmo::has_hessians<U>, pagmo::override_has_hessians<U>>::value, int> = 0>
+    template <typename U>
+        requires(HasHessians<U> && OverrideHasHessians<U>)
     static bool has_hessians_impl(const U &p)
     {
         return p.has_hessians();
     }
-    template <typename U, enable_if_t<detail::conjunction<pagmo::has_hessians<U>,
-                                                          detail::negation<pagmo::override_has_hessians<U>>>::value,
-                                      int> = 0>
+    template <typename U>
+        requires(HasHessians<U> && !OverrideHasHessians<U>)
     static bool has_hessians_impl(const U &)
     {
         return true;
     }
-    template <typename U, enable_if_t<!pagmo::has_hessians<U>::value, int> = 0>
+    template <typename U>
+        requires(!HasHessians<U>)
     static bool has_hessians_impl(const U &)
     {
         return false;
     }
-    template <typename U, enable_if_t<pagmo::has_hessians_sparsity<U>::value, int> = 0>
+    template <typename U>
+        requires(HasHessiansSparsity<U>)
     static std::vector<sparsity_pattern> hessians_sparsity_impl(const U &value)
     {
         return value.hessians_sparsity();
     }
-    template <typename U, enable_if_t<!pagmo::has_hessians_sparsity<U>::value, int> = 0>
+    template <typename U>
+        requires(!HasHessiansSparsity<U>)
     [[noreturn]] static std::vector<sparsity_pattern> hessians_sparsity_impl(const U &) // LCOV_EXCL_LINE
     {
         // NOTE: we should never end up here. hessians_sparsity() is called only if m_has_hessians_sparsity
@@ -738,113 +629,124 @@ struct PAGMO_DLL_PUBLIC_INLINE_CLASS prob_inner final : prob_inner_base {
         assert(false); // LCOV_EXCL_LINE
         std::terminate();
     }
-    template <typename U, enable_if_t<detail::conjunction<pagmo::has_hessians_sparsity<U>,
-                                                          pagmo::override_has_hessians_sparsity<U>>::value,
-                                      int> = 0>
+    template <typename U>
+        requires(HasHessiansSparsity<U> && OverrideHasHessiansSparsity<U>)
     static bool has_hessians_sparsity_impl(const U &p)
     {
         return p.has_hessians_sparsity();
     }
-    template <typename U,
-              enable_if_t<detail::conjunction<pagmo::has_hessians_sparsity<U>,
-                                              detail::negation<pagmo::override_has_hessians_sparsity<U>>>::value,
-                          int> = 0>
+    template <typename U>
+        requires(HasHessiansSparsity<U> && !OverrideHasHessiansSparsity<U>)
     static bool has_hessians_sparsity_impl(const U &)
     {
         return true;
     }
-    template <typename U, enable_if_t<!pagmo::has_hessians_sparsity<U>::value, int> = 0>
+    template <typename U>
+        requires(!HasHessiansSparsity<U>)
     static bool has_hessians_sparsity_impl(const U &)
     {
         return false;
     }
-    template <typename U, enable_if_t<has_e_constraints<U>::value, int> = 0>
+    template <typename U>
+        requires(HasEConstraints<U>)
     static vector_double::size_type get_nec_impl(const U &value)
     {
         return value.get_nec();
     }
-    template <typename U, enable_if_t<!has_e_constraints<U>::value, int> = 0>
+    template <typename U>
+        requires(!HasEConstraints<U>)
     static vector_double::size_type get_nec_impl(const U &)
     {
         return 0u;
     }
-    template <typename U, enable_if_t<has_i_constraints<U>::value, int> = 0>
+    template <typename U>
+        requires(HasIConstraints<U>)
     static vector_double::size_type get_nic_impl(const U &value)
     {
         return value.get_nic();
     }
-    template <typename U, enable_if_t<!has_i_constraints<U>::value, int> = 0>
+    template <typename U>
+        requires(!HasIConstraints<U>)
     static vector_double::size_type get_nic_impl(const U &)
     {
         return 0u;
     }
-    template <typename U, enable_if_t<has_integer_part<U>::value, int> = 0>
+    template <typename U>
+        requires(HasIntegerPart<U>)
     static vector_double::size_type get_nix_impl(const U &value)
     {
         return value.get_nix();
     }
-    template <typename U, enable_if_t<!has_integer_part<U>::value, int> = 0>
+    template <typename U>
+        requires(!HasIntegerPart<U>)
     static vector_double::size_type get_nix_impl(const U &)
     {
         return 0u;
     }
-    template <typename U, enable_if_t<pagmo::has_set_seed<U>::value, int> = 0>
+    template <typename U>
+        requires(HasSetSeed<U>)
     static void set_seed_impl(U &value, unsigned seed)
     {
         value.set_seed(seed);
     }
-    template <typename U, enable_if_t<!pagmo::has_set_seed<U>::value, int> = 0>
+    template <typename U>
+        requires(!HasSetSeed<U>)
     [[noreturn]] static void set_seed_impl(U &value, unsigned)
     {
         pagmo_throw(not_implemented_error,
                     "The set_seed() method has been invoked, but it is not implemented in a UDP of type '"
                         + get_name_impl(value) + "'");
     }
-    template <typename U,
-              enable_if_t<detail::conjunction<pagmo::has_set_seed<U>, override_has_set_seed<U>>::value, int> = 0>
+    template <typename U>
+        requires(HasSetSeed<U> && OverrideHasSetSeed<U>)
     static bool has_set_seed_impl(const U &p)
     {
         return p.has_set_seed();
     }
-    template <
-        typename U,
-        enable_if_t<detail::conjunction<pagmo::has_set_seed<U>, detail::negation<override_has_set_seed<U>>>::value,
-                    int> = 0>
+    template <typename U>
+        requires(HasSetSeed<U> && !OverrideHasSetSeed<U>)
     static bool has_set_seed_impl(const U &)
     {
         return true;
     }
-    template <typename U, enable_if_t<!pagmo::has_set_seed<U>::value, int> = 0>
+    template <typename U>
+        requires(!HasSetSeed<U>)
     static bool has_set_seed_impl(const U &)
     {
         return false;
     }
-    template <typename U, enable_if_t<has_name<U>::value, int> = 0>
+    template <typename U>
+        requires(HasName<U>)
     static std::string get_name_impl(const U &value)
     {
         return value.get_name();
     }
-    template <typename U, enable_if_t<!has_name<U>::value, int> = 0>
+    template <typename U>
+        requires(!HasName<U>)
     static std::string get_name_impl(const U &)
     {
         return detail::type_name<U>();
     }
-    template <typename U, enable_if_t<has_extra_info<U>::value, int> = 0>
+    template <typename U>
+        requires(HasExtraInfo<U>)
     static std::string get_extra_info_impl(const U &value)
     {
         return value.get_extra_info();
     }
-    template <typename U, enable_if_t<!has_extra_info<U>::value, int> = 0>
+    template <typename U>
+        requires(!HasExtraInfo<U>)
     static std::string get_extra_info_impl(const U &)
     {
         return "";
     }
-    template <typename U, enable_if_t<has_get_thread_safety<U>::value, int> = 0>
+    template <typename U>
+        requires(HasGetThreadSafety<U>)
     static thread_safety get_thread_safety_impl(const U &value)
     {
         return value.get_thread_safety();
     }
-    template <typename U, enable_if_t<!has_get_thread_safety<U>::value, int> = 0>
+    template <typename U>
+        requires(!HasGetThreadSafety<U>)
     static thread_safety get_thread_safety_impl(const U &)
     {
         return thread_safety::basic;
@@ -990,17 +892,16 @@ PAGMO_DLL_PUBLIC vector_double prob_invoke_mem_batch_fitness(const problem &, co
  *
  * \endverbatim
  */
+
+// Problem concept definitions
+template <typename T>
+concept ProbGenericCtorEnabler = IsDifferentBaseType<problem, T> && IsUdProblem<RemoveConstVolatileRef<T>>;
+
 class PAGMO_DLL_PUBLIC problem
 {
     // Make friends with the streaming operator, which needs access
     // to the internals.
     friend PAGMO_DLL_PUBLIC std::ostream &operator<<(std::ostream &, const problem &);
-
-    // Enable the generic ctor only if T is not a problem (after removing
-    // const/reference qualifiers), and if T is a udp.
-    template <typename T>
-    using generic_ctor_enabler = enable_if_t<
-        detail::conjunction<detail::negation<std::is_same<problem, uncvref_t<T>>>, is_udp<uncvref_t<T>>>::value, int>;
 
 public:
     // Default constructor.
@@ -1017,7 +918,7 @@ public:
      *
      *    This constructor is not enabled if, after the removal of cv and reference qualifiers,
      *    ``T`` is of type :cpp:class:`pagmo::problem` (that is, this constructor does not compete with the copy/move
-     *    constructors of :cpp:class:`pagmo::problem`), or if ``T`` does not satisfy :cpp:class:`pagmo::is_udp`.
+     *    constructors of :cpp:class:`pagmo::problem`), or if ``T`` does not satisfy :cpp:class:`pagmo::IsUdProblem`.
      *
      * \endverbatim
      *
@@ -1041,10 +942,11 @@ public:
      * @throws unspecified any exception thrown by methods of the UDP invoked during construction or by memory errors
      * in strings and standard containers.
      */
-    template <typename T, generic_ctor_enabler<T> = 0>
+    template <typename T>
+        requires ProbGenericCtorEnabler<T>
     explicit problem(T &&x)
-        : m_ptr(std::make_unique<detail::prob_inner<uncvref_t<T>>>(std::forward<T>(x))), m_fevals(0u), m_gevals(0u),
-          m_hevals(0u)
+        : m_ptr(std::make_unique<detail::prob_inner<RemoveConstVolatileRef<T>>>(std::forward<T>(x))), m_fevals(0u),
+          m_gevals(0u), m_hevals(0u)
     {
         generic_ctor_impl();
     }
@@ -1064,7 +966,8 @@ public:
      *
      *    This operator is not enabled if, after the removal of cv and reference qualifiers,
      *    ``T`` is of type :cpp:class:`pagmo::problem` (that is, this operator does not compete with the copy/move
-     *    assignment operators of :cpp:class:`pagmo::problem`), or if ``T`` does not satisfy :cpp:class:`pagmo::is_udp`.
+     *    assignment operators of :cpp:class:`pagmo::problem`), or if ``T`` does not satisfy
+     * :cpp:class:`pagmo::IsUdProblem`.
      *
      * \endverbatim
      *
@@ -1077,7 +980,8 @@ public:
      *
      * @throws unspecified any exception thrown by the constructor from UDP.
      */
-    template <typename T, generic_ctor_enabler<T> = 0>
+    template <typename T>
+        requires ProbGenericCtorEnabler<T>
     problem &operator=(T &&x)
     {
         return (*this) = problem(std::forward<T>(x));

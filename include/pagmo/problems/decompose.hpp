@@ -29,6 +29,7 @@ see https://www.gnu.org/licenses/. */
 #ifndef PAGMO_PROBLEMS_DECOMPOSE_HPP
 #define PAGMO_PROBLEMS_DECOMPOSE_HPP
 
+#include <concepts>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -94,6 +95,12 @@ namespace pagmo
  *
  * \endverbatim
  */
+
+// Decompose concept definitions
+class PAGMO_DLL_PUBLIC decompose;
+template <typename T>
+concept DecomposeCtorEnabler = std::is_constructible_v<problem, T &&>;
+
 class PAGMO_DLL_PUBLIC decompose
 {
 public:
@@ -101,9 +108,6 @@ public:
     decompose();
 
 private:
-    // Enabler for the ctor from UDP or problem. In this case we allow construction from type problem.
-    template <typename T>
-    using ctor_enabler = enable_if_t<std::is_constructible<problem, T &&>::value, int>;
     void generic_ctor_impl(const vector_double &, const vector_double &, const std::string &);
 
 public:
@@ -134,7 +138,8 @@ public:
      * - \p weight is not such that \f$\lambda_i > 0, \forall i=1..n\f$,
      * - \p weight is not such that \f$\sum_i \lambda_i = 1\f$.
      */
-    template <typename T, ctor_enabler<T> = 0>
+    template <typename T>
+        requires(DecomposeCtorEnabler<T>)
     explicit decompose(T &&p, const vector_double &weight, const vector_double &z,
                        const std::string &method = "weighted", bool adapt_ideal = false)
         : m_problem(std::forward<T>(p)), m_weight(weight), m_z(z), m_method(method), m_adapt_ideal(adapt_ideal)

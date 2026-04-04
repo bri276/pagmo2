@@ -34,7 +34,6 @@ see https://www.gnu.org/licenses/. */
 #endif
 
 #define BOOST_TEST_MODULE bfe_test
-#define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
 #include <functional>
@@ -72,48 +71,48 @@ inline vector_double udbfe0(const problem &p, const vector_double &dvs)
 
 BOOST_AUTO_TEST_CASE(type_traits_tests)
 {
-    BOOST_CHECK(is_udbfe<default_bfe>::value);
-    BOOST_CHECK(!is_udbfe<const default_bfe>::value);
-    BOOST_CHECK(!is_udbfe<default_bfe &>::value);
-    BOOST_CHECK(!is_udbfe<const default_bfe &>::value);
+    BOOST_CHECK(IsUdBfe<default_bfe>);
+    BOOST_CHECK(!IsUdBfe<const default_bfe>);
+    BOOST_CHECK(!IsUdBfe<default_bfe &>);
+    BOOST_CHECK(!IsUdBfe<const default_bfe &>);
 
-    BOOST_CHECK(is_udbfe<decltype(&udbfe0)>::value);
-    BOOST_CHECK(is_udbfe<udbfe_func_t>::value);
+    BOOST_CHECK(IsUdBfe<decltype(&udbfe0)>);
+    BOOST_CHECK(IsUdBfe<udbfe_func_t>);
 
     struct non_udbfe_00 {
     };
-    BOOST_CHECK(!is_udbfe<non_udbfe_00>::value);
-    BOOST_CHECK(!has_bfe_call_operator<non_udbfe_00>::value);
+    BOOST_CHECK(!IsUdBfe<non_udbfe_00>);
+    BOOST_CHECK(!HasBfeCallOperator<non_udbfe_00>);
 
     struct non_udbfe_01 {
         vector_double operator()();
     };
-    BOOST_CHECK(!is_udbfe<non_udbfe_01>::value);
-    BOOST_CHECK(!has_bfe_call_operator<non_udbfe_01>::value);
+    BOOST_CHECK(!IsUdBfe<non_udbfe_01>);
+    BOOST_CHECK(!HasBfeCallOperator<non_udbfe_01>);
 
     struct non_udbfe_02 {
         // NOTE: non-const operator.
         vector_double operator()(const problem &, const vector_double &);
     };
-    BOOST_CHECK(!is_udbfe<non_udbfe_02>::value);
-    BOOST_CHECK(!has_bfe_call_operator<non_udbfe_02>::value);
+    BOOST_CHECK(!IsUdBfe<non_udbfe_02>);
+    BOOST_CHECK(!HasBfeCallOperator<non_udbfe_02>);
 
     struct non_udbfe_03 {
         // NOTE: not def ctible.
         non_udbfe_03() = delete;
         vector_double operator()(const problem &, const vector_double &) const;
     };
-    BOOST_CHECK(!is_udbfe<non_udbfe_03>::value);
-    BOOST_CHECK(has_bfe_call_operator<non_udbfe_03>::value);
+    BOOST_CHECK(!IsUdBfe<non_udbfe_03>);
+    BOOST_CHECK(HasBfeCallOperator<non_udbfe_03>);
 
-    BOOST_CHECK(is_udbfe<decltype(&udbfe0)>::value);
+    BOOST_CHECK(IsUdBfe<decltype(&udbfe0)>);
     struct udbfe_00 {
         vector_double operator()(const problem &, const vector_double &) const;
     };
-    BOOST_CHECK(is_udbfe<udbfe_00>::value);
+    BOOST_CHECK(IsUdBfe<udbfe_00>);
 
     // Test std::function as well.
-    BOOST_CHECK(is_udbfe<std::function<vector_double(const problem &, const vector_double &)>>::value);
+    BOOST_CHECK(IsUdBfe<std::function<vector_double(const problem &, const vector_double &)>>);
 }
 
 struct udbfe1 {
@@ -422,7 +421,7 @@ struct udbfe_a {
     template <typename Archive>
     void serialize(Archive &ar, unsigned)
     {
-        ar &state;
+        ar & state;
     }
     int state = 42;
 };
@@ -460,12 +459,12 @@ BOOST_AUTO_TEST_CASE(lambda_std_function)
     auto fun = [](const problem &p, const vector_double &dvs) {
         return vector_double(p.get_nf() * (dvs.size() / p.get_nx()), 1.);
     };
-    BOOST_CHECK(!is_udbfe<decltype(fun)>::value);
+    BOOST_CHECK(!IsUdBfe<decltype(fun)>);
 #if !defined(_MSC_VER)
-    BOOST_CHECK(is_udbfe<decltype(+fun)>::value);
+    BOOST_CHECK(IsUdBfe<decltype(+fun)>);
 #endif
     auto stdfun = std::function<vector_double(const problem &, const vector_double &)>(fun);
-    BOOST_CHECK(is_udbfe<decltype(stdfun)>::value);
+    BOOST_CHECK(IsUdBfe<decltype(stdfun)>);
 
 #if !defined(_MSC_VER)
     {

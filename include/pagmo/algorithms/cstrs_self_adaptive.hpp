@@ -30,6 +30,7 @@ see https://www.gnu.org/licenses/. */
 #define PAGMO_ALGORITHMS_CSTRS_SELF_ADAPTIVE_HPP
 
 #include <cassert>
+#include <concepts>
 #include <iostream>
 #include <string>
 #include <tuple>
@@ -84,7 +85,7 @@ namespace detail
 //   the UDA operated on a copy of the original input problem), just re-evaluate
 //   the dv instead of asserting failure.
 struct PAGMO_DLL_PUBLIC penalized_udp {
-    // Unused default constructor to please the is_udp type trait
+    // Unused default constructor to please the IsUdProblem type trait
     penalized_udp()
     {
         assert(false);
@@ -219,6 +220,12 @@ PAGMO_DLL_PUBLIC std::ostream &operator<<(std::ostream &, const penalized_udp &)
  *
  * \endverbatim
  */
+
+// Cstrs_self_adaptive concept definitions
+class PAGMO_DLL_PUBLIC cstrs_self_adaptive;
+template <typename T>
+concept CtrsCtorEnabler = std::is_constructible_v<algorithm, T &&>;
+
 class PAGMO_DLL_PUBLIC cstrs_self_adaptive
 {
 public:
@@ -238,10 +245,6 @@ public:
     cstrs_self_adaptive(unsigned iters = 1u);
 
 private:
-    // Enabler for the ctor from UDA.
-    template <typename T>
-    using ctor_enabler = enable_if_t<std::is_constructible<algorithm, T &&>::value, int>;
-
 public:
     /// Constructor.
     /**
@@ -252,7 +255,8 @@ public:
      *
      * @throws unspecified any exception thrown by the constructor of pagmo::algorithm.
      */
-    template <typename T, ctor_enabler<T> = 0>
+    template <typename T>
+        requires(CtrsCtorEnabler<T>)
     explicit cstrs_self_adaptive(unsigned iters, T &&a, unsigned seed = pagmo::random_device::next())
         : m_algorithm(std::forward<T>(a)), m_iters(iters), m_e(seed), m_seed(seed), m_verbosity(0u), m_log()
     {

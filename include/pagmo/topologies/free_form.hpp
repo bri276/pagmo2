@@ -29,6 +29,7 @@ see https://www.gnu.org/licenses/. */
 #ifndef PAGMO_TOPOLOGIES_FREE_FORM_HPP
 #define PAGMO_TOPOLOGIES_FREE_FORM_HPP
 
+#include <concepts>
 #include <string>
 #include <type_traits>
 
@@ -52,8 +53,8 @@ public:
 
     explicit free_form(bgl_graph_t);
     explicit free_form(const topology &);
-    template <typename T,
-              enable_if_t<detail::conjunction<detail::negation<std::is_same<T, free_form>>, is_udt<T>>::value, int> = 0>
+    template <typename T>
+        requires(!std::same_as<T, free_form> && IsUdTopology<T>)
     explicit free_form(const T &t) : free_form(topology(t))
     {
     }

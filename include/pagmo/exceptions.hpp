@@ -29,6 +29,7 @@ see https://www.gnu.org/licenses/. */
 #ifndef PAGMO_EXCEPTIONS_HPP
 #define PAGMO_EXCEPTIONS_HPP
 
+#include <concepts>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
@@ -49,17 +50,16 @@ struct ex_thrower {
     explicit ex_thrower(const char *file, line_type line, const char *func) : m_file(file), m_line(line), m_func(func)
     {
     }
-    template <typename... Args, enable_if_t<std::is_constructible<Exception, Args...>::value, int> = 0>
+    template <typename... Args>
+        requires(std::is_constructible_v<Exception, Args...>)
     [[noreturn]] void operator()(Args &&...args) const
     {
         throw Exception(std::forward<Args>(args)...);
     }
-    template <typename Str, typename... Args,
-              enable_if_t<conjunction<std::is_constructible<Exception, std::string, Args...>,
-                                      disjunction<std::is_same<std::decay_t<Str>, std::string>,
-                                                  std::is_same<std::decay_t<Str>, char *>,
-                                                  std::is_same<std::decay_t<Str>, const char *>>>::value,
-                          int> = 0>
+    template <typename Str, typename... Args>
+        requires(std::is_constructible_v<Exception, std::string, Args...>
+                 && (std::is_same_v<std::decay_t<Str>, std::string> || std::is_same_v<std::decay_t<Str>, char *>
+                     || std::is_same_v<std::decay_t<Str>, const char *>))
     [[noreturn]] void operator()(Str &&desc, Args &&...args) const
     {
         std::string msg("\nfunction: ");

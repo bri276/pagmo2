@@ -30,6 +30,7 @@ see https://www.gnu.org/licenses/. */
 #define PAGMO_ALGORITHM_HPP
 
 #include <cassert>
+#include <concepts>
 #include <memory>
 #include <string>
 #include <type_traits>
@@ -65,7 +66,7 @@ namespace pagmo
 
 /// Detect \p set_verbosity() method.
 /**
- * This type trait will be \p true if \p T provides a method with
+ * This concept will be satisfied if \p T provides a method with
  * the following signature:
  * @code{.unparsed}
  * void set_verbosity(unsigned);
@@ -74,23 +75,13 @@ namespace pagmo
  * (see pagmo::algorithm).
  */
 template <typename T>
-class has_set_verbosity
-{
-    template <typename U>
-    using set_verbosity_t = decltype(std::declval<U &>().set_verbosity(1u));
-    static const bool implementation_defined = std::is_same<void, detected_t<set_verbosity_t, T>>::value;
-
-public:
-    /// Value of the type trait.
-    static const bool value = implementation_defined;
+concept HasSetVerbosity = requires(T &t) {
+    { t.set_verbosity(1u) } -> std::same_as<void>;
 };
-
-template <typename T>
-const bool has_set_verbosity<T>::value;
 
 /// Detect \p has_set_verbosity() method.
 /**
- * This type trait will be \p true if \p T provides a method with
+ * This concept will be satisfied if \p T provides a method with
  * the following signature:
  * @code{.unparsed}
  * bool has_set_verbosity() const;
@@ -99,23 +90,13 @@ const bool has_set_verbosity<T>::value;
  * (see pagmo::algorithm).
  */
 template <typename T>
-class override_has_set_verbosity
-{
-    template <typename U>
-    using has_set_verbosity_t = decltype(std::declval<const U &>().has_set_verbosity());
-    static const bool implementation_defined = std::is_same<bool, detected_t<has_set_verbosity_t, T>>::value;
-
-public:
-    /// Value of the type trait.
-    static const bool value = implementation_defined;
+concept OverrideHasSetVerbosity = requires(const T &t) {
+    { t.has_set_verbosity() } -> std::same_as<bool>;
 };
-
-template <typename T>
-const bool override_has_set_verbosity<T>::value;
 
 /// Detect \p evolve() method.
 /**
- * This type trait will be \p true if \p T provides a method with
+ * This concept will be satisfied if \p T provides a method with
  * the following signature:
  * @code{.unparsed}
  * population evolve(const population &) const;
@@ -124,19 +105,9 @@ const bool override_has_set_verbosity<T>::value;
  * (see pagmo::algorithm).
  */
 template <typename T>
-class has_evolve
-{
-    template <typename U>
-    using evolve_t = decltype(std::declval<const U &>().evolve(std::declval<const population &>()));
-    static const bool implementation_defined = std::is_same<population, detected_t<evolve_t, T>>::value;
-
-public:
-    /// Value of the type trait.
-    static const bool value = implementation_defined;
+concept HasEvolve = requires(const T &t, const population &pop) {
+    { t.evolve(pop) } -> std::same_as<population>;
 };
-
-template <typename T>
-const bool has_evolve<T>::value;
 
 namespace detail
 {
@@ -152,27 +123,26 @@ struct disable_uda_checks : std::false_type {
 
 /// Detect user-defined algorithms (UDA).
 /**
- * This type trait will be \p true if \p T is not cv/reference qualified, it is destructible, default, copy and move
- * constructible, and if it satisfies the pagmo::has_evolve type trait.
+ * This concept will be satisfied if \p T is not cv/reference qualified, it is destructible, default, copy and move
+ * constructible, and if it satisfies the pagmo::HasEvolve concept.
  *
- * Types satisfying this type trait can be used as user-defined algorithms (UDA) in pagmo::algorithm.
+ * Types satisfying this concept can be used as user-defined algorithms (UDA) in pagmo::algorithm.
  */
 template <typename T>
-class is_uda
-{
-    static const bool implementation_defined
-        = detail::disjunction<detail::conjunction<std::is_same<T, uncvref_t<T>>, std::is_default_constructible<T>,
-                                                  std::is_copy_constructible<T>, std::is_move_constructible<T>,
-                                                  std::is_destructible<T>, has_evolve<T>>,
-                              detail::disable_uda_checks<T>>::value;
-
-public:
-    /// Value of the type trait.
-    static const bool value = implementation_defined;
+concept IsUdAlgorithm = requires(T) {
+    requires IsNotConstVolatileRef<T>;
+    std::is_default_constructible<T>::value;
+    std::is_copy_constructible<T>::value;
+    std::is_move_constructible<T>::value;
+    std::is_destructible<T>::value;
+    requires HasEvolve<T>;
+    std::negation<detail::disable_uda_checks<T>>::value;
 };
 
+// Concept for enabling generic constructor - algorithm must not be the same type and must be a UDA
+class PAGMO_DLL_PUBLIC algorithm;
 template <typename T>
-const bool is_uda<T>::value;
+concept AlgoGenericCtorEnabler = IsDifferentBaseType<algorithm, T> && IsUdAlgorithm<RemoveConstVolatileRef<T>>;
 
 namespace detail
 {
@@ -251,92 +221,100 @@ struct PAGMO_DLL_PUBLIC_INLINE_CLASS algo_inner final : algo_inner_base {
         return get_thread_safety_impl(m_value);
     }
     // Implementation of the optional methods.
-    template <typename U, enable_if_t<pagmo::has_set_seed<U>::value, int> = 0>
+    template <typename U>
+        requires pagmo::HasSetSeed<U>
     static void set_seed_impl(U &a, unsigned seed)
     {
         a.set_seed(seed);
     }
-    template <typename U, enable_if_t<!pagmo::has_set_seed<U>::value, int> = 0>
+    template <typename U>
+        requires(!pagmo::HasSetSeed<U>)
     static void set_seed_impl(U &, unsigned)
     {
         pagmo_throw(not_implemented_error,
                     "The set_seed() method has been invoked but it is not implemented in the UDA");
     }
-    template <typename U,
-              enable_if_t<detail::conjunction<pagmo::has_set_seed<U>, override_has_set_seed<U>>::value, int> = 0>
+    template <typename U>
+        requires(pagmo::HasSetSeed<U> && OverrideHasSetSeed<U>)
     static bool has_set_seed_impl(const U &a)
     {
         return a.has_set_seed();
     }
-    template <
-        typename U,
-        enable_if_t<detail::conjunction<pagmo::has_set_seed<U>, detail::negation<override_has_set_seed<U>>>::value,
-                    int> = 0>
+    template <typename U>
+        requires(pagmo::HasSetSeed<U> && !OverrideHasSetSeed<U>)
     static bool has_set_seed_impl(const U &)
     {
         return true;
     }
-    template <typename U, enable_if_t<!pagmo::has_set_seed<U>::value, int> = 0>
+    template <typename U>
+        requires(!pagmo::HasSetSeed<U>)
     static bool has_set_seed_impl(const U &)
     {
         return false;
     }
-    template <typename U, enable_if_t<pagmo::has_set_verbosity<U>::value, int> = 0>
+    template <typename U>
+        requires(pagmo::HasSetVerbosity<U>)
     static void set_verbosity_impl(U &value, unsigned level)
     {
         value.set_verbosity(level);
     }
-    template <typename U, enable_if_t<!pagmo::has_set_verbosity<U>::value, int> = 0>
+    template <typename U>
+        requires(!pagmo::HasSetVerbosity<U>)
     static void set_verbosity_impl(U &, unsigned)
     {
         pagmo_throw(not_implemented_error,
                     "The set_verbosity() method has been invoked but it is not implemented in the UDA");
     }
-    template <
-        typename U,
-        enable_if_t<detail::conjunction<pagmo::has_set_verbosity<U>, override_has_set_verbosity<U>>::value, int> = 0>
+    template <typename U>
+        requires(pagmo::HasSetVerbosity<U> && OverrideHasSetVerbosity<U>)
     static bool has_set_verbosity_impl(const U &a)
     {
         return a.has_set_verbosity();
     }
-    template <typename U, enable_if_t<detail::conjunction<pagmo::has_set_verbosity<U>,
-                                                          detail::negation<override_has_set_verbosity<U>>>::value,
-                                      int> = 0>
+    template <typename U>
+        requires(pagmo::HasSetVerbosity<U> && !OverrideHasSetVerbosity<U>)
     static bool has_set_verbosity_impl(const U &)
     {
         return true;
     }
-    template <typename U, enable_if_t<!pagmo::has_set_verbosity<U>::value, int> = 0>
+    template <typename U>
+        requires(!pagmo::HasSetVerbosity<U>)
     static bool has_set_verbosity_impl(const U &)
     {
         return false;
     }
-    template <typename U, enable_if_t<has_name<U>::value, int> = 0>
+    template <typename U>
+        requires(HasName<U>)
     static std::string get_name_impl(const U &value)
     {
         return value.get_name();
     }
-    template <typename U, enable_if_t<!has_name<U>::value, int> = 0>
+    template <typename U>
+        requires(!HasName<U>)
     static std::string get_name_impl(const U &)
     {
         return detail::type_name<U>();
     }
-    template <typename U, enable_if_t<has_extra_info<U>::value, int> = 0>
+    template <typename U>
+        requires(HasExtraInfo<U>)
     static std::string get_extra_info_impl(const U &value)
     {
         return value.get_extra_info();
     }
-    template <typename U, enable_if_t<!has_extra_info<U>::value, int> = 0>
+    template <typename U>
+        requires(!HasExtraInfo<U>)
     static std::string get_extra_info_impl(const U &)
     {
         return "";
     }
-    template <typename U, enable_if_t<has_get_thread_safety<U>::value, int> = 0>
+    template <typename U>
+        requires(HasGetThreadSafety<U>)
     static thread_safety get_thread_safety_impl(const U &value)
     {
         return value.get_thread_safety();
     }
-    template <typename U, enable_if_t<!has_get_thread_safety<U>::value, int> = 0>
+    template <typename U>
+        requires(!HasGetThreadSafety<U>)
     static thread_safety get_thread_safety_impl(const U &)
     {
         return thread_safety::basic;
@@ -430,12 +408,6 @@ namespace pagmo
  */
 class PAGMO_DLL_PUBLIC algorithm
 {
-    // Enable the generic ctor only if T is not an algorithm (after removing
-    // const/reference qualifiers), and if T is a uda.
-    template <typename T>
-    using generic_ctor_enabler = enable_if_t<
-        detail::conjunction<detail::negation<std::is_same<algorithm, uncvref_t<T>>>, is_uda<uncvref_t<T>>>::value, int>;
-
 public:
     // Default constructor.
     algorithm();
@@ -451,7 +423,8 @@ public:
      *
      *    This constructor is not enabled if, after the removal of cv and reference qualifiers,
      *    ``T`` is of type :cpp:class:`pagmo::algorithm` (that is, this constructor does not compete with the copy/move
-     *    constructors of :cpp:class:`pagmo::algorithm`), or if  ``T`` does not satisfy :cpp:class:`pagmo::is_uda`.
+     *    constructors of :cpp:class:`pagmo::algorithm`), or if  ``T`` does not satisfy
+     * :cpp:class:`pagmo::IsUdAlgorithm`.
      *
      * \endverbatim
      *
@@ -465,8 +438,10 @@ public:
      * @throws unspecified any exception thrown by methods of the UDA invoked during construction or by memory errors
      * in strings and standard containers.
      */
-    template <typename T, generic_ctor_enabler<T> = 0>
-    explicit algorithm(T &&x) : m_ptr(std::make_unique<detail::algo_inner<uncvref_t<T>>>(std::forward<T>(x)))
+    template <typename T>
+        requires AlgoGenericCtorEnabler<T>
+    explicit algorithm(T &&x)
+        : m_ptr(std::make_unique<detail::algo_inner<RemoveConstVolatileRef<T>>>(std::forward<T>(x)))
     {
         generic_ctor_impl();
     }
@@ -486,7 +461,7 @@ public:
      *    This operator is not enabled if, after the removal of cv and reference qualifiers,
      *    ``T`` is of type :cpp:class:`pagmo::algorithm` (that is, this operator does not compete with the copy/move
      *    assignment operators of :cpp:class:`pagmo::algorithm`), or if ``T`` does not satisfy
-     *    :cpp:class:`pagmo::is_uda`.
+     *    :cpp:class:`pagmo::IsUdAlgorithm`.
      *
      * \endverbatim
      *
@@ -499,7 +474,8 @@ public:
      *
      * @throws unspecified any exception thrown by the constructor from UDA.
      */
-    template <typename T, generic_ctor_enabler<T> = 0>
+    template <typename T>
+        requires(AlgoGenericCtorEnabler<T>)
     algorithm &operator=(T &&x)
     {
         return (*this) = algorithm(std::forward<T>(x));

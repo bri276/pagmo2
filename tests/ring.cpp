@@ -27,7 +27,6 @@ GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
 #define BOOST_TEST_MODULE ring
-#define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
@@ -201,7 +200,7 @@ BOOST_AUTO_TEST_CASE(basic_test)
 
 BOOST_AUTO_TEST_CASE(to_bgl_test)
 {
-    BOOST_CHECK(has_to_bgl<ring>::value);
+    BOOST_CHECK(HasToBgl<ring>);
 
     auto r0 = ring(4, .5);
     BOOST_CHECK(boost::num_vertices(r0.to_bgl()) == 4);

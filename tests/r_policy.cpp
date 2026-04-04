@@ -34,7 +34,6 @@ see https://www.gnu.org/licenses/. */
 #endif
 
 #define BOOST_TEST_MODULE r_policy_test
-#define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
 #include <initializer_list>
@@ -62,9 +61,9 @@ using namespace pagmo;
 
 BOOST_AUTO_TEST_CASE(type_traits_tests)
 {
-    BOOST_CHECK(!is_udrp<void>::value);
-    BOOST_CHECK(!is_udrp<int>::value);
-    BOOST_CHECK(!is_udrp<double>::value);
+    BOOST_CHECK(!IsUdRPolicy<void>);
+    BOOST_CHECK(!IsUdRPolicy<int>);
+    BOOST_CHECK(!IsUdRPolicy<double>);
 
     struct udrp00 {
         individuals_group_t replace(const individuals_group_t &, const vector_double::size_type &,
@@ -73,10 +72,10 @@ BOOST_AUTO_TEST_CASE(type_traits_tests)
                                     const vector_double &, const individuals_group_t &) const;
     };
 
-    BOOST_CHECK(is_udrp<udrp00>::value);
-    BOOST_CHECK(!is_udrp<const udrp00>::value);
-    BOOST_CHECK(!is_udrp<const udrp00 &>::value);
-    BOOST_CHECK(!is_udrp<udrp00 &>::value);
+    BOOST_CHECK(IsUdRPolicy<udrp00>);
+    BOOST_CHECK(!IsUdRPolicy<const udrp00>);
+    BOOST_CHECK(!IsUdRPolicy<const udrp00 &>);
+    BOOST_CHECK(!IsUdRPolicy<udrp00 &>);
 
     struct no_udrp00 {
         void replace(const individuals_group_t &, const vector_double::size_type &, const vector_double::size_type &,
@@ -84,7 +83,7 @@ BOOST_AUTO_TEST_CASE(type_traits_tests)
                      const vector_double::size_type &, const vector_double &, const individuals_group_t &) const;
     };
 
-    BOOST_CHECK(!is_udrp<no_udrp00>::value);
+    BOOST_CHECK(!IsUdRPolicy<no_udrp00>);
 
     struct no_udrp01 {
         individuals_group_t replace(const individuals_group_t &, const vector_double::size_type &,
@@ -93,7 +92,7 @@ BOOST_AUTO_TEST_CASE(type_traits_tests)
                                     const vector_double &, const individuals_group_t &);
     };
 
-    BOOST_CHECK(!is_udrp<no_udrp01>::value);
+    BOOST_CHECK(!IsUdRPolicy<no_udrp01>);
 
     struct no_udrp02 {
         no_udrp02() = delete;
@@ -103,7 +102,7 @@ BOOST_AUTO_TEST_CASE(type_traits_tests)
                                     const vector_double &, const individuals_group_t &) const;
     };
 
-    BOOST_CHECK(!is_udrp<no_udrp02>::value);
+    BOOST_CHECK(!IsUdRPolicy<no_udrp02>);
 }
 
 struct udrp1 {
@@ -531,7 +530,7 @@ struct udrp_a {
     template <typename Archive>
     void serialize(Archive &ar, unsigned)
     {
-        ar &state;
+        ar & state;
     }
     int state = 42;
 };

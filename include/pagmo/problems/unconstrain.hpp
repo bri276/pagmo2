@@ -29,6 +29,7 @@ see https://www.gnu.org/licenses/. */
 #ifndef PAGMO_PROBLEMS_UNCONSTRAIN_HPP
 #define PAGMO_PROBLEMS_UNCONSTRAIN_HPP
 
+#include <concepts>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -41,6 +42,11 @@ see https://www.gnu.org/licenses/. */
 
 namespace pagmo
 {
+
+// Unconstrain concept definitions
+class PAGMO_DLL_PUBLIC unconstrain;
+template <typename T>
+concept UnconstrainCtorEnabler = IsDifferentBaseType<unconstrain, T> && std::constructible_from<problem, T &&>;
 
 /// The unconstrain meta-problem
 /**
@@ -64,11 +70,6 @@ namespace pagmo
  */
 class PAGMO_DLL_PUBLIC unconstrain
 {
-    // Enabler for the ctor from UDP or problem. In this case we allow construction from type problem.
-    template <typename T>
-    using ctor_enabler = enable_if_t<detail::conjunction<detail::negation<std::is_same<unconstrain, uncvref_t<T>>>,
-                                                         std::is_constructible<problem, T &&>>::value,
-                                     int>;
     // Implementation of the generic ctor.
     void generic_ctor_impl(const std::string &, const vector_double &);
 
@@ -99,7 +100,8 @@ public:
      * is not empty and the \p method is not "weighted" or if \p is already unconstrained
      * @throws unspecified any exception thrown by the pagmo::problem constructor
      */
-    template <typename T, ctor_enabler<T> = 0>
+    template <typename T>
+        requires(UnconstrainCtorEnabler<T>)
     explicit unconstrain(T &&p, const std::string &method = "death penalty",
                          const vector_double &weights = vector_double())
         : m_problem(std::forward<T>(p)), m_weights(weights)
@@ -114,7 +116,7 @@ public:
     bool has_batch_fitness() const;
 
     // The batch fitness of the problem.
-    vector_double batch_fitness(const vector_double & xs) const;
+    vector_double batch_fitness(const vector_double &xs) const;
 
     // Number of objectives.
     vector_double::size_type get_nobj() const;

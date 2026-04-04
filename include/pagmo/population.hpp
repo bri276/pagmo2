@@ -30,6 +30,7 @@ see https://www.gnu.org/licenses/. */
 #define PAGMO_POPULATION_HPP
 
 #include <cassert>
+#include <concepts>
 #include <iostream>
 #include <string>
 #include <type_traits>
@@ -48,6 +49,12 @@ see https://www.gnu.org/licenses/. */
 
 namespace pagmo
 {
+
+// Population concept definitions
+class PAGMO_DLL_PUBLIC population;
+template <typename T>
+concept PopGenericCtorEnabler = IsDifferentBaseType<population, T> && std::is_constructible_v<problem, T &&>;
+
 /// Population class.
 /**
  * \image html pop_no_text.png
@@ -91,13 +98,6 @@ public:
 
 private:
     void prob_ctor_impl(size_type);
-    // Enable the generic ctor only if T is not a population (after removing
-    // const/reference qualifiers).
-    template <typename T>
-    using generic_ctor_enabler
-        = enable_if_t<detail::conjunction<detail::negation<std::is_same<population, uncvref_t<T>>>,
-                                          std::is_constructible<problem, T &&>>::value,
-                      int>;
 
 public:
     /// Constructor from a problem.
@@ -123,7 +123,8 @@ public:
      * @throws unspecified any exception thrown by random_decision_vector(), push_back(), or by the
      * invoked constructor of pagmo::problem.
      */
-    template <typename T, generic_ctor_enabler<T> = 0>
+    template <typename T>
+        requires(PopGenericCtorEnabler<T>)
     explicit population(T &&x, size_type pop_size = 0u, unsigned seed = pagmo::random_device::next())
         : m_prob(std::forward<T>(x)), m_e(seed), m_seed(seed)
     {
@@ -167,14 +168,12 @@ public:
      * @throws unspecified any exception thrown by batch_random_decision_vector(), the public API of the (user-defined)
      * batch fitness evaluator, push_back(), or by the invoked constructor of pagmo::problem.
      */
-    template <
-        typename T, typename U,
-        enable_if_t<detail::conjunction<std::is_constructible<problem, T &&>, std::is_constructible<bfe, U &&>>::value,
-                    int> = 0>
+    template <typename T, typename U>
+        requires(std::is_constructible_v<problem, T &&> && std::is_constructible_v<bfe, U &&>)
     explicit population(T &&x, U &&b, size_type pop_size = 0u, unsigned seed = pagmo::random_device::next())
         : m_prob(std::forward<T>(x)), m_e(seed), m_seed(seed)
     {
-        constructor_from_bfe_impl(std::forward<U>(b), pop_size, std::is_same<uncvref_t<U>, bfe>{});
+        constructor_from_bfe_impl(std::forward<U>(b), pop_size, std::is_same<RemoveConstVolatileRef<U>, bfe>{});
     }
 
     // Copy constructor.

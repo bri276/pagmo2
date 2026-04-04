@@ -29,6 +29,7 @@ see https://www.gnu.org/licenses/. */
 #ifndef PAGMO_ALGORITHMS_MBH_HPP
 #define PAGMO_ALGORITHMS_MBH_HPP
 
+#include <concepts>
 #include <string>
 #include <tuple>
 #include <type_traits>
@@ -79,6 +80,12 @@ namespace pagmo
  * See: https://arxiv.org/pdf/cond-mat/9803344.pdf for the paper introducing the basin hopping idea for a Lennard-Jones
  * cluster optimization.
  */
+
+// Mbh concept definitions
+class PAGMO_DLL_PUBLIC mbh;
+template <typename T>
+concept MbhCtorEnabler = std::is_constructible_v<algorithm, T &&>;
+
 class PAGMO_DLL_PUBLIC mbh
 {
 public:
@@ -90,9 +97,6 @@ public:
     mbh();
 
 private:
-    // Enabler for the ctor from UDA or algorithm. In this case we allow construction from type algorithm.
-    template <typename T>
-    using ctor_enabler = enable_if_t<std::is_constructible<algorithm, T &&>::value, int>;
     void scalar_ctor_impl(double);
     void vector_ctor_impl(const vector_double &);
 
@@ -119,7 +123,8 @@ public:
      * @throws unspecified any exception thrown by the constructor of pagmo::algorithm.
      * @throws std::invalid_argument if \p perturb is not in the (0,1] range.
      */
-    template <typename T, ctor_enabler<T> = 0>
+    template <typename T>
+        requires(MbhCtorEnabler<T>)
     explicit mbh(T &&a, unsigned stop, double perturb, unsigned seed = pagmo::random_device::next())
         : m_algorithm(std::forward<T>(a)), m_stop(stop), m_perturb(1, perturb), m_e(seed), m_seed(seed), m_verbosity(0u)
     {
@@ -148,7 +153,8 @@ public:
      * @throws unspecified any exception thrown by the constructor of pagmo::algorithm.
      * @throws std::invalid_argument if not all the elements of \p perturb are in the (0,1] range.
      */
-    template <typename T, ctor_enabler<T> = 0>
+    template <typename T>
+        requires(MbhCtorEnabler<T>)
     explicit mbh(T &&a, unsigned stop, vector_double perturb, unsigned seed = pagmo::random_device::next())
         : m_algorithm(std::forward<T>(a)), m_stop(stop), m_perturb(perturb), m_e(seed), m_seed(seed), m_verbosity(0u)
     {

@@ -29,6 +29,7 @@ see https://www.gnu.org/licenses/. */
 #ifndef PAGMO_R_POLICIES_FAIR_REPLACE_HPP
 #define PAGMO_R_POLICIES_FAIR_REPLACE_HPP
 
+#include <concepts>
 #include <string>
 #include <type_traits>
 
@@ -49,8 +50,8 @@ public:
     fair_replace();
 
     // Constructor from migration rate.
-    template <typename T,
-              enable_if_t<detail::disjunction<std::is_integral<T>, std::is_floating_point<T>>::value, int> = 0>
+    template <typename T>
+        requires std::integral<T> || std::floating_point<T>
     explicit fair_replace(T x) : detail::base_sr_policy(x)
     {
     }

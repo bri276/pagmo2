@@ -27,7 +27,6 @@ GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
 #define BOOST_TEST_MODULE problem_test
-#define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
 #include <initializer_list>
@@ -428,16 +427,16 @@ BOOST_AUTO_TEST_CASE(problem_construction_test)
     p2 = std::move(p4);
     BOOST_CHECK((p2.extract<null_problem>() != nullptr));
 
-    // Check the is_udp type trait.
-    BOOST_CHECK(is_udp<base_p>::value);
-    BOOST_CHECK(is_udp<grad_p>::value);
-    BOOST_CHECK(is_udp<hess_p>::value);
-    BOOST_CHECK(!is_udp<hess_p &>::value);
-    BOOST_CHECK(!is_udp<const hess_p &>::value);
-    BOOST_CHECK(!is_udp<const hess_p>::value);
-    BOOST_CHECK(!is_udp<int>::value);
-    BOOST_CHECK(!is_udp<void>::value);
-    BOOST_CHECK(!is_udp<std::string>::value);
+    // Check the IsUdProblem type trait.
+    BOOST_CHECK(IsUdProblem<base_p>);
+    BOOST_CHECK(IsUdProblem<grad_p>);
+    BOOST_CHECK(IsUdProblem<hess_p>);
+    BOOST_CHECK(!IsUdProblem<hess_p &>);
+    BOOST_CHECK(!IsUdProblem<const hess_p &>);
+    BOOST_CHECK(!IsUdProblem<const hess_p>);
+    BOOST_CHECK(!IsUdProblem<int>);
+    BOOST_CHECK(!IsUdProblem<void>);
+    BOOST_CHECK(!IsUdProblem<std::string>);
     BOOST_CHECK((std::is_constructible<problem, base_p>::value));
     BOOST_CHECK((std::is_constructible<problem, grad_p>::value));
     BOOST_CHECK((std::is_constructible<problem, hess_p>::value));
@@ -1380,8 +1379,8 @@ BOOST_AUTO_TEST_CASE(batch_fitness)
 {
     // Test a problem with no batch fitness.
     problem p;
-    BOOST_CHECK(!has_batch_fitness<null_problem>::value);
-    BOOST_CHECK(!override_has_batch_fitness<null_problem>::value);
+    BOOST_CHECK(!HasBatchFitness<null_problem>);
+    BOOST_CHECK(!OverrideHasBatchFitness<null_problem>);
     BOOST_CHECK(!p.has_batch_fitness());
     BOOST_CHECK_EXCEPTION(p.batch_fitness(vector_double{1.}), not_implemented_error,
                           [](const not_implemented_error &nie) {
@@ -1405,8 +1404,8 @@ BOOST_AUTO_TEST_CASE(batch_fitness)
         }
     };
     p = problem{bf0{}};
-    BOOST_CHECK(has_batch_fitness<bf0>::value);
-    BOOST_CHECK(!override_has_batch_fitness<bf0>::value);
+    BOOST_CHECK(HasBatchFitness<bf0>);
+    BOOST_CHECK(!OverrideHasBatchFitness<bf0>);
     BOOST_CHECK(p.has_batch_fitness());
     BOOST_CHECK(p.batch_fitness({1., 2., 3.}) == vector_double(3, 1.));
 
@@ -1427,8 +1426,8 @@ BOOST_AUTO_TEST_CASE(batch_fitness)
     };
 
     p = problem{bf1{}};
-    BOOST_CHECK(has_batch_fitness<bf1>::value);
-    BOOST_CHECK(!override_has_batch_fitness<bf1>::value);
+    BOOST_CHECK(HasBatchFitness<bf1>);
+    BOOST_CHECK(!OverrideHasBatchFitness<bf1>);
     BOOST_CHECK(p.has_batch_fitness());
     BOOST_CHECK(p.batch_fitness({1., 2., 3., 4.}) == vector_double(2, 1.));
     // Check throw on wrong input vector.
@@ -1460,8 +1459,8 @@ BOOST_AUTO_TEST_CASE(batch_fitness)
         }
     };
     p = problem{bf2{}};
-    BOOST_CHECK(has_batch_fitness<bf2>::value);
-    BOOST_CHECK(!override_has_batch_fitness<bf2>::value);
+    BOOST_CHECK(HasBatchFitness<bf2>);
+    BOOST_CHECK(!OverrideHasBatchFitness<bf2>);
     BOOST_CHECK(p.has_batch_fitness());
     BOOST_CHECK_EXCEPTION(
         p.batch_fitness(vector_double{1.}), std::invalid_argument, [](const std::invalid_argument &ia) {
@@ -1487,8 +1486,8 @@ BOOST_AUTO_TEST_CASE(batch_fitness)
         }
     };
     p = problem{bf3{}};
-    BOOST_CHECK(has_batch_fitness<bf3>::value);
-    BOOST_CHECK(!override_has_batch_fitness<bf3>::value);
+    BOOST_CHECK(HasBatchFitness<bf3>);
+    BOOST_CHECK(!OverrideHasBatchFitness<bf3>);
     BOOST_CHECK(p.has_batch_fitness());
     BOOST_CHECK_EXCEPTION(
         p.batch_fitness(vector_double{1.}), std::invalid_argument, [](const std::invalid_argument &ia) {
@@ -1513,8 +1512,8 @@ BOOST_AUTO_TEST_CASE(batch_fitness)
         }
     };
     p = problem{bf4{}};
-    BOOST_CHECK(!has_batch_fitness<bf4>::value);
-    BOOST_CHECK(override_has_batch_fitness<bf4>::value);
+    BOOST_CHECK(!HasBatchFitness<bf4>);
+    BOOST_CHECK(OverrideHasBatchFitness<bf4>);
     BOOST_CHECK_EXCEPTION(p.batch_fitness(vector_double{1.}), not_implemented_error,
                           [](const not_implemented_error &nie) {
                               return boost::contains(nie.what(), "The batch_fitness() method has been invoked, but it "
@@ -1541,8 +1540,8 @@ BOOST_AUTO_TEST_CASE(batch_fitness)
         }
     };
     p = problem{bf5{}};
-    BOOST_CHECK(has_batch_fitness<bf5>::value);
-    BOOST_CHECK(override_has_batch_fitness<bf5>::value);
+    BOOST_CHECK(HasBatchFitness<bf5>);
+    BOOST_CHECK(OverrideHasBatchFitness<bf5>);
     BOOST_CHECK(!p.has_batch_fitness());
     BOOST_CHECK(p.batch_fitness({1., 2., 3.}) == vector_double(3, 1.));
     // Check the counter as well.

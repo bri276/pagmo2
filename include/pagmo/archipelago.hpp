@@ -30,6 +30,7 @@ see https://www.gnu.org/licenses/. */
 #define PAGMO_ARCHIPELAGO_HPP
 
 #include <atomic>
+#include <concepts>
 #include <iostream>
 #include <memory>
 #include <mutex>
@@ -108,6 +109,29 @@ enum class migrant_handling {
 PAGMO_DLL_PUBLIC std::ostream &operator<<(std::ostream &, migration_type);
 PAGMO_DLL_PUBLIC std::ostream &operator<<(std::ostream &, migrant_handling);
 
+#endif
+
+// Archipelago concept definitions
+template <typename T>
+concept ArchiTopoCtorEnabler = IsDifferentBaseType<archipelago, T> && std::is_constructible_v<topology, T>;
+
+#if defined(_MSC_VER)
+template <typename...>
+concept ArchiNCtorEnabler = true;
+#else
+template <typename... Args>
+concept ArchiNCtorEnabler = std::is_constructible_v<island, Args...>;
+#endif
+
+template <typename Topo, typename... Args>
+concept ArchiTopoNCtorEnabler = std::is_constructible_v<topology, Topo &&> && std::is_constructible_v<island, Args...>;
+
+#if defined(_MSC_VER)
+template <typename...>
+concept ArchiPushBackEnabler = true;
+#else
+template <typename... Args>
+concept ArchiPushBackEnabler = std::is_constructible_v<island, Args...>;
 #endif
 
 /// Archipelago.
@@ -228,12 +252,6 @@ public:
     // Move constructor.
     archipelago(archipelago &&) noexcept;
 
-private:
-    template <typename T>
-    using topo_ctor_enabler = enable_if_t<detail::conjunction<detail::negation<std::is_same<archipelago, uncvref_t<T>>>,
-                                                              std::is_constructible<topology, T>>::value,
-                                          int>;
-
 public:
     /// Constructor from a topology.
     /**
@@ -252,7 +270,8 @@ public:
      *
      * @throws unspecified any exception thrown by the invoked topology constructor.
      */
-    template <typename Topo, topo_ctor_enabler<Topo> = 0>
+    template <typename Topo>
+        requires ArchiTopoCtorEnabler<Topo>
     explicit archipelago(Topo &&t)
         : m_topology(std::forward<Topo>(t)), m_migr_type(migration_type::p2p),
           m_migr_handling(migrant_handling::preserve)
@@ -260,13 +279,6 @@ public:
     }
 
 private:
-#if defined(_MSC_VER)
-    template <typename...>
-    using n_ctor_enabler = int;
-#else
-    template <typename... Args>
-    using n_ctor_enabler = enable_if_t<std::is_constructible<island, Args...>::value, int>;
-#endif
     // The "default" constructor from n islands. Just forward
     // the input arguments to n calls to push_back().
     template <typename... Args>
@@ -290,11 +302,9 @@ private:
     // to fight hard against older MSVC versions. Perhaps in the future?
     //
     // algo, prob.
-    template <typename Algo, typename Prob, typename S1, typename S2,
-              enable_if_t<detail::conjunction<std::is_constructible<algorithm, const Algo &>,
-                                              std::is_constructible<problem, const Prob &>, std::is_integral<S1>,
-                                              std::is_integral<S2>>::value,
-                          int> = 0>
+    template <typename Algo, typename Prob, typename S1, typename S2>
+        requires(std::is_constructible_v<algorithm, const Algo &> && std::is_constructible_v<problem, const Prob &>
+                 && std::is_integral_v<S1> && std::is_integral_v<S2>)
     void n_ctor(size_type n, const Algo &a, const Prob &p, S1 size, S2 seed)
     {
         std::mt19937 eng(static_cast<std::mt19937::result_type>(static_cast<unsigned>(seed)));
@@ -304,13 +314,10 @@ private:
         }
     }
     // algo, prob, rpol, spol.
-    template <
-        typename Algo, typename Prob, typename S1, typename RPol, typename SPol, typename S2,
-        enable_if_t<detail::conjunction<
-                        std::is_constructible<algorithm, const Algo &>, std::is_constructible<problem, const Prob &>,
-                        std::is_constructible<r_policy, const RPol &>, std::is_constructible<s_policy, const SPol &>,
-                        std::is_integral<S1>, std::is_integral<S2>>::value,
-                    int> = 0>
+    template <typename Algo, typename Prob, typename S1, typename RPol, typename SPol, typename S2>
+        requires(std::is_constructible_v<algorithm, const Algo &> && std::is_constructible_v<problem, const Prob &>
+                 && std::is_constructible_v<r_policy, const RPol &> && std::is_constructible_v<s_policy, const SPol &>
+                 && std::is_integral_v<S1> && std::is_integral_v<S2>)
     void n_ctor(size_type n, const Algo &a, const Prob &p, S1 size, const RPol &r_pol, const SPol &s_pol, S2 seed)
     {
         std::mt19937 eng(static_cast<std::mt19937::result_type>(static_cast<unsigned>(seed)));
@@ -324,12 +331,9 @@ private:
     // to batch initialise *all* archi individuals
     // (whereas now we batch init n times, one for each island). Keep this in mind
     // for future developments.
-    template <
-        typename Algo, typename Prob, typename Bfe, typename S1, typename S2,
-        enable_if_t<detail::conjunction<
-                        std::is_constructible<algorithm, const Algo &>, std::is_constructible<problem, const Prob &>,
-                        std::is_constructible<bfe, const Bfe &>, std::is_integral<S1>, std::is_integral<S2>>::value,
-                    int> = 0>
+    template <typename Algo, typename Prob, typename Bfe, typename S1, typename S2>
+        requires(std::is_constructible_v<algorithm, const Algo &> && std::is_constructible_v<problem, const Prob &>
+                 && std::is_constructible_v<bfe, const Bfe &> && std::is_integral_v<S1> && std::is_integral_v<S2>)
     void n_ctor(size_type n, const Algo &a, const Prob &p, const Bfe &b, S1 size, S2 seed)
     {
         std::mt19937 eng(static_cast<std::mt19937::result_type>(static_cast<unsigned>(seed)));
@@ -339,13 +343,10 @@ private:
         }
     }
     // algo, prob, bfe, rpol, spol.
-    template <typename Algo, typename Prob, typename Bfe, typename S1, typename RPol, typename SPol, typename S2,
-              enable_if_t<
-                  detail::conjunction<
-                      std::is_constructible<algorithm, const Algo &>, std::is_constructible<problem, const Prob &>,
-                      std::is_constructible<bfe, const Bfe &>, std::is_constructible<r_policy, const RPol &>,
-                      std::is_constructible<s_policy, const SPol &>, std::is_integral<S1>, std::is_integral<S2>>::value,
-                  int> = 0>
+    template <typename Algo, typename Prob, typename Bfe, typename S1, typename RPol, typename SPol, typename S2>
+        requires(std::is_constructible_v<algorithm, const Algo &> && std::is_constructible_v<problem, const Prob &>
+                 && std::is_constructible_v<bfe, const Bfe &> && std::is_constructible_v<r_policy, const RPol &>
+                 && std::is_constructible_v<s_policy, const SPol &> && std::is_integral_v<S1> && std::is_integral_v<S2>)
     void n_ctor(size_type n, const Algo &a, const Prob &p, const Bfe &b, S1 size, const RPol &r_pol, const SPol &s_pol,
                 S2 seed)
     {
@@ -356,11 +357,9 @@ private:
         }
     }
     // isl, algo, prob.
-    template <typename Isl, typename Algo, typename Prob, typename S1, typename S2,
-              enable_if_t<detail::conjunction<is_udi<Isl>, std::is_constructible<algorithm, const Algo &>,
-                                              std::is_constructible<problem, const Prob &>, std::is_integral<S1>,
-                                              std::is_integral<S2>>::value,
-                          int> = 0>
+    template <typename Isl, typename Algo, typename Prob, typename S1, typename S2>
+        requires(IsUdIsland<Isl> && std::is_constructible_v<algorithm, const Algo &>
+                 && std::is_constructible_v<problem, const Prob &> && std::is_integral_v<S1> && std::is_integral_v<S2>)
     void n_ctor(size_type n, const Isl &isl, const Algo &a, const Prob &p, S1 size, S2 seed)
     {
         std::mt19937 eng(static_cast<std::mt19937::result_type>(static_cast<unsigned>(seed)));
@@ -370,13 +369,10 @@ private:
         }
     }
     // isl, algo, prob, rpol, spol.
-    template <typename Isl, typename Algo, typename Prob, typename S1, typename RPol, typename SPol, typename S2,
-              enable_if_t<
-                  detail::conjunction<
-                      is_udi<Isl>, std::is_constructible<algorithm, const Algo &>,
-                      std::is_constructible<problem, const Prob &>, std::is_constructible<r_policy, const RPol &>,
-                      std::is_constructible<s_policy, const SPol &>, std::is_integral<S1>, std::is_integral<S2>>::value,
-                  int> = 0>
+    template <typename Isl, typename Algo, typename Prob, typename S1, typename RPol, typename SPol, typename S2>
+        requires(IsUdIsland<Isl> && std::is_constructible_v<algorithm, const Algo &>
+                 && std::is_constructible_v<problem, const Prob &> && std::is_constructible_v<r_policy, const RPol &>
+                 && std::is_constructible_v<s_policy, const SPol &> && std::is_integral_v<S1> && std::is_integral_v<S2>)
     void n_ctor(size_type n, const Isl &isl, const Algo &a, const Prob &p, S1 size, const RPol &r_pol,
                 const SPol &s_pol, S2 seed)
     {
@@ -387,12 +383,10 @@ private:
         }
     }
     // isl, algo, prob, bfe.
-    template <typename Isl, typename Algo, typename Prob, typename Bfe, typename S1, typename S2,
-              enable_if_t<detail::conjunction<is_udi<Isl>, std::is_constructible<algorithm, const Algo &>,
-                                              std::is_constructible<problem, const Prob &>,
-                                              std::is_constructible<bfe, const Bfe &>, std::is_integral<S1>,
-                                              std::is_integral<S2>>::value,
-                          int> = 0>
+    template <typename Isl, typename Algo, typename Prob, typename Bfe, typename S1, typename S2>
+        requires(IsUdIsland<Isl> && std::is_constructible_v<algorithm, const Algo &>
+                 && std::is_constructible_v<problem, const Prob &> && std::is_constructible_v<bfe, const Bfe &>
+                 && std::is_integral_v<S1> && std::is_integral_v<S2>)
     void n_ctor(size_type n, const Isl &isl, const Algo &a, const Prob &p, const Bfe &b, S1 size, S2 seed)
     {
         std::mt19937 eng(static_cast<std::mt19937::result_type>(static_cast<unsigned>(seed)));
@@ -402,15 +396,12 @@ private:
         }
     }
     // isl, algo, prob, bfe, rpol, spol.
-    template <
-        typename Isl, typename Algo, typename Prob, typename Bfe, typename S1, typename RPol, typename SPol,
-        typename S2,
-        enable_if_t<detail::conjunction<
-                        is_udi<Isl>, std::is_constructible<algorithm, const Algo &>,
-                        std::is_constructible<problem, const Prob &>, std::is_constructible<bfe, const Bfe &>,
-                        std::is_constructible<r_policy, const RPol &>, std::is_constructible<s_policy, const SPol &>,
-                        std::is_integral<S1>, std::is_integral<S2>>::value,
-                    int> = 0>
+    template <typename Isl, typename Algo, typename Prob, typename Bfe, typename S1, typename RPol, typename SPol,
+              typename S2>
+        requires(IsUdIsland<Isl> && std::is_constructible_v<algorithm, const Algo &>
+                 && std::is_constructible_v<problem, const Prob &> && std::is_constructible_v<bfe, const Bfe &>
+                 && std::is_constructible_v<r_policy, const RPol &> && std::is_constructible_v<s_policy, const SPol &>
+                 && std::is_integral_v<S1> && std::is_integral_v<S2>)
     void n_ctor(size_type n, const Isl &isl, const Algo &a, const Prob &p, const Bfe &b, S1 size, const RPol &r_pol,
                 const SPol &s_pol, S2 seed)
     {
@@ -449,7 +440,8 @@ public:
      *
      * @throws unspecified any exception thrown by archipelago::push_back().
      */
-    template <typename... Args, n_ctor_enabler<const Args &...> = 0>
+    template <typename... Args>
+        requires(ArchiNCtorEnabler<const Args &...>)
     explicit archipelago(size_type n, const Args &...args)
         : // NOTE: explicitly delegate to the default constructor, so that
           // we get the default migration type and migrant handling.
@@ -459,11 +451,6 @@ public:
     }
 
 private:
-    template <typename Topo, typename... Args>
-    using topo_n_ctor_enabler = enable_if_t<
-        detail::conjunction<std::is_constructible<topology, Topo &&>, std::is_constructible<island, Args...>>::value,
-        int>;
-
 public:
     /// Constructor from a topology and \p n islands.
     /**
@@ -486,7 +473,8 @@ public:
      * @throws unspecified any exception thrown by the previous constructor or by
      * the constructor from a topology.
      */
-    template <typename Topo, typename... Args, topo_n_ctor_enabler<Topo, const Args &...> = 0>
+    template <typename Topo, typename... Args>
+        requires(ArchiTopoNCtorEnabler<Topo, const Args &...>)
     explicit archipelago(Topo &&t, size_type n, const Args &...args) : archipelago(std::forward<Topo>(t))
     {
         n_ctor(n, args...);
@@ -504,14 +492,6 @@ public:
     size_type size() const;
 
 private:
-#if defined(_MSC_VER)
-    template <typename...>
-    using push_back_enabler = int;
-#else
-    template <typename... Args>
-    using push_back_enabler = enable_if_t<std::is_constructible<island, Args...>::value, int>;
-#endif
-
     // Implementation of push_back().
     void push_back_impl(std::unique_ptr<island> &&);
 
@@ -544,7 +524,8 @@ public:
      * - pagmo::topology::push_back(),
      * - the invoked constructor of pagmo::island.
      */
-    template <typename... Args, push_back_enabler<Args &&...> = 0>
+    template <typename... Args>
+        requires(ArchiPushBackEnabler<Args && ...>)
     void push_back(Args &&...args)
     {
         push_back_impl(std::make_unique<island>(std::forward<Args>(args)...));

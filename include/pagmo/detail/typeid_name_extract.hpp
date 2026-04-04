@@ -57,7 +57,7 @@ inline typename std::conditional<std::is_const<C>::value, const T *, T *>::type 
     // NOTE: typeid() strips away both reference and cv qualifiers. Thus,
     // if T is cv-qualified or a reference type, return nullptr preemptively
     // (in any case, extraction cannot be successful in such cases).
-    if (!std::is_same<T, uncvref_t<T>>::value || std::is_reference<T>::value) {
+    if (IsConstVolatileRef<T> || std::is_reference<T>::value) {
         return nullptr;
     }
 

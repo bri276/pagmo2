@@ -27,7 +27,6 @@ GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
 #define BOOST_TEST_MODULE algorithm_test
-#define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
 #include <iostream>
@@ -57,7 +56,7 @@ using namespace pagmo;
 
 // Complete algorithm stochastic
 struct al_01 {
-    al_01(){};
+    al_01() {};
     population evolve(population pop) const
     {
         return pop;
@@ -90,7 +89,7 @@ PAGMO_S11N_ALGORITHM_EXPORT(al_01)
 
 // Minimal algorithm deterministic
 struct al_02 {
-    al_02(){};
+    al_02() {};
     population evolve(population pop) const
     {
         return pop;
@@ -145,14 +144,14 @@ BOOST_AUTO_TEST_CASE(algorithm_construction_test)
     a2 = std::move(a4);
     BOOST_CHECK((a2.extract<null_algorithm>() != nullptr));
 
-    // Check the is_uda type trait.
-    BOOST_CHECK(is_uda<al_01>::value);
-    BOOST_CHECK(is_uda<null_algorithm>::value);
-    BOOST_CHECK(!is_uda<al_01 &>::value);
-    BOOST_CHECK(!is_uda<const al_01>::value);
-    BOOST_CHECK(!is_uda<int>::value);
-    BOOST_CHECK(!is_uda<void>::value);
-    BOOST_CHECK(!is_uda<std::string>::value);
+    // Check the IsUdAlgorithm type trait.
+    BOOST_CHECK(IsUdAlgorithm<al_01>);
+    BOOST_CHECK(IsUdAlgorithm<null_algorithm>);
+    BOOST_CHECK(!IsUdAlgorithm<al_01 &>);
+    BOOST_CHECK(!IsUdAlgorithm<const al_01>);
+    BOOST_CHECK(!IsUdAlgorithm<int>);
+    BOOST_CHECK(!IsUdAlgorithm<void>);
+    BOOST_CHECK(!IsUdAlgorithm<std::string>);
     BOOST_CHECK((std::is_constructible<algorithm, al_01>::value));
     BOOST_CHECK((std::is_constructible<algorithm, null_algorithm>::value));
     BOOST_CHECK((std::is_constructible<algorithm, al_01 &>::value));
@@ -214,7 +213,7 @@ BOOST_AUTO_TEST_CASE(algorithm_move_constructor_test)
 
 // Algorithm with overrides
 struct al_03 {
-    al_03(){};
+    al_03() {};
     population evolve(population pop) const
     {
         return pop;

@@ -29,6 +29,7 @@ see https://www.gnu.org/licenses/. */
 #ifndef PAGMO_ISLAND_HPP
 #define PAGMO_ISLAND_HPP
 
+#include <concepts>
 #include <functional>
 #include <future>
 #include <iostream>
@@ -80,7 +81,7 @@ namespace pagmo
 
 /// Detect \p run_evolve() method.
 /**
- * This type trait will be \p true if \p T provides a method with
+ * This concept will be satisfied if \p T provides a method with
  * the following signature:
  * @code{.unparsed}
  * void run_evolve(island &) const;
@@ -89,19 +90,9 @@ namespace pagmo
  * (see pagmo::island).
  */
 template <typename T>
-class has_run_evolve
-{
-    template <typename U>
-    using run_evolve_t = decltype(std::declval<const U &>().run_evolve(std::declval<island &>()));
-    static const bool implementation_defined = std::is_same<void, detected_t<run_evolve_t, T>>::value;
-
-public:
-    /// Value of the type trait.
-    static const bool value = implementation_defined;
+concept HasRunEvolve = requires(const T &t, island &isl) {
+    { t.run_evolve(isl) } -> std::same_as<void>;
 };
-
-template <typename T>
-const bool has_run_evolve<T>::value;
 
 namespace detail
 {
@@ -119,26 +110,20 @@ struct disable_udi_checks : std::false_type {
 /// Detect user-defined islands (UDI).
 /**
  * This type trait will be \p true if \p T is not cv/reference qualified, it is destructible, default, copy and move
- * constructible, and if it satisfies the pagmo::has_run_evolve type trait.
+ * constructible, and if it satisfies the pagmo::HasRunEvolve type trait.
  *
  * Types satisfying this type trait can be used as user-defined islands (UDI) in pagmo::island.
  */
 template <typename T>
-class is_udi
-{
-    static const bool implementation_defined
-        = detail::disjunction<detail::conjunction<std::is_same<T, uncvref_t<T>>, std::is_default_constructible<T>,
-                                                  std::is_copy_constructible<T>, std::is_move_constructible<T>,
-                                                  std::is_destructible<T>, has_run_evolve<T>>,
-                              detail::disable_udi_checks<T>>::value;
-
-public:
-    /// Value of the type trait.
-    static const bool value = implementation_defined;
+concept IsUdIsland = requires(T) {
+    requires IsNotConstVolatileRef<T>;
+    requires std::is_default_constructible_v<T>;
+    requires std::is_copy_constructible_v<T>;
+    requires std::is_move_constructible_v<T>;
+    requires std::is_destructible_v<T>;
+    requires HasRunEvolve<T>;
+    requires !detail::disable_udi_checks<T>::value;
 };
-
-template <typename T>
-const bool is_udi<T>::value;
 
 namespace detail
 {
@@ -191,22 +176,24 @@ struct PAGMO_DLL_PUBLIC_INLINE_CLASS isl_inner final : isl_inner_base {
     {
         return get_extra_info_impl(m_value);
     }
-    template <typename U, enable_if_t<has_name<U>::value, int> = 0>
+    template <HasName U>
     static std::string get_name_impl(const U &value)
     {
         return value.get_name();
     }
-    template <typename U, enable_if_t<!has_name<U>::value, int> = 0>
+    template <typename U>
+        requires(!HasName<U>)
     static std::string get_name_impl(const U &)
     {
         return detail::type_name<U>();
     }
-    template <typename U, enable_if_t<has_extra_info<U>::value, int> = 0>
+    template <HasExtraInfo U>
     static std::string get_extra_info_impl(const U &value)
     {
         return value.get_extra_info();
     }
-    template <typename U, enable_if_t<!has_extra_info<U>::value, int> = 0>
+    template <typename U>
+        requires(!HasExtraInfo<U>)
     static std::string get_extra_info_impl(const U &)
     {
         return "";
@@ -250,6 +237,101 @@ BOOST_CLASS_TRACKING(pagmo::detail::isl_inner_base, boost::serialization::track_
 namespace pagmo
 {
 
+// Concept definitions for island constructors
+template <typename Algo, typename Pop>
+concept AlgoPopEnabler = requires(Algo, Pop) {
+    requires std::is_same_v<population, RemoveConstVolatileRef<Pop>>;
+    requires std::is_constructible_v<algorithm, Algo &&>;
+};
+
+template <typename Algo, typename Pop, typename RPol, typename SPol>
+concept AlgoPopPolEnabler = requires(Algo, Pop, RPol, SPol) {
+    requires std::is_same_v<population, RemoveConstVolatileRef<Pop>>;
+    requires std::is_constructible_v<algorithm, Algo &&>;
+    requires std::is_constructible_v<r_policy, RPol &&>;
+    requires std::is_constructible_v<s_policy, SPol &&>;
+};
+
+template <typename Isl, typename Algo, typename Pop>
+concept IslAlgoPopEnabler = requires(Isl, Algo, Pop) {
+    requires IsUdIsland<RemoveConstVolatileRef<Isl>>;
+    requires std::is_same_v<population, RemoveConstVolatileRef<Pop>>;
+    requires std::is_constructible_v<algorithm, Algo &&>;
+};
+
+template <typename Isl, typename Algo, typename Pop, typename RPol, typename SPol>
+concept IslAlgoPopPolEnabler = requires(Isl, Algo, Pop, RPol, SPol) {
+    requires IsUdIsland<RemoveConstVolatileRef<Isl>>;
+    requires std::is_same_v<population, RemoveConstVolatileRef<Pop>>;
+    requires std::is_constructible_v<algorithm, Algo &&>;
+    requires std::is_constructible_v<r_policy, RPol &&>;
+    requires std::is_constructible_v<s_policy, SPol &&>;
+};
+
+template <typename Algo, typename Prob>
+concept AlgoProbEnabler = requires(Algo, Prob) {
+    requires std::is_constructible_v<algorithm, Algo &&>;
+    requires std::is_constructible_v<problem, Prob &&>;
+};
+
+template <typename Algo, typename Prob, typename RPol, typename SPol>
+concept AlgoProbPolEnabler = requires(Algo, Prob, RPol, SPol) {
+    requires std::is_constructible_v<algorithm, Algo &&>;
+    requires std::is_constructible_v<problem, Prob &&>;
+    requires std::is_constructible_v<r_policy, RPol &&>;
+    requires std::is_constructible_v<s_policy, SPol &&>;
+};
+
+template <typename Algo, typename Prob, typename Bfe>
+concept AlgoProbBfeEnabler = requires(Algo, Prob, Bfe) {
+    requires std::is_constructible_v<algorithm, Algo &&>;
+    requires std::is_constructible_v<problem, Prob &&>;
+    requires std::is_constructible_v<bfe, Bfe &&>;
+};
+
+template <typename Algo, typename Prob, typename Bfe, typename RPol, typename SPol>
+concept AlgoProbBfePolEnabler = requires(Algo, Prob, Bfe, RPol, SPol) {
+    requires std::is_constructible_v<algorithm, Algo &&>;
+    requires std::is_constructible_v<problem, Prob &&>;
+    requires std::is_constructible_v<bfe, Bfe &&>;
+    requires std::is_constructible_v<r_policy, RPol &&>;
+    requires std::is_constructible_v<s_policy, SPol &&>;
+};
+
+template <typename Isl, typename Algo, typename Prob>
+concept IslAlgoProbEnabler = requires(Isl, Algo, Prob) {
+    requires IsUdIsland<RemoveConstVolatileRef<Isl>>;
+    requires std::is_constructible_v<algorithm, Algo &&>;
+    requires std::is_constructible_v<problem, Prob &&>;
+};
+
+template <typename Isl, typename Algo, typename Prob, typename RPol, typename SPol>
+concept IslAlgoProbPolEnabler = requires(Isl, Algo, Prob, RPol, SPol) {
+    requires IsUdIsland<RemoveConstVolatileRef<Isl>>;
+    requires std::is_constructible_v<algorithm, Algo &&>;
+    requires std::is_constructible_v<problem, Prob &&>;
+    requires std::is_constructible_v<r_policy, RPol &&>;
+    requires std::is_constructible_v<s_policy, SPol &&>;
+};
+
+template <typename Isl, typename Algo, typename Prob, typename Bfe>
+concept IslAlgoProbBfeEnabler = requires(Isl, Algo, Prob, Bfe) {
+    requires IsUdIsland<RemoveConstVolatileRef<Isl>>;
+    requires std::is_constructible_v<algorithm, Algo &&>;
+    requires std::is_constructible_v<problem, Prob &&>;
+    requires std::is_constructible_v<bfe, Bfe &&>;
+};
+
+template <typename Isl, typename Algo, typename Prob, typename Bfe, typename RPol, typename SPol>
+concept IslAlgoProbBfePolEnabler = requires(Isl, Algo, Prob, Bfe, RPol, SPol) {
+    requires IsUdIsland<RemoveConstVolatileRef<Isl>>;
+    requires std::is_constructible_v<algorithm, Algo &&>;
+    requires std::is_constructible_v<problem, Prob &&>;
+    requires std::is_constructible_v<bfe, Bfe &&>;
+    requires std::is_constructible_v<r_policy, RPol &&>;
+    requires std::is_constructible_v<s_policy, SPol &&>;
+};
+
 namespace detail
 {
 
@@ -287,7 +369,7 @@ struct PAGMO_DLL_PUBLIC island_data {
     // As above, but the UDI is explicitly passed by the user.
     template <typename Isl, typename Algo, typename Pop>
     explicit island_data(Isl &&isl, Algo &&a, Pop &&p)
-        : isl_ptr(std::make_unique<isl_inner<uncvref_t<Isl>>>(std::forward<Isl>(isl))),
+        : isl_ptr(std::make_unique<isl_inner<RemoveConstVolatileRef<Isl>>>(std::forward<Isl>(isl))),
           algo(std::make_shared<algorithm>(std::forward<Algo>(a))),
           pop(std::make_shared<population>(std::forward<Pop>(p)))
     {
@@ -307,7 +389,7 @@ struct PAGMO_DLL_PUBLIC island_data {
     // As above, but the UDI is explicitly passed by the user.
     template <typename Isl, typename Algo, typename Pop, typename RPol, typename SPol>
     explicit island_data(ptag, Isl &&isl, Algo &&a, Pop &&p, RPol &&r, SPol &&s)
-        : isl_ptr(std::make_unique<isl_inner<uncvref_t<Isl>>>(std::forward<Isl>(isl))),
+        : isl_ptr(std::make_unique<isl_inner<RemoveConstVolatileRef<Isl>>>(std::forward<Isl>(isl))),
           algo(std::make_shared<algorithm>(std::forward<Algo>(a))),
           pop(std::make_shared<population>(std::forward<Pop>(p))), r_pol(std::forward<RPol>(r)),
           s_pol(std::forward<SPol>(s))
@@ -489,12 +571,6 @@ public:
     // Move constructor.
     island(island &&) noexcept;
 
-private:
-    template <typename Algo, typename Pop>
-    using algo_pop_enabler = enable_if_t<
-        detail::conjunction<std::is_constructible<algorithm, Algo &&>, std::is_same<population, uncvref_t<Pop>>>::value,
-        int>;
-
 public:
     /// Constructor from algorithm and population.
     /**
@@ -528,17 +604,11 @@ public:
      * - memory allocation errors,
      * - the constructors of pagmo::algorithm and pagmo::population.
      */
-    template <typename Algo, typename Pop, algo_pop_enabler<Algo, Pop> = 0>
+    template <typename Algo, typename Pop>
+        requires(AlgoPopEnabler<Algo, Pop>)
     explicit island(Algo &&a, Pop &&p) : m_ptr(std::make_unique<idata_t>(std::forward<Algo>(a), std::forward<Pop>(p)))
     {
     }
-
-private:
-    template <typename Algo, typename Pop, typename RPol, typename SPol>
-    using algo_pop_pol_enabler = enable_if_t<
-        detail::conjunction<std::is_constructible<algorithm, Algo &&>, std::is_same<population, uncvref_t<Pop>>,
-                            std::is_constructible<r_policy, RPol &&>, std::is_constructible<s_policy, SPol &&>>::value,
-        int>;
 
 public:
     /// Constructor from algorithm, population and replacement/selection policies.
@@ -564,24 +634,13 @@ public:
      * @throws unspecified any exception thrown by the previous constructor or by
      * the construction of the replacement/selection policies.
      */
-    template <typename Algo, typename Pop, typename RPol, typename SPol,
-              algo_pop_pol_enabler<Algo, Pop, RPol, SPol> = 0>
+    template <typename Algo, typename Pop, typename RPol, typename SPol>
+        requires(AlgoPopPolEnabler<Algo, Pop, RPol, SPol>)
     explicit island(Algo &&a, Pop &&p, RPol &&r, SPol &&s)
         : m_ptr(std::make_unique<idata_t>(idata_t::ptag{}, std::forward<Algo>(a), std::forward<Pop>(p),
                                           std::forward<RPol>(r), std::forward<SPol>(s)))
     {
     }
-
-private:
-    // NOTE: here and elsewhere, we don't have to put the constraint that Isl is not pagmo::island,
-    // like we do in pagmo::problem/pagmo::algorithm: pagmo::island does not satisfy the interface
-    // requirements of a UDI, thus it is impossible to create a pagmo::island containing another
-    // pagmo::island as a UDI.
-    template <typename Isl, typename Algo, typename Pop>
-    using isl_algo_pop_enabler
-        = enable_if_t<detail::conjunction<is_udi<uncvref_t<Isl>>, std::is_constructible<algorithm, Algo &&>,
-                                          std::is_same<population, uncvref_t<Pop>>>::value,
-                      int>;
 
 public:
     /// Constructor from UDI, algorithm and population.
@@ -591,7 +650,7 @@ public:
      *
      *    This constructor is enabled only if:
      *
-     *    - ``Isl`` satisfies :cpp:class:`pagmo::is_udi`,
+     *    - ``Isl`` satisfies :cpp:class:`pagmo::IsUdIsland`,
      *    - ``a`` can be used to construct a :cpp:class:`pagmo::algorithm`,
      *    - ``p`` is an instance of :cpp:class:`pagmo::population`.
      *
@@ -608,19 +667,12 @@ public:
      * - memory allocation errors,
      * - the constructors of \p Isl, pagmo::algorithm and pagmo::population.
      */
-    template <typename Isl, typename Algo, typename Pop, isl_algo_pop_enabler<Isl, Algo, Pop> = 0>
+    template <typename Isl, typename Algo, typename Pop>
+        requires(IslAlgoPopEnabler<Isl, Algo, Pop>)
     explicit island(Isl &&isl, Algo &&a, Pop &&p)
         : m_ptr(std::make_unique<idata_t>(std::forward<Isl>(isl), std::forward<Algo>(a), std::forward<Pop>(p)))
     {
     }
-
-private:
-    template <typename Isl, typename Algo, typename Pop, typename RPol, typename SPol>
-    using isl_algo_pop_pol_enabler = enable_if_t<
-        detail::conjunction<is_udi<uncvref_t<Isl>>, std::is_constructible<algorithm, Algo &&>,
-                            std::is_same<population, uncvref_t<Pop>>, std::is_constructible<r_policy, RPol &&>,
-                            std::is_constructible<s_policy, SPol &&>>::value,
-        int>;
 
 public:
     /// Constructor from UDI, algorithm, population and replacement/selection policies.
@@ -630,7 +682,7 @@ public:
      *
      *    This constructor is enabled only if:
      *
-     *    - ``Isl`` satisfies :cpp:class:`pagmo::is_udi`,
+     *    - ``Isl`` satisfies :cpp:class:`pagmo::IsUdIsland`,
      *    - ``a`` can be used to construct a :cpp:class:`pagmo::algorithm`,
      *    - ``p`` is an instance of :cpp:class:`pagmo::population`,
      *    - ``r`` and ``s`` can be used to construct, respectively, a
@@ -650,19 +702,13 @@ public:
      * @throws unspecified any exception thrown by the previous constructor or by
      * the construction of the replacement/selection policies.
      */
-    template <typename Isl, typename Algo, typename Pop, typename RPol, typename SPol,
-              isl_algo_pop_pol_enabler<Isl, Algo, Pop, RPol, SPol> = 0>
+    template <typename Isl, typename Algo, typename Pop, typename RPol, typename SPol>
+        requires(IslAlgoPopPolEnabler<Isl, Algo, Pop, RPol, SPol>)
     explicit island(Isl &&isl, Algo &&a, Pop &&p, RPol &&r, SPol &&s)
         : m_ptr(std::make_unique<idata_t>(idata_t::ptag{}, std::forward<Isl>(isl), std::forward<Algo>(a),
                                           std::forward<Pop>(p), std::forward<RPol>(r), std::forward<SPol>(s)))
     {
     }
-
-private:
-    template <typename Algo, typename Prob>
-    using algo_prob_enabler = enable_if_t<
-        detail::conjunction<std::is_constructible<algorithm, Algo &&>, std::is_constructible<problem, Prob &&>>::value,
-        int>;
 
 public:
     /// Constructor from algorithm, problem, size and seed.
@@ -687,18 +733,12 @@ public:
      * @throws unspecified any exception thrown by the invoked pagmo::population constructor or by
      * island(Algo &&, Pop &&).
      */
-    template <typename Algo, typename Prob, algo_prob_enabler<Algo, Prob> = 0>
+    template <typename Algo, typename Prob>
+        requires(AlgoProbEnabler<Algo, Prob>)
     explicit island(Algo &&a, Prob &&p, population::size_type size, unsigned seed = pagmo::random_device::next())
         : island(std::forward<Algo>(a), population(std::forward<Prob>(p), size, seed))
     {
     }
-
-private:
-    template <typename Algo, typename Prob, typename RPol, typename SPol>
-    using algo_prob_pol_enabler = enable_if_t<
-        detail::conjunction<std::is_constructible<algorithm, Algo &&>, std::is_constructible<problem, Prob &&>,
-                            std::is_constructible<r_policy, RPol &&>, std::is_constructible<s_policy, SPol &&>>::value,
-        int>;
 
 public:
     /// Constructor from algorithm, problem, size, replacement/selections policies and seed.
@@ -726,21 +766,14 @@ public:
      * @throws unspecified any exception thrown by the previous constructor or by
      * the construction of the replacement/selection policies.
      */
-    template <typename Algo, typename Prob, typename RPol, typename SPol,
-              algo_prob_pol_enabler<Algo, Prob, RPol, SPol> = 0>
+    template <typename Algo, typename Prob, typename RPol, typename SPol>
+        requires(AlgoProbPolEnabler<Algo, Prob, RPol, SPol>)
     explicit island(Algo &&a, Prob &&p, population::size_type size, RPol &&r, SPol &&s,
                     unsigned seed = pagmo::random_device::next())
         : island(std::forward<Algo>(a), population(std::forward<Prob>(p), size, seed), std::forward<RPol>(r),
                  std::forward<SPol>(s))
     {
     }
-
-private:
-    template <typename Algo, typename Prob, typename Bfe>
-    using algo_prob_bfe_enabler = enable_if_t<
-        detail::conjunction<std::is_constructible<algorithm, Algo &&>, std::is_constructible<problem, Prob &&>,
-                            std::is_constructible<bfe, Bfe &&>>::value,
-        int>;
 
 public:
     /// Constructor from algorithm, problem, batch fitness evaluator, size and seed.
@@ -768,20 +801,13 @@ public:
      * @throws unspecified any exception thrown by the invoked pagmo::population constructor or by
      * island(Algo &&, Pop &&).
      */
-    template <typename Algo, typename Prob, typename Bfe, algo_prob_bfe_enabler<Algo, Prob, Bfe> = 0>
+    template <typename Algo, typename Prob, typename Bfe>
+        requires(AlgoProbBfeEnabler<Algo, Prob, Bfe>)
     explicit island(Algo &&a, Prob &&p, Bfe &&b, population::size_type size,
                     unsigned seed = pagmo::random_device::next())
         : island(std::forward<Algo>(a), population(std::forward<Prob>(p), std::forward<Bfe>(b), size, seed))
     {
     }
-
-private:
-    template <typename Algo, typename Prob, typename Bfe, typename RPol, typename SPol>
-    using algo_prob_bfe_pol_enabler = enable_if_t<
-        detail::conjunction<std::is_constructible<algorithm, Algo &&>, std::is_constructible<problem, Prob &&>,
-                            std::is_constructible<bfe, Bfe &&>, std::is_constructible<r_policy, RPol &&>,
-                            std::is_constructible<s_policy, SPol &&>>::value,
-        int>;
 
 public:
     /// Constructor from algorithm, problem, batch fitness evaluator, size, replacement/selection policies and seed.
@@ -810,8 +836,8 @@ public:
      * @throws unspecified any exception thrown by the previous constructor or by
      * the construction of the replacement/selection policies.
      */
-    template <typename Algo, typename Prob, typename Bfe, typename RPol, typename SPol,
-              algo_prob_bfe_pol_enabler<Algo, Prob, Bfe, RPol, SPol> = 0>
+    template <typename Algo, typename Prob, typename Bfe, typename RPol, typename SPol>
+        requires(AlgoProbBfePolEnabler<Algo, Prob, Bfe, RPol, SPol>)
     explicit island(Algo &&a, Prob &&p, Bfe &&b, population::size_type size, RPol &&r, SPol &&s,
                     unsigned seed = pagmo::random_device::next())
         : island(std::forward<Algo>(a), population(std::forward<Prob>(p), std::forward<Bfe>(b), size, seed),
@@ -819,20 +845,13 @@ public:
     {
     }
 
-private:
-    template <typename Isl, typename Algo, typename Prob>
-    using isl_algo_prob_enabler
-        = enable_if_t<detail::conjunction<is_udi<uncvref_t<Isl>>, std::is_constructible<algorithm, Algo &&>,
-                                          std::is_constructible<problem, Prob &&>>::value,
-                      int>;
-
 public:
     /// Constructor from UDI, algorithm, problem, size and seed.
     /**
      * \verbatim embed:rst:leading-asterisk
      * .. note::
      *
-     *    This constructor is enabled only if ``Isl`` satisfies :cpp:class:`pagmo::is_udi`, ``a`` can be used to
+     *    This constructor is enabled only if ``Isl`` satisfies :cpp:class:`pagmo::IsUdIsland`, ``a`` can be used to
      *    construct a :cpp:class:`pagmo::algorithm`, and ``p`` can be used to construct a
      *    :cpp:class:`pagmo::problem`.
      *
@@ -852,20 +871,13 @@ public:
      * - island(Isl &&, Algo &&, Pop &&),
      * - the invoked constructor of \p Isl.
      */
-    template <typename Isl, typename Algo, typename Prob, isl_algo_prob_enabler<Isl, Algo, Prob> = 0>
+    template <typename Isl, typename Algo, typename Prob>
+        requires(IslAlgoProbEnabler<Isl, Algo, Prob>)
     explicit island(Isl &&isl, Algo &&a, Prob &&p, population::size_type size,
                     unsigned seed = pagmo::random_device::next())
         : island(std::forward<Isl>(isl), std::forward<Algo>(a), population(std::forward<Prob>(p), size, seed))
     {
     }
-
-private:
-    template <typename Isl, typename Algo, typename Prob, typename RPol, typename SPol>
-    using isl_algo_prob_pol_enabler = enable_if_t<
-        detail::conjunction<is_udi<uncvref_t<Isl>>, std::is_constructible<algorithm, Algo &&>,
-                            std::is_constructible<problem, Prob &&>, std::is_constructible<r_policy, RPol &&>,
-                            std::is_constructible<s_policy, SPol &&>>::value,
-        int>;
 
 public:
     /// Constructor from UDI, algorithm, problem, size, replacement/selection policies and seed.
@@ -873,7 +885,7 @@ public:
      * \verbatim embed:rst:leading-asterisk
      * .. note::
      *
-     *    This constructor is enabled only if ``Isl`` satisfies :cpp:class:`pagmo::is_udi`, ``a`` can be used to
+     *    This constructor is enabled only if ``Isl`` satisfies :cpp:class:`pagmo::IsUdIsland`, ``a`` can be used to
      *    construct a :cpp:class:`pagmo::algorithm`, ``p`` can be used to construct a
      *    :cpp:class:`pagmo::problem`, and ``r`` and ``s`` can be used to construct, respectively, a
      *    :cpp:class:`pagmo::r_policy` and a :cpp:class:`pagmo::s_policy`.
@@ -894,8 +906,8 @@ public:
      * @throws unspecified any exception thrown by the previous constructor or by
      * the construction of the replacement/selection policies.
      */
-    template <typename Isl, typename Algo, typename Prob, typename RPol, typename SPol,
-              isl_algo_prob_pol_enabler<Isl, Algo, Prob, RPol, SPol> = 0>
+    template <typename Isl, typename Algo, typename Prob, typename RPol, typename SPol>
+        requires(IslAlgoProbPolEnabler<Isl, Algo, Prob, RPol, SPol>)
     explicit island(Isl &&isl, Algo &&a, Prob &&p, population::size_type size, RPol &&r, SPol &&s,
                     unsigned seed = pagmo::random_device::next())
         : island(std::forward<Isl>(isl), std::forward<Algo>(a), population(std::forward<Prob>(p), size, seed),
@@ -903,20 +915,13 @@ public:
     {
     }
 
-private:
-    template <typename Isl, typename Algo, typename Prob, typename Bfe>
-    using isl_algo_prob_bfe_enabler = enable_if_t<
-        detail::conjunction<is_udi<uncvref_t<Isl>>, std::is_constructible<algorithm, Algo &&>,
-                            std::is_constructible<problem, Prob &&>, std::is_constructible<bfe, Bfe &&>>::value,
-        int>;
-
 public:
     /// Constructor from UDI, algorithm, problem, batch fitness evaluator, size and seed.
     /**
      * \verbatim embed:rst:leading-asterisk
      * .. note::
      *
-     *    This constructor is enabled only if ``Isl`` satisfies :cpp:class:`pagmo::is_udi`, ``a`` can be used to
+     *    This constructor is enabled only if ``Isl`` satisfies :cpp:class:`pagmo::IsUdIsland`, ``a`` can be used to
      *    construct a :cpp:class:`pagmo::algorithm`, ``p`` can be used to construct a
      *    :cpp:class:`pagmo::problem`, and ``b`` can be used to construct a :cpp:class:`pagmo::bfe`.
      *
@@ -936,22 +941,14 @@ public:
      * @throws unspecified any exception thrown by the invoked pagmo::population constructor or by
      * island(Algo &&, Pop &&).
      */
-    template <typename Isl, typename Algo, typename Prob, typename Bfe,
-              isl_algo_prob_bfe_enabler<Isl, Algo, Prob, Bfe> = 0>
+    template <typename Isl, typename Algo, typename Prob, typename Bfe>
+        requires(IslAlgoProbBfeEnabler<Isl, Algo, Prob, Bfe>)
     explicit island(Isl &&isl, Algo &&a, Prob &&p, Bfe &&b, population::size_type size,
                     unsigned seed = pagmo::random_device::next())
         : island(std::forward<Isl>(isl), std::forward<Algo>(a),
                  population(std::forward<Prob>(p), std::forward<Bfe>(b), size, seed))
     {
     }
-
-private:
-    template <typename Isl, typename Algo, typename Prob, typename Bfe, typename RPol, typename SPol>
-    using isl_algo_prob_bfe_pol_enabler = enable_if_t<
-        detail::conjunction<is_udi<uncvref_t<Isl>>, std::is_constructible<algorithm, Algo &&>,
-                            std::is_constructible<problem, Prob &&>, std::is_constructible<bfe, Bfe &&>,
-                            std::is_constructible<r_policy, RPol &&>, std::is_constructible<s_policy, SPol &&>>::value,
-        int>;
 
 public:
     /// Constructor from UDI, algorithm, problem, batch fitness evaluator, size, replacement/selection policies and
@@ -960,7 +957,7 @@ public:
      * \verbatim embed:rst:leading-asterisk
      * .. note::
      *
-     *    This constructor is enabled only if ``Isl`` satisfies :cpp:class:`pagmo::is_udi`, ``a`` can be used to
+     *    This constructor is enabled only if ``Isl`` satisfies :cpp:class:`pagmo::IsUdIsland`, ``a`` can be used to
      *    construct a :cpp:class:`pagmo::algorithm`, ``p`` can be used to construct a
      *    :cpp:class:`pagmo::problem`, ``b`` can be used to construct a :cpp:class:`pagmo::bfe`,
      *    and ``r`` and ``s`` can be used to construct, respectively, a
@@ -983,8 +980,8 @@ public:
      * @throws unspecified any exception thrown by the previous constructor or by
      * the construction of the replacement/selection policies.
      */
-    template <typename Isl, typename Algo, typename Prob, typename Bfe, typename RPol, typename SPol,
-              isl_algo_prob_bfe_pol_enabler<Isl, Algo, Prob, Bfe, RPol, SPol> = 0>
+    template <typename Isl, typename Algo, typename Prob, typename Bfe, typename RPol, typename SPol>
+        requires(IslAlgoProbBfePolEnabler<Isl, Algo, Prob, Bfe, RPol, SPol>)
     explicit island(Isl &&isl, Algo &&a, Prob &&p, Bfe &&b, population::size_type size, RPol &&r, SPol &&s,
                     unsigned seed = pagmo::random_device::next())
         : island(std::forward<Isl>(isl), std::forward<Algo>(a),
