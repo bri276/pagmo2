@@ -87,14 +87,14 @@ struct disable_udsp_checks : std::false_type {
 
 // Detect UDSPs
 template <typename T>
-concept IsUdsp = requires(T) {
-    std::is_same<T, uncvref_t<T>>::value;
-    std::is_default_constructible<T>::value;
-    std::is_copy_constructible<T>::value;
-    std::is_move_constructible<T>::value;
-    std::is_destructible<T>::value;
+concept IsUdSPolicy = requires(T) {
+    requires IsNotConstVolatileRef<T>;
+    requires std::is_default_constructible_v<T>;
+    requires std::is_copy_constructible_v<T>;
+    requires std::is_move_constructible_v<T>;
+    requires std::is_destructible_v<T>;
     requires HasSelect<T>;
-    detail::disable_udsp_checks<T>::value;
+    requires !detail::disable_udsp_checks<T>::value;
 };
 
 namespace detail
@@ -221,7 +221,7 @@ namespace pagmo
 // S_policy concept definitions
 class PAGMO_DLL_PUBLIC s_policy;
 template <typename T>
-concept SpolGenericCtorEnabler = !std::is_same_v<s_policy, uncvref_t<T>> && IsUdsp<uncvref_t<T>>;
+concept SpolGenericCtorEnabler = IsDifferentBaseType<s_policy, T> && IsUdSPolicy<RemoveConstVolatileRef<T>>;
 
 // Selection policy.
 class PAGMO_DLL_PUBLIC s_policy
@@ -235,7 +235,8 @@ public:
     // Constructor from a UDSP.
     template <typename T>
         requires SpolGenericCtorEnabler<T>
-    explicit s_policy(T &&x) : m_ptr(std::make_unique<detail::s_pol_inner<uncvref_t<T>>>(std::forward<T>(x)))
+    explicit s_policy(T &&x)
+        : m_ptr(std::make_unique<detail::s_pol_inner<RemoveConstVolatileRef<T>>>(std::forward<T>(x)))
     {
         generic_ctor_impl();
     }

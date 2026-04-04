@@ -96,15 +96,15 @@ struct udi_03 {
 
 BOOST_AUTO_TEST_CASE(island_type_traits)
 {
-    BOOST_CHECK(IsUdi<thread_island>);
-    BOOST_CHECK(!IsUdi<int>);
-    BOOST_CHECK(!IsUdi<const thread_island>);
-    BOOST_CHECK(!IsUdi<const thread_island &>);
-    BOOST_CHECK(!IsUdi<thread_island &>);
-    BOOST_CHECK(!IsUdi<void>);
-    BOOST_CHECK(IsUdi<udi_01>);
-    BOOST_CHECK(!IsUdi<udi_02>);
-    BOOST_CHECK(IsUdi<udi_03>);
+    BOOST_CHECK(IsUdIsland<thread_island>);
+    BOOST_CHECK(!IsUdIsland<int>);
+    BOOST_CHECK(!IsUdIsland<const thread_island>);
+    BOOST_CHECK(!IsUdIsland<const thread_island &>);
+    BOOST_CHECK(!IsUdIsland<thread_island &>);
+    BOOST_CHECK(!IsUdIsland<void>);
+    BOOST_CHECK(IsUdIsland<udi_01>);
+    BOOST_CHECK(!IsUdIsland<udi_02>);
+    BOOST_CHECK(IsUdIsland<udi_03>);
 }
 
 // Minimal udrp/udsp to test the constructors

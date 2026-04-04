@@ -115,14 +115,14 @@ struct disable_udi_checks : std::false_type {
  * Types satisfying this type trait can be used as user-defined islands (UDI) in pagmo::island.
  */
 template <typename T>
-concept IsUdi = requires(T) {
-    std::is_same<T, uncvref_t<T>>::value;
-    std::is_default_constructible<T>::value;
-    std::is_copy_constructible<T>::value;
-    std::is_move_constructible<T>::value;
-    std::is_destructible<T>::value;
+concept IsUdIsland = requires(T) {
+    requires IsNotConstVolatileRef<T>;
+    requires std::is_default_constructible_v<T>;
+    requires std::is_copy_constructible_v<T>;
+    requires std::is_move_constructible_v<T>;
+    requires std::is_destructible_v<T>;
     requires HasRunEvolve<T>;
-    detail::disable_udi_checks<T>::value;
+    requires !detail::disable_udi_checks<T>::value;
 };
 
 namespace detail
@@ -239,56 +239,98 @@ namespace pagmo
 
 // Concept definitions for island constructors
 template <typename Algo, typename Pop>
-concept AlgoPopEnabler = std::is_constructible_v<algorithm, Algo &&> && std::is_same_v<population, uncvref_t<Pop>>;
+concept AlgoPopEnabler = requires(Algo, Pop) {
+    requires std::is_same_v<population, RemoveConstVolatileRef<Pop>>;
+    requires std::is_constructible_v<algorithm, Algo &&>;
+};
 
 template <typename Algo, typename Pop, typename RPol, typename SPol>
-concept AlgoPopPolEnabler = std::is_constructible_v<algorithm, Algo &&> && std::is_same_v<population, uncvref_t<Pop>>
-                            && std::is_constructible_v<r_policy, RPol &&> && std::is_constructible_v<s_policy, SPol &&>;
+concept AlgoPopPolEnabler = requires(Algo, Pop, RPol, SPol) {
+    requires std::is_same_v<population, RemoveConstVolatileRef<Pop>>;
+    requires std::is_constructible_v<algorithm, Algo &&>;
+    requires std::is_constructible_v<r_policy, RPol &&>;
+    requires std::is_constructible_v<s_policy, SPol &&>;
+};
 
 template <typename Isl, typename Algo, typename Pop>
-concept IslAlgoPopEnabler = IsUdi<uncvref_t<Isl>> && std::is_constructible_v<algorithm, Algo &&>
-                            && std::is_same_v<population, uncvref_t<Pop>>;
+concept IslAlgoPopEnabler = requires(Isl, Algo, Pop) {
+    requires IsUdIsland<RemoveConstVolatileRef<Isl>>;
+    requires std::is_same_v<population, RemoveConstVolatileRef<Pop>>;
+    requires std::is_constructible_v<algorithm, Algo &&>;
+};
 
 template <typename Isl, typename Algo, typename Pop, typename RPol, typename SPol>
-concept IslAlgoPopPolEnabler
-    = IsUdi<uncvref_t<Isl>> && std::is_constructible_v<algorithm, Algo &&> && std::is_same_v<population, uncvref_t<Pop>>
-      && std::is_constructible_v<r_policy, RPol &&> && std::is_constructible_v<s_policy, SPol &&>;
+concept IslAlgoPopPolEnabler = requires(Isl, Algo, Pop, RPol, SPol) {
+    requires IsUdIsland<RemoveConstVolatileRef<Isl>>;
+    requires std::is_same_v<population, RemoveConstVolatileRef<Pop>>;
+    requires std::is_constructible_v<algorithm, Algo &&>;
+    requires std::is_constructible_v<r_policy, RPol &&>;
+    requires std::is_constructible_v<s_policy, SPol &&>;
+};
 
 template <typename Algo, typename Prob>
-concept AlgoProbEnabler = std::is_constructible_v<algorithm, Algo &&> && std::is_constructible_v<problem, Prob &&>;
+concept AlgoProbEnabler = requires(Algo, Prob) {
+    requires std::is_constructible_v<algorithm, Algo &&>;
+    requires std::is_constructible_v<problem, Prob &&>;
+};
 
 template <typename Algo, typename Prob, typename RPol, typename SPol>
-concept AlgoProbPolEnabler
-    = std::is_constructible_v<algorithm, Algo &&> && std::is_constructible_v<problem, Prob &&>
-      && std::is_constructible_v<r_policy, RPol &&> && std::is_constructible_v<s_policy, SPol &&>;
+concept AlgoProbPolEnabler = requires(Algo, Prob, RPol, SPol) {
+    requires std::is_constructible_v<algorithm, Algo &&>;
+    requires std::is_constructible_v<problem, Prob &&>;
+    requires std::is_constructible_v<r_policy, RPol &&>;
+    requires std::is_constructible_v<s_policy, SPol &&>;
+};
 
 template <typename Algo, typename Prob, typename Bfe>
-concept AlgoProbBfeEnabler = std::is_constructible_v<algorithm, Algo &&> && std::is_constructible_v<problem, Prob &&>
-                             && std::is_constructible_v<bfe, Bfe &&>;
+concept AlgoProbBfeEnabler = requires(Algo, Prob, Bfe) {
+    requires std::is_constructible_v<algorithm, Algo &&>;
+    requires std::is_constructible_v<problem, Prob &&>;
+    requires std::is_constructible_v<bfe, Bfe &&>;
+};
 
 template <typename Algo, typename Prob, typename Bfe, typename RPol, typename SPol>
-concept AlgoProbBfePolEnabler = std::is_constructible_v<algorithm, Algo &&> && std::is_constructible_v<problem, Prob &&>
-                                && std::is_constructible_v<bfe, Bfe &&> && std::is_constructible_v<r_policy, RPol &&>
-                                && std::is_constructible_v<s_policy, SPol &&>;
+concept AlgoProbBfePolEnabler = requires(Algo, Prob, Bfe, RPol, SPol) {
+    requires std::is_constructible_v<algorithm, Algo &&>;
+    requires std::is_constructible_v<problem, Prob &&>;
+    requires std::is_constructible_v<bfe, Bfe &&>;
+    requires std::is_constructible_v<r_policy, RPol &&>;
+    requires std::is_constructible_v<s_policy, SPol &&>;
+};
 
 template <typename Isl, typename Algo, typename Prob>
-concept IslAlgoProbEnabler
-    = IsUdi<uncvref_t<Isl>> && std::is_constructible_v<algorithm, Algo &&> && std::is_constructible_v<problem, Prob &&>;
+concept IslAlgoProbEnabler = requires(Isl, Algo, Prob) {
+    requires IsUdIsland<RemoveConstVolatileRef<Isl>>;
+    requires std::is_constructible_v<algorithm, Algo &&>;
+    requires std::is_constructible_v<problem, Prob &&>;
+};
 
 template <typename Isl, typename Algo, typename Prob, typename RPol, typename SPol>
-concept IslAlgoProbPolEnabler
-    = IsUdi<uncvref_t<Isl>> && std::is_constructible_v<algorithm, Algo &&> && std::is_constructible_v<problem, Prob &&>
-      && std::is_constructible_v<r_policy, RPol &&> && std::is_constructible_v<s_policy, SPol &&>;
+concept IslAlgoProbPolEnabler = requires(Isl, Algo, Prob, RPol, SPol) {
+    requires IsUdIsland<RemoveConstVolatileRef<Isl>>;
+    requires std::is_constructible_v<algorithm, Algo &&>;
+    requires std::is_constructible_v<problem, Prob &&>;
+    requires std::is_constructible_v<r_policy, RPol &&>;
+    requires std::is_constructible_v<s_policy, SPol &&>;
+};
 
 template <typename Isl, typename Algo, typename Prob, typename Bfe>
-concept IslAlgoProbBfeEnabler = IsUdi<uncvref_t<Isl>> && std::is_constructible_v<algorithm, Algo &&>
-                                && std::is_constructible_v<problem, Prob &&> && std::is_constructible_v<bfe, Bfe &&>;
+concept IslAlgoProbBfeEnabler = requires(Isl, Algo, Prob, Bfe) {
+    requires IsUdIsland<RemoveConstVolatileRef<Isl>>;
+    requires std::is_constructible_v<algorithm, Algo &&>;
+    requires std::is_constructible_v<problem, Prob &&>;
+    requires std::is_constructible_v<bfe, Bfe &&>;
+};
 
 template <typename Isl, typename Algo, typename Prob, typename Bfe, typename RPol, typename SPol>
-concept IslAlgoProbBfePolEnabler
-    = IsUdi<uncvref_t<Isl>> && std::is_constructible_v<algorithm, Algo &&> && std::is_constructible_v<problem, Prob &&>
-      && std::is_constructible_v<bfe, Bfe &&> && std::is_constructible_v<r_policy, RPol &&>
-      && std::is_constructible_v<s_policy, SPol &&>;
+concept IslAlgoProbBfePolEnabler = requires(Isl, Algo, Prob, Bfe, RPol, SPol) {
+    requires IsUdIsland<RemoveConstVolatileRef<Isl>>;
+    requires std::is_constructible_v<algorithm, Algo &&>;
+    requires std::is_constructible_v<problem, Prob &&>;
+    requires std::is_constructible_v<bfe, Bfe &&>;
+    requires std::is_constructible_v<r_policy, RPol &&>;
+    requires std::is_constructible_v<s_policy, SPol &&>;
+};
 
 namespace detail
 {
@@ -327,7 +369,7 @@ struct PAGMO_DLL_PUBLIC island_data {
     // As above, but the UDI is explicitly passed by the user.
     template <typename Isl, typename Algo, typename Pop>
     explicit island_data(Isl &&isl, Algo &&a, Pop &&p)
-        : isl_ptr(std::make_unique<isl_inner<uncvref_t<Isl>>>(std::forward<Isl>(isl))),
+        : isl_ptr(std::make_unique<isl_inner<RemoveConstVolatileRef<Isl>>>(std::forward<Isl>(isl))),
           algo(std::make_shared<algorithm>(std::forward<Algo>(a))),
           pop(std::make_shared<population>(std::forward<Pop>(p)))
     {
@@ -347,7 +389,7 @@ struct PAGMO_DLL_PUBLIC island_data {
     // As above, but the UDI is explicitly passed by the user.
     template <typename Isl, typename Algo, typename Pop, typename RPol, typename SPol>
     explicit island_data(ptag, Isl &&isl, Algo &&a, Pop &&p, RPol &&r, SPol &&s)
-        : isl_ptr(std::make_unique<isl_inner<uncvref_t<Isl>>>(std::forward<Isl>(isl))),
+        : isl_ptr(std::make_unique<isl_inner<RemoveConstVolatileRef<Isl>>>(std::forward<Isl>(isl))),
           algo(std::make_shared<algorithm>(std::forward<Algo>(a))),
           pop(std::make_shared<population>(std::forward<Pop>(p))), r_pol(std::forward<RPol>(r)),
           s_pol(std::forward<SPol>(s))
@@ -608,7 +650,7 @@ public:
      *
      *    This constructor is enabled only if:
      *
-     *    - ``Isl`` satisfies :cpp:class:`pagmo::IsUdi`,
+     *    - ``Isl`` satisfies :cpp:class:`pagmo::IsUdIsland`,
      *    - ``a`` can be used to construct a :cpp:class:`pagmo::algorithm`,
      *    - ``p`` is an instance of :cpp:class:`pagmo::population`.
      *
@@ -640,7 +682,7 @@ public:
      *
      *    This constructor is enabled only if:
      *
-     *    - ``Isl`` satisfies :cpp:class:`pagmo::IsUdi`,
+     *    - ``Isl`` satisfies :cpp:class:`pagmo::IsUdIsland`,
      *    - ``a`` can be used to construct a :cpp:class:`pagmo::algorithm`,
      *    - ``p`` is an instance of :cpp:class:`pagmo::population`,
      *    - ``r`` and ``s`` can be used to construct, respectively, a
@@ -809,7 +851,7 @@ public:
      * \verbatim embed:rst:leading-asterisk
      * .. note::
      *
-     *    This constructor is enabled only if ``Isl`` satisfies :cpp:class:`pagmo::IsUdi`, ``a`` can be used to
+     *    This constructor is enabled only if ``Isl`` satisfies :cpp:class:`pagmo::IsUdIsland`, ``a`` can be used to
      *    construct a :cpp:class:`pagmo::algorithm`, and ``p`` can be used to construct a
      *    :cpp:class:`pagmo::problem`.
      *
@@ -843,7 +885,7 @@ public:
      * \verbatim embed:rst:leading-asterisk
      * .. note::
      *
-     *    This constructor is enabled only if ``Isl`` satisfies :cpp:class:`pagmo::IsUdi`, ``a`` can be used to
+     *    This constructor is enabled only if ``Isl`` satisfies :cpp:class:`pagmo::IsUdIsland`, ``a`` can be used to
      *    construct a :cpp:class:`pagmo::algorithm`, ``p`` can be used to construct a
      *    :cpp:class:`pagmo::problem`, and ``r`` and ``s`` can be used to construct, respectively, a
      *    :cpp:class:`pagmo::r_policy` and a :cpp:class:`pagmo::s_policy`.
@@ -879,7 +921,7 @@ public:
      * \verbatim embed:rst:leading-asterisk
      * .. note::
      *
-     *    This constructor is enabled only if ``Isl`` satisfies :cpp:class:`pagmo::IsUdi`, ``a`` can be used to
+     *    This constructor is enabled only if ``Isl`` satisfies :cpp:class:`pagmo::IsUdIsland`, ``a`` can be used to
      *    construct a :cpp:class:`pagmo::algorithm`, ``p`` can be used to construct a
      *    :cpp:class:`pagmo::problem`, and ``b`` can be used to construct a :cpp:class:`pagmo::bfe`.
      *
@@ -915,7 +957,7 @@ public:
      * \verbatim embed:rst:leading-asterisk
      * .. note::
      *
-     *    This constructor is enabled only if ``Isl`` satisfies :cpp:class:`pagmo::IsUdi`, ``a`` can be used to
+     *    This constructor is enabled only if ``Isl`` satisfies :cpp:class:`pagmo::IsUdIsland`, ``a`` can be used to
      *    construct a :cpp:class:`pagmo::algorithm`, ``p`` can be used to construct a
      *    :cpp:class:`pagmo::problem`, ``b`` can be used to construct a :cpp:class:`pagmo::bfe`,
      *    and ``r`` and ``s`` can be used to construct, respectively, a

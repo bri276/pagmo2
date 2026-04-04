@@ -113,7 +113,7 @@ PAGMO_DLL_PUBLIC std::ostream &operator<<(std::ostream &, migrant_handling);
 
 // Archipelago concept definitions
 template <typename T>
-concept ArchiTopoCtorEnabler = !std::is_same_v<archipelago, uncvref_t<T>> && std::is_constructible_v<topology, T>;
+concept ArchiTopoCtorEnabler = IsDifferentBaseType<archipelago, T> && std::is_constructible_v<topology, T>;
 
 #if defined(_MSC_VER)
 template <typename...>
@@ -358,7 +358,7 @@ private:
     }
     // isl, algo, prob.
     template <typename Isl, typename Algo, typename Prob, typename S1, typename S2>
-        requires(IsUdi<Isl> && std::is_constructible_v<algorithm, const Algo &>
+        requires(IsUdIsland<Isl> && std::is_constructible_v<algorithm, const Algo &>
                  && std::is_constructible_v<problem, const Prob &> && std::is_integral_v<S1> && std::is_integral_v<S2>)
     void n_ctor(size_type n, const Isl &isl, const Algo &a, const Prob &p, S1 size, S2 seed)
     {
@@ -370,7 +370,7 @@ private:
     }
     // isl, algo, prob, rpol, spol.
     template <typename Isl, typename Algo, typename Prob, typename S1, typename RPol, typename SPol, typename S2>
-        requires(IsUdi<Isl> && std::is_constructible_v<algorithm, const Algo &>
+        requires(IsUdIsland<Isl> && std::is_constructible_v<algorithm, const Algo &>
                  && std::is_constructible_v<problem, const Prob &> && std::is_constructible_v<r_policy, const RPol &>
                  && std::is_constructible_v<s_policy, const SPol &> && std::is_integral_v<S1> && std::is_integral_v<S2>)
     void n_ctor(size_type n, const Isl &isl, const Algo &a, const Prob &p, S1 size, const RPol &r_pol,
@@ -384,7 +384,7 @@ private:
     }
     // isl, algo, prob, bfe.
     template <typename Isl, typename Algo, typename Prob, typename Bfe, typename S1, typename S2>
-        requires(IsUdi<Isl> && std::is_constructible_v<algorithm, const Algo &>
+        requires(IsUdIsland<Isl> && std::is_constructible_v<algorithm, const Algo &>
                  && std::is_constructible_v<problem, const Prob &> && std::is_constructible_v<bfe, const Bfe &>
                  && std::is_integral_v<S1> && std::is_integral_v<S2>)
     void n_ctor(size_type n, const Isl &isl, const Algo &a, const Prob &p, const Bfe &b, S1 size, S2 seed)
@@ -398,7 +398,7 @@ private:
     // isl, algo, prob, bfe, rpol, spol.
     template <typename Isl, typename Algo, typename Prob, typename Bfe, typename S1, typename RPol, typename SPol,
               typename S2>
-        requires(IsUdi<Isl> && std::is_constructible_v<algorithm, const Algo &>
+        requires(IsUdIsland<Isl> && std::is_constructible_v<algorithm, const Algo &>
                  && std::is_constructible_v<problem, const Prob &> && std::is_constructible_v<bfe, const Bfe &>
                  && std::is_constructible_v<r_policy, const RPol &> && std::is_constructible_v<s_policy, const SPol &>
                  && std::is_integral_v<S1> && std::is_integral_v<S2>)

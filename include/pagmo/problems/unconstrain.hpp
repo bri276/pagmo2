@@ -46,7 +46,7 @@ namespace pagmo
 // Unconstrain concept definitions
 class PAGMO_DLL_PUBLIC unconstrain;
 template <typename T>
-concept UnconstrainCtorEnabler = !std::same_as<unconstrain, uncvref_t<T>> && std::constructible_from<problem, T &&>;
+concept UnconstrainCtorEnabler = IsDifferentBaseType<unconstrain, T> && std::constructible_from<problem, T &&>;
 
 /// The unconstrain meta-problem
 /**

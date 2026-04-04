@@ -118,11 +118,16 @@ struct disable_udt_checks : std::false_type {
 
 // Detect user-defined topologies (UDT).
 template <typename T>
-concept IsUdt
-    = (std::is_same_v<T, uncvref_t<T>> && std::is_default_constructible_v<T> && std::is_copy_constructible_v<T>
-       && std::is_move_constructible_v<T> && std::is_destructible_v<T> && HasGetConnections<T> && HasPushBack<T>)
-      || detail::disable_udt_checks<T>::value;
-
+concept IsUdTopology = requires(T) {
+    requires IsNotConstVolatileRef<T>;
+    requires std::is_default_constructible_v<T>;
+    requires std::is_copy_constructible_v<T>;
+    requires std::is_move_constructible_v<T>;
+    requires std::is_destructible_v<T>;
+    requires HasGetConnections<T>;
+    requires HasPushBack<T>;
+    requires !detail::disable_udt_checks<T>::value;
+};
 namespace detail
 {
 
@@ -265,7 +270,8 @@ namespace pagmo
 // Topology concept definitions
 class PAGMO_DLL_PUBLIC topology;
 template <typename T>
-concept TopoGenericCtorEnabler = !std::same_as<topology, uncvref_t<T>> && IsUdt<uncvref_t<T>>;
+concept TopoGenericCtorEnabler
+    = !std::same_as<topology, RemoveConstVolatileRef<T>> && IsUdTopology<RemoveConstVolatileRef<T>>;
 
 // Topology class.
 class PAGMO_DLL_PUBLIC topology
@@ -281,7 +287,8 @@ public:
     // Generic constructor.
     template <typename T>
         requires(TopoGenericCtorEnabler<T>)
-    explicit topology(T &&x) : m_ptr(std::make_unique<detail::topo_inner<uncvref_t<T>>>(std::forward<T>(x)))
+    explicit topology(T &&x)
+        : m_ptr(std::make_unique<detail::topo_inner<RemoveConstVolatileRef<T>>>(std::forward<T>(x)))
     {
         generic_ctor_impl();
     }

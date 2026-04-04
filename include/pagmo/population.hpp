@@ -53,7 +53,7 @@ namespace pagmo
 // Population concept definitions
 class PAGMO_DLL_PUBLIC population;
 template <typename T>
-concept PopGenericCtorEnabler = !std::is_same_v<population, uncvref_t<T>> && std::is_constructible_v<problem, T &&>;
+concept PopGenericCtorEnabler = IsDifferentBaseType<population, T> && std::is_constructible_v<problem, T &&>;
 
 /// Population class.
 /**
@@ -123,7 +123,8 @@ public:
      * @throws unspecified any exception thrown by random_decision_vector(), push_back(), or by the
      * invoked constructor of pagmo::problem.
      */
-    template <PopGenericCtorEnabler T>
+    template <typename T>
+        requires(PopGenericCtorEnabler<T>)
     explicit population(T &&x, size_type pop_size = 0u, unsigned seed = pagmo::random_device::next())
         : m_prob(std::forward<T>(x)), m_e(seed), m_seed(seed)
     {
@@ -172,7 +173,7 @@ public:
     explicit population(T &&x, U &&b, size_type pop_size = 0u, unsigned seed = pagmo::random_device::next())
         : m_prob(std::forward<T>(x)), m_e(seed), m_seed(seed)
     {
-        constructor_from_bfe_impl(std::forward<U>(b), pop_size, std::is_same<uncvref_t<U>, bfe>{});
+        constructor_from_bfe_impl(std::forward<U>(b), pop_size, std::is_same<RemoveConstVolatileRef<U>, bfe>{});
     }
 
     // Copy constructor.

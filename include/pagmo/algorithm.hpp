@@ -129,20 +129,20 @@ struct disable_uda_checks : std::false_type {
  * Types satisfying this concept can be used as user-defined algorithms (UDA) in pagmo::algorithm.
  */
 template <typename T>
-concept IsUda = requires(T) {
-    std::is_same<T, uncvref_t<T>>::value;
+concept IsUdAlgorithm = requires(T) {
+    requires IsNotConstVolatileRef<T>;
     std::is_default_constructible<T>::value;
     std::is_copy_constructible<T>::value;
     std::is_move_constructible<T>::value;
     std::is_destructible<T>::value;
     requires HasEvolve<T>;
-    detail::disable_uda_checks<T>::value;
+    std::negation<detail::disable_uda_checks<T>>::value;
 };
 
 // Concept for enabling generic constructor - algorithm must not be the same type and must be a UDA
 class PAGMO_DLL_PUBLIC algorithm;
 template <typename T>
-concept AlgoGenericCtorEnabler = !std::is_same_v<algorithm, uncvref_t<T>> && IsUda<uncvref_t<T>>;
+concept AlgoGenericCtorEnabler = IsDifferentBaseType<algorithm, T> && IsUdAlgorithm<RemoveConstVolatileRef<T>>;
 
 namespace detail
 {
@@ -423,7 +423,8 @@ public:
      *
      *    This constructor is not enabled if, after the removal of cv and reference qualifiers,
      *    ``T`` is of type :cpp:class:`pagmo::algorithm` (that is, this constructor does not compete with the copy/move
-     *    constructors of :cpp:class:`pagmo::algorithm`), or if  ``T`` does not satisfy :cpp:class:`pagmo::IsUda`.
+     *    constructors of :cpp:class:`pagmo::algorithm`), or if  ``T`` does not satisfy
+     * :cpp:class:`pagmo::IsUdAlgorithm`.
      *
      * \endverbatim
      *
@@ -439,7 +440,8 @@ public:
      */
     template <typename T>
         requires AlgoGenericCtorEnabler<T>
-    explicit algorithm(T &&x) : m_ptr(std::make_unique<detail::algo_inner<uncvref_t<T>>>(std::forward<T>(x)))
+    explicit algorithm(T &&x)
+        : m_ptr(std::make_unique<detail::algo_inner<RemoveConstVolatileRef<T>>>(std::forward<T>(x)))
     {
         generic_ctor_impl();
     }
@@ -459,7 +461,7 @@ public:
      *    This operator is not enabled if, after the removal of cv and reference qualifiers,
      *    ``T`` is of type :cpp:class:`pagmo::algorithm` (that is, this operator does not compete with the copy/move
      *    assignment operators of :cpp:class:`pagmo::algorithm`), or if ``T`` does not satisfy
-     *    :cpp:class:`pagmo::IsUda`.
+     *    :cpp:class:`pagmo::IsUdAlgorithm`.
      *
      * \endverbatim
      *

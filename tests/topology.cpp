@@ -145,10 +145,10 @@ BOOST_AUTO_TEST_CASE(topology_type_traits_test)
     BOOST_CHECK(!HasPushBack<npb00>);
     BOOST_CHECK(!HasPushBack<npb01>);
 
-    BOOST_CHECK(!IsUdt<void>);
-    BOOST_CHECK(IsUdt<udt00>);
-    BOOST_CHECK(!IsUdt<gc00>);
-    BOOST_CHECK(!IsUdt<pb00>);
+    BOOST_CHECK(!IsUdTopology<void>);
+    BOOST_CHECK(IsUdTopology<udt00>);
+    BOOST_CHECK(!IsUdTopology<gc00>);
+    BOOST_CHECK(!IsUdTopology<pb00>);
 }
 
 BOOST_AUTO_TEST_CASE(topology_basic_tests)

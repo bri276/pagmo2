@@ -87,13 +87,17 @@ struct disable_udbfe_checks : std::false_type {
 // Check if T is a UDBFE.
 template <typename T>
 concept IsUdBfe = requires(T) {
-    std::is_same<T, uncvref_t<T>>::value;
-    std::is_default_constructible<T>::value;
-    std::is_copy_constructible<T>::value;
-    std::is_move_constructible<T>::value;
-    std::is_destructible<T>::value;
+    requires IsNotConstVolatileRef<T>;
+    requires std::is_default_constructible_v<T>;
+    requires std::is_copy_constructible_v<T>;
+    requires std::is_move_constructible_v<T>;
+    requires std::is_destructible_v<T>;
     requires HasBfeCallOperator<T>;
-    detail::disable_udbfe_checks<T>::value;
+    requires !detail::disable_udbfe_checks<T>::value;
+    // Exclude lambda closure types by detecting their unique characteristics:
+    // They can be converted to function pointers but are themselves class types
+    requires !(std::is_class_v<T>
+               && std::is_convertible_v<T, vector_double (*)(const problem &, const vector_double &)>);
 };
 
 namespace detail
@@ -231,8 +235,9 @@ namespace pagmo
 // BFE concept definitions
 class PAGMO_DLL_PUBLIC bfe;
 template <typename T>
-concept BfeGenericCtorEnabler = (!std::is_same_v<bfe, uncvref_t<T>> && IsUdBfe<uncvref_t<T>>)
-                                || std::is_same_v<vector_double(const problem &, const vector_double &), uncvref_t<T>>;
+concept BfeGenericCtorEnabler
+    = (IsDifferentBaseType<bfe, T> && IsUdBfe<RemoveConstVolatileRef<T>>)
+      || std::is_same_v<vector_double(const problem &, const vector_double &), RemoveConstVolatileRef<T>>;
 
 class PAGMO_DLL_PUBLIC bfe
 {
@@ -246,7 +251,8 @@ class PAGMO_DLL_PUBLIC bfe
     {
     }
     template <typename T>
-    explicit bfe(T &&x, std::false_type) : m_ptr(std::make_unique<detail::bfe_inner<uncvref_t<T>>>(std::forward<T>(x)))
+    explicit bfe(T &&x, std::false_type)
+        : m_ptr(std::make_unique<detail::bfe_inner<RemoveConstVolatileRef<T>>>(std::forward<T>(x)))
     {
     }
     // Implementation of the generic ctor.
@@ -258,7 +264,7 @@ public:
     // Constructor from a UDBFE.
     template <typename T>
         requires BfeGenericCtorEnabler<T>
-    explicit bfe(T &&x) : bfe(std::forward<T>(x), std::is_function<uncvref_t<T>>{})
+    explicit bfe(T &&x) : bfe(std::forward<T>(x), std::is_function<RemoveConstVolatileRef<T>>{})
     {
         generic_ctor_impl();
     }

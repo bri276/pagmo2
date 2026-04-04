@@ -427,16 +427,16 @@ BOOST_AUTO_TEST_CASE(problem_construction_test)
     p2 = std::move(p4);
     BOOST_CHECK((p2.extract<null_problem>() != nullptr));
 
-    // Check the IsUdp type trait.
-    BOOST_CHECK(IsUdp<base_p>);
-    BOOST_CHECK(IsUdp<grad_p>);
-    BOOST_CHECK(IsUdp<hess_p>);
-    BOOST_CHECK(!IsUdp<hess_p &>);
-    BOOST_CHECK(!IsUdp<const hess_p &>);
-    BOOST_CHECK(!IsUdp<const hess_p>);
-    BOOST_CHECK(!IsUdp<int>);
-    BOOST_CHECK(!IsUdp<void>);
-    BOOST_CHECK(!IsUdp<std::string>);
+    // Check the IsUdProblem type trait.
+    BOOST_CHECK(IsUdProblem<base_p>);
+    BOOST_CHECK(IsUdProblem<grad_p>);
+    BOOST_CHECK(IsUdProblem<hess_p>);
+    BOOST_CHECK(!IsUdProblem<hess_p &>);
+    BOOST_CHECK(!IsUdProblem<const hess_p &>);
+    BOOST_CHECK(!IsUdProblem<const hess_p>);
+    BOOST_CHECK(!IsUdProblem<int>);
+    BOOST_CHECK(!IsUdProblem<void>);
+    BOOST_CHECK(!IsUdProblem<std::string>);
     BOOST_CHECK((std::is_constructible<problem, base_p>::value));
     BOOST_CHECK((std::is_constructible<problem, grad_p>::value));
     BOOST_CHECK((std::is_constructible<problem, hess_p>::value));

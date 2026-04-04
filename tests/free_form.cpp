@@ -49,7 +49,7 @@ using namespace pagmo;
 
 BOOST_AUTO_TEST_CASE(basic_test)
 {
-    BOOST_CHECK(IsUdt<free_form>);
+    BOOST_CHECK(IsUdTopology<free_form>);
 
     free_form f0;
     BOOST_CHECK(f0.num_vertices() == 0u);

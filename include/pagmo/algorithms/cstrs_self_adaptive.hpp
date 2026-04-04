@@ -85,7 +85,7 @@ namespace detail
 //   the UDA operated on a copy of the original input problem), just re-evaluate
 //   the dv instead of asserting failure.
 struct PAGMO_DLL_PUBLIC penalized_udp {
-    // Unused default constructor to please the IsUdp type trait
+    // Unused default constructor to please the IsUdProblem type trait
     penalized_udp()
     {
         assert(false);

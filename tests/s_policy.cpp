@@ -61,9 +61,9 @@ using namespace pagmo;
 
 BOOST_AUTO_TEST_CASE(type_traits_tests)
 {
-    BOOST_CHECK(!IsUdsp<void>);
-    BOOST_CHECK(!IsUdsp<int>);
-    BOOST_CHECK(!IsUdsp<double>);
+    BOOST_CHECK(!IsUdSPolicy<void>);
+    BOOST_CHECK(!IsUdSPolicy<int>);
+    BOOST_CHECK(!IsUdSPolicy<double>);
 
     struct udsp00 {
         individuals_group_t select(const individuals_group_t &, const vector_double::size_type &,
@@ -72,10 +72,10 @@ BOOST_AUTO_TEST_CASE(type_traits_tests)
                                    const vector_double &) const;
     };
 
-    BOOST_CHECK(IsUdsp<udsp00>);
-    BOOST_CHECK(!IsUdsp<const udsp00>);
-    BOOST_CHECK(!IsUdsp<const udsp00 &>);
-    BOOST_CHECK(!IsUdsp<udsp00 &>);
+    BOOST_CHECK(IsUdSPolicy<udsp00>);
+    BOOST_CHECK(!IsUdSPolicy<const udsp00>);
+    BOOST_CHECK(!IsUdSPolicy<const udsp00 &>);
+    BOOST_CHECK(!IsUdSPolicy<udsp00 &>);
 
     struct no_udsp00 {
         void select(const individuals_group_t &, const vector_double::size_type &, const vector_double::size_type &,
@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE(type_traits_tests)
                     const vector_double::size_type &, const vector_double &) const;
     };
 
-    BOOST_CHECK(!IsUdsp<no_udsp00>);
+    BOOST_CHECK(!IsUdSPolicy<no_udsp00>);
 
     struct no_udsp01 {
         individuals_group_t select(const individuals_group_t &, const vector_double::size_type &,
@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE(type_traits_tests)
                                    const vector_double &);
     };
 
-    BOOST_CHECK(!IsUdsp<no_udsp01>);
+    BOOST_CHECK(!IsUdSPolicy<no_udsp01>);
 
     struct no_udsp02 {
         no_udsp02() = delete;
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE(type_traits_tests)
                                    const vector_double &) const;
     };
 
-    BOOST_CHECK(!IsUdsp<no_udsp02>);
+    BOOST_CHECK(!IsUdSPolicy<no_udsp02>);
 }
 
 struct udsp1 {

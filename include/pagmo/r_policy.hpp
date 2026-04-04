@@ -87,14 +87,14 @@ struct disable_udrp_checks : std::false_type {
 
 // Detect UDRPs
 template <typename T>
-concept IsUdrp = requires(T) {
-    std::is_same<T, uncvref_t<T>>::value;
-    std::is_default_constructible<T>::value;
-    std::is_copy_constructible<T>::value;
-    std::is_move_constructible<T>::value;
-    std::is_destructible<T>::value;
+concept IsUdRPolicy = requires(T) {
+    requires IsNotConstVolatileRef<T>;
+    requires std::is_default_constructible_v<T>;
+    requires std::is_copy_constructible_v<T>;
+    requires std::is_move_constructible_v<T>;
+    requires std::is_destructible_v<T>;
     requires HasReplace<T>;
-    detail::disable_udrp_checks<T>::value;
+    requires !detail::disable_udrp_checks<T>::value;
 };
 
 namespace detail
@@ -221,7 +221,7 @@ namespace pagmo
 // R_policy concept definitions
 class PAGMO_DLL_PUBLIC r_policy;
 template <typename T>
-concept RpolGenericCtorEnabler = !std::is_same_v<r_policy, uncvref_t<T>> && IsUdrp<uncvref_t<T>>;
+concept RpolGenericCtorEnabler = IsDifferentBaseType<r_policy, T> && IsUdRPolicy<RemoveConstVolatileRef<T>>;
 
 // Replacement policy.
 class PAGMO_DLL_PUBLIC r_policy
@@ -235,7 +235,8 @@ public:
     // Constructor from a UDRP.
     template <typename T>
         requires(RpolGenericCtorEnabler<T>)
-    explicit r_policy(T &&x) : m_ptr(std::make_unique<detail::r_pol_inner<uncvref_t<T>>>(std::forward<T>(x)))
+    explicit r_policy(T &&x)
+        : m_ptr(std::make_unique<detail::r_pol_inner<RemoveConstVolatileRef<T>>>(std::forward<T>(x)))
     {
         generic_ctor_impl();
     }

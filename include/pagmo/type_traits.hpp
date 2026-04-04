@@ -134,7 +134,16 @@ concept IsNotFloatingPoint = !std::is_floating_point_v<T>;
 
 /// Remove reference and cv qualifiers from type \p T.
 template <typename T>
-using uncvref_t = std::remove_cv_t<std::remove_reference_t<T>>;
+using RemoveConstVolatileRef = std::remove_cv_t<std::remove_reference_t<T>>;
+
+template <typename T>
+concept IsConstVolatileRef = !std::is_same_v<T, RemoveConstVolatileRef<T>>;
+
+template <typename T>
+concept IsNotConstVolatileRef = std::is_same_v<T, RemoveConstVolatileRef<T>>;
+
+template <typename T, typename U>
+concept IsDifferentBaseType = !std::is_same_v<T, RemoveConstVolatileRef<U>>;
 
 /// Detect \p set_seed() method.
 /**

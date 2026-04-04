@@ -144,14 +144,14 @@ BOOST_AUTO_TEST_CASE(algorithm_construction_test)
     a2 = std::move(a4);
     BOOST_CHECK((a2.extract<null_algorithm>() != nullptr));
 
-    // Check the IsUda type trait.
-    BOOST_CHECK(IsUda<al_01>);
-    BOOST_CHECK(IsUda<null_algorithm>);
-    BOOST_CHECK(!IsUda<al_01 &>);
-    BOOST_CHECK(!IsUda<const al_01>);
-    BOOST_CHECK(!IsUda<int>);
-    BOOST_CHECK(!IsUda<void>);
-    BOOST_CHECK(!IsUda<std::string>);
+    // Check the IsUdAlgorithm type trait.
+    BOOST_CHECK(IsUdAlgorithm<al_01>);
+    BOOST_CHECK(IsUdAlgorithm<null_algorithm>);
+    BOOST_CHECK(!IsUdAlgorithm<al_01 &>);
+    BOOST_CHECK(!IsUdAlgorithm<const al_01>);
+    BOOST_CHECK(!IsUdAlgorithm<int>);
+    BOOST_CHECK(!IsUdAlgorithm<void>);
+    BOOST_CHECK(!IsUdAlgorithm<std::string>);
     BOOST_CHECK((std::is_constructible<algorithm, al_01>::value));
     BOOST_CHECK((std::is_constructible<algorithm, null_algorithm>::value));
     BOOST_CHECK((std::is_constructible<algorithm, al_01 &>::value));
@@ -431,8 +431,8 @@ BOOST_AUTO_TEST_CASE(extract_test)
     algorithm p;
     BOOST_CHECK(p.is<null_algorithm>());
     BOOST_CHECK((std::is_same<null_algorithm *, decltype(p.extract<null_algorithm>())>::value));
-    BOOST_CHECK(
-        (std::is_same<null_algorithm const *, decltype(static_cast<const algorithm &>(p).extract<null_algorithm>())>::value));
+    BOOST_CHECK((std::is_same<null_algorithm const *,
+                              decltype(static_cast<const algorithm &>(p).extract<null_algorithm>())>::value));
     BOOST_CHECK(p.extract<null_algorithm>() != nullptr);
     BOOST_CHECK(static_cast<const algorithm &>(p).extract<null_algorithm>() != nullptr);
 }

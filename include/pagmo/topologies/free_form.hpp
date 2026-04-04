@@ -54,7 +54,7 @@ public:
     explicit free_form(bgl_graph_t);
     explicit free_form(const topology &);
     template <typename T>
-        requires(!std::same_as<T, free_form> && IsUdt<T>)
+        requires(!std::same_as<T, free_form> && IsUdTopology<T>)
     explicit free_form(const T &t) : free_form(topology(t))
     {
     }

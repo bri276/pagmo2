@@ -321,15 +321,15 @@ struct disable_udp_checks : std::false_type {
  * Types satisfying this concept can be used as user-defined problems (UDP) in pagmo::problem.
  */
 template <typename T>
-concept IsUdp = requires(T) {
-    std::is_same<T, uncvref_t<T>>::value;
-    std::is_default_constructible<T>::value;
-    std::is_copy_constructible<T>::value;
-    std::is_move_constructible<T>::value;
-    std::is_destructible<T>::value;
+concept IsUdProblem = requires(T) {
+    requires IsNotConstVolatileRef<T>;
+    requires std::is_default_constructible_v<T>;
+    requires std::is_copy_constructible_v<T>;
+    requires std::is_move_constructible_v<T>;
+    requires std::is_destructible_v<T>;
     requires HasFitness<T>;
     requires HasBounds<T>;
-    detail::disable_udp_checks<T>::value;
+    requires !detail::disable_udp_checks<T>::value;
 };
 
 namespace detail
@@ -895,7 +895,7 @@ PAGMO_DLL_PUBLIC vector_double prob_invoke_mem_batch_fitness(const problem &, co
 
 // Problem concept definitions
 template <typename T>
-concept ProbGenericCtorEnabler = !std::same_as<problem, uncvref_t<T>> && IsUdp<uncvref_t<T>>;
+concept ProbGenericCtorEnabler = IsDifferentBaseType<problem, T> && IsUdProblem<RemoveConstVolatileRef<T>>;
 
 class PAGMO_DLL_PUBLIC problem
 {
@@ -918,7 +918,7 @@ public:
      *
      *    This constructor is not enabled if, after the removal of cv and reference qualifiers,
      *    ``T`` is of type :cpp:class:`pagmo::problem` (that is, this constructor does not compete with the copy/move
-     *    constructors of :cpp:class:`pagmo::problem`), or if ``T`` does not satisfy :cpp:class:`pagmo::IsUdp`.
+     *    constructors of :cpp:class:`pagmo::problem`), or if ``T`` does not satisfy :cpp:class:`pagmo::IsUdProblem`.
      *
      * \endverbatim
      *
@@ -945,8 +945,8 @@ public:
     template <typename T>
         requires ProbGenericCtorEnabler<T>
     explicit problem(T &&x)
-        : m_ptr(std::make_unique<detail::prob_inner<uncvref_t<T>>>(std::forward<T>(x))), m_fevals(0u), m_gevals(0u),
-          m_hevals(0u)
+        : m_ptr(std::make_unique<detail::prob_inner<RemoveConstVolatileRef<T>>>(std::forward<T>(x))), m_fevals(0u),
+          m_gevals(0u), m_hevals(0u)
     {
         generic_ctor_impl();
     }
@@ -966,7 +966,8 @@ public:
      *
      *    This operator is not enabled if, after the removal of cv and reference qualifiers,
      *    ``T`` is of type :cpp:class:`pagmo::problem` (that is, this operator does not compete with the copy/move
-     *    assignment operators of :cpp:class:`pagmo::problem`), or if ``T`` does not satisfy :cpp:class:`pagmo::IsUdp`.
+     *    assignment operators of :cpp:class:`pagmo::problem`), or if ``T`` does not satisfy
+     * :cpp:class:`pagmo::IsUdProblem`.
      *
      * \endverbatim
      *
