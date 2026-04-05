@@ -170,165 +170,20 @@ if (YACMA_COMPILER_IS_CLANGXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQU
     unset (_PAGMO_CLANG_SUPPORTS_ASSUME_UNIQUE_VTABLES)
 endif ()
 
-# TBB using CPM with proper target handling
-CPMFindPackage(
-  NAME TBB
-  GITHUB_REPOSITORY oneapi-src/oneTBB
-  VERSION 2021.10.0
-  GIT_TAG v2021.10.0
-  OPTIONS "TBB_TEST OFF" "TBB_BUILD_TESTS OFF"
-)
+# TBB dependency
+include(cmake/find_or_build_tbb.cmake)
 
-# Handle TBB target - create a working wrapper
-if(TARGET TBB::tbb)
-    message(STATUS "TBB::tbb target available")
-    
-    # Create a wrapper interface target to work around include issues
-    if(NOT TARGET pagmo_tbb_wrapper)
-        add_library(pagmo_tbb_wrapper INTERFACE)
-        # Add proper include directory 
-        if(EXISTS "${CMAKE_CURRENT_BINARY_DIR}/_deps/tbb-src/include")
-            target_include_directories(pagmo_tbb_wrapper INTERFACE "${CMAKE_CURRENT_BINARY_DIR}/_deps/tbb-src/include")
-        endif()
-        # Link to the actual TBB library files without problematic includes
-        get_target_property(TBB_LIBS TBB::tbb INTERFACE_LINK_LIBRARIES)
-        if(TBB_LIBS AND NOT "${TBB_LIBS}" STREQUAL "TBB_LIBS-NOTFOUND")
-            target_link_libraries(pagmo_tbb_wrapper INTERFACE ${TBB_LIBS})
-        endif()
-        # Try to link to compiled libraries directly
-        if(TARGET tbb)
-            target_link_libraries(pagmo_tbb_wrapper INTERFACE tbb)
-        endif()
-    endif()
-elseif(TARGET tbb)
-    message(STATUS "tbb target available, creating wrapper")
-    add_library(pagmo_tbb_wrapper INTERFACE)
-    target_link_libraries(pagmo_tbb_wrapper INTERFACE tbb)
-    # Also create TBB::tbb alias for compatibility
-    add_library(TBB::tbb ALIAS tbb)
-else()
-    message(FATAL_ERROR "No TBB target found")
-endif()
+# Eigen3 dependency
+include(cmake/find_or_build_eigen.cmake)
 
-# Debug: Check what TBB targets exist
-get_property(ALL_TARGETS DIRECTORY PROPERTY BUILDSYSTEM_TARGETS)
-foreach(target ${ALL_TARGETS})
-    if("${target}" MATCHES "[Tt][Bb][Bb]")
-        message(STATUS "Found TBB-related target: ${target}")
-    endif()
-endforeach()
+# NLopt dependency
+include(cmake/find_or_build_nlopt.cmake)
 
-# Eigen3
-if(PAGMO_WITH_EIGEN3)
-    CPMFindPackage(
-      NAME Eigen3
-      GITLAB_REPOSITORY libeigen/eigen
-      VERSION 3.4.0
-      GIT_TAG 3.4.0
-      OPTIONS "EIGEN_BUILD_DOC OFF" "EIGEN_BUILD_TESTING OFF"
-    )
-endif()
+# IPOPT dependency
+include(cmake/find_or_build_ipopt.cmake)
 
-# NLopt
-if(PAGMO_WITH_NLOPT)
-    CPMFindPackage(
-      NAME NLopt
-      GITHUB_REPOSITORY stevengj/nlopt
-      VERSION 2.7.1
-      GIT_TAG v2.7.1
-      OPTIONS "NLOPT_PYTHON OFF" "NLOPT_OCTAVE OFF" "NLOPT_MATLAB OFF" "NLOPT_GUILE OFF" "NLOPT_SWIG OFF" "NLOPT_TESTS OFF"
-    )
-endif()
-
-# Ipopt
-if(PAGMO_WITH_IPOPT)
-    include(ExternalProject)
-    
-    # Set the install directory
-    set(IPOPT_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/ipopt_install)
-    
-    # Create the include directory structure beforehand
-    file(MAKE_DIRECTORY ${IPOPT_INSTALL_DIR}/include/coin-or)
-    file(MAKE_DIRECTORY ${IPOPT_INSTALL_DIR}/lib)
-    
-    # Build IPOPT from source using ExternalProject
-    ExternalProject_Add(
-        ipopt_external
-        GIT_REPOSITORY https://github.com/coin-or/Ipopt.git
-        GIT_TAG releases/3.14.12
-        PREFIX ${CMAKE_CURRENT_BINARY_DIR}/ipopt
-        CONFIGURE_COMMAND <SOURCE_DIR>/configure 
-            --prefix=${IPOPT_INSTALL_DIR}
-            --disable-shared
-            --enable-static
-            --with-pic
-            --with-lapack=-llapack
-            --with-blas=-lblas
-        BUILD_COMMAND make
-        INSTALL_COMMAND make install
-        LOG_CONFIGURE ON
-        LOG_BUILD ON
-        LOG_INSTALL ON
-    )
-    
-    # Create an interface target for IPOPT (using namespaced name to avoid conflicts)
-    add_library(Ipopt::Ipopt INTERFACE IMPORTED)
-    add_dependencies(Ipopt::Ipopt ipopt_external)
-    
-    # Set include directories and libraries
-    target_include_directories(Ipopt::Ipopt INTERFACE ${IPOPT_INSTALL_DIR}/include/coin-or)
-    target_link_libraries(Ipopt::Ipopt INTERFACE 
-        ${IPOPT_INSTALL_DIR}/lib/libipopt.a
-        lapack
-        blas
-    )
-    
-    message(STATUS "IPOPT will be built from source with system LAPACK/BLAS")
-endif()
-
-if(PAGMO_BUILD_TESTS)
-    # Internal variable that will be used to tell PagmoFindBoost to locate the
-    # Boost unit test framework, if tests are required.
-    set(_PAGMO_FIND_BOOST_UNIT_TEST_FRAMEWORK TRUE)
-endif()
-
-# Boost configuration using CPM with interface targets
-set(_PAGMO_REQUIRED_BOOST_LIBS serialization)
-if(PAGMO_BUILD_TESTS)
-    list(APPEND _PAGMO_REQUIRED_BOOST_LIBS unit_test_framework)
-endif()
-
-# Use CPM for Boost to ensure reliable component availability
-message(STATUS "Using CPM for Boost to ensure reliable component availability")
-CPMAddPackage(
-    NAME Boost
-    VERSION 1.83.0
-    URL https://github.com/boostorg/boost/releases/download/boost-1.83.0/boost-1.83.0.tar.xz
-    OPTIONS
-        "BOOST_ENABLE_CMAKE ON"
-        "BOOST_INCLUDE_LIBRARIES serialization\\\\;test\\\\;system\\\\;filesystem"
-        "CMAKE_POSITION_INDEPENDENT_CODE ON"
-        "BUILD_SHARED_LIBS OFF"
-    DOWNLOAD_EXTRACT_TIMESTAMP TRUE
-)
-
-# Verify CPM-provided Boost targets exist
-message(STATUS "Required Boost libraries: ${_PAGMO_REQUIRED_BOOST_LIBS}")
-if(TARGET boost_serialization)
-    message(STATUS "boost_serialization target available")
-else()
-    message(FATAL_ERROR "boost_serialization target not found")
-endif()
-
-if(PAGMO_BUILD_TESTS)
-    if(TARGET boost_unit_test_framework)
-        message(STATUS "boost_unit_test_framework target available")
-    elseif(TARGET boost_test)
-        message(STATUS "boost_test target available")
-    else()
-        message(FATAL_ERROR "No Boost unit test framework target found")
-    endif()
-endif()
+# Boost dependency
+include(cmake/find_or_build_boost.cmake)
 
 # List of source files.
 set(PAGMO_SRC_FILES
