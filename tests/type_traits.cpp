@@ -32,6 +32,7 @@ see https://www.gnu.org/licenses/. */
 #include <type_traits>
 #include <utility>
 
+#include <pagmo/concepts.hpp>
 #include <pagmo/threading.hpp>
 #include <pagmo/type_traits.hpp>
 

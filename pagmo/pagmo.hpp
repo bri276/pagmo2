@@ -35,6 +35,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/algorithm.hpp>
 #include <pagmo/archipelago.hpp>
 #include <pagmo/bfe.hpp>
+#include <pagmo/concepts.hpp>
 #include <pagmo/exceptions.hpp>
 #include <pagmo/io.hpp>
 #include <pagmo/island.hpp>

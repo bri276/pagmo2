@@ -35,6 +35,8 @@ see https://www.gnu.org/licenses/. */
 #include <utility>
 #include <vector>
 
+#include <pagmo/concepts.hpp>
+#include <pagmo/detail/pagmo.fwd.hpp>
 #include <pagmo/detail/visibility.hpp>
 #include <pagmo/problem.hpp>
 #include <pagmo/s11n.hpp>
@@ -45,7 +47,6 @@ namespace pagmo
 {
 
 // Translate concept definitions
-class PAGMO_DLL_PUBLIC translate;
 template <typename T>
 concept TranslateCtorEnabler = std::constructible_from<problem, T &&>;
 

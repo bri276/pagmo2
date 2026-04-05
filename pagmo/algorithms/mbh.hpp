@@ -37,6 +37,8 @@ see https://www.gnu.org/licenses/. */
 #include <vector>
 
 #include <pagmo/algorithm.hpp>
+#include <pagmo/concepts.hpp>
+#include <pagmo/detail/pagmo.fwd.hpp>
 #include <pagmo/detail/visibility.hpp>
 #include <pagmo/population.hpp>
 #include <pagmo/rng.hpp>
@@ -82,7 +84,6 @@ namespace pagmo
  */
 
 // Mbh concept definitions
-class PAGMO_DLL_PUBLIC mbh;
 template <typename T>
 concept MbhCtorEnabler = std::is_constructible_v<algorithm, T &&>;
 

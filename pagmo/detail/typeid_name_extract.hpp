@@ -33,6 +33,7 @@ see https://www.gnu.org/licenses/. */
 #include <type_traits>
 #include <typeinfo>
 
+#include <pagmo/concepts.hpp>
 #include <pagmo/type_traits.hpp>
 
 namespace pagmo

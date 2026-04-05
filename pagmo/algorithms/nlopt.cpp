@@ -67,6 +67,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/algorithm.hpp>
 #include <pagmo/algorithms/nlopt.hpp>
 #include <pagmo/algorithms/not_population_based.hpp>
+#include <pagmo/concepts.hpp>
 #include <pagmo/exceptions.hpp>
 #include <pagmo/io.hpp>
 #include <pagmo/population.hpp>

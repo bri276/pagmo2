@@ -36,6 +36,7 @@ see https://www.gnu.org/licenses/. */
 
 #include <boost/functional/hash.hpp> // boost::hash_combine
 
+#include <pagmo/concepts.hpp>
 #include <pagmo/type_traits.hpp>
 
 // MINGW-specific warnings.

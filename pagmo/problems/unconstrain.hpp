@@ -34,6 +34,8 @@ see https://www.gnu.org/licenses/. */
 #include <type_traits>
 #include <utility>
 
+#include <pagmo/concepts.hpp>
+#include <pagmo/detail/pagmo.fwd.hpp>
 #include <pagmo/detail/visibility.hpp>
 #include <pagmo/problem.hpp>
 #include <pagmo/s11n.hpp>
@@ -44,7 +46,6 @@ namespace pagmo
 {
 
 // Unconstrain concept definitions
-class PAGMO_DLL_PUBLIC unconstrain;
 template <typename T>
 concept UnconstrainCtorEnabler = IsDifferentBaseType<unconstrain, T> && std::constructible_from<problem, T &&>;
 

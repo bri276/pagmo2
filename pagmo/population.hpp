@@ -38,7 +38,8 @@ see https://www.gnu.org/licenses/. */
 #include <vector>
 
 #include <pagmo/bfe.hpp>
-#include <pagmo/detail/island_fwd.hpp>
+#include <pagmo/concepts.hpp>
+#include <pagmo/detail/pagmo.fwd.hpp>
 #include <pagmo/detail/support_xeus_cling.hpp>
 #include <pagmo/detail/visibility.hpp>
 #include <pagmo/problem.hpp>
@@ -51,7 +52,6 @@ namespace pagmo
 {
 
 // Population concept definitions
-class PAGMO_DLL_PUBLIC population;
 template <typename T>
 concept PopGenericCtorEnabler = IsDifferentBaseType<population, T> && std::is_constructible_v<problem, T &&>;
 

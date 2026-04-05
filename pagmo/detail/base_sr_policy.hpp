@@ -36,6 +36,7 @@ see https://www.gnu.org/licenses/. */
 #include <boost/serialization/variant.hpp>
 #include <boost/variant/variant.hpp>
 
+#include <pagmo/concepts.hpp>
 #include <pagmo/detail/visibility.hpp>
 #include <pagmo/s11n.hpp>
 #include <pagmo/type_traits.hpp>

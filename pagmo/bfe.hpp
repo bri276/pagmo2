@@ -41,7 +41,9 @@ see https://www.gnu.org/licenses/. */
 
 #include <boost/type_traits/integral_constant.hpp>
 
+#include <pagmo/concepts.hpp>
 #include <pagmo/config.hpp>
+#include <pagmo/detail/pagmo.fwd.hpp>
 #include <pagmo/detail/support_xeus_cling.hpp>
 #include <pagmo/detail/type_name.hpp>
 #include <pagmo/detail/typeid_name_extract.hpp>
@@ -158,25 +160,25 @@ struct PAGMO_DLL_PUBLIC_INLINE_CLASS bfe_inner final : bfe_inner_base {
     }
     // Implementation of the optional methods.
     template <typename U>
-        requires HasName<U>
+        requires HasGetName<U>
     static std::string get_name_impl(const U &value)
     {
         return value.get_name();
     }
     template <typename U>
-        requires(!HasName<U>)
+        requires(!HasGetName<U>)
     static std::string get_name_impl(const U &)
     {
         return detail::type_name<U>();
     }
     template <typename U>
-        requires HasExtraInfo<U>
+        requires HasGetExtraInfo<U>
     static std::string get_extra_info_impl(const U &value)
     {
         return value.get_extra_info();
     }
     template <typename U>
-        requires(!HasExtraInfo<U>)
+        requires(!HasGetExtraInfo<U>)
     static std::string get_extra_info_impl(const U &)
     {
         return "";
@@ -233,7 +235,6 @@ namespace pagmo
 {
 
 // BFE concept definitions
-class PAGMO_DLL_PUBLIC bfe;
 template <typename T>
 concept BfeGenericCtorEnabler
     = (IsDifferentBaseType<bfe, T> && IsUdBfe<RemoveConstVolatileRef<T>>)

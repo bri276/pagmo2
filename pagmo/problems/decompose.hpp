@@ -34,6 +34,8 @@ see https://www.gnu.org/licenses/. */
 #include <type_traits>
 #include <utility>
 
+#include <pagmo/concepts.hpp>
+#include <pagmo/detail/pagmo.fwd.hpp>
 #include <pagmo/detail/visibility.hpp>
 #include <pagmo/problem.hpp>
 #include <pagmo/s11n.hpp>
@@ -97,7 +99,6 @@ namespace pagmo
  */
 
 // Decompose concept definitions
-class PAGMO_DLL_PUBLIC decompose;
 template <typename T>
 concept DecomposeCtorEnabler = std::is_constructible_v<problem, T &&>;
 

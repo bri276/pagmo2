@@ -41,7 +41,9 @@ see https://www.gnu.org/licenses/. */
 
 #include <boost/type_traits/integral_constant.hpp>
 
+#include <pagmo/concepts.hpp>
 #include <pagmo/config.hpp>
+#include <pagmo/detail/pagmo.fwd.hpp>
 #include <pagmo/detail/support_xeus_cling.hpp>
 #include <pagmo/detail/type_name.hpp>
 #include <pagmo/detail/typeid_name_extract.hpp>
@@ -156,25 +158,25 @@ struct PAGMO_DLL_PUBLIC_INLINE_CLASS r_pol_inner final : r_pol_inner_base {
         return get_extra_info_impl(m_value);
     }
     template <typename U>
-        requires HasName<U>
+        requires HasGetName<U>
     static std::string get_name_impl(const U &value)
     {
         return value.get_name();
     }
     template <typename U>
-        requires(!HasName<U>)
+        requires(!HasGetName<U>)
     static std::string get_name_impl(const U &)
     {
         return detail::type_name<U>();
     }
     template <typename U>
-        requires HasExtraInfo<U>
+        requires HasGetExtraInfo<U>
     static std::string get_extra_info_impl(const U &value)
     {
         return value.get_extra_info();
     }
     template <typename U>
-        requires(!HasExtraInfo<U>)
+        requires(!HasGetExtraInfo<U>)
     static std::string get_extra_info_impl(const U &)
     {
         return "";
@@ -219,7 +221,6 @@ namespace pagmo
 {
 
 // R_policy concept definitions
-class PAGMO_DLL_PUBLIC r_policy;
 template <typename T>
 concept RpolGenericCtorEnabler = IsDifferentBaseType<r_policy, T> && IsUdRPolicy<RemoveConstVolatileRef<T>>;
 

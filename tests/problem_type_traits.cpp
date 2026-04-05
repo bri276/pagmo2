@@ -33,6 +33,7 @@ see https://www.gnu.org/licenses/. */
 #include <utility>
 #include <vector>
 
+#include <pagmo/concepts.hpp>
 #include <pagmo/problem.hpp>
 #include <pagmo/type_traits.hpp>
 #include <pagmo/types.hpp>
@@ -237,10 +238,10 @@ struct n_03 {
 
 BOOST_AUTO_TEST_CASE(has_name_test)
 {
-    BOOST_CHECK((!HasName<n_00>));
-    BOOST_CHECK((HasName<n_01>));
-    BOOST_CHECK((!HasName<n_02>));
-    BOOST_CHECK((!HasName<n_03>));
+    BOOST_CHECK((!HasGetName<n_00>));
+    BOOST_CHECK((HasGetName<n_01>));
+    BOOST_CHECK((!HasGetName<n_02>));
+    BOOST_CHECK((!HasGetName<n_03>));
 }
 
 struct ei_00 {
@@ -261,10 +262,10 @@ struct ei_03 {
 
 BOOST_AUTO_TEST_CASE(has_extra_info_test)
 {
-    BOOST_CHECK((!HasExtraInfo<ei_00>));
-    BOOST_CHECK((HasExtraInfo<ei_01>));
-    BOOST_CHECK((!HasExtraInfo<ei_02>));
-    BOOST_CHECK((!HasExtraInfo<ei_03>));
+    BOOST_CHECK((!HasGetExtraInfo<ei_00>));
+    BOOST_CHECK((HasGetExtraInfo<ei_01>));
+    BOOST_CHECK((!HasGetExtraInfo<ei_02>));
+    BOOST_CHECK((!HasGetExtraInfo<ei_03>));
 }
 
 struct grad_00 {

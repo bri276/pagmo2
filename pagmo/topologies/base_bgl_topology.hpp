@@ -51,7 +51,7 @@ see https://www.gnu.org/licenses/. */
 
 #endif
 
-#include <pagmo/detail/free_form_fwd.hpp>
+#include <pagmo/detail/pagmo.fwd.hpp>
 #include <pagmo/detail/visibility.hpp>
 #include <pagmo/s11n.hpp>
 #include <pagmo/topology.hpp>

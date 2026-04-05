@@ -33,6 +33,7 @@ see https://www.gnu.org/licenses/. */
 #include <utility>
 #include <vector>
 
+#include <pagmo/detail/pagmo.fwd.hpp>
 #include <pagmo/detail/visibility.hpp>
 #include <pagmo/problem.hpp>
 #include <pagmo/s11n.hpp>
@@ -40,9 +41,6 @@ see https://www.gnu.org/licenses/. */
 
 namespace pagmo
 {
-
-// Fwd declare for the type definition below.
-class PAGMO_DLL_PUBLIC cec2006;
 
 namespace detail
 {
