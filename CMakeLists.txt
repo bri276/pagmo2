@@ -170,123 +170,20 @@ if (YACMA_COMPILER_IS_CLANGXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQU
     unset (_PAGMO_CLANG_SUPPORTS_ASSUME_UNIQUE_VTABLES)
 endif ()
 
-# TBB using CPM with proper target handling
-CPMFindPackage(
-  NAME TBB
-  GITHUB_REPOSITORY oneapi-src/oneTBB
-  VERSION 2021.10.0
-  GIT_TAG v2021.10.0
-  OPTIONS "TBB_TEST OFF" "TBB_BUILD_TESTS OFF"
-)
+# TBB dependency
+include(cmake/find_or_build_tbb.cmake)
 
-# Handle TBB target - create a working wrapper
-if(TARGET TBB::tbb)
-    message(STATUS "TBB::tbb target available")
-    
-    # Create a wrapper interface target to work around include issues
-    if(NOT TARGET pagmo_tbb_wrapper)
-        add_library(pagmo_tbb_wrapper INTERFACE)
-        # Add proper include directory 
-        if(EXISTS "${CMAKE_CURRENT_BINARY_DIR}/_deps/tbb-src/include")
-            target_include_directories(pagmo_tbb_wrapper INTERFACE "${CMAKE_CURRENT_BINARY_DIR}/_deps/tbb-src/include")
-        endif()
-        # Link to the actual TBB library files without problematic includes
-        get_target_property(TBB_LIBS TBB::tbb INTERFACE_LINK_LIBRARIES)
-        if(TBB_LIBS AND NOT "${TBB_LIBS}" STREQUAL "TBB_LIBS-NOTFOUND")
-            target_link_libraries(pagmo_tbb_wrapper INTERFACE ${TBB_LIBS})
-        endif()
-        # Try to link to compiled libraries directly
-        if(TARGET tbb)
-            target_link_libraries(pagmo_tbb_wrapper INTERFACE tbb)
-        endif()
-    endif()
-elseif(TARGET tbb)
-    message(STATUS "tbb target available, creating wrapper")
-    add_library(pagmo_tbb_wrapper INTERFACE)
-    target_link_libraries(pagmo_tbb_wrapper INTERFACE tbb)
-    # Also create TBB::tbb alias for compatibility
-    add_library(TBB::tbb ALIAS tbb)
-else()
-    message(FATAL_ERROR "No TBB target found")
-endif()
+# Eigen3 dependency
+include(cmake/find_or_build_eigen.cmake)
 
-# Debug: Check what TBB targets exist
-get_property(ALL_TARGETS DIRECTORY PROPERTY BUILDSYSTEM_TARGETS)
-foreach(target ${ALL_TARGETS})
-    if("${target}" MATCHES "[Tt][Bb][Bb]")
-        message(STATUS "Found TBB-related target: ${target}")
-    endif()
-endforeach()
+# NLopt dependency
+include(cmake/find_or_build_nlopt.cmake)
 
-# Eigen3
-if(PAGMO_WITH_EIGEN3)
-    CPMFindPackage(
-      NAME Eigen3
-      GITLAB_REPOSITORY libeigen/eigen
-      VERSION 3.4.0
-      GIT_TAG 3.4.0
-      OPTIONS "EIGEN_BUILD_DOC OFF" "EIGEN_BUILD_TESTING OFF"
-    )
-endif()
+# IPOPT dependency
+include(cmake/find_or_build_ipopt.cmake)
 
-# NLopt
-if(PAGMO_WITH_NLOPT)
-    CPMFindPackage(
-      NAME NLopt
-      GITHUB_REPOSITORY stevengj/nlopt
-      VERSION 2.7.1
-      GIT_TAG v2.7.1
-      OPTIONS "NLOPT_PYTHON OFF" "NLOPT_OCTAVE OFF" "NLOPT_MATLAB OFF" "NLOPT_GUILE OFF" "NLOPT_SWIG OFF" "NLOPT_TESTS OFF"
-    )
-endif()
-
-# Ipopt
-if(PAGMO_WITH_IPOPT)
-    find_package(pagmo_IPOPT REQUIRED COMPONENTS header libipopt)
-endif()
-
-if(PAGMO_BUILD_TESTS)
-    # Internal variable that will be used to tell PagmoFindBoost to locate the
-    # Boost unit test framework, if tests are required.
-    set(_PAGMO_FIND_BOOST_UNIT_TEST_FRAMEWORK TRUE)
-endif()
-
-# Boost configuration using CPM with interface targets
-set(_PAGMO_REQUIRED_BOOST_LIBS serialization)
-if(PAGMO_BUILD_TESTS)
-    list(APPEND _PAGMO_REQUIRED_BOOST_LIBS unit_test_framework)
-endif()
-
-# Use CPM for Boost to ensure reliable component availability
-message(STATUS "Using CPM for Boost to ensure reliable component availability")
-CPMAddPackage(
-    NAME Boost
-    VERSION 1.83.0
-    URL https://github.com/boostorg/boost/releases/download/boost-1.83.0/boost-1.83.0.tar.xz
-    OPTIONS
-        "BOOST_ENABLE_CMAKE ON"
-        "BOOST_INCLUDE_LIBRARIES serialization\\\\;test\\\\;system\\\\;filesystem"
-        "CMAKE_POSITION_INDEPENDENT_CODE ON"
-    DOWNLOAD_EXTRACT_TIMESTAMP TRUE
-)
-
-# Verify CPM-provided Boost targets exist
-message(STATUS "Required Boost libraries: ${_PAGMO_REQUIRED_BOOST_LIBS}")
-if(TARGET boost_serialization)
-    message(STATUS "boost_serialization target available")
-else()
-    message(FATAL_ERROR "boost_serialization target not found")
-endif()
-
-if(PAGMO_BUILD_TESTS)
-    if(TARGET boost_unit_test_framework)
-        message(STATUS "boost_unit_test_framework target available")
-    elseif(TARGET boost_test)
-        message(STATUS "boost_test target available")
-    else()
-        message(FATAL_ERROR "No Boost unit test framework target found")
-    endif()
-endif()
+# Boost dependency
+include(cmake/find_or_build_boost.cmake)
 
 # List of source files.
 set(PAGMO_SRC_FILES
@@ -512,7 +409,15 @@ if(PAGMO_WITH_NLOPT)
     # Link pagmo to NLopt.
     # NOTE: we make use of some NLopt types in the
     # public pagmo interface.
-    target_link_libraries(pagmo PUBLIC NLopt::nlopt)
+    if(TARGET NLopt::nlopt)
+        target_link_libraries(pagmo PUBLIC NLopt::nlopt)
+        message(STATUS "Linked with NLopt::nlopt target")
+    elseif(TARGET nlopt)
+        target_link_libraries(pagmo PUBLIC nlopt)
+        message(STATUS "Linked with nlopt target")
+    else()
+        message(FATAL_ERROR "No suitable NLopt target found")
+    endif()
     set(PAGMO_ENABLE_NLOPT "#define PAGMO_WITH_NLOPT")
 endif()
 
@@ -523,8 +428,9 @@ if(PAGMO_WITH_IPOPT)
     # function from the library in the public headers.
     # Thus, depend publicly on the header,
     # privately on the compiled library.
-    target_link_libraries(pagmo PUBLIC pagmo::IPOPT::header)
-    target_link_libraries(pagmo PRIVATE pagmo::IPOPT::libipopt)
+    target_link_libraries(pagmo PUBLIC Ipopt::Ipopt)
+    add_dependencies(pagmo ipopt_external)
+    message(STATUS "Linked with Ipopt::Ipopt target")
     set(PAGMO_ENABLE_IPOPT "#define PAGMO_WITH_IPOPT")
 endif()
 
@@ -583,7 +489,7 @@ if(PAGMO_WITH_NLOPT)
 	set(_PAGMO_CONFIG_OPTIONAL_DEPS "${_PAGMO_CONFIG_OPTIONAL_DEPS}find_package(NLopt 2.6 QUIET REQUIRED NO_MODULE)\n")
 endif()
 if(PAGMO_WITH_IPOPT)
-    set(_PAGMO_CONFIG_OPTIONAL_DEPS "${_PAGMO_CONFIG_OPTIONAL_DEPS}find_package(pagmo_IPOPT QUIET REQUIRED COMPONENTS header)\n")
+    set(_PAGMO_CONFIG_OPTIONAL_DEPS "${_PAGMO_CONFIG_OPTIONAL_DEPS}find_package(IPOPT QUIET REQUIRED)\n")
 endif()
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/pagmo-config.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/pagmo-config.cmake" @ONLY)

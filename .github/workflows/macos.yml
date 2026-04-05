@@ -1,0 +1,200 @@
+name: macOS CI
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  macos-no-deps:
+    name: macOS - No Optional Dependencies
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install base dependencies
+        run: |
+          brew install cmake
+      - name: Configure CMake
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release \
+                   -DPAGMO_BUILD_TESTS=ON \
+                   -DPAGMO_WITH_EIGEN3=OFF \
+                   -DPAGMO_WITH_NLOPT=OFF \
+                   -DPAGMO_WITH_IPOPT=OFF
+        env:
+          CXX: clang++
+          CC: clang
+      - name: Build
+        run: |
+          cd build
+          make -j$(sysctl -n hw.ncpu) VERBOSE=1
+      - name: Test
+        run: |
+          cd build
+          ctest -V -j$(sysctl -n hw.ncpu) --output-on-failure
+
+  macos-eigen3:
+    name: macOS - With Eigen3
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          brew install cmake eigen
+      - name: Configure CMake
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release \
+                   -DPAGMO_BUILD_TESTS=ON \
+                   -DPAGMO_WITH_EIGEN3=ON \
+                   -DPAGMO_WITH_NLOPT=OFF \
+                   -DPAGMO_WITH_IPOPT=OFF
+        env:
+          CXX: clang++
+          CC: clang
+      - name: Build
+        run: |
+          cd build
+          make -j$(sysctl -n hw.ncpu) VERBOSE=1
+      - name: Test
+        run: |
+          cd build
+          ctest -V -j$(sysctl -n hw.ncpu) --output-on-failure
+
+  macos-nlopt:
+    name: macOS - With NLopt
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          brew install cmake nlopt
+      - name: Configure CMake
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release \
+                   -DPAGMO_BUILD_TESTS=ON \
+                   -DPAGMO_WITH_EIGEN3=OFF \
+                   -DPAGMO_WITH_NLOPT=ON \
+                   -DPAGMO_WITH_IPOPT=OFF
+        env:
+          CXX: clang++
+          CC: clang
+      - name: Build
+        run: |
+          cd build
+          make -j$(sysctl -n hw.ncpu) VERBOSE=1
+      - name: Test
+        run: |
+          cd build
+          ctest -V -j$(sysctl -n hw.ncpu) --output-on-failure
+
+  macos-ipopt:
+    name: macOS - With Ipopt
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          brew install cmake ipopt
+      - name: Configure CMake
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release \
+                   -DPAGMO_BUILD_TESTS=ON \
+                   -DPAGMO_WITH_EIGEN3=OFF \
+                   -DPAGMO_WITH_NLOPT=OFF \
+                   -DPAGMO_WITH_IPOPT=ON
+        env:
+          CXX: clang++
+          CC: clang
+      - name: Build
+        run: |
+          cd build
+          make -j$(sysctl -n hw.ncpu) VERBOSE=1
+      - name: Test
+        run: |
+          cd build
+          ctest -V -j$(sysctl -n hw.ncpu) --output-on-failure
+
+  macos-all-deps:
+    name: macOS - All Dependencies
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install all dependencies
+        run: |
+          brew install cmake eigen nlopt ipopt tbb
+      - name: Configure CMake
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release \
+                   -DPAGMO_BUILD_TESTS=ON \
+                   -DPAGMO_BUILD_BENCHMARKS=ON \
+                   -DPAGMO_BUILD_TUTORIALS=ON \
+                   -DPAGMO_WITH_EIGEN3=ON \
+                   -DPAGMO_WITH_NLOPT=ON \
+                   -DPAGMO_WITH_IPOPT=ON \
+                   -DPAGMO_ENABLE_IPO=ON
+        env:
+          CXX: clang++
+          CC: clang
+      - name: Build
+        run: |
+          cd build
+          make -j$(sysctl -n hw.ncpu) VERBOSE=1
+      - name: Test
+        run: |
+          cd build
+          ctest -V -j$(sysctl -n hw.ncpu) --output-on-failure
+
+  macos-conda:
+    name: macOS - Conda Environment (All Dependencies)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          python-version: 3.9
+          channels: conda-forge
+          channel-priority: strict
+      - name: Install dependencies
+        shell: bash -el {0}
+        run: |
+          conda install cmake eigen nlopt ipopt boost-cpp tbb tbb-devel
+      - name: Configure CMake
+        shell: bash -el {0}
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release \
+                   -DCMAKE_PREFIX_PATH=$CONDA_PREFIX \
+                   -DPAGMO_BUILD_TESTS=ON \
+                   -DPAGMO_WITH_EIGEN3=ON \
+                   -DPAGMO_WITH_NLOPT=ON \
+                   -DPAGMO_WITH_IPOPT=ON \
+                   -DPAGMO_ENABLE_IPO=ON \
+                   -DBoost_NO_BOOST_CMAKE=ON
+        env:
+          CXX: clang++
+          CC: clang
+      - name: Build
+        shell: bash -el {0}
+        run: |
+          cd build
+          make -j$(sysctl -n hw.ncpu) VERBOSE=1
+      - name: Test
+        shell: bash -el {0}
+        run: |
+          cd build
+          ctest -V -j$(sysctl -n hw.ncpu) --output-on-failure

@@ -1,0 +1,285 @@
+name: Windows CI
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  windows-no-deps:
+    name: Windows - No Optional Dependencies
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          python-version: 3.9
+          channels: conda-forge
+          channel-priority: strict
+      - name: Install base dependencies
+        shell: bash -el {0}
+        run: |
+          conda install cmake
+      - name: Configure CMake
+        shell: bash -el {0}
+        run: |
+          mkdir build
+          cd build
+          cmake .. -G "Visual Studio 17 2022" -A x64 \
+                   -DCMAKE_BUILD_TYPE=Release \
+                   -DCMAKE_PREFIX_PATH=$CONDA_PREFIX \
+                   -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX \
+                   -DPAGMO_BUILD_TESTS=ON \
+                   -DPAGMO_WITH_EIGEN3=OFF \
+                   -DPAGMO_WITH_NLOPT=OFF \
+                   -DPAGMO_WITH_IPOPT=OFF
+      - name: Build
+        shell: bash -el {0}
+        run: |
+          cd build
+          cmake --build . --config Release --parallel
+      - name: Test
+        shell: bash -el {0}
+        run: |
+          cd build
+          ctest -VV --output-on-failure -j4 -C Release
+
+  windows-eigen3:
+    name: Windows - With Eigen3
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          python-version: 3.9
+          channels: conda-forge
+          channel-priority: strict
+      - name: Install dependencies
+        shell: bash -el {0}
+        run: |
+          conda install cmake eigen
+      - name: Configure CMake
+        shell: bash -el {0}
+        run: |
+          mkdir build
+          cd build
+          cmake .. -G "Visual Studio 17 2022" -A x64 \
+                   -DCMAKE_BUILD_TYPE=Release \
+                   -DCMAKE_PREFIX_PATH=$CONDA_PREFIX \
+                   -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX \
+                   -DPAGMO_BUILD_TESTS=ON \
+                   -DPAGMO_WITH_EIGEN3=ON \
+                   -DPAGMO_WITH_NLOPT=OFF \
+                   -DPAGMO_WITH_IPOPT=OFF
+      - name: Build
+        shell: bash -el {0}
+        run: |
+          cd build
+          cmake --build . --config Release --parallel
+      - name: Test
+        shell: bash -el {0}
+        run: |
+          cd build
+          ctest -VV --output-on-failure -j4 -C Release
+
+  windows-nlopt:
+    name: Windows - With NLopt
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          python-version: 3.9
+          channels: conda-forge
+          channel-priority: strict
+      - name: Install dependencies
+        shell: bash -el {0}
+        run: |
+          conda install cmake nlopt
+      - name: Configure CMake
+        shell: bash -el {0}
+        run: |
+          mkdir build
+          cd build
+          cmake .. -G "Visual Studio 17 2022" -A x64 \
+                   -DCMAKE_BUILD_TYPE=Release \
+                   -DCMAKE_PREFIX_PATH=$CONDA_PREFIX \
+                   -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX \
+                   -DPAGMO_BUILD_TESTS=ON \
+                   -DPAGMO_WITH_EIGEN3=OFF \
+                   -DPAGMO_WITH_NLOPT=ON \
+                   -DPAGMO_WITH_IPOPT=OFF
+      - name: Build
+        shell: bash -el {0}
+        run: |
+          cd build
+          cmake --build . --config Release --parallel
+      - name: Test
+        shell: bash -el {0}
+        run: |
+          cd build
+          ctest -VV --output-on-failure -j4 -C Release
+
+  windows-ipopt:
+    name: Windows - With Ipopt
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          python-version: 3.9
+          channels: conda-forge
+          channel-priority: strict
+      - name: Install dependencies
+        shell: bash -el {0}
+        run: |
+          conda install cmake ipopt
+      - name: Configure CMake
+        shell: bash -el {0}
+        run: |
+          mkdir build
+          cd build
+          cmake .. -G "Visual Studio 17 2022" -A x64 \
+                   -DCMAKE_BUILD_TYPE=Release \
+                   -DCMAKE_PREFIX_PATH=$CONDA_PREFIX \
+                   -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX \
+                   -DPAGMO_BUILD_TESTS=ON \
+                   -DPAGMO_WITH_EIGEN3=OFF \
+                   -DPAGMO_WITH_NLOPT=OFF \
+                   -DPAGMO_WITH_IPOPT=ON
+      - name: Build
+        shell: bash -el {0}
+        run: |
+          cd build
+          cmake --build . --config Release --parallel
+      - name: Test
+        shell: bash -el {0}
+        run: |
+          cd build
+          ctest -VV --output-on-failure -j4 -C Release
+
+  windows-all-deps:
+    name: Windows - All Dependencies
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          python-version: 3.9
+          channels: conda-forge
+          channel-priority: strict
+      - name: Install all dependencies
+        shell: bash -el {0}
+        run: |
+          conda install cmake eigen nlopt ipopt boost-cpp tbb tbb-devel
+      - name: Configure CMake
+        shell: bash -el {0}
+        run: |
+          mkdir build
+          cd build
+          cmake .. -G "Visual Studio 17 2022" -A x64 \
+                   -DCMAKE_BUILD_TYPE=Release \
+                   -DCMAKE_PREFIX_PATH=$CONDA_PREFIX \
+                   -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX \
+                   -DPAGMO_BUILD_TESTS=ON \
+                   -DPAGMO_BUILD_TUTORIALS=ON \
+                   -DPAGMO_WITH_EIGEN3=ON \
+                   -DPAGMO_WITH_NLOPT=ON \
+                   -DPAGMO_WITH_IPOPT=ON \
+                   -DPAGMO_ENABLE_IPO=ON \
+                   -DBoost_NO_BOOST_CMAKE=ON
+      - name: Build
+        shell: bash -el {0}
+        run: |
+          cd build
+          cmake --build . --config Release --parallel --target install
+      - name: Test
+        shell: bash -el {0}
+        run: |
+          cd build
+          ctest -VV --output-on-failure -j4 -C Release
+
+  windows-msvc-vcpkg:
+    name: Windows - MSVC with vcpkg
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup vcpkg
+        uses: microsoft/setup-msbuild@v2
+      - name: Install vcpkg
+        run: |
+          git clone https://github.com/Microsoft/vcpkg.git
+          .\vcpkg\bootstrap-vcpkg.bat
+      - name: Install dependencies with vcpkg
+        run: |
+          .\vcpkg\vcpkg.exe install eigen3:x64-windows nlopt:x64-windows openblas:x64-windows
+      - name: Configure CMake
+        run: |
+          mkdir build
+          cd build
+          cmake .. -G "Visual Studio 17 2022" -A x64 `
+                   -DCMAKE_BUILD_TYPE=Release `
+                   -DCMAKE_TOOLCHAIN_FILE=..\vcpkg\scripts\buildsystems\vcpkg.cmake `
+                   -DPAGMO_BUILD_TESTS=ON `
+                   -DPAGMO_WITH_EIGEN3=ON `
+                   -DPAGMO_WITH_NLOPT=ON `
+                   -DPAGMO_WITH_IPOPT=OFF
+        shell: powershell
+      - name: Build
+        run: |
+          cd build
+          cmake --build . --config Release --parallel
+        shell: powershell
+      - name: Test
+        run: |
+          cd build
+          ctest -VV --output-on-failure -j4 -C Release
+        shell: powershell
+
+  windows-debug:
+    name: Windows - Debug Build with All Dependencies
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          python-version: 3.9
+          channels: conda-forge
+          channel-priority: strict
+      - name: Install all dependencies
+        shell: bash -el {0}
+        run: |
+          conda install cmake eigen nlopt ipopt boost-cpp tbb tbb-devel
+      - name: Configure CMake
+        shell: bash -el {0}
+        run: |
+          mkdir build
+          cd build
+          cmake .. -G "Visual Studio 17 2022" -A x64 \
+                   -DCMAKE_BUILD_TYPE=Debug \
+                   -DCMAKE_PREFIX_PATH=$CONDA_PREFIX \
+                   -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX \
+                   -DPAGMO_BUILD_TESTS=ON \
+                   -DPAGMO_WITH_EIGEN3=ON \
+                   -DPAGMO_WITH_NLOPT=ON \
+                   -DPAGMO_WITH_IPOPT=ON \
+                   -DBoost_NO_BOOST_CMAKE=ON
+      - name: Build
+        shell: bash -el {0}
+        run: |
+          cd build
+          cmake --build . --config Debug --parallel
+      - name: Test
+        shell: bash -el {0}
+        run: |
+          cd build
+          ctest -VV --output-on-failure -j4 -C Debug
