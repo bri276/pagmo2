@@ -47,7 +47,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/algorithm.hpp>
 #include <pagmo/bfe.hpp>
 #include <pagmo/concepts.hpp>
-#include <pagmo/detail/archipelago_fwd.hpp>
+#include <pagmo/detail/pagmo.fwd.hpp>
 #include <pagmo/detail/support_xeus_cling.hpp>
 #include <pagmo/detail/visibility.hpp>
 #include <pagmo/island.hpp>

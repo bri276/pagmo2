@@ -43,6 +43,7 @@ see https://www.gnu.org/licenses/. */
 
 #include <pagmo/concepts.hpp>
 #include <pagmo/config.hpp>
+#include <pagmo/detail/pagmo.fwd.hpp>
 #include <pagmo/detail/support_xeus_cling.hpp>
 #include <pagmo/detail/type_name.hpp>
 #include <pagmo/detail/typeid_name_extract.hpp>
@@ -220,7 +221,6 @@ namespace pagmo
 {
 
 // R_policy concept definitions
-class PAGMO_DLL_PUBLIC r_policy;
 template <typename T>
 concept RpolGenericCtorEnabler = IsDifferentBaseType<r_policy, T> && IsUdRPolicy<RemoveConstVolatileRef<T>>;
 

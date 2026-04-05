@@ -34,7 +34,7 @@ see https://www.gnu.org/licenses/. */
 #include <type_traits>
 
 #include <pagmo/concepts.hpp>
-#include <pagmo/detail/free_form_fwd.hpp>
+#include <pagmo/detail/pagmo.fwd.hpp>
 #include <pagmo/detail/visibility.hpp>
 #include <pagmo/s11n.hpp>
 #include <pagmo/topologies/base_bgl_topology.hpp>

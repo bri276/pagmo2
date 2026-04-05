@@ -39,8 +39,7 @@ see https://www.gnu.org/licenses/. */
 
 #include <pagmo/bfe.hpp>
 #include <pagmo/concepts.hpp>
-#include <pagmo/detail/island_fwd.hpp>
-#include <pagmo/detail/population_fwd.hpp>
+#include <pagmo/detail/pagmo.fwd.hpp>
 #include <pagmo/detail/support_xeus_cling.hpp>
 #include <pagmo/detail/visibility.hpp>
 #include <pagmo/problem.hpp>

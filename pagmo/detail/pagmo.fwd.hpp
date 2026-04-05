@@ -26,16 +26,38 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#ifndef PAGMO_DETAIL_FREE_FORM_FWD_HPP
-#define PAGMO_DETAIL_FREE_FORM_FWD_HPP
+#ifndef PAGMO_DETAIL_PAGMO_FWD_HPP
+#define PAGMO_DETAIL_PAGMO_FWD_HPP
 
 #include <pagmo/detail/visibility.hpp>
 
 namespace pagmo
 {
 
-// Free-form topology, fwd declaration.
+// Base classes
+class PAGMO_DLL_PUBLIC archipelago;
+class PAGMO_DLL_PUBLIC algorithm;
+class PAGMO_DLL_PUBLIC bfe;
+class PAGMO_DLL_PUBLIC island;
+class PAGMO_DLL_PUBLIC population;
+class PAGMO_DLL_PUBLIC problem;
+class PAGMO_DLL_PUBLIC topology;
+class PAGMO_DLL_PUBLIC r_policy;
+class PAGMO_DLL_PUBLIC s_policy;
+
+// Topologies
 class PAGMO_DLL_PUBLIC free_form;
+
+// Algorithms
+class PAGMO_DLL_PUBLIC cstrs_self_adaptive;
+class PAGMO_DLL_PUBLIC mbh;
+
+// Problems
+class PAGMO_DLL_PUBLIC cec2006;
+class PAGMO_DLL_PUBLIC cec2009;
+class PAGMO_DLL_PUBLIC decompose;
+class PAGMO_DLL_PUBLIC translate;
+class PAGMO_DLL_PUBLIC unconstrain;
 
 } // namespace pagmo
 

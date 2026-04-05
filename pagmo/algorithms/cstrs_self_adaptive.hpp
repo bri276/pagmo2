@@ -42,6 +42,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/algorithm.hpp>
 #include <pagmo/concepts.hpp>
 #include <pagmo/detail/custom_comparisons.hpp>
+#include <pagmo/detail/pagmo.fwd.hpp>
 #include <pagmo/detail/visibility.hpp>
 #include <pagmo/population.hpp>
 #include <pagmo/rng.hpp>
@@ -223,7 +224,6 @@ PAGMO_DLL_PUBLIC std::ostream &operator<<(std::ostream &, const penalized_udp &)
  */
 
 // Cstrs_self_adaptive concept definitions
-class PAGMO_DLL_PUBLIC cstrs_self_adaptive;
 template <typename T>
 concept CtrsCtorEnabler = std::is_constructible_v<algorithm, T &&>;
 

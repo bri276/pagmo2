@@ -46,7 +46,7 @@ see https://www.gnu.org/licenses/. */
 
 #include <pagmo/concepts.hpp>
 #include <pagmo/config.hpp>
-#include <pagmo/detail/problem_fwd.hpp>
+#include <pagmo/detail/pagmo.fwd.hpp>
 #include <pagmo/detail/support_xeus_cling.hpp>
 #include <pagmo/detail/type_name.hpp>
 #include <pagmo/detail/typeid_name_extract.hpp>
