@@ -1,0 +1,177 @@
+name: Linux CI
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  linux-no-deps:
+    name: Linux - No Optional Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install base dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake g++ gfortran libblas-dev liblapack-dev
+      - name: Configure CMake
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release \
+                   -DPAGMO_BUILD_TESTS=ON \
+                   -DPAGMO_WITH_EIGEN3=OFF \
+                   -DPAGMO_WITH_NLOPT=OFF \
+                   -DPAGMO_WITH_IPOPT=OFF
+      - name: Build
+        run: |
+          cd build
+          make -j$(nproc) VERBOSE=1
+      - name: Test
+        run: |
+          cd build
+          ctest -V -j$(nproc) --output-on-failure
+
+  linux-eigen3:
+    name: Linux - With Eigen3
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake g++ gfortran libblas-dev liblapack-dev libeigen3-dev
+      - name: Configure CMake
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release \
+                   -DPAGMO_BUILD_TESTS=ON \
+                   -DPAGMO_WITH_EIGEN3=ON \
+                   -DPAGMO_WITH_NLOPT=OFF \
+                   -DPAGMO_WITH_IPOPT=OFF
+      - name: Build
+        run: |
+          cd build
+          make -j$(nproc) VERBOSE=1
+      - name: Test
+        run: |
+          cd build
+          ctest -V -j$(nproc) --output-on-failure
+
+  linux-nlopt:
+    name: Linux - With NLopt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake g++ gfortran libblas-dev liblapack-dev libnlopt-dev
+      - name: Configure CMake
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release \
+                   -DPAGMO_BUILD_TESTS=ON \
+                   -DPAGMO_WITH_EIGEN3=OFF \
+                   -DPAGMO_WITH_NLOPT=ON \
+                   -DPAGMO_WITH_IPOPT=OFF
+      - name: Build
+        run: |
+          cd build
+          make -j$(nproc) VERBOSE=1
+      - name: Test
+        run: |
+          cd build
+          ctest -V -j$(nproc) --output-on-failure
+
+  linux-ipopt:
+    name: Linux - With Ipopt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake g++ gfortran libblas-dev liblapack-dev coinor-libipopt-dev
+      - name: Configure CMake
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release \
+                   -DPAGMO_BUILD_TESTS=ON \
+                   -DPAGMO_WITH_EIGEN3=OFF \
+                   -DPAGMO_WITH_NLOPT=OFF \
+                   -DPAGMO_WITH_IPOPT=ON
+      - name: Build
+        run: |
+          cd build
+          make -j$(nproc) VERBOSE=1
+      - name: Test
+        run: |
+          cd build
+          ctest -V -j$(nproc) --output-on-failure
+
+  linux-all-deps:
+    name: Linux - All Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install all dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake g++ gfortran libblas-dev liblapack-dev \
+                                  libeigen3-dev libnlopt-dev coinor-libipopt-dev
+      - name: Configure CMake
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release \
+                   -DPAGMO_BUILD_TESTS=ON \
+                   -DPAGMO_BUILD_BENCHMARKS=ON \
+                   -DPAGMO_BUILD_TUTORIALS=ON \
+                   -DPAGMO_WITH_EIGEN3=ON \
+                   -DPAGMO_WITH_NLOPT=ON \
+                   -DPAGMO_WITH_IPOPT=ON \
+                   -DPAGMO_ENABLE_IPO=ON
+      - name: Build
+        run: |
+          cd build
+          make -j$(nproc) VERBOSE=1
+      - name: Test
+        run: |
+          cd build
+          ctest -V -j$(nproc) --output-on-failure
+
+  linux-debug:
+    name: Linux - Debug Build with All Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install all dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake g++ gfortran libblas-dev liblapack-dev \
+                                  libeigen3-dev libnlopt-dev coinor-libipopt-dev
+      - name: Configure CMake
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Debug \
+                   -DPAGMO_BUILD_TESTS=ON \
+                   -DPAGMO_WITH_EIGEN3=ON \
+                   -DPAGMO_WITH_NLOPT=ON \
+                   -DPAGMO_WITH_IPOPT=ON
+      - name: Build
+        run: |
+          cd build
+          make -j$(nproc) VERBOSE=1
+      - name: Test
+        run: |
+          cd build
+          ctest -V -j$(nproc) --output-on-failure
