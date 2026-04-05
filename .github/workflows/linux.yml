@@ -17,8 +17,12 @@ jobs:
       - name: Install base dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake g++ gfortran libblas-dev liblapack-dev
+          sudo apt-get install -y cmake gcc-13 g++-13 gfortran-13 libblas-dev liblapack-dev
       - name: Configure CMake
+        env:
+          CC: gcc-13
+          CXX: g++-13
+          FC: gfortran-13
         run: |
           mkdir build
           cd build
@@ -44,8 +48,12 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake g++ gfortran libblas-dev liblapack-dev libeigen3-dev
+          sudo apt-get install -y cmake gcc-13 g++-13 gfortran-13 libblas-dev liblapack-dev libeigen3-dev
       - name: Configure CMake
+        env:
+          CC: gcc-13
+          CXX: g++-13
+          FC: gfortran-13
         run: |
           mkdir build
           cd build
@@ -71,8 +79,12 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake g++ gfortran libblas-dev liblapack-dev libnlopt-dev
+          sudo apt-get install -y cmake gcc-13 g++-13 gfortran-13 libblas-dev liblapack-dev libnlopt-dev
       - name: Configure CMake
+        env:
+          CC: gcc-13
+          CXX: g++-13
+          FC: gfortran-13
         run: |
           mkdir build
           cd build
@@ -98,8 +110,12 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake g++ gfortran libblas-dev liblapack-dev coinor-libipopt-dev
+          sudo apt-get install -y cmake gcc-13 g++-13 gfortran-13 libblas-dev liblapack-dev coinor-libipopt-dev
       - name: Configure CMake
+        env:
+          CC: gcc-13
+          CXX: g++-13
+          FC: gfortran-13
         run: |
           mkdir build
           cd build
@@ -125,9 +141,13 @@ jobs:
       - name: Install all dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake g++ gfortran libblas-dev liblapack-dev \
+          sudo apt-get install -y cmake gcc-13 g++-13 gfortran-13 libblas-dev liblapack-dev \
                                   libeigen3-dev libnlopt-dev coinor-libipopt-dev
       - name: Configure CMake
+        env:
+          CC: gcc-13
+          CXX: g++-13
+          FC: gfortran-13
         run: |
           mkdir build
           cd build
@@ -156,9 +176,13 @@ jobs:
       - name: Install all dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake g++ gfortran libblas-dev liblapack-dev \
+          sudo apt-get install -y cmake gcc-13 g++-13 gfortran-13 libblas-dev liblapack-dev \
                                   libeigen3-dev libnlopt-dev coinor-libipopt-dev
       - name: Configure CMake
+        env:
+          CC: gcc-13
+          CXX: g++-13
+          FC: gfortran-13
         run: |
           mkdir build
           cd build

@@ -16,8 +16,12 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install base dependencies
         run: |
-          brew install cmake
+          brew install cmake gcc@13
       - name: Configure CMake
+        env:
+          CC: gcc-13
+          CXX: g++-13
+          FC: gfortran-13
         run: |
           mkdir build
           cd build
@@ -26,9 +30,6 @@ jobs:
                    -DPAGMO_WITH_EIGEN3=OFF \
                    -DPAGMO_WITH_NLOPT=OFF \
                    -DPAGMO_WITH_IPOPT=OFF
-        env:
-          CXX: clang++
-          CC: clang
       - name: Build
         run: |
           cd build
@@ -45,8 +46,12 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install dependencies
         run: |
-          brew install cmake eigen
+          brew install cmake eigen gcc@13
       - name: Configure CMake
+        env:
+          CC: gcc-13
+          CXX: g++-13
+          FC: gfortran-13
         run: |
           mkdir build
           cd build
@@ -55,9 +60,6 @@ jobs:
                    -DPAGMO_WITH_EIGEN3=ON \
                    -DPAGMO_WITH_NLOPT=OFF \
                    -DPAGMO_WITH_IPOPT=OFF
-        env:
-          CXX: clang++
-          CC: clang
       - name: Build
         run: |
           cd build
@@ -74,8 +76,12 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install dependencies
         run: |
-          brew install cmake nlopt
+          brew install cmake nlopt gcc@13
       - name: Configure CMake
+        env:
+          CC: gcc-13
+          CXX: g++-13
+          FC: gfortran-13
         run: |
           mkdir build
           cd build
@@ -84,9 +90,6 @@ jobs:
                    -DPAGMO_WITH_EIGEN3=OFF \
                    -DPAGMO_WITH_NLOPT=ON \
                    -DPAGMO_WITH_IPOPT=OFF
-        env:
-          CXX: clang++
-          CC: clang
       - name: Build
         run: |
           cd build
@@ -103,8 +106,12 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install dependencies
         run: |
-          brew install cmake ipopt
+          brew install cmake ipopt gcc@13
       - name: Configure CMake
+        env:
+          CC: gcc-13
+          CXX: g++-13
+          FC: gfortran-13
         run: |
           mkdir build
           cd build
@@ -113,9 +120,6 @@ jobs:
                    -DPAGMO_WITH_EIGEN3=OFF \
                    -DPAGMO_WITH_NLOPT=OFF \
                    -DPAGMO_WITH_IPOPT=ON
-        env:
-          CXX: clang++
-          CC: clang
       - name: Build
         run: |
           cd build
@@ -132,8 +136,12 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install all dependencies
         run: |
-          brew install cmake eigen nlopt ipopt tbb
+          brew install cmake eigen nlopt ipopt tbb gcc@13
       - name: Configure CMake
+        env:
+          CC: gcc-13
+          CXX: g++-13
+          FC: gfortran-13
         run: |
           mkdir build
           cd build
@@ -145,9 +153,6 @@ jobs:
                    -DPAGMO_WITH_NLOPT=ON \
                    -DPAGMO_WITH_IPOPT=ON \
                    -DPAGMO_ENABLE_IPO=ON
-        env:
-          CXX: clang++
-          CC: clang
       - name: Build
         run: |
           cd build
@@ -171,9 +176,13 @@ jobs:
       - name: Install dependencies
         shell: bash -el {0}
         run: |
-          conda install cmake eigen nlopt ipopt boost-cpp tbb tbb-devel
+          conda install cmake eigen nlopt ipopt boost-cpp tbb tbb-devel compilers
       - name: Configure CMake
         shell: bash -el {0}
+        env:
+          CC: gcc
+          CXX: g++
+          FC: gfortran
         run: |
           mkdir build
           cd build
@@ -185,9 +194,6 @@ jobs:
                    -DPAGMO_WITH_IPOPT=ON \
                    -DPAGMO_ENABLE_IPO=ON \
                    -DBoost_NO_BOOST_CMAKE=ON
-        env:
-          CXX: clang++
-          CC: clang
       - name: Build
         shell: bash -el {0}
         run: |
