@@ -20,7 +20,7 @@ CPMAddPackage(
     URL https://github.com/boostorg/boost/releases/download/boost-1.83.0/boost-1.83.0.tar.xz
     OPTIONS
         "BOOST_ENABLE_CMAKE ON"
-        "BOOST_INCLUDE_LIBRARIES serialization\\\\;test\\\\;system\\\\;filesystem"
+        "BOOST_INCLUDE_LIBRARIES serialization\\\\;test\\\\;system\\\\;filesystem\\\\;any"
         "CMAKE_POSITION_INDEPENDENT_CODE ON"
         "BUILD_SHARED_LIBS OFF"
     DOWNLOAD_EXTRACT_TIMESTAMP TRUE
