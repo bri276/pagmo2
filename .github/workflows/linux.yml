@@ -17,7 +17,7 @@ jobs:
       - name: Install base dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake gcc-13 g++-13 gfortran-13 libblas-dev liblapack-dev
+          sudo apt-get install -y cmake gcc-13 g++-13 gfortran-13 libblas-dev liblapack-dev libboost-all-dev
       - name: Configure CMake
         env:
           CC: gcc-13
@@ -48,7 +48,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake gcc-13 g++-13 gfortran-13 libblas-dev liblapack-dev libeigen3-dev
+          sudo apt-get install -y cmake gcc-13 g++-13 gfortran-13 libblas-dev liblapack-dev libeigen3-dev libboost-all-dev
       - name: Configure CMake
         env:
           CC: gcc-13
@@ -79,7 +79,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake gcc-13 g++-13 gfortran-13 libblas-dev liblapack-dev libnlopt-dev
+          sudo apt-get install -y cmake gcc-13 g++-13 gfortran-13 libblas-dev liblapack-dev libnlopt-dev libboost-all-dev
       - name: Configure CMake
         env:
           CC: gcc-13
@@ -110,7 +110,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake gcc-13 g++-13 gfortran-13 libblas-dev liblapack-dev coinor-libipopt-dev
+          sudo apt-get install -y cmake gcc-13 g++-13 gfortran-13 libblas-dev liblapack-dev coinor-libipopt-dev libboost-all-dev
       - name: Configure CMake
         env:
           CC: gcc-13
@@ -142,7 +142,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y cmake gcc-13 g++-13 gfortran-13 libblas-dev liblapack-dev \
-                                  libeigen3-dev libnlopt-dev coinor-libipopt-dev
+                                  libeigen3-dev libnlopt-dev coinor-libipopt-dev libboost-all-dev
       - name: Configure CMake
         env:
           CC: gcc-13
@@ -177,7 +177,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y cmake gcc-13 g++-13 gfortran-13 libblas-dev liblapack-dev \
-                                  libeigen3-dev libnlopt-dev coinor-libipopt-dev
+                                  libeigen3-dev libnlopt-dev coinor-libipopt-dev libboost-all-dev
       - name: Configure CMake
         env:
           CC: gcc-13

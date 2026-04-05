@@ -23,7 +23,7 @@ jobs:
       - name: Install base dependencies
         shell: bash -el {0}
         run: |
-          conda install cmake
+          conda install cmake boost-cpp
       - name: Configure CMake
         shell: bash -el {0}
         run: |
@@ -62,7 +62,7 @@ jobs:
       - name: Install dependencies
         shell: bash -el {0}
         run: |
-          conda install cmake eigen
+          conda install cmake eigen boost-cpp
       - name: Configure CMake
         shell: bash -el {0}
         run: |
@@ -101,7 +101,7 @@ jobs:
       - name: Install dependencies
         shell: bash -el {0}
         run: |
-          conda install cmake nlopt
+          conda install cmake nlopt boost-cpp
       - name: Configure CMake
         shell: bash -el {0}
         run: |
@@ -140,7 +140,7 @@ jobs:
       - name: Install dependencies
         shell: bash -el {0}
         run: |
-          conda install cmake ipopt
+          conda install cmake ipopt boost-cpp
       - name: Configure CMake
         shell: bash -el {0}
         run: |
