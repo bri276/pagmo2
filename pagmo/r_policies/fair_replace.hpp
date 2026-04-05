@@ -33,6 +33,7 @@ see https://www.gnu.org/licenses/. */
 #include <string>
 #include <type_traits>
 
+#include <pagmo/concepts.hpp>
 #include <pagmo/detail/base_sr_policy.hpp>
 #include <pagmo/detail/visibility.hpp>
 #include <pagmo/r_policy.hpp>

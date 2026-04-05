@@ -40,6 +40,7 @@ see https://www.gnu.org/licenses/. */
 #include <vector>
 
 #include <pagmo/algorithm.hpp>
+#include <pagmo/concepts.hpp>
 #include <pagmo/detail/custom_comparisons.hpp>
 #include <pagmo/detail/visibility.hpp>
 #include <pagmo/population.hpp>

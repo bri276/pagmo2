@@ -35,6 +35,7 @@ see https://www.gnu.org/licenses/. */
 #include <type_traits>
 #include <utility>
 
+#include <pagmo/concepts.hpp>
 #include <pagmo/detail/visibility.hpp>
 #include <pagmo/type_traits.hpp>
 

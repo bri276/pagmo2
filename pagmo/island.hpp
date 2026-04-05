@@ -49,6 +49,7 @@ see https://www.gnu.org/licenses/. */
 
 #include <pagmo/algorithm.hpp>
 #include <pagmo/bfe.hpp>
+#include <pagmo/concepts.hpp>
 #include <pagmo/config.hpp>
 #include <pagmo/detail/archipelago_fwd.hpp>
 #include <pagmo/detail/island_fwd.hpp>
@@ -176,24 +177,24 @@ struct PAGMO_DLL_PUBLIC_INLINE_CLASS isl_inner final : isl_inner_base {
     {
         return get_extra_info_impl(m_value);
     }
-    template <HasName U>
+    template <HasGetName U>
     static std::string get_name_impl(const U &value)
     {
         return value.get_name();
     }
     template <typename U>
-        requires(!HasName<U>)
+        requires(!HasGetName<U>)
     static std::string get_name_impl(const U &)
     {
         return detail::type_name<U>();
     }
-    template <HasExtraInfo U>
+    template <HasGetExtraInfo U>
     static std::string get_extra_info_impl(const U &value)
     {
         return value.get_extra_info();
     }
     template <typename U>
-        requires(!HasExtraInfo<U>)
+        requires(!HasGetExtraInfo<U>)
     static std::string get_extra_info_impl(const U &)
     {
         return "";
