@@ -31,7 +31,7 @@ see https://www.gnu.org/licenses/. */
 #include <string>
 #include <utility>
 
-#include <boost/graph/adjacency_list.hpp>
+// #include <boost/graph/adjacency_list.hpp>
 
 #include <pagmo/exceptions.hpp>
 #include <pagmo/s11n.hpp>

@@ -7,8 +7,8 @@ if(PAGMO_WITH_EIGEN3)
     CPMFindPackage(
       NAME Eigen3
       GITLAB_REPOSITORY libeigen/eigen
-      VERSION 3.4.0
-      GIT_TAG 3.4.0
+      VERSION 5.0.1
+      GIT_TAG 5.0.1
       OPTIONS "EIGEN_BUILD_DOC OFF" "EIGEN_BUILD_TESTING OFF"
     )
     

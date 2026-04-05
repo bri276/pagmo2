@@ -7,7 +7,7 @@
 
 # Build configuration
 BUILD_DIR = build
-CMAKE = /usr/bin/cmake
+CMAKE = cmake
 MAKE = make
 INSTALL_PREFIX = ~/.local
 BUILD_TYPE = Release

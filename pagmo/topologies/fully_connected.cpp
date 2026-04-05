@@ -35,7 +35,7 @@ see https://www.gnu.org/licenses/. */
 #include <utility>
 #include <vector>
 
-#include <boost/graph/adjacency_list.hpp>
+// #include <boost/graph/adjacency_list.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 
 #include <pagmo/exceptions.hpp>

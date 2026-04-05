@@ -36,7 +36,7 @@ see https://www.gnu.org/licenses/. */
 #include <utility>
 #include <vector>
 
-#include <boost/graph/adjacency_list.hpp>
+// #include <boost/graph/adjacency_list.hpp>
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/iterator/zip_iterator.hpp>
 #include <boost/numeric/conversion/cast.hpp>
