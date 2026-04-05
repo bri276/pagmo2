@@ -7,7 +7,7 @@
 
 # Build configuration
 BUILD_DIR = build
-CMAKE = cmake
+CMAKE = /home/jay/projects/astrea/.venv/bin/cmake
 MAKE = make
 INSTALL_PREFIX = ~/.local
 BUILD_TYPE = Release

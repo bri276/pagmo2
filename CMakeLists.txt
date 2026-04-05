@@ -400,8 +400,13 @@ target_compile_definitions(pagmo PRIVATE BOOST_ALLOW_DEPRECATED_HEADERS)
 target_link_libraries(pagmo PRIVATE pagmo_tbb_wrapper)
 
 if(PAGMO_WITH_EIGEN3)
-    # Link pagmo to eigen3.
-    target_link_libraries(pagmo PUBLIC Eigen3::Eigen)
+    # Link pagmo to eigen3 privately and expose headers publicly
+    target_link_libraries(pagmo PRIVATE Eigen3::Eigen)
+    # Get the include directories from Eigen3 and expose them publicly
+    get_target_property(EIGEN3_INCLUDE_DIRS Eigen3::Eigen INTERFACE_INCLUDE_DIRECTORIES)
+    if(EIGEN3_INCLUDE_DIRS)
+        target_include_directories(pagmo PUBLIC $<BUILD_INTERFACE:${EIGEN3_INCLUDE_DIRS}>)
+    endif()
     set(PAGMO_ENABLE_EIGEN3 "#define PAGMO_WITH_EIGEN3")
 endif()
 
@@ -494,8 +499,6 @@ endif()
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/pagmo-config.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/pagmo-config.cmake" @ONLY)
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/pagmo-config.cmake" DESTINATION "${PAGMO_INSTALL_LIBDIR}/cmake/pagmo")
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Findpagmo_IPOPT.cmake" "${CMAKE_CURRENT_SOURCE_DIR}/cmake/PagmoFindBoost.cmake"
-    DESTINATION "${PAGMO_INSTALL_LIBDIR}/cmake/pagmo")
 install(EXPORT pagmo_export NAMESPACE Pagmo:: DESTINATION "${PAGMO_INSTALL_LIBDIR}/cmake/pagmo")
 # Take care of versioning.
 include(CMakePackageConfigHelpers)
