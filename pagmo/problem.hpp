@@ -46,6 +46,7 @@ see https://www.gnu.org/licenses/. */
 
 #include <pagmo/concepts.hpp>
 #include <pagmo/config.hpp>
+#include <pagmo/detail/problem_fwd.hpp>
 #include <pagmo/detail/support_xeus_cling.hpp>
 #include <pagmo/detail/type_name.hpp>
 #include <pagmo/detail/typeid_name_extract.hpp>
@@ -790,9 +791,6 @@ BOOST_CLASS_TRACKING(pagmo::detail::prob_inner_base, boost::serialization::track
 
 namespace pagmo
 {
-
-// Fwd declare for the declarations below.
-class PAGMO_DLL_PUBLIC problem;
 
 // Streaming operator
 PAGMO_DLL_PUBLIC std::ostream &operator<<(std::ostream &, const problem &);

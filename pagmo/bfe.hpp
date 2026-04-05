@@ -43,6 +43,7 @@ see https://www.gnu.org/licenses/. */
 
 #include <pagmo/concepts.hpp>
 #include <pagmo/config.hpp>
+#include <pagmo/detail/bfe_fwd.hpp>
 #include <pagmo/detail/support_xeus_cling.hpp>
 #include <pagmo/detail/type_name.hpp>
 #include <pagmo/detail/typeid_name_extract.hpp>
@@ -234,7 +235,6 @@ namespace pagmo
 {
 
 // BFE concept definitions
-class PAGMO_DLL_PUBLIC bfe;
 template <typename T>
 concept BfeGenericCtorEnabler
     = (IsDifferentBaseType<bfe, T> && IsUdBfe<RemoveConstVolatileRef<T>>)
