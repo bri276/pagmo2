@@ -9,28 +9,29 @@ function(ADD_PAGMO_TESTCASE arg1)
     if(PAGMO_TEST_NSPLIT AND "${PAGMO_TEST_SPLIT_NUM}" STREQUAL "${_PAGMO_TEST_NUM}")
         return()
     endif()
-    add_executable(${arg1} ${arg1}.cpp)
+    # Add 'test_' prefix to avoid conflicts with library targets
+    add_executable(test_${arg1} ${arg1}.cpp)
     if(TARGET boost_unit_test_framework)
-        target_link_libraries(${arg1} PRIVATE pagmo boost_unit_test_framework)
+        target_link_libraries(test_${arg1} PRIVATE pagmo boost_unit_test_framework)
     elseif(TARGET boost_test)
-        target_link_libraries(${arg1} PRIVATE pagmo boost_test)
+        target_link_libraries(test_${arg1} PRIVATE pagmo boost_test)
     else()
         message(FATAL_ERROR "No Boost unit test framework target found")
     endif()
-    target_compile_options(${arg1} PRIVATE
+    target_compile_options(test_${arg1} PRIVATE
         "$<$<CONFIG:Debug>:${PAGMO_CXX_FLAGS_DEBUG}>"
         "$<$<CONFIG:Release>:${PAGMO_CXX_FLAGS_RELEASE}>"
         "$<$<CONFIG:RelWithDebInfo>:${PAGMO_CXX_FLAGS_RELEASE}>"
         "$<$<CONFIG:MinSizeRel>:${PAGMO_CXX_FLAGS_RELEASE}>"
     )
     # Set the minimum C++ standard to C++23
-    target_compile_features(${arg1} PRIVATE cxx_std_23)
-    set_property(TARGET ${arg1} PROPERTY CXX_EXTENSIONS NO)
-    set_property(TARGET ${arg1} PROPERTY UNITY_BUILD OFF)
-    target_compile_definitions(${arg1} PRIVATE BOOST_ALLOW_DEPRECATED_HEADERS)
+    target_compile_features(test_${arg1} PRIVATE cxx_std_23)
+    set_property(TARGET test_${arg1} PROPERTY CXX_EXTENSIONS NO)
+    set_property(TARGET test_${arg1} PROPERTY UNITY_BUILD OFF)
+    target_compile_definitions(test_${arg1} PRIVATE BOOST_ALLOW_DEPRECATED_HEADERS)
     # Use static linking for Boost Test (remove DYN_LINK requirement from test files)
-    target_compile_definitions(${arg1} PRIVATE BOOST_TEST_STATIC_LINK)
-    add_test(NAME ${arg1} COMMAND ${arg1})
+    target_compile_definitions(test_${arg1} PRIVATE BOOST_TEST_STATIC_LINK)
+    add_test(NAME ${arg1} COMMAND test_${arg1})
 endfunction()
 
 # Tests requiring no dependencies (in alphabetical order)

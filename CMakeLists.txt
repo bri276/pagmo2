@@ -242,7 +242,48 @@ endif()
 
 # Ipopt
 if(PAGMO_WITH_IPOPT)
-    find_package(pagmo_IPOPT REQUIRED COMPONENTS header libipopt)
+    include(ExternalProject)
+    
+    # Set the install directory
+    set(IPOPT_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/ipopt_install)
+    
+    # Create the include directory structure beforehand
+    file(MAKE_DIRECTORY ${IPOPT_INSTALL_DIR}/include/coin-or)
+    file(MAKE_DIRECTORY ${IPOPT_INSTALL_DIR}/lib)
+    
+    # Build IPOPT from source using ExternalProject
+    ExternalProject_Add(
+        ipopt_external
+        GIT_REPOSITORY https://github.com/coin-or/Ipopt.git
+        GIT_TAG releases/3.14.12
+        PREFIX ${CMAKE_CURRENT_BINARY_DIR}/ipopt
+        CONFIGURE_COMMAND <SOURCE_DIR>/configure 
+            --prefix=${IPOPT_INSTALL_DIR}
+            --disable-shared
+            --enable-static
+            --with-pic
+            --with-lapack=-llapack
+            --with-blas=-lblas
+        BUILD_COMMAND make
+        INSTALL_COMMAND make install
+        LOG_CONFIGURE ON
+        LOG_BUILD ON
+        LOG_INSTALL ON
+    )
+    
+    # Create an interface target for IPOPT (using namespaced name to avoid conflicts)
+    add_library(Ipopt::Ipopt INTERFACE IMPORTED)
+    add_dependencies(Ipopt::Ipopt ipopt_external)
+    
+    # Set include directories and libraries
+    target_include_directories(Ipopt::Ipopt INTERFACE ${IPOPT_INSTALL_DIR}/include/coin-or)
+    target_link_libraries(Ipopt::Ipopt INTERFACE 
+        ${IPOPT_INSTALL_DIR}/lib/libipopt.a
+        lapack
+        blas
+    )
+    
+    message(STATUS "IPOPT will be built from source with system LAPACK/BLAS")
 endif()
 
 if(PAGMO_BUILD_TESTS)
@@ -267,6 +308,7 @@ CPMAddPackage(
         "BOOST_ENABLE_CMAKE ON"
         "BOOST_INCLUDE_LIBRARIES serialization\\\\;test\\\\;system\\\\;filesystem"
         "CMAKE_POSITION_INDEPENDENT_CODE ON"
+        "BUILD_SHARED_LIBS OFF"
     DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 )
 
@@ -512,7 +554,15 @@ if(PAGMO_WITH_NLOPT)
     # Link pagmo to NLopt.
     # NOTE: we make use of some NLopt types in the
     # public pagmo interface.
-    target_link_libraries(pagmo PUBLIC NLopt::nlopt)
+    if(TARGET NLopt::nlopt)
+        target_link_libraries(pagmo PUBLIC NLopt::nlopt)
+        message(STATUS "Linked with NLopt::nlopt target")
+    elseif(TARGET nlopt)
+        target_link_libraries(pagmo PUBLIC nlopt)
+        message(STATUS "Linked with nlopt target")
+    else()
+        message(FATAL_ERROR "No suitable NLopt target found")
+    endif()
     set(PAGMO_ENABLE_NLOPT "#define PAGMO_WITH_NLOPT")
 endif()
 
@@ -523,8 +573,9 @@ if(PAGMO_WITH_IPOPT)
     # function from the library in the public headers.
     # Thus, depend publicly on the header,
     # privately on the compiled library.
-    target_link_libraries(pagmo PUBLIC pagmo::IPOPT::header)
-    target_link_libraries(pagmo PRIVATE pagmo::IPOPT::libipopt)
+    target_link_libraries(pagmo PUBLIC Ipopt::Ipopt)
+    add_dependencies(pagmo ipopt_external)
+    message(STATUS "Linked with Ipopt::Ipopt target")
     set(PAGMO_ENABLE_IPOPT "#define PAGMO_WITH_IPOPT")
 endif()
 
@@ -583,7 +634,7 @@ if(PAGMO_WITH_NLOPT)
 	set(_PAGMO_CONFIG_OPTIONAL_DEPS "${_PAGMO_CONFIG_OPTIONAL_DEPS}find_package(NLopt 2.6 QUIET REQUIRED NO_MODULE)\n")
 endif()
 if(PAGMO_WITH_IPOPT)
-    set(_PAGMO_CONFIG_OPTIONAL_DEPS "${_PAGMO_CONFIG_OPTIONAL_DEPS}find_package(pagmo_IPOPT QUIET REQUIRED COMPONENTS header)\n")
+    set(_PAGMO_CONFIG_OPTIONAL_DEPS "${_PAGMO_CONFIG_OPTIONAL_DEPS}find_package(IPOPT QUIET REQUIRED)\n")
 endif()
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/pagmo-config.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/pagmo-config.cmake" @ONLY)
