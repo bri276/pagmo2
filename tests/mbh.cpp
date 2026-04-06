@@ -172,14 +172,14 @@ TEST(mbh_test, mbh_serialization_test)
     auto before_log = algo.extract<mbh>()->get_log();
     // Now serialize, deserialize and compare the result.
     {
-        boost::archive::binary_oarchive oarchive(ss);
-        oarchive << algo;
+        cereal::BinaryOutputArchive oarchive(ss);
+        oarchive(algo);
     }
     // Change the content of p before deserializing.
     algo = algorithm{};
     {
-        boost::archive::binary_iarchive iarchive(ss);
-        iarchive >> algo;
+        cereal::BinaryInputArchive iarchive(ss);
+        iarchive(algo);
     }
     auto after_text = boost::lexical_cast<std::string>(algo);
     auto after_log = algo.extract<mbh>()->get_log();

@@ -226,13 +226,13 @@ TEST(base_bgl_topology, s11n_test)
     {
         std::stringstream ss;
         {
-            boost::archive::binary_oarchive oarchive(ss);
-            oarchive << t0;
+            cereal::BinaryOutputArchive oarchive(ss);
+            oarchive(t0);
         }
         bbt t1;
         {
-            boost::archive::binary_iarchive iarchive(ss);
-            iarchive >> t1;
+            cereal::BinaryInputArchive iarchive(ss);
+            iarchive(t1);
         }
         EXPECT_TRUE(t1.num_vertices() == 4u);
         EXPECT_TRUE(t1.are_adjacent(0, 1));

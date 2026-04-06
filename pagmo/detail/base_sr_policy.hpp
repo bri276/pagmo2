@@ -79,7 +79,7 @@ public:
     }
 
 private:
-    friend class boost::serialization::access;
+    friend class cereal::access;
     // Serialization support.
     template <typename Archive>
     void serialize(Archive &ar, unsigned)

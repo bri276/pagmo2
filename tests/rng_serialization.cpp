@@ -43,13 +43,13 @@ static const int ntrials = 100;
 TEST(rng_serialization_test, rng_serialization_test)
 {
     using r_type = std::mt19937;
-    using ia_type = boost::archive::binary_iarchive;
-    using oa_type = boost::archive::binary_oarchive;
+    using ia_type = cereal::BinaryInputArchive;
+    using oa_type = cereal::BinaryOutputArchive;
     auto rng_save = [](const r_type &r) {
         std::stringstream ss;
         {
             oa_type oarchive(ss);
-            oarchive << r;
+            oarchive(r);
         }
         return ss.str();
     };
@@ -58,7 +58,7 @@ TEST(rng_serialization_test, rng_serialization_test)
         ss.str(str);
         {
             ia_type iarchive(ss);
-            iarchive >> r;
+            iarchive(r);
         }
     };
     std::uniform_int_distribution<r_type::result_type> dist;

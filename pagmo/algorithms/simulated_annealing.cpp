@@ -268,8 +268,8 @@ std::string simulated_annealing::get_extra_info() const
 template <typename Archive>
 void simulated_annealing::serialize(Archive &ar, unsigned)
 {
-    detail::archive(ar, boost::serialization::base_object<not_population_based>(*this), m_Ts, m_Tf, m_n_T_adj,
-                    m_n_range_adj, m_bin_size, m_start_range, m_e, m_seed, m_verbosity, m_log);
+    detail::archive(ar, cereal::base_class<not_population_based>(this), m_Ts, m_Tf, m_n_T_adj, m_n_range_adj,
+                    m_bin_size, m_start_range, m_e, m_seed, m_verbosity, m_log);
 }
 
 } // namespace pagmo

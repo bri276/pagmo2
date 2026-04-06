@@ -75,13 +75,13 @@ TEST(base_sr_policy, basic_test)
     {
         std::stringstream ss;
         {
-            boost::archive::binary_oarchive oarchive(ss);
-            oarchive << b0;
+            cereal::BinaryOutputArchive oarchive(ss);
+            oarchive(b0);
         }
         bsrp b1(0);
         {
-            boost::archive::binary_iarchive iarchive(ss);
-            iarchive >> b1;
+            cereal::BinaryInputArchive iarchive(ss);
+            iarchive(b1);
         }
         EXPECT_TRUE(b1.get_migr_rate().index() == 1);
         EXPECT_TRUE(std::get<double>(b1.get_migr_rate()) == 1.);

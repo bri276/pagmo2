@@ -26,7 +26,6 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-
 #include <gtest/gtest.h>
 
 #include <boost/lexical_cast.hpp>
@@ -64,34 +63,27 @@ TEST(sga_test, sga_algorithm_construction)
     EXPECT_NO_THROW((sga{1u, .95, 10., .02, .5, 5u, "sbx", "gaussian", "tournament", 32u}));
     EXPECT_NO_THROW(algorithm(sga{}));
     // We check incorrect calls to the constructor
-    EXPECT_THROW((sga{1u, 12., 10., .02, .5, 5u, "exponential", "gaussian", "tournament", 32u}),
-                      std::invalid_argument);
+    EXPECT_THROW((sga{1u, 12., 10., .02, .5, 5u, "exponential", "gaussian", "tournament", 32u}), std::invalid_argument);
     EXPECT_THROW((sga{1u, -1.1, 10., .02, .5, 5u, "exponential", "gaussian", "tournament", 32u}),
-                      std::invalid_argument);
-    EXPECT_THROW((sga{1u, .95, 0.1, .02, .5, 5u, "exponential", "gaussian", "truncated", 32u}),
-                      std::invalid_argument);
+                 std::invalid_argument);
+    EXPECT_THROW((sga{1u, .95, 0.1, .02, .5, 5u, "exponential", "gaussian", "truncated", 32u}), std::invalid_argument);
     EXPECT_THROW((sga{1u, .95, 101., .02, .5, 5u, "exponential", "gaussian", "tournament", 32u}),
-                      std::invalid_argument);
-    EXPECT_THROW((sga{1u, .95, 10., -0.2, .5, 5u, "exponential", "gaussian", "truncated", 32u}),
-                      std::invalid_argument);
-    EXPECT_THROW((sga{1u, .95, 10., 1.3, .5, 5u, "exponential", "gaussian", "tournament", 32u}),
-                      std::invalid_argument);
+                 std::invalid_argument);
+    EXPECT_THROW((sga{1u, .95, 10., -0.2, .5, 5u, "exponential", "gaussian", "truncated", 32u}), std::invalid_argument);
+    EXPECT_THROW((sga{1u, .95, 10., 1.3, .5, 5u, "exponential", "gaussian", "tournament", 32u}), std::invalid_argument);
     EXPECT_THROW((sga{1u, .95, 10., .02, .5, 5u, "exponential", "unknown_method", "tournament", 32u}),
-                      std::invalid_argument);
+                 std::invalid_argument);
     EXPECT_THROW((sga{1u, .95, 10., .02, .5, 5u, "exponential", "gaussian", "unknown_method", 32u}),
-                      std::invalid_argument);
+                 std::invalid_argument);
     EXPECT_THROW((sga{1u, .95, 10., .02, .5, 5u, "unknown_method", "gaussian", "truncated", 32u}),
-                      std::invalid_argument);
+                 std::invalid_argument);
     EXPECT_THROW((sga{1u, .95, 10., .02, .5, 5u, "exponential", "polynomial", "tournament", 32u}),
-                      std::invalid_argument);
+                 std::invalid_argument);
     EXPECT_THROW((sga{1u, .95, 10., .02, 101, 5u, "exponential", "polynomial", "truncated", 32u}),
-                      std::invalid_argument);
-    EXPECT_THROW((sga{1u, .95, 10., .02, -3, 5u, "exponential", "uniform", "tournament", 32u}),
-                      std::invalid_argument);
-    EXPECT_THROW((sga{1u, .95, 10., .02, 1.1, 5u, "exponential", "uniform", "tournament", 32u}),
-                      std::invalid_argument);
-    EXPECT_THROW((sga{1u, .95, 10., .02, 0.9, 0u, "exponential", "uniform", "tournament", 32u}),
-                      std::invalid_argument);
+                 std::invalid_argument);
+    EXPECT_THROW((sga{1u, .95, 10., .02, -3, 5u, "exponential", "uniform", "tournament", 32u}), std::invalid_argument);
+    EXPECT_THROW((sga{1u, .95, 10., .02, 1.1, 5u, "exponential", "uniform", "tournament", 32u}), std::invalid_argument);
+    EXPECT_THROW((sga{1u, .95, 10., .02, 0.9, 0u, "exponential", "uniform", "tournament", 32u}), std::invalid_argument);
 }
 TEST(sga_test, sga_evolve_test)
 {
@@ -191,14 +183,14 @@ TEST(sga_test, sga_serialization_test)
     auto before_log = algo.extract<sga>()->get_log();
     // Now serialize, deserialize and compare the result.
     {
-        boost::archive::binary_oarchive oarchive(ss);
-        oarchive << algo;
+        cereal::BinaryOutputArchive oarchive(ss);
+        oarchive(algo);
     }
     // Change the content of p before deserializing.
     algo = algorithm{};
     {
-        boost::archive::binary_iarchive iarchive(ss);
-        iarchive >> algo;
+        cereal::BinaryInputArchive iarchive(ss);
+        iarchive(algo);
     }
     auto after_text = boost::lexical_cast<std::string>(algo);
     auto after_log = algo.extract<sga>()->get_log();

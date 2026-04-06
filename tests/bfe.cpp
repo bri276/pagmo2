@@ -221,15 +221,15 @@ TEST(bfe_test, basic_tests)
         std::stringstream ss;
         {
             before = boost::lexical_cast<std::string>(bfe0);
-            boost::archive::binary_oarchive oarchive(ss);
-            oarchive << bfe0;
+            cereal::BinaryOutputArchive oarchive(ss);
+            oarchive(bfe0);
         }
         bfe0 = bfe{udbfe0};
         EXPECT_TRUE(bfe0.is<udbfe_func_t>());
         EXPECT_TRUE(before != boost::lexical_cast<std::string>(bfe0));
         {
-            boost::archive::binary_iarchive iarchive(ss);
-            iarchive >> bfe0;
+            cereal::BinaryInputArchive iarchive(ss);
+            iarchive(bfe0);
         }
         EXPECT_TRUE(before == boost::lexical_cast<std::string>(bfe0));
         EXPECT_TRUE(bfe0.is<default_bfe>());
@@ -439,14 +439,14 @@ TEST(bfe_test, s11n)
     auto before = boost::lexical_cast<std::string>(bfe0);
     // Now serialize, deserialize and compare the result.
     {
-        boost::archive::binary_oarchive oarchive(ss);
-        oarchive << bfe0;
+        cereal::BinaryOutputArchive oarchive(ss);
+        oarchive(bfe0);
     }
     // Change the content of p before deserializing.
     bfe0 = bfe{};
     {
-        boost::archive::binary_iarchive iarchive(ss);
-        iarchive >> bfe0;
+        cereal::BinaryInputArchive iarchive(ss);
+        iarchive(bfe0);
     }
     auto after = boost::lexical_cast<std::string>(bfe0);
     EXPECT_EQ(before, after);

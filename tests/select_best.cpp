@@ -105,13 +105,13 @@ TEST(select_best_test, select_best_basic)
 
         std::stringstream ss;
         {
-            boost::archive::binary_oarchive oarchive(ss);
-            oarchive << r0;
+            cereal::BinaryOutputArchive oarchive(ss);
+            oarchive(r0);
         }
         s_policy r1;
         {
-            boost::archive::binary_iarchive iarchive(ss);
-            iarchive >> r1;
+            cereal::BinaryInputArchive iarchive(ss);
+            iarchive(r1);
         }
         EXPECT_TRUE(r1.is<select_best>());
         EXPECT_TRUE(r1.extract<select_best>()->get_migr_rate().index() == 0);

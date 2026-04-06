@@ -26,7 +26,6 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-
 #include <gtest/gtest.h>
 
 #include <cstddef>
@@ -291,14 +290,14 @@ TEST(topology_test, topology_s11n_test)
 
     std::stringstream ss;
     {
-        boost::archive::binary_oarchive oarchive(ss);
-        oarchive << t0;
+        cereal::BinaryOutputArchive oarchive(ss);
+        oarchive(t0);
     }
     topology t1;
     EXPECT_TRUE(!t1.is<udt00>());
     {
-        boost::archive::binary_iarchive iarchive(ss);
-        iarchive >> t1;
+        cereal::BinaryInputArchive iarchive(ss);
+        iarchive(t1);
     }
 
     EXPECT_TRUE(t1.is<udt00>());

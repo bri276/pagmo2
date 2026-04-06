@@ -397,14 +397,13 @@ public:
 
 private:
     // Object serialization
-    friend class boost::serialization::access;
+    friend class cereal::access;
     // Save to archive.
     template <typename Archive>
     void save(Archive &, unsigned) const;
     // Load from archive.
     template <typename Archive>
     void load(Archive &, unsigned);
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
 
     std::string m_algo;
     mutable ::nlopt_result m_last_opt_result = NLOPT_SUCCESS;

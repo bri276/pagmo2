@@ -26,7 +26,6 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-
 #include <gtest/gtest.h>
 
 #include <boost/lexical_cast.hpp>
@@ -133,14 +132,14 @@ TEST(compass_search_test, compass_search_serialization_test)
     auto before_log = algo.extract<compass_search>()->get_log();
     // Now serialize, deserialize and compare the result.
     {
-        boost::archive::binary_oarchive oarchive(ss);
-        oarchive << algo;
+        cereal::BinaryOutputArchive oarchive(ss);
+        oarchive(algo);
     }
     // Change the content of p before deserializing.
     algo = algorithm{};
     {
-        boost::archive::binary_iarchive iarchive(ss);
-        iarchive >> algo;
+        cereal::BinaryInputArchive iarchive(ss);
+        iarchive(algo);
     }
     auto after_text = boost::lexical_cast<std::string>(algo);
     auto after_log = algo.extract<compass_search>()->get_log();

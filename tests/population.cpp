@@ -26,7 +26,6 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-
 #include <gtest/gtest.h>
 
 #include <cmath>
@@ -339,14 +338,14 @@ TEST(population_test, population_serialization_test)
     auto before = boost::lexical_cast<std::string>(pop);
     // Now serialize, deserialize and compare the result.
     {
-        boost::archive::binary_oarchive oarchive(ss);
-        oarchive << pop;
+        cereal::BinaryOutputArchive oarchive(ss);
+        oarchive(pop);
     }
     // Change the content of p before deserializing.
     pop = population{problem{zdt{5, 20u}}, 30};
     {
-        boost::archive::binary_iarchive iarchive(ss);
-        iarchive >> pop;
+        cereal::BinaryInputArchive iarchive(ss);
+        iarchive(pop);
     }
     auto after = boost::lexical_cast<std::string>(pop);
     EXPECT_EQ(before, after);

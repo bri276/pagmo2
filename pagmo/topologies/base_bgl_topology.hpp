@@ -112,7 +112,7 @@ public:
     bgl_graph_t to_bgl() const;
 
 private:
-    friend class boost::serialization::access;
+    friend class cereal::access;
     template <typename Archive>
     void serialize(Archive &ar, unsigned)
     {

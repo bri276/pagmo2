@@ -233,7 +233,7 @@ std::string fair_replace::get_extra_info() const
 template <typename Archive>
 void fair_replace::serialize(Archive &ar, unsigned)
 {
-    detail::archive(ar, boost::serialization::base_object<detail::base_sr_policy>(*this));
+    detail::archive(ar, cereal::base_class<detail::base_sr_policy>(this));
 }
 
 } // namespace pagmo

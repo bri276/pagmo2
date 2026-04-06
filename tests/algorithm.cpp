@@ -378,15 +378,15 @@ TEST(algorithm_test, algorithm_serialization_test)
     auto before = boost::lexical_cast<std::string>(algo);
     // Now serialize, deserialize and compare the result.
     {
-        boost::archive::binary_oarchive oarchive(ss);
-        oarchive << algo;
+        cereal::BinaryOutputArchive oarchive(ss);
+        oarchive(algo);
     }
     // Create a new algorithm object
     auto algo2 = algorithm{al_02{}};
     boost::lexical_cast<std::string>(algo2); // triggers the streaming operator for a deterministic algo
     {
-        boost::archive::binary_iarchive iarchive(ss);
-        iarchive >> algo2;
+        cereal::BinaryInputArchive iarchive(ss);
+        iarchive(algo2);
     }
     auto after = boost::lexical_cast<std::string>(algo2);
     EXPECT_EQ(before, after);
@@ -416,13 +416,13 @@ TEST(algorithm_test, serialization_test)
     EXPECT_EQ(algo.get_name(), "Null algorithm");
     std::stringstream ss;
     {
-        boost::archive::binary_oarchive oarchive(ss);
-        oarchive << algo;
+        cereal::BinaryOutputArchive oarchive(ss);
+        oarchive(algo);
     }
     algo = algorithm{de{}};
     {
-        boost::archive::binary_iarchive iarchive(ss);
-        iarchive >> algo;
+        cereal::BinaryInputArchive iarchive(ss);
+        iarchive(algo);
     }
 }
 

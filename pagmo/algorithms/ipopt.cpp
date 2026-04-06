@@ -952,8 +952,8 @@ std::string ipopt::get_extra_info() const
 template <typename Archive>
 void ipopt::serialize(Archive &ar, unsigned)
 {
-    detail::archive(ar, boost::serialization::base_object<not_population_based>(*this), m_string_opts, m_integer_opts,
-                    m_numeric_opts, m_last_opt_res, m_verbosity, m_log);
+    detail::archive(ar, cereal::base_class<not_population_based>(this), m_string_opts, m_integer_opts, m_numeric_opts,
+                    m_last_opt_res, m_verbosity, m_log);
 }
 
 /// Set string option.

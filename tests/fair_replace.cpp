@@ -105,13 +105,13 @@ TEST(fair_replace_test, fair_replace_basic)
 
         std::stringstream ss;
         {
-            boost::archive::binary_oarchive oarchive(ss);
-            oarchive << r0;
+            cereal::BinaryOutputArchive oarchive(ss);
+            oarchive(r0);
         }
         r_policy r1;
         {
-            boost::archive::binary_iarchive iarchive(ss);
-            iarchive >> r1;
+            cereal::BinaryInputArchive iarchive(ss);
+            iarchive(r1);
         }
         EXPECT_TRUE(r1.is<fair_replace>());
         EXPECT_TRUE(r1.extract<fair_replace>()->get_migr_rate().index() == 0);

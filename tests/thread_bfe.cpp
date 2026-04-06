@@ -130,15 +130,15 @@ TEST(thread_bfe_test, s11n)
     auto before = boost::lexical_cast<std::string>(bfe0);
     // Now serialize, deserialize and compare the result.
     {
-        boost::archive::binary_oarchive oarchive(ss);
-        oarchive << bfe0;
+        cereal::BinaryOutputArchive oarchive(ss);
+        oarchive(bfe0);
     }
     // Change the content of p before deserializing.
     bfe0 = bfe{};
     EXPECT_TRUE(!bfe0.is<thread_bfe>());
     {
-        boost::archive::binary_iarchive iarchive(ss);
-        iarchive >> bfe0;
+        cereal::BinaryInputArchive iarchive(ss);
+        iarchive(bfe0);
     }
     auto after = boost::lexical_cast<std::string>(bfe0);
     EXPECT_EQ(before, after);

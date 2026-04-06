@@ -94,14 +94,14 @@ TEST(minlp_rastrigin_test, rastrigin_serialization_test)
     auto before = boost::lexical_cast<std::string>(p);
     // Now serialize, deserialize and compare the result.
     {
-        boost::archive::binary_oarchive oarchive(ss);
-        oarchive << p;
+        cereal::BinaryOutputArchive oarchive(ss);
+        oarchive(p);
     }
     // Change the content of p before deserializing.
     p = problem{};
     {
-        boost::archive::binary_iarchive iarchive(ss);
-        iarchive >> p;
+        cereal::BinaryInputArchive iarchive(ss);
+        iarchive(p);
     }
     auto after = boost::lexical_cast<std::string>(p);
     EXPECT_EQ(before, after);

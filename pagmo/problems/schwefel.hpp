@@ -81,7 +81,7 @@ struct PAGMO_DLL_PUBLIC schwefel {
 
 private:
     // Object serialization
-    friend class boost::serialization::access;
+    friend class cereal::access;
     template <typename Archive>
     void serialize(Archive &, unsigned);
 };

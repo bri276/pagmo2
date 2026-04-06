@@ -36,24 +36,18 @@ see https://www.gnu.org/licenses/. */
 #include <string>
 #include <tuple>
 
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/serialization.hpp>
-#include <boost/serialization/split_free.hpp>
-#include <boost/serialization/split_member.hpp>
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/tracking.hpp>
-#include <boost/serialization/unique_ptr.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/version.hpp>
-
-// Include the archives.
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
+#include <cereal/access.hpp>
+#include <cereal/archives/binary.hpp>
+#include <cereal/archives/json.hpp>
+#include <cereal/archives/xml.hpp>
+#include <cereal/cereal.hpp>
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/optional.hpp>
+#include <cereal/types/string.hpp>
+#include <cereal/types/tuple.hpp>
+#include <cereal/types/utility.hpp>
+#include <cereal/types/vector.hpp>
 
 #include <pagmo/detail/s11n_wrappers.hpp>
 
@@ -63,79 +57,38 @@ namespace pagmo
 namespace detail
 {
 
-// Implementation of tuple serialization.
-template <std::size_t N>
-struct tuple_s11n {
-    template <class Archive, typename... Args>
-    static void serialize(Archive &ar, std::tuple<Args...> &t, unsigned version)
-    {
-        ar &std::get<N - 1u>(t);
-        tuple_s11n<N - 1u>::serialize(ar, t, version);
-    }
-};
-
-template <>
-struct tuple_s11n<0> {
-    template <class Archive, typename... Args>
-    static void serialize(Archive &, std::tuple<Args...> &, unsigned)
-    {
-    }
-};
+// Cereal handles tuple serialization automatically, so we don't need custom implementation
 
 } // namespace detail
 
 } // namespace pagmo
 
-namespace boost
+// Cereal serialization support for Mersenne twister engine
+namespace cereal
 {
-
-namespace serialization
-{
-
-// Implement serialization for std::tuple.
-template <class Archive, typename... Args>
-inline void serialize(Archive &ar, std::tuple<Args...> &t, unsigned version)
-{
-    pagmo::detail::tuple_s11n<sizeof...(Args)>::serialize(ar, t, version);
-}
-
-// Implement serialization for the Mersenne twister engine.
 template <class Archive, class UIntType, std::size_t w, std::size_t n, std::size_t m, std::size_t r, UIntType a,
           std::size_t u, UIntType d, std::size_t s, UIntType b, std::size_t t, UIntType c, std::size_t l, UIntType f>
-inline void save(Archive &ar, std::mersenne_twister_engine<UIntType, w, n, m, r, a, u, d, s, b, t, c, l, f> const &e,
-                 unsigned)
+void save(Archive &ar, std::mersenne_twister_engine<UIntType, w, n, m, r, a, u, d, s, b, t, c, l, f> const &e)
 {
     std::ostringstream oss;
     // Use the "C" locale.
     oss.imbue(std::locale::classic());
     oss << e;
-    ar << oss.str();
+    ar(oss.str());
 }
 
 template <class Archive, class UIntType, std::size_t w, std::size_t n, std::size_t m, std::size_t r, UIntType a,
           std::size_t u, UIntType d, std::size_t s, UIntType b, std::size_t t, UIntType c, std::size_t l, UIntType f>
-inline void load(Archive &ar, std::mersenne_twister_engine<UIntType, w, n, m, r, a, u, d, s, b, t, c, l, f> &e,
-                 unsigned)
+void load(Archive &ar, std::mersenne_twister_engine<UIntType, w, n, m, r, a, u, d, s, b, t, c, l, f> &e)
 {
     std::istringstream iss;
     // Use the "C" locale.
     iss.imbue(std::locale::classic());
     std::string tmp;
-    ar >> tmp;
+    ar(tmp);
     iss.str(tmp);
     iss >> e;
 }
-
-template <class Archive, class UIntType, std::size_t w, std::size_t n, std::size_t m, std::size_t r, UIntType a,
-          std::size_t u, UIntType d, std::size_t s, UIntType b, std::size_t t, UIntType c, std::size_t l, UIntType f>
-inline void serialize(Archive &ar, std::mersenne_twister_engine<UIntType, w, n, m, r, a, u, d, s, b, t, c, l, f> &e,
-                      unsigned version)
-{
-    split_free(ar, e, version);
-}
-
-} // namespace serialization
-
-} // namespace boost
+} // namespace cereal
 
 #endif

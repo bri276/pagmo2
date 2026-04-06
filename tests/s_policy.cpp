@@ -202,15 +202,15 @@ TEST(s_policy_test, basic_tests)
         std::stringstream ss;
         {
             before = boost::lexical_cast<std::string>(r);
-            boost::archive::binary_oarchive oarchive(ss);
-            oarchive << r;
+            cereal::BinaryOutputArchive oarchive(ss);
+            oarchive(r);
         }
         r = s_policy{udsp1{}};
         EXPECT_TRUE(r.is<udsp1>());
         EXPECT_TRUE(before != boost::lexical_cast<std::string>(r));
         {
-            boost::archive::binary_iarchive iarchive(ss);
-            iarchive >> r;
+            cereal::BinaryInputArchive iarchive(ss);
+            iarchive(r);
         }
         EXPECT_TRUE(before == boost::lexical_cast<std::string>(r));
         EXPECT_TRUE(r.is<select_best>());
@@ -509,14 +509,14 @@ TEST(s_policy_test, s11n)
     auto before = boost::lexical_cast<std::string>(s_pol0);
     // Now serialize, deserialize and compare the result.
     {
-        boost::archive::binary_oarchive oarchive(ss);
-        oarchive << s_pol0;
+        cereal::BinaryOutputArchive oarchive(ss);
+        oarchive(s_pol0);
     }
     // Change the content of p before deserializing.
     s_pol0 = s_policy{};
     {
-        boost::archive::binary_iarchive iarchive(ss);
-        iarchive >> s_pol0;
+        cereal::BinaryInputArchive iarchive(ss);
+        iarchive(s_pol0);
     }
     auto after = boost::lexical_cast<std::string>(s_pol0);
     EXPECT_EQ(before, after);

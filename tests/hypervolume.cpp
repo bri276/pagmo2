@@ -712,15 +712,15 @@ TEST(hypervolume_utils_test, hypervolume_serialization_test)
     // Now serialize, deserialize and compare the result.
     std::stringstream ss;
     {
-        boost::archive::binary_oarchive oarchive(ss);
-        oarchive << hv;
+        cereal::BinaryOutputArchive oarchive(ss);
+        oarchive(hv);
     }
     // Change the content of p before deserializing.
     hv = hypervolume({{23., 11.}, {-12., -23}}, true);
     hv.set_copy_points(true);
     {
-        boost::archive::binary_iarchive iarchive(ss);
-        iarchive >> hv;
+        cereal::BinaryInputArchive iarchive(ss);
+        iarchive(hv);
     }
     auto after = hv.compute({4., 4.});
     EXPECT_EQ(before, after);

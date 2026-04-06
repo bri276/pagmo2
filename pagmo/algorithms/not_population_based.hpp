@@ -90,7 +90,7 @@ public:
     std::any get_replacement() const;
 
 private:
-    friend class boost::serialization::access;
+    friend class cereal::access;
     // Save to archive.
     template <typename Archive>
     void save(Archive &ar, unsigned) const
@@ -140,7 +140,6 @@ private:
         ar >> m_rselect_seed;
         ar >> m_e;
     }
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
 
 protected:
     // Select individual.

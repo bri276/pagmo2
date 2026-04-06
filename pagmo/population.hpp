@@ -306,7 +306,7 @@ public:
     }
 
 private:
-    friend class boost::serialization::access;
+    friend class cereal::access;
     // Save to archive.
     template <typename Archive>
     void save(Archive &ar, unsigned) const
@@ -326,7 +326,6 @@ private:
         }
         // LCOV_EXCL_STOP
     }
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
 
     void clear();
 

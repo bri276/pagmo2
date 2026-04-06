@@ -65,11 +65,9 @@ see https://www.gnu.org/licenses/. */
 // See also:
 // https://www.boost.org/doc/libs/1_70_0/libs/serialization/doc/special.html#objecttracking
 // https://www.boost.org/doc/libs/1_70_0/libs/serialization/doc/traits.html#level
-#define PAGMO_S11N_PROBLEM_EXPORT_KEY(prob)                                                                            \
-    BOOST_CLASS_EXPORT_KEY2(pagmo::detail::prob_inner<prob>, "udp " #prob)                                             \
-    BOOST_CLASS_TRACKING(pagmo::detail::prob_inner<prob>, boost::serialization::track_never)
+#define PAGMO_S11N_PROBLEM_EXPORT_KEY(prob)
 
-#define PAGMO_S11N_PROBLEM_IMPLEMENT(prob) BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::detail::prob_inner<prob>)
+#define PAGMO_S11N_PROBLEM_IMPLEMENT(prob)
 
 #define PAGMO_S11N_PROBLEM_EXPORT(prob)                                                                                \
     PAGMO_S11N_PROBLEM_EXPORT_KEY(prob)                                                                                \
@@ -381,7 +379,7 @@ struct PAGMO_DLL_PUBLIC_INLINE_CLASS prob_inner_base {
     virtual void *get_ptr() = 0;
 
 private:
-    friend class boost::serialization::access;
+    friend class cereal::access;
     template <typename Archive>
     void serialize(Archive &, unsigned)
     {
@@ -768,11 +766,11 @@ struct PAGMO_DLL_PUBLIC_INLINE_CLASS prob_inner final : prob_inner_base {
 
 private:
     // Serialization.
-    friend class boost::serialization::access;
+    friend class cereal::access;
     template <typename Archive>
     void serialize(Archive &ar, unsigned)
     {
-        detail::archive(ar, boost::serialization::base_object<prob_inner_base>(*this), m_value);
+        detail::archive(ar, cereal::base_class<prob_inner_base>(this), m_value);
     }
 
 public:
@@ -785,7 +783,6 @@ public:
 
 // Disable Boost.Serialization tracking for the implementation
 // details of problem.
-BOOST_CLASS_TRACKING(pagmo::detail::prob_inner_base, boost::serialization::track_never)
 
 namespace pagmo
 {
@@ -1501,7 +1498,7 @@ public:
     void *get_ptr();
 
 private:
-    friend class boost::serialization::access;
+    friend class cereal::access;
     template <typename Archive>
     void save(Archive &ar, unsigned) const
     {
@@ -1528,7 +1525,6 @@ private:
             throw;
         }
     }
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
 
     // Just two small helpers to make sure that whenever we require
     // access to the pointer it actually points to something.

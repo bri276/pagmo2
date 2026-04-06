@@ -175,7 +175,7 @@ void default_island_factory(const algorithm &algo, const population &pop, std::u
 #if defined(PAGMO_WITH_FORK_ISLAND)
     if (algo.get_thread_safety() < thread_safety::basic
         || pop.get_problem().get_thread_safety() < thread_safety::basic) {
-        ptr = std::make_unique<isl_inner<fork_island>>();
+        ptr = std::make_unique<isl_inner<pagmo::fork_island>>();
         return;
     }
 #endif

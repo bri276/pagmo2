@@ -68,7 +68,7 @@ free_form::free_form(const topology &t) : free_form(t.to_bgl()) {}
 template <typename Archive>
 void free_form::serialize(Archive &ar, unsigned)
 {
-    detail::archive(ar, boost::serialization::base_object<base_bgl_topology>(*this));
+    detail::archive(ar, cereal::base_class<base_bgl_topology>(this));
 }
 
 // Add vertex.

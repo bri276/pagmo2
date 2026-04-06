@@ -64,11 +64,9 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/type_traits.hpp>
 #include <pagmo/types.hpp>
 
-#define PAGMO_S11N_ISLAND_EXPORT_KEY(isl)                                                                              \
-    BOOST_CLASS_EXPORT_KEY2(pagmo::detail::isl_inner<isl>, "udi " #isl)                                                \
-    BOOST_CLASS_TRACKING(pagmo::detail::isl_inner<isl>, boost::serialization::track_never)
+#define PAGMO_S11N_ISLAND_EXPORT_KEY(isl)
 
-#define PAGMO_S11N_ISLAND_IMPLEMENT(isl) BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::detail::isl_inner<isl>)
+#define PAGMO_S11N_ISLAND_IMPLEMENT(isl)
 
 #define PAGMO_S11N_ISLAND_EXPORT(isl)                                                                                  \
     PAGMO_S11N_ISLAND_EXPORT_KEY(isl)                                                                                  \
@@ -137,7 +135,7 @@ struct PAGMO_DLL_PUBLIC_INLINE_CLASS isl_inner_base {
     virtual void *get_ptr() = 0;
 
 private:
-    friend class boost::serialization::access;
+    friend class cereal::access;
     template <typename Archive>
     void serialize(Archive &, unsigned)
     {
@@ -212,12 +210,12 @@ struct PAGMO_DLL_PUBLIC_INLINE_CLASS isl_inner final : isl_inner_base {
     }
 
 private:
-    friend class boost::serialization::access;
+    friend class cereal::access;
     // Serialization
     template <typename Archive>
     void serialize(Archive &ar, unsigned)
     {
-        detail::archive(ar, boost::serialization::base_object<isl_inner_base>(*this), m_value);
+        detail::archive(ar, cereal::base_class<isl_inner_base>(this), m_value);
     }
 
 public:
@@ -230,7 +228,6 @@ public:
 
 // Disable Boost.Serialization tracking for the implementation
 // details of island.
-BOOST_CLASS_TRACKING(pagmo::detail::isl_inner_base, boost::serialization::track_never)
 
 namespace pagmo
 {
@@ -1188,7 +1185,7 @@ public:
     void *get_ptr();
 
 private:
-    friend class boost::serialization::access;
+    friend class cereal::access;
     template <typename Archive>
     void save(Archive &ar, unsigned) const
     {
@@ -1207,7 +1204,6 @@ private:
             throw;
         }
     }
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
 
     // Data used in the migration machinery:
     // - the island's population (represented via individuals_group_t),

@@ -116,14 +116,14 @@ TEST(free_form, basic_test)
         topology t0(f0);
         std::stringstream ss;
         {
-            boost::archive::binary_oarchive oarchive(ss);
-            oarchive << t0;
+            cereal::BinaryOutputArchive oarchive(ss);
+            oarchive(t0);
         }
         topology t1;
         EXPECT_TRUE(!t1.is<free_form>());
         {
-            boost::archive::binary_iarchive iarchive(ss);
-            iarchive >> t1;
+            cereal::BinaryInputArchive iarchive(ss);
+            iarchive(t1);
         }
         EXPECT_TRUE(t1.is<free_form>());
         EXPECT_TRUE(t1.extract<free_form>()->num_vertices() == 3u);

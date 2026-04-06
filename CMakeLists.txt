@@ -182,8 +182,11 @@ include(cmake/find_or_build_nlopt.cmake)
 # IPOPT dependency
 include(cmake/find_or_build_ipopt.cmake)
 
-# Boost dependency (for serialization)
+# Boost dependency (for header-only libraries, serialization now handled by Cereal)
 include(cmake/find_or_build_boost.cmake)
+
+# Cereal dependency (for serialization)
+include(cmake/find_or_build_cereal.cmake)
 
 # Google Test dependency
 include(cmake/find_or_build_gtest.cmake)
@@ -380,16 +383,26 @@ target_link_libraries(pagmo PUBLIC Threads::Threads)
 # thus fully encapsulated in the pagmo library.
 target_link_libraries(pagmo PRIVATE pagmo_tbb_wrapper)
 
-# Boost serialization and header-only libraries for the main library
-if(TARGET boost_serialization)
-    target_link_libraries(pagmo PRIVATE boost_serialization)
-    # Expose serialization headers publicly since pagmo's API uses them
-    get_target_property(BOOST_SERIAL_INCLUDE_DIRS boost_serialization INTERFACE_INCLUDE_DIRECTORIES)
-    if(BOOST_SERIAL_INCLUDE_DIRS)
-        target_include_directories(pagmo PUBLIC ${BOOST_SERIAL_INCLUDE_DIRS})
-    endif()
-    message(STATUS "Linked with boost_serialization (private)")
+# Cereal serialization library for the main library
+if(TARGET cereal::cereal)
+    target_link_libraries(pagmo PRIVATE cereal::cereal)
+    message(STATUS "Linked with cereal::cereal (private)")
+elseif(TARGET cereal)
+    target_link_libraries(pagmo PRIVATE cereal)
+    message(STATUS "Linked with cereal (private)")
 endif()
+
+# Link additional header-only boost libraries needed by pagmo
+foreach(boost_lib IN ITEMS boost_any boost_math boost_safe_numerics boost_bimap boost_system boost_graph boost_lexical_cast boost_integer boost_variant boost_variant2 boost_property_map boost_container boost_move boost_type_index boost_multi_index boost_type_traits boost_config boost_mpl boost_iterator)
+    if(TARGET ${boost_lib})
+        target_link_libraries(pagmo PRIVATE ${boost_lib})
+        get_target_property(BOOST_LIB_INCLUDE_DIRS ${boost_lib} INTERFACE_INCLUDE_DIRECTORIES)
+        if(BOOST_LIB_INCLUDE_DIRS)
+            target_include_directories(pagmo PUBLIC ${BOOST_LIB_INCLUDE_DIRS})
+        endif()
+        message(STATUS "Linked with ${boost_lib} (private)")
+    endif()
+endforeach()
 
 # Link additional header-only boost libraries needed by pagmo
 foreach(boost_lib IN ITEMS boost_any boost_math boost_safe_numerics boost_bimap boost_system boost_graph boost_lexical_cast boost_integer boost_variant boost_variant2 boost_property_map boost_container boost_move boost_type_index boost_multi_index boost_type_traits boost_config boost_mpl)

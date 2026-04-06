@@ -26,7 +26,6 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-
 #include <gtest/gtest.h>
 
 #include <initializer_list>
@@ -128,7 +127,7 @@ struct grad_p : base_p {
     template <typename Archive>
     void serialize(Archive &ar, unsigned)
     {
-        detail::archive(ar, boost::serialization::base_object<base_p>(*this), m_g, m_gs);
+        detail::archive(ar, cereal::base_class<base_p>(this), m_g, m_gs);
     }
 
     vector_double m_g;
@@ -161,7 +160,7 @@ struct grad_p_override : grad_p {
     template <typename Archive>
     void serialize(Archive &ar, unsigned)
     {
-        ar &boost::serialization::base_object<grad_p>(*this);
+        ar(cereal::base_class<grad_p>(this));
     }
 };
 
@@ -190,7 +189,7 @@ struct hess_p : base_p {
     template <typename Archive>
     void serialize(Archive &ar, unsigned)
     {
-        detail::archive(ar, boost::serialization::base_object<base_p>(*this), m_h, m_hs);
+        detail::archive(ar, cereal::base_class<base_p>(this), m_h, m_hs);
     }
 
     std::vector<vector_double> m_h;
@@ -223,7 +222,7 @@ struct hess_p_override : hess_p {
     template <typename Archive>
     void serialize(Archive &ar, unsigned)
     {
-        ar &boost::serialization::base_object<hess_p>(*this);
+        ar(cereal::base_class<hess_p>(this));
     }
 };
 
@@ -253,7 +252,7 @@ struct full_p : grad_p {
     template <typename Archive>
     void serialize(Archive &ar, unsigned)
     {
-        detail::archive(ar, boost::serialization::base_object<grad_p>(*this), m_h, m_hs);
+        detail::archive(ar, cereal::base_class<grad_p>(this), m_h, m_hs);
     }
 
     std::vector<vector_double> m_h;
@@ -319,11 +318,10 @@ TEST(problem_test, problem_construction_test)
     // 5 - gradient sparsity has a repeating pair
     EXPECT_THROW(problem{grad_p(1, 0, 0, fit_1, lb_2, ub_2, grad_2, grads_2_repeats)}, std::invalid_argument);
     // 6 - hessian sparsity has index out of bounds
-    EXPECT_THROW(problem{hess_p(1, 1, 0, fit_2, lb_2, ub_2, hess_22, hesss_22_outofbounds)},
-                      std::invalid_argument);
+    EXPECT_THROW(problem{hess_p(1, 1, 0, fit_2, lb_2, ub_2, hess_22, hesss_22_outofbounds)}, std::invalid_argument);
     // 7 - hessian sparsity is not lower triangular
     EXPECT_THROW(problem{hess_p(1, 1, 0, fit_2, lb_2, ub_2, hess_22, hesss_22_notlowertriangular)},
-                      std::invalid_argument);
+                 std::invalid_argument);
     // 8 - hessian sparsity has repeated indexes
     EXPECT_THROW(problem{hess_p(1, 1, 0, fit_2, lb_2, ub_2, hess_22, hesss_22_repeated)}, std::invalid_argument);
     // 9 - hessian sparsity has the wrong length
@@ -334,13 +332,13 @@ TEST(problem_test, problem_construction_test)
     EXPECT_THROW(problem{base_p(0, 0, 0, fit_1, {1}, {2})}, std::invalid_argument);
     // 11 - many objectives
     EXPECT_THROW(problem{base_p(std::numeric_limits<vector_double::size_type>::max(), 0, 0, fit_2, {1}, {2})},
-                      std::invalid_argument);
+                 std::invalid_argument);
     // 12 - too many equalities
     EXPECT_THROW(problem{base_p(1, std::numeric_limits<vector_double::size_type>::max(), 0, fit_2, {1}, {2})},
-                      std::invalid_argument);
+                 std::invalid_argument);
     // 13 - too many inequalities
     EXPECT_THROW(problem{base_p(1, 0, std::numeric_limits<vector_double::size_type>::max(), fit_2, {1}, {2})},
-                      std::invalid_argument);
+                 std::invalid_argument);
     // We check that the data members are initialized correctly (i.e. counters to zero
     // and gradient / hessian dimensions to the right values
     {
@@ -733,14 +731,14 @@ TEST(problem_test, problem_serialization_test)
     auto before = boost::lexical_cast<std::string>(p);
     // Now serialize, deserialize and compare the result.
     {
-        boost::archive::binary_oarchive oarchive(ss);
-        oarchive << p;
+        cereal::BinaryOutputArchive oarchive(ss);
+        oarchive(p);
     }
     // Change the content of p before deserializing.
     p = problem{grad_p{}};
     {
-        boost::archive::binary_iarchive iarchive(ss);
-        iarchive >> p;
+        cereal::BinaryInputArchive iarchive(ss);
+        iarchive(p);
     }
     auto after = boost::lexical_cast<std::string>(p);
     EXPECT_EQ(before, after);
@@ -1048,15 +1046,15 @@ TEST(problem_test, null_problem_serialization_test)
     auto before = boost::lexical_cast<std::string>(p);
     // Now serialize, deserialize and compare the result.
     {
-        boost::archive::binary_oarchive oarchive(ss);
-        oarchive << p;
+        cereal::BinaryOutputArchive oarchive(ss);
+        oarchive(p);
     }
     // Change the content of p before deserializing.
     p = problem{};
     EXPECT_EQ(p.get_nobj(), 1u);
     {
-        boost::archive::binary_iarchive iarchive(ss);
-        iarchive >> p;
+        cereal::BinaryInputArchive iarchive(ss);
+        iarchive(p);
     }
     auto after = boost::lexical_cast<std::string>(p);
     EXPECT_EQ(before, after);
@@ -1554,15 +1552,15 @@ TEST(problem_test, batch_fitness)
     auto before = boost::lexical_cast<std::string>(p);
     // Now serialize, deserialize and compare the result.
     {
-        boost::archive::binary_oarchive oarchive(ss);
-        oarchive << p;
+        cereal::BinaryOutputArchive oarchive(ss);
+        oarchive(p);
     }
     // Change the content of p before deserializing.
     p = problem{};
     EXPECT_TRUE(!p.has_batch_fitness());
     {
-        boost::archive::binary_iarchive iarchive(ss);
-        iarchive >> p;
+        cereal::BinaryInputArchive iarchive(ss);
+        iarchive(p);
     }
     auto after = boost::lexical_cast<std::string>(p);
     EXPECT_EQ(before, after);

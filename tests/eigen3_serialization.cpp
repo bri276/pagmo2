@@ -44,14 +44,14 @@ void serialize_deserialize_and_compare(T &object)
     auto object_copy(object);
     std::stringstream ss;
     {
-        boost::archive::binary_oarchive oarchive(ss);
-        oarchive << object_copy;
+        cereal::BinaryOutputArchive oarchive(ss);
+        oarchive(object_copy);
     }
     // Change the content of p before deserializing.
     object_copy = T{};
     {
-        boost::archive::binary_iarchive iarchive(ss);
-        iarchive >> object_copy;
+        cereal::BinaryInputArchive iarchive(ss);
+        iarchive(object_copy);
     }
     auto nrows = object.rows();
     auto ncols = object.cols();

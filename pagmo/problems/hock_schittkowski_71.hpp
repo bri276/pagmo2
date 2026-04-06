@@ -122,7 +122,7 @@ struct PAGMO_DLL_PUBLIC hock_schittkowski_71 {
 
 private:
     // Object serialization
-    friend class boost::serialization::access;
+    friend class cereal::access;
     template <typename Archive>
     void serialize(Archive &, unsigned);
 };

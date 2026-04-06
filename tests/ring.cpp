@@ -134,14 +134,14 @@ TEST(ring, basic_test)
         topology t0(r0);
         std::stringstream ss;
         {
-            boost::archive::binary_oarchive oarchive(ss);
-            oarchive << t0;
+            cereal::BinaryOutputArchive oarchive(ss);
+            oarchive(t0);
         }
         topology t1;
         EXPECT_TRUE(!t1.is<ring>());
         {
-            boost::archive::binary_iarchive iarchive(ss);
-            iarchive >> t1;
+            cereal::BinaryInputArchive iarchive(ss);
+            iarchive(t1);
         }
         EXPECT_TRUE(t1.is<ring>());
         EXPECT_TRUE(t1.extract<ring>()->num_vertices() == 6u);

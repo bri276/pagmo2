@@ -658,13 +658,13 @@ TEST(archipelago_test, archipelago_serialization)
     const auto mig_log_before = a.get_migration_log();
     // Now serialize, deserialize and compare the result.
     {
-        boost::archive::binary_oarchive oarchive(ss);
-        oarchive << a;
+        cereal::BinaryOutputArchive oarchive(ss);
+        oarchive(a);
     }
     a = archipelago{};
     {
-        boost::archive::binary_iarchive iarchive(ss);
-        iarchive >> a;
+        cereal::BinaryInputArchive iarchive(ss);
+        iarchive(a);
     }
     auto after = boost::lexical_cast<std::string>(a);
     EXPECT_EQ(before, after);

@@ -26,7 +26,6 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-
 #include <gtest/gtest.h>
 
 #include <boost/lexical_cast.hpp>
@@ -100,7 +99,7 @@ TEST(bee_colony_test, bee_colony_evolve_test)
 
     // To cover the case of fitness < 0
     struct my_problem {
-        my_problem(unsigned dim = 2u) : m_dim(dim){};
+        my_problem(unsigned dim = 2u) : m_dim(dim) {};
         vector_double fitness(const vector_double &x) const
         {
             double sum = 0.;
@@ -150,14 +149,14 @@ TEST(bee_colony_test, bee_colony_serialization_test)
     auto before_log = algo.extract<bee_colony>()->get_log();
     // Now serialize, deserialize and compare the result.
     {
-        boost::archive::binary_oarchive oarchive(ss);
-        oarchive << algo;
+        cereal::BinaryOutputArchive oarchive(ss);
+        oarchive(algo);
     }
     // Change the content of p before deserializing.
     algo = algorithm{};
     {
-        boost::archive::binary_iarchive iarchive(ss);
-        iarchive >> algo;
+        cereal::BinaryInputArchive iarchive(ss);
+        iarchive(algo);
     }
     auto after_text = boost::lexical_cast<std::string>(algo);
     auto after_log = algo.extract<bee_colony>()->get_log();

@@ -214,8 +214,8 @@ void fork_island::run_evolve(island &isl) const
                     }
                     ss.write(buffer, static_cast<std::streamsize>(read_bytes));
                 }
-                boost::archive::binary_iarchive iarchive(ss);
-                iarchive >> m;
+                cereal::BinaryInputArchive iarchive(ss);
+                iarchive(m);
             }
             // Close the read descriptor.
             p.close_r();
@@ -271,8 +271,8 @@ void fork_island::run_evolve(island &isl) const
         // stream back to the parent. This is split in 2 separate functions
         // because we can handle errors in serialize_message(), but not in send_ss().
         auto serialize_message = [](std::stringstream &ss, const message_t &ms) {
-            boost::archive::binary_oarchive oarchive(ss);
-            oarchive << ms;
+            cereal::BinaryOutputArchive oarchive(ss);
+            oarchive(ms);
         };
         auto send_ss = [&p](std::stringstream &ss) {
             // NOTE: make the buffer small enough that its size can be represented by any

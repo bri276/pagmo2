@@ -52,11 +52,9 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/type_traits.hpp>
 #include <pagmo/types.hpp>
 
-#define PAGMO_S11N_BFE_EXPORT_KEY(b)                                                                                   \
-    BOOST_CLASS_EXPORT_KEY2(pagmo::detail::bfe_inner<b>, "udbfe " #b)                                                  \
-    BOOST_CLASS_TRACKING(pagmo::detail::bfe_inner<b>, boost::serialization::track_never)
+#define PAGMO_S11N_BFE_EXPORT_KEY(b)
 
-#define PAGMO_S11N_BFE_IMPLEMENT(b) BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::detail::bfe_inner<b>)
+#define PAGMO_S11N_BFE_IMPLEMENT(b)
 
 #define PAGMO_S11N_BFE_EXPORT(b)                                                                                       \
     PAGMO_S11N_BFE_EXPORT_KEY(b)                                                                                       \
@@ -115,7 +113,7 @@ struct PAGMO_DLL_PUBLIC_INLINE_CLASS bfe_inner_base {
     virtual void *get_ptr() = 0;
 
 private:
-    friend class boost::serialization::access;
+    friend class cereal::access;
     template <typename Archive>
     void serialize(Archive &, unsigned)
     {
@@ -209,12 +207,12 @@ struct PAGMO_DLL_PUBLIC_INLINE_CLASS bfe_inner final : bfe_inner_base {
     }
 
 private:
-    friend class boost::serialization::access;
+    friend class cereal::access;
     // Serialization.
     template <typename Archive>
     void serialize(Archive &ar, unsigned)
     {
-        detail::archive(ar, boost::serialization::base_object<bfe_inner_base>(*this), m_value);
+        detail::archive(ar, cereal::base_class<bfe_inner_base>(this), m_value);
     }
 
 public:
@@ -227,7 +225,6 @@ public:
 
 // Disable Boost.Serialization tracking for the implementation
 // details of algorithm.
-BOOST_CLASS_TRACKING(pagmo::detail::bfe_inner_base, boost::serialization::track_never)
 
 namespace pagmo
 {
@@ -340,7 +337,7 @@ public:
     void *get_ptr();
 
 private:
-    friend class boost::serialization::access;
+    friend class cereal::access;
     template <typename Archive>
     void save(Archive &ar, unsigned) const
     {
@@ -356,7 +353,6 @@ private:
             throw;
         }
     }
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
 
     // Just two small helpers to make sure that whenever we require
     // access to the pointer it actually points to something.

@@ -642,7 +642,7 @@ public:
     void set_migrant_handling(migrant_handling);
 
 private:
-    friend class boost::serialization::access;
+    friend class cereal::access;
     // Save to archive.
     template <typename Archive>
     void save(Archive &ar, unsigned) const
@@ -694,7 +694,6 @@ private:
             throw;
         }
     }
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
 
     // Private utilities for use only by island.
     // Extract/get/set migrants for the island at the given index.

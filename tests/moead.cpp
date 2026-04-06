@@ -26,7 +26,6 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-
 #include <gtest/gtest.h>
 
 #include <boost/lexical_cast.hpp>
@@ -53,28 +52,20 @@ TEST(moead_test, moead_algorithm_construction)
 
     // Check the throws
     // Wrong weight generation type
-    EXPECT_THROW((moead{10u, "typo", "tchebycheff", 20u, 1., 0.5, 20., 0.9, 2u, true, 23u}),
-                      std::invalid_argument);
+    EXPECT_THROW((moead{10u, "typo", "tchebycheff", 20u, 1., 0.5, 20., 0.9, 2u, true, 23u}), std::invalid_argument);
     // Wrong decomposition method
     EXPECT_THROW((moead{10u, "grid", "typo", 20u, 1., 0.5, 20., 0.9, 2u, true, 23u}), std::invalid_argument);
     // Wrong CR
-    EXPECT_THROW((moead{10u, "grid", "tchebycheff", 20u, 1.1, 0.5, 20., 0.9, 2u, true, 23u}),
-                      std::invalid_argument);
-    EXPECT_THROW((moead{10u, "grid", "tchebycheff", 20u, -0.3, 0.5, 20., 0.9, 2u, true, 23u}),
-                      std::invalid_argument);
+    EXPECT_THROW((moead{10u, "grid", "tchebycheff", 20u, 1.1, 0.5, 20., 0.9, 2u, true, 23u}), std::invalid_argument);
+    EXPECT_THROW((moead{10u, "grid", "tchebycheff", 20u, -0.3, 0.5, 20., 0.9, 2u, true, 23u}), std::invalid_argument);
     // Wrong F
-    EXPECT_THROW((moead{10u, "grid", "tchebycheff", 20u, 1., 1.1, 20., 0.9, 2u, true, 23u}),
-                      std::invalid_argument);
-    EXPECT_THROW((moead{10u, "grid", "tchebycheff", 20u, 1., -0.3, 20., 0.9, 2u, true, 23u}),
-                      std::invalid_argument);
+    EXPECT_THROW((moead{10u, "grid", "tchebycheff", 20u, 1., 1.1, 20., 0.9, 2u, true, 23u}), std::invalid_argument);
+    EXPECT_THROW((moead{10u, "grid", "tchebycheff", 20u, 1., -0.3, 20., 0.9, 2u, true, 23u}), std::invalid_argument);
     // Wrong eta_m
-    EXPECT_THROW((moead{10u, "grid", "tchebycheff", 20u, 1., 0.5, -20., 0.9, 2u, true, 23u}),
-                      std::invalid_argument);
+    EXPECT_THROW((moead{10u, "grid", "tchebycheff", 20u, 1., 0.5, -20., 0.9, 2u, true, 23u}), std::invalid_argument);
     // Wrong realb
-    EXPECT_THROW((moead{10u, "grid", "tchebycheff", 20u, 1., 0.5, 20., 1.1, 2u, true, 23u}),
-                      std::invalid_argument);
-    EXPECT_THROW((moead{10u, "grid", "tchebycheff", 20u, 1., 0.5, 20., -0.34, 2u, true, 23u}),
-                      std::invalid_argument);
+    EXPECT_THROW((moead{10u, "grid", "tchebycheff", 20u, 1., 0.5, 20., 1.1, 2u, true, 23u}), std::invalid_argument);
+    EXPECT_THROW((moead{10u, "grid", "tchebycheff", 20u, 1., 0.5, 20., -0.34, 2u, true, 23u}), std::invalid_argument);
     // Wrong neighbours
     EXPECT_THROW((moead{10u, "grid", "tchebycheff", 1u, 1., 0.5, 20., 0.9, 2u, true, 23u}), std::invalid_argument);
 }
@@ -190,8 +181,7 @@ TEST(moead_test, moead_evolve_test)
     // Stochastic problem
     EXPECT_THROW(moead{10u}.evolve(population{problem{mo_sto{}}, 15u}), std::invalid_argument);
     // Population size is too small for the neighbourhood specified
-    EXPECT_THROW(moead(10u, "grid", "tchebycheff", 20u).evolve(population{problem{zdt{}}, 15u}),
-                      std::invalid_argument);
+    EXPECT_THROW(moead(10u, "grid", "tchebycheff", 20u).evolve(population{problem{zdt{}}, 15u}), std::invalid_argument);
     // And a clean exit for 0 generations
     population pop{zdt{}, 40u};
     EXPECT_TRUE(moead{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);
@@ -229,14 +219,14 @@ TEST(moead_test, moead_serialization_test)
     auto before_log = algo.extract<moead>()->get_log();
     // Now serialize, deserialize and compare the result.
     {
-        boost::archive::binary_oarchive oarchive(ss);
-        oarchive << algo;
+        cereal::BinaryOutputArchive oarchive(ss);
+        oarchive(algo);
     }
     // Change the content of p before deserializing.
     algo = algorithm{};
     {
-        boost::archive::binary_iarchive iarchive(ss);
-        iarchive >> algo;
+        cereal::BinaryInputArchive iarchive(ss);
+        iarchive(algo);
     }
     auto after_text = boost::lexical_cast<std::string>(algo);
     auto after_log = algo.extract<moead>()->get_log();
