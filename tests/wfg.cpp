@@ -26,7 +26,6 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-
 #include <gtest/gtest.h>
 
 #include <cmath>
@@ -34,13 +33,11 @@ see https://www.gnu.org/licenses/. */
 #include <stdexcept>
 #include <string>
 
-#include <boost/lexical_cast.hpp>
-#include <boost/test/tools/floating_point_comparison.hpp>
-
 #include <pagmo/problem.hpp>
 #include <pagmo/problems/wfg.hpp>
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
+#include <pagmo/utils/cast.hpp>
 
 using namespace pagmo;
 
@@ -204,7 +201,7 @@ TEST(wfg_test, wfg_serialization_test)
     p.fitness({1., 1., 1., 1.});
     // Store the string representation of p.
     std::stringstream ss;
-    auto before = boost::lexical_cast<std::string>(p);
+    auto before = lexical_cast<std::string>(p);
     // Now serialize, deserialize and compare the result.
     {
         cereal::BinaryOutputArchive oarchive(ss);
@@ -216,6 +213,6 @@ TEST(wfg_test, wfg_serialization_test)
         cereal::BinaryInputArchive iarchive(ss);
         iarchive(p);
     }
-    auto after = boost::lexical_cast<std::string>(p);
+    auto after = lexical_cast<std::string>(p);
     EXPECT_EQ(before, after);
 }

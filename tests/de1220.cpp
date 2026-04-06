@@ -32,9 +32,6 @@ see https://www.gnu.org/licenses/. */
 #include <numeric>
 #include <string>
 
-#include <boost/lexical_cast.hpp>
-#include <boost/test/tools/floating_point_comparison.hpp>
-
 #include <pagmo/algorithm.hpp>
 #include <pagmo/algorithms/de1220.hpp>
 #include <pagmo/io.hpp>
@@ -45,6 +42,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/problems/zdt.hpp>
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
+#include <pagmo/utils/cast.hpp>
 
 using namespace pagmo;
 
@@ -153,7 +151,7 @@ TEST(de1220_test, serialization_test)
 
     // Store the string representation of p.
     std::stringstream ss;
-    auto before_text = boost::lexical_cast<std::string>(algo);
+    auto before_text = lexical_cast<std::string>(algo);
     auto before_log = algo.extract<de1220>()->get_log();
     // Now serialize, deserialize and compare the result.
     {
@@ -166,7 +164,7 @@ TEST(de1220_test, serialization_test)
         cereal::BinaryInputArchive iarchive(ss);
         iarchive(algo);
     }
-    auto after_text = boost::lexical_cast<std::string>(algo);
+    auto after_text = lexical_cast<std::string>(algo);
     auto after_log = algo.extract<de1220>()->get_log();
     EXPECT_EQ(before_text, after_text);
     EXPECT_TRUE(before_log == after_log);

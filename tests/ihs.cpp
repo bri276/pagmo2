@@ -26,10 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-
 #include <gtest/gtest.h>
 
-#include <boost/lexical_cast.hpp>
 #include <pagmo/algorithm.hpp>
 #include <pagmo/algorithms/ihs.hpp>
 #include <pagmo/io.hpp>
@@ -40,7 +38,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/problems/null_problem.hpp>
 #include <pagmo/problems/rosenbrock.hpp>
 #include <pagmo/problems/zdt.hpp>
-
+#include <pagmo/utils/cast.hpp>
 using namespace pagmo;
 using namespace std;
 
@@ -154,7 +152,7 @@ TEST(ihs_test, ihs_serialization_test)
 
     // Store the string representation of p.
     std::stringstream ss;
-    auto before_text = boost::lexical_cast<std::string>(algo);
+    auto before_text = lexical_cast<std::string>(algo);
     auto before_log = algo.extract<ihs>()->get_log();
     // Now serialize, deserialize and compare the result.
     {
@@ -167,7 +165,7 @@ TEST(ihs_test, ihs_serialization_test)
         cereal::BinaryInputArchive iarchive(ss);
         iarchive(algo);
     }
-    auto after_text = boost::lexical_cast<std::string>(algo);
+    auto after_text = lexical_cast<std::string>(algo);
     auto after_log = algo.extract<ihs>()->get_log();
     EXPECT_EQ(before_text, after_text);
     EXPECT_TRUE(before_log == after_log);

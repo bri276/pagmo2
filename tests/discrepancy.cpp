@@ -26,13 +26,10 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-
 #include <gtest/gtest.h>
 
 #include <stdexcept>
 #include <tuple>
-
-#include <boost/test/tools/floating_point_comparison.hpp>
 
 #include <pagmo/detail/prime_numbers.hpp>
 #include <pagmo/io.hpp>

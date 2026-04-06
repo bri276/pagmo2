@@ -29,8 +29,6 @@ see https://www.gnu.org/licenses/. */
 #include <gtest/gtest.h>
 
 #include <algorithm>
-#include <boost/lexical_cast.hpp>
-#include <boost/test/tools/floating_point_comparison.hpp>
 #include <iostream>
 #include <string>
 
@@ -44,6 +42,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/problems/zdt.hpp>
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
+#include <pagmo/utils/cast.hpp>
 
 using namespace pagmo;
 
@@ -171,7 +170,7 @@ TEST(nsga2_test, nsga2_serialization_test)
 
     // Store the string representation of p.
     std::stringstream ss;
-    auto before_text = boost::lexical_cast<std::string>(algo);
+    auto before_text = lexical_cast<std::string>(algo);
     auto before_log = algo.extract<nsga2>()->get_log();
     // Now serialize, deserialize and compare the result.
     {
@@ -184,7 +183,7 @@ TEST(nsga2_test, nsga2_serialization_test)
         cereal::BinaryInputArchive iarchive(ss);
         iarchive(algo);
     }
-    auto after_text = boost::lexical_cast<std::string>(algo);
+    auto after_text = lexical_cast<std::string>(algo);
     auto after_log = algo.extract<nsga2>()->get_log();
     EXPECT_EQ(before_text, after_text);
     EXPECT_TRUE(before_log == after_log);

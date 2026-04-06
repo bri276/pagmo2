@@ -26,7 +26,6 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-
 #include <gtest/gtest.h>
 
 #include <atomic>
@@ -37,8 +36,6 @@ see https://www.gnu.org/licenses/. */
 #include <string>
 #include <thread>
 #include <utility>
-
-#include <boost/algorithm/string/predicate.hpp>
 
 #include <pagmo/s11n.hpp>
 #include <pagmo/topologies/base_bgl_topology.hpp>
@@ -140,8 +137,8 @@ TEST(base_bgl_topology, basic_test)
     EXPECT_TRUE(t4.get_connections(0).second[1] == .25);
 
     const auto str = t4.get_extra_info();
-    EXPECT_TRUE(boost::contains(str, "Number of vertices: 4"));
-    EXPECT_TRUE(boost::contains(str, "Number of edges: 3"));
+    EXPECT_TRUE(str.contains("Number of vertices: 4"));
+    EXPECT_TRUE(str.contains("Number of edges: 3"));
 }
 
 TEST(base_bgl_topology, error_handling)
@@ -182,15 +179,15 @@ TEST(base_bgl_topology, error_handling)
     t0.add_edge(0, 2);
     t0.set_weight(0, 2, .2);
     BOOST_CHECK_EXCEPTION(t0.set_weight(0, 2, -1.), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return boost::contains(ia.what(), " is not in the [0., 1.] range");
+        return ia.what(), " is not in the [0..contains( 1.] range");
     });
     BOOST_CHECK_EXCEPTION(t0.set_all_weights(-1.), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return boost::contains(ia.what(), " is not in the [0., 1.] range");
+        return ia.what(), " is not in the [0..contains( 1.] range");
     });
     BOOST_CHECK_EXCEPTION(t0.set_weight(0, 2, std::numeric_limits<double>::infinity()), std::invalid_argument,
-                          [](const std::invalid_argument &ia) { return boost::contains(ia.what(), " is not finite"); });
+                          [](const std::invalid_argument &ia) { return ia.what().contains(" is not finite"); });
     BOOST_CHECK_EXCEPTION(t0.set_all_weights(std::numeric_limits<double>::infinity()), std::invalid_argument,
-                          [](const std::invalid_argument &ia) { return boost::contains(ia.what(), " is not finite"); });
+                          [](const std::invalid_argument &ia) { return ia.what().contains(" is not finite"); });
     BOOST_CHECK_EXCEPTION(t0.set_weight(0, 1, .2), std::invalid_argument, [](const std::invalid_argument &ia) {
         return boost::contains(
             ia.what(), "cannot set the weight of an edge in a BGL topology: the vertex 0 is not connected to vertex 1");

@@ -37,8 +37,6 @@ see https://www.gnu.org/licenses/. */
 #include <string>
 #include <type_traits>
 
-#include <boost/lexical_cast.hpp>
-
 #include <pagmo/batch_evaluators/thread_bfe.hpp>
 #include <pagmo/bfe.hpp>
 #include <pagmo/population.hpp>
@@ -50,6 +48,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/problems/zdt.hpp>
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
+#include <pagmo/utils/cast.hpp>
 
 using namespace pagmo;
 
@@ -255,8 +254,8 @@ TEST(population_test, population_getters_test)
     EXPECT_TRUE(pop.get_seed() == 1234u);
     EXPECT_NO_THROW(pop.get_ID());
     // Streaming operator is tested to contain the problem stream
-    auto pop_string = boost::lexical_cast<std::string>(pop);
-    auto prob_string = boost::lexical_cast<std::string>(pop.get_problem());
+    auto pop_string = lexical_cast<std::string>(pop);
+    auto prob_string = lexical_cast<std::string>(pop.get_problem());
     EXPECT_TRUE(pop_string.find(prob_string) != std::string::npos);
 }
 
@@ -335,7 +334,7 @@ TEST(population_test, population_serialization_test)
     population pop{problem{}, 30, 1234u};
     // Store the string representation of p.
     std::stringstream ss;
-    auto before = boost::lexical_cast<std::string>(pop);
+    auto before = lexical_cast<std::string>(pop);
     // Now serialize, deserialize and compare the result.
     {
         cereal::BinaryOutputArchive oarchive(ss);
@@ -347,7 +346,7 @@ TEST(population_test, population_serialization_test)
         cereal::BinaryInputArchive iarchive(ss);
         iarchive(pop);
     }
-    auto after = boost::lexical_cast<std::string>(pop);
+    auto after = lexical_cast<std::string>(pop);
     EXPECT_EQ(before, after);
 }
 

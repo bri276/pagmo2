@@ -26,11 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-
 #include <gtest/gtest.h>
 
-#include <boost/lexical_cast.hpp>
-#include <boost/test/tools/floating_point_comparison.hpp>
 #include <cmath>
 #include <iostream>
 #include <string>
@@ -47,6 +44,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/s11n.hpp>
 #include <pagmo/threading.hpp>
 #include <pagmo/types.hpp>
+#include <pagmo/utils/cast.hpp>
 
 using namespace pagmo;
 
@@ -168,7 +166,7 @@ TEST(mbh_test, mbh_serialization_test)
 
     // Store the string representation of p.
     std::stringstream ss;
-    auto before_text = boost::lexical_cast<std::string>(algo);
+    auto before_text = lexical_cast<std::string>(algo);
     auto before_log = algo.extract<mbh>()->get_log();
     // Now serialize, deserialize and compare the result.
     {
@@ -181,7 +179,7 @@ TEST(mbh_test, mbh_serialization_test)
         cereal::BinaryInputArchive iarchive(ss);
         iarchive(algo);
     }
-    auto after_text = boost::lexical_cast<std::string>(algo);
+    auto after_text = lexical_cast<std::string>(algo);
     auto after_log = algo.extract<mbh>()->get_log();
     EXPECT_EQ(before_text, after_text);
     EXPECT_TRUE(before_log == after_log);

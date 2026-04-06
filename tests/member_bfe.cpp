@@ -26,7 +26,6 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-
 #include <gtest/gtest.h>
 
 #include <initializer_list>
@@ -35,9 +34,6 @@ see https://www.gnu.org/licenses/. */
 #include <string>
 #include <utility>
 
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/lexical_cast.hpp>
-
 #include <pagmo/batch_evaluators/member_bfe.hpp>
 #include <pagmo/bfe.hpp>
 #include <pagmo/exceptions.hpp>
@@ -45,6 +41,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/s11n.hpp>
 #include <pagmo/threading.hpp>
 #include <pagmo/types.hpp>
+#include <pagmo/utils/cast.hpp>
 
 using namespace pagmo;
 
@@ -60,8 +57,8 @@ TEST(member_bfe_test, basic_tests)
     // Verify a problem which does not have batch_fitness.
     problem p;
     BOOST_CHECK_EXCEPTION(bfe0(p, {1.}), not_implemented_error, [](const not_implemented_error &nie) {
-        return boost::contains(nie.what(), "The batch_fitness() method has been invoked, but it "
-                                           "is not implemented in a UDP of type 'Null problem'");
+        return nie.what().contains("The batch_fitness() method has been invoked, but it "
+                                   "is not implemented in a UDP of type 'Null problem'");
     });
 
     // UDP which implements batch_fitness.
@@ -120,7 +117,7 @@ TEST(member_bfe_test, s11n)
     EXPECT_TRUE(bfe0.is<member_bfe>());
     // Store the string representation.
     std::stringstream ss;
-    auto before = boost::lexical_cast<std::string>(bfe0);
+    auto before = lexical_cast<std::string>(bfe0);
     // Now serialize, deserialize and compare the result.
     {
         cereal::BinaryOutputArchive oarchive(ss);
@@ -133,7 +130,7 @@ TEST(member_bfe_test, s11n)
         cereal::BinaryInputArchive iarchive(ss);
         iarchive(bfe0);
     }
-    auto after = boost::lexical_cast<std::string>(bfe0);
+    auto after = lexical_cast<std::string>(bfe0);
     EXPECT_EQ(before, after);
     EXPECT_TRUE(bfe0.is<member_bfe>());
 }

@@ -56,10 +56,6 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/utils/hypervolume.hpp>
 #include <pagmo/utils/multi_objective.hpp>
 
-// NOTE: apparently this must be included *after*
-// the other serialization headers.
-#include <boost/serialization/optional.hpp>
-
 namespace pagmo
 {
 

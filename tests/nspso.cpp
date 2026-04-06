@@ -26,12 +26,9 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-
 #include <gtest/gtest.h>
 
 #include <algorithm>
-#include <boost/lexical_cast.hpp>
-#include <boost/test/tools/floating_point_comparison.hpp>
 #include <iostream>
 #include <string>
 
@@ -46,6 +43,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/problems/zdt.hpp>
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
+#include <pagmo/utils/cast.hpp>
 
 using namespace pagmo;
 
@@ -57,25 +55,17 @@ TEST(nspso_test, nspso_algorithm_construction)
     EXPECT_TRUE(user_algo.get_seed() == 24u);
     // Check the throws
     // Wrong omega
-    EXPECT_THROW((nspso{1u, -10., 0.01, 0.5, 0.5, 0.5, 2u, "crowding distance", false, 24u}),
-                      std::invalid_argument);
-    EXPECT_THROW((nspso{1u, 10., 0.01, 0.5, 0.5, 0.5, 2u, "crowding distance", false, 24u}),
-                      std::invalid_argument);
+    EXPECT_THROW((nspso{1u, -10., 0.01, 0.5, 0.5, 0.5, 2u, "crowding distance", false, 24u}), std::invalid_argument);
+    EXPECT_THROW((nspso{1u, 10., 0.01, 0.5, 0.5, 0.5, 2u, "crowding distance", false, 24u}), std::invalid_argument);
     // Wrong c1, c2 and chi
-    EXPECT_THROW((nspso{1u, 0.95, -0.01, 0.5, 0.5, 0.5, 2u, "crowding distance", false, 24u}),
-                      std::invalid_argument);
-    EXPECT_THROW((nspso{1u, 0.95, 0.01, -0.5, 0.5, 0.5, 2u, "crowding distance", false, 24u}),
-                      std::invalid_argument);
-    EXPECT_THROW((nspso{1u, 0.95, 0.01, 0.5, -0.5, 0.5, 2u, "crowding distance", false, 24u}),
-                      std::invalid_argument);
+    EXPECT_THROW((nspso{1u, 0.95, -0.01, 0.5, 0.5, 0.5, 2u, "crowding distance", false, 24u}), std::invalid_argument);
+    EXPECT_THROW((nspso{1u, 0.95, 0.01, -0.5, 0.5, 0.5, 2u, "crowding distance", false, 24u}), std::invalid_argument);
+    EXPECT_THROW((nspso{1u, 0.95, 0.01, 0.5, -0.5, 0.5, 2u, "crowding distance", false, 24u}), std::invalid_argument);
     // Wrong v_coeff
-    EXPECT_THROW((nspso{1u, 0.95, 0.01, 0.5, 0.5, -0.5, 2u, "crowding distance", false, 24u}),
-                      std::invalid_argument);
-    EXPECT_THROW((nspso{1u, 0.95, 0.01, 0.5, 0.5, 1.5, 2u, "crowding distance", false, 24u}),
-                      std::invalid_argument);
+    EXPECT_THROW((nspso{1u, 0.95, 0.01, 0.5, 0.5, -0.5, 2u, "crowding distance", false, 24u}), std::invalid_argument);
+    EXPECT_THROW((nspso{1u, 0.95, 0.01, 0.5, 0.5, 1.5, 2u, "crowding distance", false, 24u}), std::invalid_argument);
     // Wrong leader_selection_range
-    EXPECT_THROW((nspso{1u, 0.95, 0.01, 0.5, 0.5, 0.5, 101u, "crowding distance", false, 24u}),
-                      std::invalid_argument);
+    EXPECT_THROW((nspso{1u, 0.95, 0.01, 0.5, 0.5, 0.5, 101u, "crowding distance", false, 24u}), std::invalid_argument);
     // Wrong eta_m
     EXPECT_THROW((nspso{1u, 0.95, 0.01, 0.5, 0.5, 0.5, 2u, "something else", false, 24u}), std::invalid_argument);
 }
@@ -170,7 +160,7 @@ TEST(nspso_test, nspso_serialization_test)
     pop = algo.evolve(pop);
     // Store the string representation of p.
     std::stringstream ss;
-    auto before_text = boost::lexical_cast<std::string>(algo);
+    auto before_text = lexical_cast<std::string>(algo);
     auto before_log = algo.extract<nspso>()->get_log();
     // Now serialize, deserialize and compare the result.
     {
@@ -183,7 +173,7 @@ TEST(nspso_test, nspso_serialization_test)
         cereal::BinaryInputArchive iarchive(ss);
         iarchive(algo);
     }
-    auto after_text = boost::lexical_cast<std::string>(algo);
+    auto after_text = lexical_cast<std::string>(algo);
     auto after_log = algo.extract<nspso>()->get_log();
     EXPECT_EQ(before_text, after_text);
     EXPECT_TRUE(before_log == after_log);

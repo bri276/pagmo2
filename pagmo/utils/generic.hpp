@@ -43,7 +43,6 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/problem.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
-
 namespace pagmo
 {
 

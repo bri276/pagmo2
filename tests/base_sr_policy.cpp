@@ -26,7 +26,6 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-
 #include <gtest/gtest.h>
 
 #include <limits>
@@ -36,7 +35,6 @@ see https://www.gnu.org/licenses/. */
 #include <type_traits>
 #include <variant>
 
-#include <boost/algorithm/string/predicate.hpp>
 #include <boost/numeric/conversion/converter_policies.hpp>
 
 #include <pagmo/detail/base_sr_policy.hpp>

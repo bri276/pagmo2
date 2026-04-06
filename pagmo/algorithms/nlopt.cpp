@@ -73,8 +73,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/s11n.hpp>
 #include <pagmo/type_traits.hpp>
 #include <pagmo/types.hpp>
-#include <pagmo/utils/cast.hpp>
-#include <pagmo/utils/constrained.hpp>
+#include <pagmo/utils/cast.hpp>#include <pagmo/utils/constrained.hpp>
 
 namespace pagmo
 {

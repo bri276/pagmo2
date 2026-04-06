@@ -32,7 +32,6 @@ see https://www.gnu.org/licenses/. */
 
 #endif
 
-
 #include <gtest/gtest.h>
 
 #include <algorithm>
@@ -48,9 +47,6 @@ see https://www.gnu.org/licenses/. */
 #include <type_traits>
 #include <utility>
 #include <vector>
-
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include <pagmo/algorithms/de.hpp>
 #include <pagmo/algorithms/nsga2.hpp>
@@ -74,7 +70,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/topologies/unconnected.hpp>
 #include <pagmo/topology.hpp>
 #include <pagmo/types.hpp>
-
+#include <pagmo/utils/cast.hpp>
 using namespace pagmo;
 
 TEST(archipelago_test, archipelago_construction)
@@ -639,9 +635,9 @@ TEST(archipelago_test, archipelago_stream)
     std::ostringstream oss;
     oss << a;
     EXPECT_TRUE(!oss.str().empty());
-    EXPECT_TRUE(boost::contains(oss.str(), "Topology:"));
-    EXPECT_TRUE(boost::contains(oss.str(), "Migration type:"));
-    EXPECT_TRUE(boost::contains(oss.str(), "Migrant handling policy:"));
+    EXPECT_TRUE(oss.str().contains("Topology:"));
+    EXPECT_TRUE(oss.str().contains("Migration type:"));
+    EXPECT_TRUE(oss.str().contains("Migrant handling policy:"));
 }
 
 TEST(archipelago_test, archipelago_serialization)
@@ -653,7 +649,7 @@ TEST(archipelago_test, archipelago_serialization)
     a.set_migration_type(migration_type::broadcast);
     a.set_migrant_handling(migrant_handling::evict);
     std::stringstream ss;
-    auto before = boost::lexical_cast<std::string>(a);
+    auto before = lexical_cast<std::string>(a);
     const auto mig_db_before = a.get_migrants_db();
     const auto mig_log_before = a.get_migration_log();
     // Now serialize, deserialize and compare the result.
@@ -666,7 +662,7 @@ TEST(archipelago_test, archipelago_serialization)
         cereal::BinaryInputArchive iarchive(ss);
         iarchive(a);
     }
-    auto after = boost::lexical_cast<std::string>(a);
+    auto after = lexical_cast<std::string>(a);
     EXPECT_EQ(before, after);
     EXPECT_TRUE(a.get_migration_type() == migration_type::broadcast);
     EXPECT_TRUE(a.get_migrant_handling() == migrant_handling::evict);

@@ -26,11 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-
 #include <gtest/gtest.h>
 
-#include <boost/lexical_cast.hpp>
-#include <boost/test/tools/floating_point_comparison.hpp>
 #include <numeric>
 #include <stdexcept>
 #include <string>
@@ -46,6 +43,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/problems/translate.hpp>
 #include <pagmo/threading.hpp>
 #include <pagmo/types.hpp>
+#include <pagmo/utils/cast.hpp>
 
 using namespace pagmo;
 
@@ -55,8 +53,8 @@ TEST(translate_test, translate_construction_test)
     problem p0{translate{}};
     problem p1{translate{null_problem{}, {0.}}};
 
-    auto p0_string = boost::lexical_cast<std::string>(p0);
-    auto p1_string = boost::lexical_cast<std::string>(p1);
+    auto p0_string = lexical_cast<std::string>(p0);
+    auto p1_string = lexical_cast<std::string>(p1);
 
     // We check that the default constructor constructs a problem
     // which has an identical representation to the problem
@@ -113,7 +111,7 @@ TEST(translate_test, translate_serialization_test)
     p.hessians({1., 1., 1., 1.});
     // Store the string representation of p.
     std::stringstream ss;
-    auto before = boost::lexical_cast<std::string>(p);
+    auto before = lexical_cast<std::string>(p);
     // Now serialize, deserialize and compare the result.
     {
         cereal::BinaryOutputArchive oarchive(ss);
@@ -125,7 +123,7 @@ TEST(translate_test, translate_serialization_test)
         cereal::BinaryInputArchive iarchive(ss);
         iarchive(p);
     }
-    auto after = boost::lexical_cast<std::string>(p);
+    auto after = lexical_cast<std::string>(p);
     EXPECT_EQ(before, after);
 }
 

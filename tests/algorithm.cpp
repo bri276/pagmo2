@@ -26,7 +26,6 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-
 #include <gtest/gtest.h>
 
 #include <iostream>
@@ -39,8 +38,6 @@ see https://www.gnu.org/licenses/. */
 #include <utility>
 #include <vector>
 
-#include <boost/lexical_cast.hpp>
-
 #include <pagmo/algorithm.hpp>
 #include <pagmo/algorithms/de.hpp>
 #include <pagmo/algorithms/null_algorithm.hpp>
@@ -51,12 +48,12 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/s11n.hpp>
 #include <pagmo/threading.hpp>
 #include <pagmo/types.hpp>
-
+#include <pagmo/utils/cast.hpp>
 using namespace pagmo;
 
 // Complete algorithm stochastic
 struct al_01 {
-    al_01(){};
+    al_01() {};
     population evolve(population pop) const
     {
         return pop;
@@ -89,7 +86,7 @@ PAGMO_S11N_ALGORITHM_EXPORT(al_01)
 
 // Minimal algorithm deterministic
 struct al_02 {
-    al_02(){};
+    al_02() {};
     population evolve(population pop) const
     {
         return pop;
@@ -196,7 +193,7 @@ TEST(algorithm_test, algorithm_move_constructor_test)
     algo.set_verbosity(1u);
 
     // We store a streaming representation of the object
-    auto algo_string = boost::lexical_cast<std::string>(algo);
+    auto algo_string = lexical_cast<std::string>(algo);
     // We get the memory address where the user algo is stored
     auto a1 = algo.extract<al_01>();
     // We call the move constructor
@@ -204,7 +201,7 @@ TEST(algorithm_test, algorithm_move_constructor_test)
     // We get the memory address where the user algo is stored
     auto a2 = moved_algo.extract<al_01>();
     // And the string representation of the moved algo
-    auto moved_algo_string = boost::lexical_cast<std::string>(moved_algo);
+    auto moved_algo_string = lexical_cast<std::string>(moved_algo);
     // 1 - We check the resource pointed by m_ptr has been moved from algo to moved_algo
     EXPECT_TRUE(a1 == a2);
     // 2 - We check that the two string representations are identical
@@ -213,7 +210,7 @@ TEST(algorithm_test, algorithm_move_constructor_test)
 
 // Algorithm with overrides
 struct al_03 {
-    al_03(){};
+    al_03() {};
     population evolve(population pop) const
     {
         return pop;
@@ -263,7 +260,7 @@ TEST(algorithm_test, algorithm_move_assignment_test)
     algo.set_verbosity(1u);
 
     // We store a streaming representation of the object
-    auto algo_string = boost::lexical_cast<std::string>(algo);
+    auto algo_string = lexical_cast<std::string>(algo);
     // We get the memory address where the user algo is stored
     auto a1 = algo.extract<al_01>();
     // We call the move assignment
@@ -272,7 +269,7 @@ TEST(algorithm_test, algorithm_move_assignment_test)
     // We get the memory address where the user algo is stored
     auto a2 = moved_algo.extract<al_01>();
     // And the string representation of the moved algo
-    auto moved_algo_string = boost::lexical_cast<std::string>(moved_algo);
+    auto moved_algo_string = lexical_cast<std::string>(moved_algo);
     // 1 - We check the resource pointed by m_ptr has been moved from algo to moved_algo
     EXPECT_TRUE(a1 == a2);
     // 2 - We check that the two string representations are identical
@@ -375,7 +372,7 @@ TEST(algorithm_test, algorithm_serialization_test)
     algo.set_verbosity(2u);
     // Store the string representation.
     std::stringstream ss;
-    auto before = boost::lexical_cast<std::string>(algo);
+    auto before = lexical_cast<std::string>(algo);
     // Now serialize, deserialize and compare the result.
     {
         cereal::BinaryOutputArchive oarchive(ss);
@@ -383,12 +380,12 @@ TEST(algorithm_test, algorithm_serialization_test)
     }
     // Create a new algorithm object
     auto algo2 = algorithm{al_02{}};
-    boost::lexical_cast<std::string>(algo2); // triggers the streaming operator for a deterministic algo
+    lexical_cast<std::string>(algo2); // triggers the streaming operator for a deterministic algo
     {
         cereal::BinaryInputArchive iarchive(ss);
         iarchive(algo2);
     }
-    auto after = boost::lexical_cast<std::string>(algo2);
+    auto after = lexical_cast<std::string>(algo2);
     EXPECT_EQ(before, after);
     // Check explicitly that the properties of base_p where restored as well.
     EXPECT_EQ(algo.extract<al_01>()->m_seed, algo2.extract<al_01>()->m_seed);

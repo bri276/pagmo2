@@ -26,7 +26,6 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-
 #include <gtest/gtest.h>
 
 #include <algorithm>
@@ -36,8 +35,6 @@ see https://www.gnu.org/licenses/. */
 #include <stdexcept>
 #include <string>
 #include <utility>
-
-#include <boost/algorithm/string/predicate.hpp>
 
 #include <pagmo/s11n.hpp>
 #include <pagmo/topologies/free_form.hpp>

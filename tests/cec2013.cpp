@@ -26,7 +26,6 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-
 #include <gtest/gtest.h>
 
 #include <iostream>
@@ -36,12 +35,11 @@ see https://www.gnu.org/licenses/. */
 #include <string>
 #include <vector>
 
-#include <boost/lexical_cast.hpp>
-
 #include <pagmo/problem.hpp>
 #include <pagmo/problems/cec2013.hpp>
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
+#include <pagmo/utils/cast.hpp>
 #include <pagmo/utils/generic.hpp>
 
 using namespace pagmo;
@@ -73,7 +71,7 @@ TEST(cec2013_test, cec2013_serialization_test)
     p.fitness(vector_double(2u, 0.));
     // Store the string representation of p.
     std::stringstream ss;
-    auto before = boost::lexical_cast<std::string>(p);
+    auto before = lexical_cast<std::string>(p);
     // Now serialize, deserialize and compare the result.
     {
         cereal::BinaryOutputArchive oarchive(ss);
@@ -85,6 +83,6 @@ TEST(cec2013_test, cec2013_serialization_test)
         cereal::BinaryInputArchive iarchive(ss);
         iarchive(p);
     }
-    auto after = boost::lexical_cast<std::string>(p);
+    auto after = lexical_cast<std::string>(p);
     EXPECT_EQ(before, after);
 }

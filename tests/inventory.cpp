@@ -32,12 +32,11 @@ see https://www.gnu.org/licenses/. */
 #include <stdexcept>
 #include <string>
 
-#include <boost/lexical_cast.hpp>
-
 #include <pagmo/problem.hpp>
 #include <pagmo/problems/inventory.hpp>
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
+#include <pagmo/utils/cast.hpp>
 
 using namespace pagmo;
 
@@ -71,7 +70,7 @@ TEST(inventory_test, inventory_serialization_test)
     p.fitness({1., 1., 1., 1., 1.});
     // Store the string representation of p.
     std::stringstream ss;
-    auto before = boost::lexical_cast<std::string>(p);
+    auto before = lexical_cast<std::string>(p);
     // Now serialize, deserialize and compare the result.
     {
         cereal::BinaryOutputArchive oarchive(ss);
@@ -83,6 +82,6 @@ TEST(inventory_test, inventory_serialization_test)
         cereal::BinaryInputArchive iarchive(ss);
         iarchive(p);
     }
-    auto after = boost::lexical_cast<std::string>(p);
+    auto after = lexical_cast<std::string>(p);
     EXPECT_EQ(before, after);
 }

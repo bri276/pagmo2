@@ -26,11 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-
 #include <gtest/gtest.h>
 
-#include <boost/lexical_cast.hpp>
-#include <boost/test/tools/floating_point_comparison.hpp>
 #include <iostream>
 #include <string>
 
@@ -41,6 +38,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/problems/zdt.hpp>
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
+#include <pagmo/utils/cast.hpp>
 
 using namespace pagmo;
 
@@ -53,31 +51,27 @@ TEST(moead_gen_test, moead_gen_algorithm_construction)
 
     // Check the throws
     // Wrong weight generation type
-    EXPECT_THROW((moead_gen{10u, "typo", "tchebycheff", 20u, 1., 0.5, 20., 0.9, 2u, true, 23u}),
-                      std::invalid_argument);
+    EXPECT_THROW((moead_gen{10u, "typo", "tchebycheff", 20u, 1., 0.5, 20., 0.9, 2u, true, 23u}), std::invalid_argument);
     // Wrong decomposition method
     EXPECT_THROW((moead_gen{10u, "grid", "typo", 20u, 1., 0.5, 20., 0.9, 2u, true, 23u}), std::invalid_argument);
     // Wrong CR
     EXPECT_THROW((moead_gen{10u, "grid", "tchebycheff", 20u, 1.1, 0.5, 20., 0.9, 2u, true, 23u}),
-                      std::invalid_argument);
+                 std::invalid_argument);
     EXPECT_THROW((moead_gen{10u, "grid", "tchebycheff", 20u, -0.3, 0.5, 20., 0.9, 2u, true, 23u}),
-                      std::invalid_argument);
+                 std::invalid_argument);
     // Wrong F
-    EXPECT_THROW((moead_gen{10u, "grid", "tchebycheff", 20u, 1., 1.1, 20., 0.9, 2u, true, 23u}),
-                      std::invalid_argument);
+    EXPECT_THROW((moead_gen{10u, "grid", "tchebycheff", 20u, 1., 1.1, 20., 0.9, 2u, true, 23u}), std::invalid_argument);
     EXPECT_THROW((moead_gen{10u, "grid", "tchebycheff", 20u, 1., -0.3, 20., 0.9, 2u, true, 23u}),
-                      std::invalid_argument);
+                 std::invalid_argument);
     // Wrong eta_m
     EXPECT_THROW((moead_gen{10u, "grid", "tchebycheff", 20u, 1., 0.5, -20., 0.9, 2u, true, 23u}),
-                      std::invalid_argument);
+                 std::invalid_argument);
     // Wrong realb
-    EXPECT_THROW((moead_gen{10u, "grid", "tchebycheff", 20u, 1., 0.5, 20., 1.1, 2u, true, 23u}),
-                      std::invalid_argument);
+    EXPECT_THROW((moead_gen{10u, "grid", "tchebycheff", 20u, 1., 0.5, 20., 1.1, 2u, true, 23u}), std::invalid_argument);
     EXPECT_THROW((moead_gen{10u, "grid", "tchebycheff", 20u, 1., 0.5, 20., -0.34, 2u, true, 23u}),
-                      std::invalid_argument);
+                 std::invalid_argument);
     // Wrong neighbours
-    EXPECT_THROW((moead_gen{10u, "grid", "tchebycheff", 1u, 1., 0.5, 20., 0.9, 2u, true, 23u}),
-                      std::invalid_argument);
+    EXPECT_THROW((moead_gen{10u, "grid", "tchebycheff", 1u, 1., 0.5, 20., 0.9, 2u, true, 23u}), std::invalid_argument);
 }
 
 struct mo_con {
@@ -192,7 +186,7 @@ TEST(moead_gen_test, moead_gen_evolve_test)
     EXPECT_THROW(moead_gen{10u}.evolve(population{problem{mo_sto{}}, 15u}), std::invalid_argument);
     // Population size is too small for the neighbourhood specified
     EXPECT_THROW(moead_gen(10u, "grid", "tchebycheff", 20u).evolve(population{problem{zdt{}}, 15u}),
-                      std::invalid_argument);
+                 std::invalid_argument);
     // And a clean exit for 0 generations
     population pop{zdt{}, 40u};
     EXPECT_TRUE(moead_gen{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);
@@ -226,7 +220,7 @@ TEST(moead_gen_test, moead_gen_serialization_test)
 
     // Store the string representation of p.
     std::stringstream ss;
-    auto before_text = boost::lexical_cast<std::string>(algo);
+    auto before_text = lexical_cast<std::string>(algo);
     auto before_log = algo.extract<moead_gen>()->get_log();
     // Now serialize, deserialize and compare the result.
     {
@@ -239,7 +233,7 @@ TEST(moead_gen_test, moead_gen_serialization_test)
         cereal::BinaryInputArchive iarchive(ss);
         iarchive(algo);
     }
-    auto after_text = boost::lexical_cast<std::string>(algo);
+    auto after_text = lexical_cast<std::string>(algo);
     auto after_log = algo.extract<moead_gen>()->get_log();
     EXPECT_EQ(before_text, after_text);
     EXPECT_TRUE(before_log == after_log);

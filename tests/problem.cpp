@@ -39,9 +39,6 @@ see https://www.gnu.org/licenses/. */
 #include <utility>
 #include <vector>
 
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/lexical_cast.hpp>
-
 #include <pagmo/detail/type_name.hpp>
 #include <pagmo/exceptions.hpp>
 #include <pagmo/problem.hpp>
@@ -49,6 +46,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/s11n.hpp>
 #include <pagmo/threading.hpp>
 #include <pagmo/types.hpp>
+#include <pagmo/utils/cast.hpp>
 
 using namespace pagmo;
 
@@ -361,13 +359,13 @@ TEST(problem_test, problem_construction_test)
         p1.gradient({1, 1});
         p1.hessians({1, 1});
 
-        auto p1_string = boost::lexical_cast<std::string>(p1);
+        auto p1_string = lexical_cast<std::string>(p1);
         auto a1 = p1.extract<full_p>();
 
         problem p2(std::move(p1));
 
         auto a2 = p2.extract<full_p>();
-        auto p2_string = boost::lexical_cast<std::string>(p2);
+        auto p2_string = lexical_cast<std::string>(p2);
 
         // 1 - We check the resource pointed by m_ptr has been moved from p1 to p2
         EXPECT_TRUE(a1 == a2);
@@ -464,14 +462,14 @@ TEST(problem_test, problem_assignment_test)
         p1.gradient({1, 1});
         p1.hessians({1, 1});
 
-        auto p1_string = boost::lexical_cast<std::string>(p1);
+        auto p1_string = lexical_cast<std::string>(p1);
         auto a1 = p1.extract<full_p>();
 
         problem p2{base_p{}};
         p2 = std::move(p1);
 
         auto a2 = p2.extract<full_p>();
-        auto p2_string = boost::lexical_cast<std::string>(p2);
+        auto p2_string = lexical_cast<std::string>(p2);
 
         // 1 - We check the resource pointed by m_ptr has been moved from p1 to p2
         EXPECT_TRUE(a1 == a2);
@@ -728,7 +726,7 @@ TEST(problem_test, problem_serialization_test)
     p.hessians({1.});
     // Store the string representation.
     std::stringstream ss;
-    auto before = boost::lexical_cast<std::string>(p);
+    auto before = lexical_cast<std::string>(p);
     // Now serialize, deserialize and compare the result.
     {
         cereal::BinaryOutputArchive oarchive(ss);
@@ -740,7 +738,7 @@ TEST(problem_test, problem_serialization_test)
         cereal::BinaryInputArchive iarchive(ss);
         iarchive(p);
     }
-    auto after = boost::lexical_cast<std::string>(p);
+    auto after = lexical_cast<std::string>(p);
     EXPECT_EQ(before, after);
     // Check that the properties of base_p where restored as well.
     EXPECT_EQ(p.extract<full_p>()->m_nobj, p2.extract<full_p>()->m_nobj);
@@ -1043,7 +1041,7 @@ TEST(problem_test, null_problem_serialization_test)
     p.fitness({1});
     // Store the string representation of p.
     std::stringstream ss;
-    auto before = boost::lexical_cast<std::string>(p);
+    auto before = lexical_cast<std::string>(p);
     // Now serialize, deserialize and compare the result.
     {
         cereal::BinaryOutputArchive oarchive(ss);
@@ -1056,7 +1054,7 @@ TEST(problem_test, null_problem_serialization_test)
         cereal::BinaryInputArchive iarchive(ss);
         iarchive(p);
     }
-    auto after = boost::lexical_cast<std::string>(p);
+    auto after = lexical_cast<std::string>(p);
     EXPECT_EQ(before, after);
     EXPECT_EQ(p.get_nobj(), 2u);
     EXPECT_EQ(p.get_nec(), 3u);
@@ -1382,8 +1380,8 @@ TEST(problem_test, batch_fitness)
     EXPECT_TRUE(!p.has_batch_fitness());
     BOOST_CHECK_EXCEPTION(p.batch_fitness(vector_double{1.}), not_implemented_error,
                           [](const not_implemented_error &nie) {
-                              return boost::contains(nie.what(), "The batch_fitness() method has been invoked, but it "
-                                                                 "is not implemented in a UDP of type 'Null problem'");
+                              return nie.what().contains("The batch_fitness() method has been invoked, but it "
+                                                         "is not implemented in a UDP of type 'Null problem'");
                           });
 
     // A UDP which provides batch_fitness().
@@ -1514,8 +1512,8 @@ TEST(problem_test, batch_fitness)
     EXPECT_TRUE(OverrideHasBatchFitness<bf4>);
     BOOST_CHECK_EXCEPTION(p.batch_fitness(vector_double{1.}), not_implemented_error,
                           [](const not_implemented_error &nie) {
-                              return boost::contains(nie.what(), "The batch_fitness() method has been invoked, but it "
-                                                                 "is not implemented in a UDP of type");
+                              return nie.what().contains("The batch_fitness() method has been invoked, but it "
+                                                         "is not implemented in a UDP of type");
                           });
 
     // A UDP which provides has_batch_fitness() and batch_fitness().
@@ -1549,7 +1547,7 @@ TEST(problem_test, batch_fitness)
     p = problem{bf_s11n{}};
     EXPECT_TRUE(p.has_batch_fitness());
     std::stringstream ss;
-    auto before = boost::lexical_cast<std::string>(p);
+    auto before = lexical_cast<std::string>(p);
     // Now serialize, deserialize and compare the result.
     {
         cereal::BinaryOutputArchive oarchive(ss);
@@ -1562,7 +1560,7 @@ TEST(problem_test, batch_fitness)
         cereal::BinaryInputArchive iarchive(ss);
         iarchive(p);
     }
-    auto after = boost::lexical_cast<std::string>(p);
+    auto after = lexical_cast<std::string>(p);
     EXPECT_EQ(before, after);
     EXPECT_TRUE(p.has_batch_fitness());
 }

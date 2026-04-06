@@ -33,7 +33,6 @@ see https://www.gnu.org/licenses/. */
 
 #endif
 
-
 #include <gtest/gtest.h>
 
 #include <functional>
@@ -47,9 +46,6 @@ see https://www.gnu.org/licenses/. */
 #include <typeinfo>
 #include <utility>
 
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/lexical_cast.hpp>
-
 #include <pagmo/batch_evaluators/default_bfe.hpp>
 #include <pagmo/bfe.hpp>
 #include <pagmo/detail/type_name.hpp>
@@ -59,6 +55,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/s11n.hpp>
 #include <pagmo/threading.hpp>
 #include <pagmo/types.hpp>
+#include <pagmo/utils/cast.hpp>
 
 using namespace pagmo;
 
@@ -220,18 +217,18 @@ TEST(bfe_test, basic_tests)
         std::string before;
         std::stringstream ss;
         {
-            before = boost::lexical_cast<std::string>(bfe0);
+            before = lexical_cast<std::string>(bfe0);
             cereal::BinaryOutputArchive oarchive(ss);
             oarchive(bfe0);
         }
         bfe0 = bfe{udbfe0};
         EXPECT_TRUE(bfe0.is<udbfe_func_t>());
-        EXPECT_TRUE(before != boost::lexical_cast<std::string>(bfe0));
+        EXPECT_TRUE(before != lexical_cast<std::string>(bfe0));
         {
             cereal::BinaryInputArchive iarchive(ss);
             iarchive(bfe0);
         }
-        EXPECT_TRUE(before == boost::lexical_cast<std::string>(bfe0));
+        EXPECT_TRUE(before == lexical_cast<std::string>(bfe0));
         EXPECT_TRUE(bfe0.is<default_bfe>());
     }
 }
@@ -341,8 +338,8 @@ TEST(bfe_test, stream_operator)
         std::ostringstream oss;
         oss << bfe{udbfe_01{}};
         const auto st = oss.str();
-        EXPECT_TRUE(boost::contains(st, "bartoppo"));
-        EXPECT_TRUE(boost::contains(st, "Extra info:"));
+        EXPECT_TRUE(st.contains("bartoppo"));
+        EXPECT_TRUE(st.contains("Extra info:"));
     }
     std::cout << bfe{} << '\n';
 }
@@ -436,7 +433,7 @@ TEST(bfe_test, s11n)
     bfe0.extract<udbfe_a>()->state = -42;
     // Store the string representation.
     std::stringstream ss;
-    auto before = boost::lexical_cast<std::string>(bfe0);
+    auto before = lexical_cast<std::string>(bfe0);
     // Now serialize, deserialize and compare the result.
     {
         cereal::BinaryOutputArchive oarchive(ss);
@@ -448,7 +445,7 @@ TEST(bfe_test, s11n)
         cereal::BinaryInputArchive iarchive(ss);
         iarchive(bfe0);
     }
-    auto after = boost::lexical_cast<std::string>(bfe0);
+    auto after = lexical_cast<std::string>(bfe0);
     EXPECT_EQ(before, after);
     EXPECT_TRUE(bfe0.is<udbfe_a>());
     EXPECT_TRUE(bfe0.extract<udbfe_a>()->state = -42);

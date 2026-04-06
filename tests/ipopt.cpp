@@ -26,7 +26,6 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-
 #include <gtest/gtest.h>
 
 #include <initializer_list>
@@ -38,8 +37,6 @@ see https://www.gnu.org/licenses/. */
 #include <vector>
 
 #include <IpReturnCodes.hpp>
-
-#include <boost/lexical_cast.hpp>
 
 #include <pagmo/algorithm.hpp>
 #include <pagmo/algorithms/ipopt.hpp>
@@ -53,6 +50,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/s11n.hpp>
 #include <pagmo/threading.hpp>
 #include <pagmo/types.hpp>
+#include <pagmo/utils/cast.hpp>
 
 #if defined(PAGMO_WITH_FORK_ISLAND)
 #include <pagmo/islands/fork_island.hpp>
@@ -260,7 +258,7 @@ TEST(ipopt_test, ipopt_serialization)
             auto s_log = algo.extract<ipopt>()->get_log();
             // Store the string representation of p.
             std::stringstream ss;
-            auto before_text = boost::lexical_cast<std::string>(algo);
+            auto before_text = lexical_cast<std::string>(algo);
             // Now serialize, deserialize and compare the result.
             {
                 cereal::BinaryOutputArchive oarchive(ss);
@@ -272,7 +270,7 @@ TEST(ipopt_test, ipopt_serialization)
                 cereal::BinaryInputArchive iarchive(ss);
                 iarchive(algo);
             }
-            auto after_text = boost::lexical_cast<std::string>(algo);
+            auto after_text = lexical_cast<std::string>(algo);
             EXPECT_EQ(before_text, after_text);
             EXPECT_TRUE(s_log == algo.extract<ipopt>()->get_log());
         }
@@ -289,7 +287,7 @@ TEST(ipopt_test, ipopt_serialization)
             auto s_log = algo.extract<ipopt>()->get_log();
             // Store the string representation of p.
             std::stringstream ss;
-            auto before_text = boost::lexical_cast<std::string>(algo);
+            auto before_text = lexical_cast<std::string>(algo);
             // Now serialize, deserialize and compare the result.
             {
                 cereal::BinaryOutputArchive oarchive(ss);
@@ -301,7 +299,7 @@ TEST(ipopt_test, ipopt_serialization)
                 cereal::BinaryInputArchive iarchive(ss);
                 iarchive(algo);
             }
-            auto after_text = boost::lexical_cast<std::string>(algo);
+            auto after_text = lexical_cast<std::string>(algo);
             EXPECT_EQ(before_text, after_text);
             EXPECT_TRUE(s_log == algo.extract<ipopt>()->get_log());
         }

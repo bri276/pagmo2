@@ -26,12 +26,9 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-
 #include <gtest/gtest.h>
 
 #include <sstream>
-
-#include <boost/algorithm/string/predicate.hpp>
 
 #include <pagmo/exceptions.hpp>
 #include <pagmo/s11n.hpp>

@@ -36,7 +36,6 @@ see https://www.gnu.org/licenses/. */
 #include <string>
 #include <tuple>
 
-#include <cereal/access.hpp>
 #include <cereal/archives/binary.hpp>
 #include <cereal/archives/json.hpp>
 #include <cereal/archives/xml.hpp>

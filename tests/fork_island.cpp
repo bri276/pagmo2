@@ -26,7 +26,6 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-
 #include <gtest/gtest.h>
 
 #include <chrono>
@@ -38,8 +37,6 @@ see https://www.gnu.org/licenses/. */
 #include <vector>
 
 #include <sys/types.h>
-
-#include <boost/algorithm/string/predicate.hpp>
 
 #include <pagmo/algorithm.hpp>
 #include <pagmo/algorithms/compass_search.hpp>
@@ -88,9 +85,9 @@ TEST(fork_island_test, fork_island_basic)
         fork_island fi_1(fi_0), fi_2(std::move(fi_0));
         EXPECT_TRUE(fi_1.get_child_pid() == pid_t(0));
         EXPECT_TRUE(fi_2.get_child_pid() == pid_t(0));
-        EXPECT_TRUE(boost::contains(fi_0.get_extra_info(), "No active child"));
-        EXPECT_TRUE(boost::contains(fi_1.get_extra_info(), "No active child"));
-        EXPECT_TRUE(boost::contains(fi_2.get_extra_info(), "No active child"));
+        EXPECT_TRUE(fi_0.get_extra_info().contains("No active child"));
+        EXPECT_TRUE(fi_1.get_extra_info().contains("No active child"));
+        EXPECT_TRUE(fi_2.get_extra_info().contains("No active child"));
         EXPECT_EQ(fi_0.get_name(), "Fork island");
     }
     // NOTE: on recent OSX versions, the fork() behaviour changed and trying
@@ -102,30 +99,30 @@ TEST(fork_island_test, fork_island_basic)
         // Test: try to kill a running island.
         island fi_0(fork_island{}, de{200}, godot1{20}, 20);
         EXPECT_TRUE(fi_0.extract<fork_island>() != nullptr);
-        EXPECT_TRUE(boost::contains(fi_0.get_extra_info(), "No active child"));
+        EXPECT_TRUE(fi_0.get_extra_info().contains("No active child"));
         fi_0.evolve();
         // Busy wait until the child is running.
         pid_t child_pid;
         while (!(child_pid = fi_0.extract<fork_island>()->get_child_pid())) {
         }
-        EXPECT_TRUE(boost::contains(fi_0.get_extra_info(), "Child PID:"));
+        EXPECT_TRUE(fi_0.get_extra_info().contains("Child PID:"));
         // """
         // Kill the boy and let the man be born.
         // """
         kill(child_pid, SIGTERM);
         // Check that killing the child raised an error in the parent process.
         EXPECT_THROW(fi_0.wait_check(), std::exception);
-        EXPECT_TRUE(boost::contains(fi_0.get_extra_info(), "No active child"));
+        EXPECT_TRUE(fi_0.get_extra_info().contains("No active child"));
     }
     {
         // Test: try to generate an error in the evolution.
         // NOTE: de wants more than 1 individual in the pop.
         island fi_0(fork_island{}, de{1}, rosenbrock{}, 1);
         EXPECT_TRUE(fi_0.extract<fork_island>() != nullptr);
-        EXPECT_TRUE(boost::contains(fi_0.get_extra_info(), "No active child"));
+        EXPECT_TRUE(fi_0.get_extra_info().contains("No active child"));
         fi_0.evolve();
         BOOST_CHECK_EXCEPTION(fi_0.wait_check(), std::runtime_error, [](const std::runtime_error &re) {
-            return boost::contains(re.what(), "needs at least 5 individuals in the population");
+            return re.what().contains("needs at least 5 individuals in the population");
         });
     }
 #endif
@@ -217,7 +214,7 @@ TEST(fork_island_test, fork_island_recurse)
         island fi_0(fork_island{}, recursive_algo2{}, rosenbrock{}, 1, 0);
         fi_0.evolve();
         BOOST_CHECK_EXCEPTION(fi_0.wait_check(), std::runtime_error, [](const std::runtime_error &re) {
-            return boost::contains(re.what(), "needs at least 5 individuals in the population");
+            return re.what().contains("needs at least 5 individuals in the population");
         });
     }
 #endif

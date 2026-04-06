@@ -28,9 +28,8 @@ see https://www.gnu.org/licenses/. */
 
 #include <gtest/gtest.h>
 
-#include <boost/lexical_cast.hpp>
-
 #include <iostream>
+#include <pagmo/utils/cast.hpp>
 #include <stdexcept>
 #include <string>
 
@@ -179,7 +178,7 @@ TEST(sga_test, sga_serialization_test)
 
     // Store the string representation of p.
     std::stringstream ss;
-    auto before_text = boost::lexical_cast<std::string>(algo);
+    auto before_text = lexical_cast<std::string>(algo);
     auto before_log = algo.extract<sga>()->get_log();
     // Now serialize, deserialize and compare the result.
     {
@@ -192,7 +191,7 @@ TEST(sga_test, sga_serialization_test)
         cereal::BinaryInputArchive iarchive(ss);
         iarchive(algo);
     }
-    auto after_text = boost::lexical_cast<std::string>(algo);
+    auto after_text = lexical_cast<std::string>(algo);
     auto after_log = algo.extract<sga>()->get_log();
     EXPECT_EQ(before_text, after_text);
     EXPECT_TRUE(before_log == after_log);

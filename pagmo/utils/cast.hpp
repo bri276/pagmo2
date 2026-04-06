@@ -29,6 +29,11 @@ see https://www.gnu.org/licenses/. */
 #ifndef PAGMO_CAST_HPP
 #define PAGMO_CAST_HPP
 
+#include <limits>
+#include <stdexcept>
+#include <string>
+#include <sstream>
+
 namespace pagmo
 {
 
@@ -36,24 +41,24 @@ namespace pagmo
 // Posted by Trevor Boyd Smith, modified by community. See post 'Timeline' for change history
 // Retrieved 2026-04-06, License - CC BY-SA 4.0
 
-template <typename Dst, typename Src>
-inline Dst numeric_cast(Src value)
+template <typename U, typename T>
+inline U numeric_cast(T value)
 {
-    typedef std::numeric_limits<Dst> DstLim;
-    typedef std::numeric_limits<Src> SrcLim;
+    typedef std::numeric_limits<U> ULim;
+    typedef std::numeric_limits<T> TLim;
 
-    const bool positive_overflow_possible = DstLim::max() < SrcLim::max();
-    const bool negative_overflow_possible = SrcLim::is_signed or (DstLim::lowest() > SrcLim::lowest());
+    const bool positive_overflow_possible = ULim::max() < TLim::max();
+    const bool negative_overflow_possible = TLim::is_signed or (ULim::lowest() > TLim::lowest());
 
     // unsigned <-- unsigned
-    if ((not DstLim::is_signed) and (not SrcLim::is_signed)) {
-        if (positive_overflow_possible and (value > DstLim::max())) {
+    if ((not ULim::is_signed) and (not TLim::is_signed)) {
+        if (positive_overflow_possible and (value > ULim::max())) {
             throw std::overflow_error(__PRETTY_FUNCTION__ + std::string(": positive overflow"));
         }
     }
     // unsigned <-- signed
-    else if ((not DstLim::is_signed) and SrcLim::is_signed) {
-        if (positive_overflow_possible and (value > DstLim::max())) {
+    else if ((not ULim::is_signed) and TLim::is_signed) {
+        if (positive_overflow_possible and (value > ULim::max())) {
             throw std::overflow_error(__PRETTY_FUNCTION__ + std::string(": positive overflow"));
         } else if (negative_overflow_possible and (value < 0)) {
             throw std::overflow_error(__PRETTY_FUNCTION__ + std::string(": negative overflow"));
@@ -61,22 +66,30 @@ inline Dst numeric_cast(Src value)
 
     }
     // signed <-- unsigned
-    else if (DstLim::is_signed and (not SrcLim::is_signed)) {
-        if (positive_overflow_possible and (value > DstLim::max())) {
+    else if (ULim::is_signed and (not TLim::is_signed)) {
+        if (positive_overflow_possible and (value > ULim::max())) {
             throw std::overflow_error(__PRETTY_FUNCTION__ + std::string(": positive overflow"));
         }
     }
     // signed <-- signed
-    else if (DstLim::is_signed and SrcLim::is_signed) {
-        if (positive_overflow_possible and (value > DstLim::max())) {
+    else if (ULim::is_signed and TLim::is_signed) {
+        if (positive_overflow_possible and (value > ULim::max())) {
             throw std::overflow_error(__PRETTY_FUNCTION__ + std::string(": positive overflow"));
-        } else if (negative_overflow_possible and (value < DstLim::lowest())) {
+        } else if (negative_overflow_possible and (value < ULim::lowest())) {
             throw std::overflow_error(__PRETTY_FUNCTION__ + std::string(": negative overflow"));
         }
     }
 
     // limits have been checked, therefore safe to cast
-    return static_cast<Dst>(value);
+    return static_cast<U>(value);
+}
+
+template <typename T>
+std::string lexical_cast(const T &value)
+{
+    std::ostringstream oss;
+    oss << value;
+    return oss.str();
 }
 
 } // namespace pagmo

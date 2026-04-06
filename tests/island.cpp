@@ -26,7 +26,6 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-
 #include <gtest/gtest.h>
 
 #include <atomic>
@@ -41,9 +40,6 @@ see https://www.gnu.org/licenses/. */
 #include <typeinfo>
 #include <utility>
 #include <vector>
-
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include <pagmo/algorithms/de.hpp>
 #include <pagmo/algorithms/null_algorithm.hpp>
@@ -67,6 +63,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/s_policy.hpp>
 #include <pagmo/threading.hpp>
 #include <pagmo/types.hpp>
+#include <pagmo/utils/cast.hpp>
 
 using namespace pagmo;
 
@@ -399,25 +396,25 @@ TEST(island_test, island_name_info_stream)
     EXPECT_TRUE(isl.get_name() == "udi_01");
     EXPECT_TRUE((island{udi_01a{}, de{}, population{rosenbrock{}, 25}}.get_name()) == detail::type_name<udi_01a>());
     EXPECT_TRUE(isl.get_extra_info() == "extra bits");
-    EXPECT_TRUE(boost::contains(oss.str(), "Replacement policy: Fair replace"));
-    EXPECT_TRUE(boost::contains(oss.str(), "Selection policy: Select best"));
+    EXPECT_TRUE(oss.str().contains("Replacement policy: Fair replace"));
+    EXPECT_TRUE(oss.str().contains("Selection policy: Select best"));
     // Make sure champion info is printed.
-    EXPECT_TRUE(boost::contains(oss.str(), "Champion decision vector"));
-    EXPECT_TRUE(boost::contains(oss.str(), "Champion fitness"));
+    EXPECT_TRUE(oss.str().contains("Champion decision vector"));
+    EXPECT_TRUE(oss.str().contains("Champion fitness"));
     std::cout << isl << '\n';
 
     // Make sure champion info is skipped for MO/sto problems.
     isl = island{udi_01{}, de{}, population{zdt{}, 25}};
     oss.str("");
     oss << isl;
-    EXPECT_TRUE(!boost::contains(oss.str(), "Champion decision vector"));
-    EXPECT_TRUE(!boost::contains(oss.str(), "Champion fitness"));
+    EXPECT_TRUE(!oss.str().contains("Champion decision vector"));
+    EXPECT_TRUE(!oss.str().contains("Champion fitness"));
 
     isl = island{udi_01{}, de{}, population{inventory{}, 25}};
     oss.str("");
     oss << isl;
-    EXPECT_TRUE(!boost::contains(oss.str(), "Champion decision vector"));
-    EXPECT_TRUE(!boost::contains(oss.str(), "Champion fitness"));
+    EXPECT_TRUE(!oss.str().contains("Champion decision vector"));
+    EXPECT_TRUE(!oss.str().contains("Champion fitness"));
 }
 
 TEST(island_test, island_serialization)
@@ -426,7 +423,7 @@ TEST(island_test, island_serialization)
     isl.evolve();
     isl.wait_check();
     std::stringstream ss;
-    auto before = boost::lexical_cast<std::string>(isl);
+    auto before = lexical_cast<std::string>(isl);
     // Now serialize, deserialize and compare the result.
     {
         cereal::BinaryOutputArchive oarchive(ss);
@@ -437,7 +434,7 @@ TEST(island_test, island_serialization)
         cereal::BinaryInputArchive iarchive(ss);
         iarchive(isl);
     }
-    auto after = boost::lexical_cast<std::string>(isl);
+    auto after = lexical_cast<std::string>(isl);
     EXPECT_EQ(before, after);
 }
 

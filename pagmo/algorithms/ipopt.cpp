@@ -58,7 +58,6 @@ see https://www.gnu.org/licenses/. */
 #include <IpTypes.hpp>
 #undef HAVE_CSTDDEF
 
-#include <boost/serialization/map.hpp>
 #include <pagmo/algorithm.hpp>
 #include <pagmo/algorithms/ipopt.hpp>
 #include <pagmo/algorithms/not_population_based.hpp>
@@ -70,8 +69,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/rng.hpp>
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
-#include <pagmo/utils/cast.hpp>
-#include <pagmo/utils/constrained.hpp>
+#include <pagmo/utils/cast.hpp>#include <pagmo/utils/constrained.hpp>
 
 namespace pagmo
 {

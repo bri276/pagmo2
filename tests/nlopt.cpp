@@ -26,15 +26,13 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-
-#include <boost/lexical_cast.hpp>
-#include <gtest/gtest.h>
-
 #include <any>
 #include <cmath>
+#include <gtest/gtest.h>
 #include <initializer_list>
 #include <limits>
 #include <nlopt.h>
+#include <pagmo/utils/cast.hpp>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -282,7 +280,7 @@ TEST(nlopt_test, nlopt_serialization)
             auto s_log = algo.extract<nlopt>()->get_log();
             // Store the string representation of p.
             std::stringstream ss;
-            auto before_text = boost::lexical_cast<std::string>(algo);
+            auto before_text = lexical_cast<std::string>(algo);
             // Now serialize, deserialize and compare the result.
             {
                 cereal::BinaryOutputArchive oarchive(ss);
@@ -294,7 +292,7 @@ TEST(nlopt_test, nlopt_serialization)
                 cereal::BinaryInputArchive iarchive(ss);
                 iarchive(algo);
             }
-            auto after_text = boost::lexical_cast<std::string>(algo);
+            auto after_text = lexical_cast<std::string>(algo);
             EXPECT_EQ(before_text, after_text);
             EXPECT_TRUE(s_log == algo.extract<nlopt>()->get_log());
         }
@@ -311,7 +309,7 @@ TEST(nlopt_test, nlopt_serialization)
             auto s_log = algo.extract<nlopt>()->get_log();
             // Store the string representation of p.
             std::stringstream ss;
-            auto before_text = boost::lexical_cast<std::string>(algo);
+            auto before_text = lexical_cast<std::string>(algo);
             // Now serialize, deserialize and compare the result.
             {
                 cereal::BinaryOutputArchive oarchive(ss);
@@ -323,7 +321,7 @@ TEST(nlopt_test, nlopt_serialization)
                 cereal::BinaryInputArchive iarchive(ss);
                 iarchive(algo);
             }
-            auto after_text = boost::lexical_cast<std::string>(algo);
+            auto after_text = lexical_cast<std::string>(algo);
             EXPECT_EQ(before_text, after_text);
             EXPECT_TRUE(s_log == algo.extract<nlopt>()->get_log());
         }
@@ -340,7 +338,7 @@ TEST(nlopt_test, nlopt_loc_opt)
         // Test serialization.
         algorithm algo{n};
         std::stringstream ss;
-        auto before_text = boost::lexical_cast<std::string>(algo);
+        auto before_text = lexical_cast<std::string>(algo);
         // Now serialize, deserialize and compare the result.
         {
             cereal::BinaryOutputArchive oarchive(ss);
@@ -352,7 +350,7 @@ TEST(nlopt_test, nlopt_loc_opt)
             cereal::BinaryInputArchive iarchive(ss);
             iarchive(algo);
         }
-        auto after_text = boost::lexical_cast<std::string>(algo);
+        auto after_text = lexical_cast<std::string>(algo);
         EXPECT_EQ(before_text, after_text);
         // Test small evolution.
         auto pop = population{hs71{}, 1};

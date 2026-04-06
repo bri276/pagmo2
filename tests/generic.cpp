@@ -26,7 +26,6 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-
 #include <gtest/gtest.h>
 
 #include <cmath>
@@ -35,8 +34,6 @@ see https://www.gnu.org/licenses/. */
 #include <stdexcept>
 #include <tuple>
 #include <utility>
-
-#include <boost/algorithm/string/predicate.hpp>
 
 #include <pagmo/io.hpp>
 #include <pagmo/problem.hpp>
@@ -93,27 +90,27 @@ TEST(generic_test, uniform_real_from_range_test)
         });
     BOOST_CHECK_EXCEPTION(
         uniform_integral_from_range(0, inf, r_engine), std::invalid_argument, [](const std::invalid_argument &ia) {
-            return boost::contains(ia.what(), "Cannot generate a random integer if the bounds are not finite");
+            return ia.what().contains("Cannot generate a random integer if the bounds are not finite");
         });
     BOOST_CHECK_EXCEPTION(
         uniform_integral_from_range(-inf, 0, r_engine), std::invalid_argument, [](const std::invalid_argument &ia) {
-            return boost::contains(ia.what(), "Cannot generate a random integer if the bounds are not finite");
+            return ia.what().contains("Cannot generate a random integer if the bounds are not finite");
         });
     BOOST_CHECK_EXCEPTION(
         uniform_integral_from_range(-inf, inf, r_engine), std::invalid_argument, [](const std::invalid_argument &ia) {
-            return boost::contains(ia.what(), "Cannot generate a random integer if the bounds are not finite");
+            return ia.what().contains("Cannot generate a random integer if the bounds are not finite");
         });
     BOOST_CHECK_EXCEPTION(
         uniform_integral_from_range(0, nan, r_engine), std::invalid_argument, [](const std::invalid_argument &ia) {
-            return boost::contains(ia.what(), "Cannot generate a random integer if the bounds are not finite");
+            return ia.what().contains("Cannot generate a random integer if the bounds are not finite");
         });
     BOOST_CHECK_EXCEPTION(
         uniform_integral_from_range(-nan, 0, r_engine), std::invalid_argument, [](const std::invalid_argument &ia) {
-            return boost::contains(ia.what(), "Cannot generate a random integer if the bounds are not finite");
+            return ia.what().contains("Cannot generate a random integer if the bounds are not finite");
         });
     BOOST_CHECK_EXCEPTION(
         uniform_integral_from_range(-nan, nan, r_engine), std::invalid_argument, [](const std::invalid_argument &ia) {
-            return boost::contains(ia.what(), "Cannot generate a random integer if the bounds are not finite");
+            return ia.what().contains("Cannot generate a random integer if the bounds are not finite");
         });
     BOOST_CHECK_EXCEPTION(
         uniform_integral_from_range(0, .1, r_engine), std::invalid_argument, [](const std::invalid_argument &ia) {

@@ -33,7 +33,6 @@ see https://www.gnu.org/licenses/. */
 
 #endif
 
-
 #include <gtest/gtest.h>
 
 #include <initializer_list>
@@ -48,14 +47,12 @@ see https://www.gnu.org/licenses/. */
 #include <typeinfo>
 #include <utility>
 
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/lexical_cast.hpp>
-
 #include <pagmo/detail/type_name.hpp>
 #include <pagmo/r_policies/fair_replace.hpp>
 #include <pagmo/r_policy.hpp>
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
+#include <pagmo/utils/cast.hpp>
 
 using namespace pagmo;
 
@@ -201,18 +198,18 @@ TEST(r_policy_test, basic_tests)
         std::string before;
         std::stringstream ss;
         {
-            before = boost::lexical_cast<std::string>(r);
+            before = lexical_cast<std::string>(r);
             cereal::BinaryOutputArchive oarchive(ss);
             oarchive(r);
         }
         r = r_policy{udrp1{}};
         EXPECT_TRUE(r.is<udrp1>());
-        EXPECT_TRUE(before != boost::lexical_cast<std::string>(r));
+        EXPECT_TRUE(before != lexical_cast<std::string>(r));
         {
             cereal::BinaryInputArchive iarchive(ss);
             iarchive(r);
         }
-        EXPECT_TRUE(before == boost::lexical_cast<std::string>(r));
+        EXPECT_TRUE(before == lexical_cast<std::string>(r));
         EXPECT_TRUE(r.is<fair_replace>());
     }
 
@@ -317,8 +314,8 @@ TEST(r_policy_test, stream_operator)
         std::ostringstream oss;
         oss << r_policy{udrp_01{}};
         const auto st = oss.str();
-        EXPECT_TRUE(boost::contains(st, "bartoppo"));
-        EXPECT_TRUE(boost::contains(st, "Extra info:"));
+        EXPECT_TRUE(st.contains("bartoppo"));
+        EXPECT_TRUE(st.contains("Extra info:"));
     }
 }
 
@@ -545,7 +542,7 @@ TEST(r_policy_test, s11n)
     r_pol0.extract<udrp_a>()->state = -42;
     // Store the string representation.
     std::stringstream ss;
-    auto before = boost::lexical_cast<std::string>(r_pol0);
+    auto before = lexical_cast<std::string>(r_pol0);
     // Now serialize, deserialize and compare the result.
     {
         cereal::BinaryOutputArchive oarchive(ss);
@@ -557,7 +554,7 @@ TEST(r_policy_test, s11n)
         cereal::BinaryInputArchive iarchive(ss);
         iarchive(r_pol0);
     }
-    auto after = boost::lexical_cast<std::string>(r_pol0);
+    auto after = lexical_cast<std::string>(r_pol0);
     EXPECT_EQ(before, after);
     EXPECT_TRUE(r_pol0.is<udrp_a>());
     EXPECT_TRUE(r_pol0.extract<udrp_a>()->state = -42);

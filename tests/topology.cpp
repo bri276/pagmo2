@@ -41,8 +41,6 @@ see https://www.gnu.org/licenses/. */
 #include <utility>
 #include <vector>
 
-#include <boost/algorithm/string/predicate.hpp>
-
 #include <pagmo/detail/type_name.hpp>
 #include <pagmo/exceptions.hpp>
 #include <pagmo/s11n.hpp>
@@ -316,8 +314,8 @@ TEST(topology_test, topology_stream_test)
 
         auto str = oss.str();
 
-        EXPECT_TRUE(boost::contains(str, "Topology name:"));
-        EXPECT_TRUE(boost::contains(str, "hello"));
+        EXPECT_TRUE(str.contains("Topology name:"));
+        EXPECT_TRUE(str.contains("hello"));
     }
 
     {
@@ -329,7 +327,7 @@ TEST(topology_test, topology_stream_test)
 
         auto str = oss.str();
 
-        EXPECT_TRUE(boost::contains(str, "Topology name: udt00"));
+        EXPECT_TRUE(str.contains("Topology name: udt00"));
     }
 
     std::cout << topology{} << '\n';

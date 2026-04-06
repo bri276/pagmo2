@@ -26,7 +26,6 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-
 #include <gtest/gtest.h>
 
 #include <algorithm>
@@ -35,8 +34,6 @@ see https://www.gnu.org/licenses/. */
 #include <sstream>
 #include <stdexcept>
 #include <utility>
-
-#include <boost/algorithm/string/predicate.hpp>
 
 #include <pagmo/s11n.hpp>
 #include <pagmo/topologies/fully_connected.hpp>
@@ -179,7 +176,7 @@ TEST(fully_connected, basic_test)
         fully_connected r0(7, .2);
 
         EXPECT_TRUE(r0.get_name() == "Fully connected");
-        EXPECT_TRUE(boost::contains(r0.get_extra_info(), "Edges' weight:"));
+        EXPECT_TRUE(r0.get_extra_info().contains("Edges' weight:"));
 
         std::cout << r0.get_extra_info() << '\n';
     }

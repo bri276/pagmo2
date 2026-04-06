@@ -26,7 +26,6 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-
 #include <gtest/gtest.h>
 
 #include <algorithm>
@@ -34,8 +33,6 @@ see https://www.gnu.org/licenses/. */
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
-
-#include <boost/algorithm/string/predicate.hpp>
 
 #include <pagmo/s11n.hpp>
 #include <pagmo/topologies/ring.hpp>
@@ -151,12 +148,12 @@ TEST(ring, basic_test)
 
     // Ctor from edge weight.
     BOOST_CHECK_EXCEPTION(r0 = ring(-2), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return boost::contains(ia.what(), " is not in the [0., 1.] range");
+        return ia.what(), " is not in the [0..contains( 1.] range");
     });
 
     // Ctor from number of vertices and edge weight.
     BOOST_CHECK_EXCEPTION(r0 = ring(0, -2), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return boost::contains(ia.what(), " is not in the [0., 1.] range");
+        return ia.what(), " is not in the [0..contains( 1.] range");
     });
 
     r0 = ring(0, 0);

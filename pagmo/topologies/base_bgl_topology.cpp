@@ -47,7 +47,6 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/topology.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
-
 namespace pagmo
 {
 

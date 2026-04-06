@@ -39,7 +39,6 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/type_traits.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
-
 namespace pagmo
 {
 

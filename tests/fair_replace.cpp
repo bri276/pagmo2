@@ -26,7 +26,6 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-
 #include <gtest/gtest.h>
 
 #include <initializer_list>
@@ -36,7 +35,6 @@ see https://www.gnu.org/licenses/. */
 #include <utility>
 #include <variant>
 
-#include <boost/algorithm/string/predicate.hpp>
 #include <boost/numeric/conversion/converter_policies.hpp>
 
 #include <pagmo/r_policies/fair_replace.hpp>
@@ -96,8 +94,8 @@ TEST(fair_replace_test, fair_replace_basic)
     EXPECT_TRUE(std::get<pop_size_t>(f04.get_migr_rate()) == 2u);
 
     EXPECT_TRUE(f04.get_name() == "Fair replace");
-    EXPECT_TRUE(boost::contains(f04.get_extra_info(), "Absolute migration rate:"));
-    EXPECT_TRUE(boost::contains(f03.get_extra_info(), "Fractional migration rate:"));
+    EXPECT_TRUE(f04.get_extra_info().contains("Absolute migration rate:"));
+    EXPECT_TRUE(f03.get_extra_info().contains("Fractional migration rate:"));
 
     // Minimal serialization test.
     {

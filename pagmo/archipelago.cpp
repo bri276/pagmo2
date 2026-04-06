@@ -50,7 +50,6 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/topology.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
-
 // MINGW-specific warnings.
 #if defined(__GNUC__) && defined(__MINGW32__)
 #pragma GCC diagnostic push
