@@ -36,10 +36,8 @@ see https://www.gnu.org/licenses/. */
 #include <utility>
 #include <vector>
 
-// #include <boost/graph/adjacency_list.hpp>
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/iterator/zip_iterator.hpp>
-#include <boost/numeric/conversion/cast.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_io.hpp>
 
@@ -48,6 +46,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/topologies/base_bgl_topology.hpp>
 #include <pagmo/topology.hpp>
 #include <pagmo/types.hpp>
+#include <pagmo/utils/cast.hpp>
 
 namespace pagmo
 {
@@ -62,12 +61,12 @@ namespace
 template <typename I>
 std::size_t scast(I n)
 {
-    return boost::numeric_cast<std::size_t>(n);
+    return numeric_cast<std::size_t>(n);
 }
 
 bgl_graph_t::vertices_size_type vcast(std::size_t n)
 {
-    return boost::numeric_cast<bgl_graph_t::vertices_size_type>(n);
+    return numeric_cast<bgl_graph_t::vertices_size_type>(n);
 }
 
 } // namespace

@@ -33,8 +33,8 @@ see https://www.gnu.org/licenses/. */
 
 #endif
 
-#define BOOST_TEST_MODULE s_policy_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <initializer_list>
 #include <iostream>
@@ -59,11 +59,11 @@ see https://www.gnu.org/licenses/. */
 
 using namespace pagmo;
 
-BOOST_AUTO_TEST_CASE(type_traits_tests)
+TEST(s_policy_test, type_traits_tests)
 {
-    BOOST_CHECK(!IsUdSPolicy<void>);
-    BOOST_CHECK(!IsUdSPolicy<int>);
-    BOOST_CHECK(!IsUdSPolicy<double>);
+    EXPECT_TRUE(!IsUdSPolicy<void>);
+    EXPECT_TRUE(!IsUdSPolicy<int>);
+    EXPECT_TRUE(!IsUdSPolicy<double>);
 
     struct udsp00 {
         individuals_group_t select(const individuals_group_t &, const vector_double::size_type &,
@@ -72,10 +72,10 @@ BOOST_AUTO_TEST_CASE(type_traits_tests)
                                    const vector_double &) const;
     };
 
-    BOOST_CHECK(IsUdSPolicy<udsp00>);
-    BOOST_CHECK(!IsUdSPolicy<const udsp00>);
-    BOOST_CHECK(!IsUdSPolicy<const udsp00 &>);
-    BOOST_CHECK(!IsUdSPolicy<udsp00 &>);
+    EXPECT_TRUE(IsUdSPolicy<udsp00>);
+    EXPECT_TRUE(!IsUdSPolicy<const udsp00>);
+    EXPECT_TRUE(!IsUdSPolicy<const udsp00 &>);
+    EXPECT_TRUE(!IsUdSPolicy<udsp00 &>);
 
     struct no_udsp00 {
         void select(const individuals_group_t &, const vector_double::size_type &, const vector_double::size_type &,
@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE(type_traits_tests)
                     const vector_double::size_type &, const vector_double &) const;
     };
 
-    BOOST_CHECK(!IsUdSPolicy<no_udsp00>);
+    EXPECT_TRUE(!IsUdSPolicy<no_udsp00>);
 
     struct no_udsp01 {
         individuals_group_t select(const individuals_group_t &, const vector_double::size_type &,
@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE(type_traits_tests)
                                    const vector_double &);
     };
 
-    BOOST_CHECK(!IsUdSPolicy<no_udsp01>);
+    EXPECT_TRUE(!IsUdSPolicy<no_udsp01>);
 
     struct no_udsp02 {
         no_udsp02() = delete;
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE(type_traits_tests)
                                    const vector_double &) const;
     };
 
-    BOOST_CHECK(!IsUdSPolicy<no_udsp02>);
+    EXPECT_TRUE(!IsUdSPolicy<no_udsp02>);
 }
 
 struct udsp1 {
@@ -134,66 +134,66 @@ struct udsp2 {
     std::unique_ptr<std::string> foo = std::unique_ptr<std::string>{new std::string{"hello world"}};
 };
 
-BOOST_AUTO_TEST_CASE(basic_tests)
+TEST(s_policy_test, basic_tests)
 {
     s_policy r;
 
-    BOOST_CHECK(r.is<select_best>());
-    BOOST_CHECK(!r.is<udsp1>());
+    EXPECT_TRUE(r.is<select_best>());
+    EXPECT_TRUE(!r.is<udsp1>());
 
-    BOOST_CHECK(r.extract<select_best>() != nullptr);
-    BOOST_CHECK(r.extract<udsp1>() == nullptr);
+    EXPECT_TRUE(r.extract<select_best>() != nullptr);
+    EXPECT_TRUE(r.extract<udsp1>() == nullptr);
 
-    BOOST_CHECK(static_cast<const s_policy &>(r).extract<select_best>() != nullptr);
-    BOOST_CHECK(static_cast<const s_policy &>(r).extract<udsp1>() == nullptr);
+    EXPECT_TRUE(static_cast<const s_policy &>(r).extract<select_best>() != nullptr);
+    EXPECT_TRUE(static_cast<const s_policy &>(r).extract<udsp1>() == nullptr);
 
-    BOOST_CHECK(r.get_name() == "Select best");
-    BOOST_CHECK(!r.get_extra_info().empty());
+    EXPECT_TRUE(r.get_name() == "Select best");
+    EXPECT_TRUE(!r.get_extra_info().empty());
 
-    BOOST_CHECK(s_policy(udsp1{}).get_extra_info().empty());
-    BOOST_CHECK(s_policy(udsp1{}).get_name() == detail::type_name<udsp1>());
+    EXPECT_TRUE(s_policy(udsp1{}).get_extra_info().empty());
+    EXPECT_TRUE(s_policy(udsp1{}).get_name() == detail::type_name<udsp1>());
 
     // Constructors, assignments.
     // Generic constructor with copy.
     udsp1 r1;
     s_policy s_pol1{r1};
-    BOOST_CHECK(r1.foo == "hello world");
-    BOOST_CHECK(s_pol1.extract<udsp1>()->foo == "hello world");
+    EXPECT_TRUE(r1.foo == "hello world");
+    EXPECT_TRUE(s_pol1.extract<udsp1>()->foo == "hello world");
     // Generic constructor with move.
     udsp2 r2;
     s_policy s_pol2{std::move(r2)};
-    BOOST_CHECK(r2.foo.get() == nullptr);
-    BOOST_CHECK(s_pol2.extract<udsp2>()->foo.get() != nullptr);
-    BOOST_CHECK(*s_pol2.extract<udsp2>()->foo == "hello world");
+    EXPECT_TRUE(r2.foo.get() == nullptr);
+    EXPECT_TRUE(s_pol2.extract<udsp2>()->foo.get() != nullptr);
+    EXPECT_TRUE(*s_pol2.extract<udsp2>()->foo == "hello world");
     // Copy constructor.
     udsp2 r3;
     s_policy s_pol3{r3}, s_pol4{s_pol3};
-    BOOST_CHECK(*s_pol4.extract<udsp2>()->foo == "hello world");
-    BOOST_CHECK(s_pol4.extract<udsp2>()->foo.get() != s_pol3.extract<udsp2>()->foo.get());
-    BOOST_CHECK(s_pol4.get_name() == "frobniz");
+    EXPECT_TRUE(*s_pol4.extract<udsp2>()->foo == "hello world");
+    EXPECT_TRUE(s_pol4.extract<udsp2>()->foo.get() != s_pol3.extract<udsp2>()->foo.get());
+    EXPECT_TRUE(s_pol4.get_name() == "frobniz");
     // Move constructor.
     s_policy s_pol5{std::move(s_pol4)};
-    BOOST_CHECK(*s_pol5.extract<udsp2>()->foo == "hello world");
-    BOOST_CHECK(s_pol5.get_name() == "frobniz");
+    EXPECT_TRUE(*s_pol5.extract<udsp2>()->foo == "hello world");
+    EXPECT_TRUE(s_pol5.get_name() == "frobniz");
     // Revive s_pol4 via copy assignment.
     s_pol4 = s_pol5;
-    BOOST_CHECK(*s_pol4.extract<udsp2>()->foo == "hello world");
-    BOOST_CHECK(s_pol4.get_name() == "frobniz");
+    EXPECT_TRUE(*s_pol4.extract<udsp2>()->foo == "hello world");
+    EXPECT_TRUE(s_pol4.get_name() == "frobniz");
     // Revive s_pol4 via move assignment.
     s_policy s_pol6{std::move(s_pol4)};
     s_pol4 = std::move(s_pol5);
-    BOOST_CHECK(*s_pol4.extract<udsp2>()->foo == "hello world");
-    BOOST_CHECK(s_pol4.get_name() == "frobniz");
+    EXPECT_TRUE(*s_pol4.extract<udsp2>()->foo == "hello world");
+    EXPECT_TRUE(s_pol4.get_name() == "frobniz");
     // Self move-assignment.
     s_pol4 = std::move(*&s_pol4);
-    BOOST_CHECK(*s_pol4.extract<udsp2>()->foo == "hello world");
-    BOOST_CHECK(s_pol4.get_name() == "frobniz");
+    EXPECT_TRUE(*s_pol4.extract<udsp2>()->foo == "hello world");
+    EXPECT_TRUE(s_pol4.get_name() == "frobniz");
 
     // Minimal iostream test.
     {
         std::ostringstream oss;
         oss << r;
-        BOOST_CHECK(!oss.str().empty());
+        EXPECT_TRUE(!oss.str().empty());
     }
 
     // Minimal serialization test.
@@ -206,20 +206,20 @@ BOOST_AUTO_TEST_CASE(basic_tests)
             oarchive << r;
         }
         r = s_policy{udsp1{}};
-        BOOST_CHECK(r.is<udsp1>());
-        BOOST_CHECK(before != boost::lexical_cast<std::string>(r));
+        EXPECT_TRUE(r.is<udsp1>());
+        EXPECT_TRUE(before != boost::lexical_cast<std::string>(r));
         {
             boost::archive::binary_iarchive iarchive(ss);
             iarchive >> r;
         }
-        BOOST_CHECK(before == boost::lexical_cast<std::string>(r));
-        BOOST_CHECK(r.is<select_best>());
+        EXPECT_TRUE(before == boost::lexical_cast<std::string>(r));
+        EXPECT_TRUE(r.is<select_best>());
     }
 
     std::cout << s_policy{} << '\n';
 }
 
-BOOST_AUTO_TEST_CASE(optional_tests)
+TEST(s_policy_test, optional_tests)
 {
     // get_name().
     struct udsp_00 {
@@ -235,7 +235,7 @@ BOOST_AUTO_TEST_CASE(optional_tests)
             return "frobniz";
         }
     };
-    BOOST_CHECK_EQUAL(s_policy{udsp_00{}}.get_name(), "frobniz");
+    EXPECT_EQ(s_policy{udsp_00{}}.get_name(), "frobniz");
     struct udsp_01 {
         individuals_group_t select(const individuals_group_t &inds, const vector_double::size_type &,
                                    const vector_double::size_type &, const vector_double::size_type &,
@@ -250,7 +250,7 @@ BOOST_AUTO_TEST_CASE(optional_tests)
             return "frobniz";
         }
     };
-    BOOST_CHECK(s_policy{udsp_01{}}.get_name() != "frobniz");
+    EXPECT_TRUE(s_policy{udsp_01{}}.get_name() != "frobniz");
 
     // get_extra_info().
     struct udsp_02 {
@@ -266,7 +266,7 @@ BOOST_AUTO_TEST_CASE(optional_tests)
             return "frobniz";
         }
     };
-    BOOST_CHECK_EQUAL(s_policy{udsp_02{}}.get_extra_info(), "frobniz");
+    EXPECT_EQ(s_policy{udsp_02{}}.get_extra_info(), "frobniz");
     struct udsp_03 {
         individuals_group_t select(const individuals_group_t &inds, const vector_double::size_type &,
                                    const vector_double::size_type &, const vector_double::size_type &,
@@ -281,10 +281,10 @@ BOOST_AUTO_TEST_CASE(optional_tests)
             return "frobniz";
         }
     };
-    BOOST_CHECK(s_policy{udsp_03{}}.get_extra_info().empty());
+    EXPECT_TRUE(s_policy{udsp_03{}}.get_extra_info().empty());
 }
 
-BOOST_AUTO_TEST_CASE(stream_operator)
+TEST(s_policy_test, stream_operator)
 {
     struct udsp_00 {
         individuals_group_t select(const individuals_group_t &inds, const vector_double::size_type &,
@@ -298,7 +298,7 @@ BOOST_AUTO_TEST_CASE(stream_operator)
     {
         std::ostringstream oss;
         oss << s_policy{udsp_00{}};
-        BOOST_CHECK(!oss.str().empty());
+        EXPECT_TRUE(!oss.str().empty());
     }
     struct udsp_01 {
         individuals_group_t select(const individuals_group_t &inds, const vector_double::size_type &,
@@ -317,12 +317,12 @@ BOOST_AUTO_TEST_CASE(stream_operator)
         std::ostringstream oss;
         oss << s_policy{udsp_01{}};
         const auto st = oss.str();
-        BOOST_CHECK(boost::contains(st, "bartoppo"));
-        BOOST_CHECK(boost::contains(st, "Extra info:"));
+        EXPECT_TRUE(boost::contains(st, "bartoppo"));
+        EXPECT_TRUE(boost::contains(st, "Extra info:"));
     }
 }
 
-BOOST_AUTO_TEST_CASE(selection)
+TEST(s_policy_test, selection)
 {
     s_policy r0;
 
@@ -499,10 +499,10 @@ struct udsp_a {
 PAGMO_S11N_S_POLICY_EXPORT(udsp_a)
 
 // Serialization tests.
-BOOST_AUTO_TEST_CASE(s11n)
+TEST(s_policy_test, s11n)
 {
     s_policy s_pol0{udsp_a{}};
-    BOOST_CHECK(s_pol0.extract<udsp_a>()->state == 42);
+    EXPECT_TRUE(s_pol0.extract<udsp_a>()->state == 42);
     s_pol0.extract<udsp_a>()->state = -42;
     // Store the string representation.
     std::stringstream ss;
@@ -519,55 +519,55 @@ BOOST_AUTO_TEST_CASE(s11n)
         iarchive >> s_pol0;
     }
     auto after = boost::lexical_cast<std::string>(s_pol0);
-    BOOST_CHECK_EQUAL(before, after);
-    BOOST_CHECK(s_pol0.is<udsp_a>());
-    BOOST_CHECK(s_pol0.extract<udsp_a>()->state = -42);
+    EXPECT_EQ(before, after);
+    EXPECT_TRUE(s_pol0.is<udsp_a>());
+    EXPECT_TRUE(s_pol0.extract<udsp_a>()->state = -42);
 }
 
-BOOST_AUTO_TEST_CASE(is_valid)
+TEST(s_policy_test, is_valid)
 {
     s_policy p0;
-    BOOST_CHECK(p0.is_valid());
+    EXPECT_TRUE(p0.is_valid());
     s_policy p1(std::move(p0));
-    BOOST_CHECK(!p0.is_valid());
+    EXPECT_TRUE(!p0.is_valid());
     p0 = s_policy{udsp_a{}};
-    BOOST_CHECK(p0.is_valid());
+    EXPECT_TRUE(p0.is_valid());
     p1 = std::move(p0);
-    BOOST_CHECK(!p0.is_valid());
+    EXPECT_TRUE(!p0.is_valid());
     p0 = s_policy{udsp_a{}};
-    BOOST_CHECK(p0.is_valid());
+    EXPECT_TRUE(p0.is_valid());
 }
 
-BOOST_AUTO_TEST_CASE(generic_assignment)
+TEST(s_policy_test, generic_assignment)
 {
     s_policy p0;
-    BOOST_CHECK(p0.is<select_best>());
-    BOOST_CHECK(&(p0 = udsp_a{}) == &p0);
-    BOOST_CHECK(p0.is_valid());
-    BOOST_CHECK(p0.is<udsp_a>());
+    EXPECT_TRUE(p0.is<select_best>());
+    EXPECT_TRUE(&(p0 = udsp_a{}) == &p0);
+    EXPECT_TRUE(p0.is_valid());
+    EXPECT_TRUE(p0.is<udsp_a>());
     p0 = udsp1{};
-    BOOST_CHECK(p0.is<udsp1>());
-    BOOST_CHECK((!std::is_assignable<s_policy, void>::value));
-    BOOST_CHECK((!std::is_assignable<s_policy, int &>::value));
-    BOOST_CHECK((!std::is_assignable<s_policy, const int &>::value));
-    BOOST_CHECK((!std::is_assignable<s_policy, int &&>::value));
+    EXPECT_TRUE(p0.is<udsp1>());
+    EXPECT_TRUE((!std::is_assignable<s_policy, void>::value));
+    EXPECT_TRUE((!std::is_assignable<s_policy, int &>::value));
+    EXPECT_TRUE((!std::is_assignable<s_policy, const int &>::value));
+    EXPECT_TRUE((!std::is_assignable<s_policy, int &&>::value));
 }
 
-BOOST_AUTO_TEST_CASE(type_index)
+TEST(s_policy_test, type_index)
 {
     s_policy p0;
-    BOOST_CHECK(p0.get_type_index() == std::type_index(typeid(select_best)));
+    EXPECT_TRUE(p0.get_type_index() == std::type_index(typeid(select_best)));
     p0 = s_policy{udsp1{}};
-    BOOST_CHECK(p0.get_type_index() == std::type_index(typeid(udsp1)));
+    EXPECT_TRUE(p0.get_type_index() == std::type_index(typeid(udsp1)));
 }
 
-BOOST_AUTO_TEST_CASE(get_ptr)
+TEST(s_policy_test, get_ptr)
 {
     s_policy p0;
-    BOOST_CHECK(p0.get_ptr() == p0.extract<select_best>());
-    BOOST_CHECK(static_cast<const s_policy &>(p0).get_ptr()
+    EXPECT_TRUE(p0.get_ptr() == p0.extract<select_best>());
+    EXPECT_TRUE(static_cast<const s_policy &>(p0).get_ptr()
                 == static_cast<const s_policy &>(p0).extract<select_best>());
     p0 = s_policy{udsp1{}};
-    BOOST_CHECK(p0.get_ptr() == p0.extract<udsp1>());
-    BOOST_CHECK(static_cast<const s_policy &>(p0).get_ptr() == static_cast<const s_policy &>(p0).extract<udsp1>());
+    EXPECT_TRUE(p0.get_ptr() == p0.extract<udsp1>());
+    EXPECT_TRUE(static_cast<const s_policy &>(p0).get_ptr() == static_cast<const s_policy &>(p0).extract<udsp1>());
 }

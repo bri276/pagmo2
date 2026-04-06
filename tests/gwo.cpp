@@ -18,8 +18,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE gwo_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/test/tools/floating_point_comparison.hpp>
@@ -39,15 +39,15 @@ see https://www.gnu.org/licenses/. */
 
 using namespace pagmo;
 
-BOOST_AUTO_TEST_CASE(gwo_algorithm_construction)
+TEST(gwo_test, gwo_algorithm_construction)
 {
     gwo user_algo{1234u, 23u};
-    BOOST_CHECK(user_algo.get_verbosity() == 0u);
-    BOOST_CHECK(user_algo.get_seed() == 23u);
-    BOOST_CHECK((user_algo.get_log() == gwo::log_type{}));
+    EXPECT_TRUE(user_algo.get_verbosity() == 0u);
+    EXPECT_TRUE(user_algo.get_seed() == 23u);
+    EXPECT_TRUE((user_algo.get_log() == gwo::log_type{}));
 }
 
-BOOST_AUTO_TEST_CASE(gwo_evolve_test)
+TEST(gwo_test, gwo_evolve_test)
 {
     // Here we only test that evolution is deterministic if the
     // seed is controlled for all variants
@@ -62,44 +62,44 @@ BOOST_AUTO_TEST_CASE(gwo_evolve_test)
             user_algo1.set_verbosity(1u);
             pop1 = user_algo1.evolve(pop1);
 
-            BOOST_CHECK(user_algo1.get_log().size() > 0u);
+            EXPECT_TRUE(user_algo1.get_log().size() > 0u);
 
             gwo user_algo2{10u, 23u};
             user_algo2.set_verbosity(1u);
             pop2 = user_algo2.evolve(pop2);
 
-            BOOST_CHECK(user_algo1.get_log() == user_algo2.get_log());
+            EXPECT_TRUE(user_algo1.get_log() == user_algo2.get_log());
 
             user_algo2.set_seed(23u);
             pop3 = user_algo2.evolve(pop3);
 
-            BOOST_CHECK(user_algo1.get_log() == user_algo2.get_log());
+            EXPECT_TRUE(user_algo1.get_log() == user_algo2.get_log());
         }
     }
 
     // We then check that the evolve throws if called on unsuitable problems
-    BOOST_CHECK_THROW(gwo{10u}.evolve(population{problem{rosenbrock{}}, 2u}), std::invalid_argument);
-    BOOST_CHECK_THROW(gwo{10u}.evolve(population{problem{zdt{}}, 15u}), std::invalid_argument);
-    BOOST_CHECK_THROW(gwo{10u}.evolve(population{problem{hock_schittkowski_71{}}, 15u}), std::invalid_argument);
-    BOOST_CHECK_THROW(gwo{10u}.evolve(population{problem{inventory{}}, 15u}), std::invalid_argument);
+    EXPECT_THROW(gwo{10u}.evolve(population{problem{rosenbrock{}}, 2u}), std::invalid_argument);
+    EXPECT_THROW(gwo{10u}.evolve(population{problem{zdt{}}, 15u}), std::invalid_argument);
+    EXPECT_THROW(gwo{10u}.evolve(population{problem{hock_schittkowski_71{}}, 15u}), std::invalid_argument);
+    EXPECT_THROW(gwo{10u}.evolve(population{problem{inventory{}}, 15u}), std::invalid_argument);
     // And a clean exit for 0 generations
     population pop{rosenbrock{25u}, 10u};
-    BOOST_CHECK(gwo{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);
+    EXPECT_TRUE(gwo{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);
 }
 
-BOOST_AUTO_TEST_CASE(gwo_setters_getters_test)
+TEST(gwo_test, gwo_setters_getters_test)
 {
     gwo user_algo{10u, 23u};
     user_algo.set_verbosity(23u);
-    BOOST_CHECK(user_algo.get_verbosity() == 23u);
+    EXPECT_TRUE(user_algo.get_verbosity() == 23u);
     user_algo.set_seed(23u);
-    BOOST_CHECK(user_algo.get_seed() == 23u);
-    BOOST_CHECK(user_algo.get_name().find("Grey") != std::string::npos);
-    BOOST_CHECK(user_algo.get_extra_info().find("Generations") != std::string::npos);
-    BOOST_CHECK_NO_THROW(user_algo.get_log());
+    EXPECT_TRUE(user_algo.get_seed() == 23u);
+    EXPECT_TRUE(user_algo.get_name().find("Grey") != std::string::npos);
+    EXPECT_TRUE(user_algo.get_extra_info().find("Generations") != std::string::npos);
+    EXPECT_NO_THROW(user_algo.get_log());
 }
 
-BOOST_AUTO_TEST_CASE(gwo_serialization_test)
+TEST(gwo_test, gwo_serialization_test)
 {
     // Make one evolution
     problem prob{rosenbrock{25u}};
@@ -125,14 +125,14 @@ BOOST_AUTO_TEST_CASE(gwo_serialization_test)
     }
     auto after_text = boost::lexical_cast<std::string>(algo);
     auto after_log = algo.extract<gwo>()->get_log();
-    BOOST_CHECK_EQUAL(before_text, after_text);
-    // BOOST_CHECK(before_log == after_log); // This fails because of floating point problems when using JSON and cereal
+    EXPECT_EQ(before_text, after_text);
+    // EXPECT_TRUE(before_log == after_log); // This fails because of floating point problems when using JSON and cereal
     // so we implement a close check
-    BOOST_CHECK(before_log.size() > 0u);
+    EXPECT_TRUE(before_log.size() > 0u);
     for (auto i = 0u; i < before_log.size(); ++i) {
-        BOOST_CHECK_EQUAL(std::get<0>(before_log[i]), std::get<0>(after_log[i]));
-        BOOST_CHECK_CLOSE(std::get<1>(before_log[i]), std::get<1>(after_log[i]), 1e-8);
-        BOOST_CHECK_CLOSE(std::get<2>(before_log[i]), std::get<2>(after_log[i]), 1e-8);
-        BOOST_CHECK_CLOSE(std::get<3>(before_log[i]), std::get<3>(after_log[i]), 1e-8);
+        EXPECT_EQ(std::get<0>(before_log[i]), std::get<0>(after_log[i]));
+        EXPECT_NEAR(std::get<1>(before_log[i]), std::get<1>(after_log[i]), 1e-8);
+        EXPECT_NEAR(std::get<2>(before_log[i]), std::get<2>(after_log[i]), 1e-8);
+        EXPECT_NEAR(std::get<3>(before_log[i]), std::get<3>(after_log[i]), 1e-8);
     }
 }

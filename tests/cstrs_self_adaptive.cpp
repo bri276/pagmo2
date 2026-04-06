@@ -26,8 +26,8 @@
  GNU Lesser General Public License along with the PaGMO library.  If not,
  see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE cstrs_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/test/tools/floating_point_comparison.hpp>
@@ -52,62 +52,62 @@
 
 using namespace pagmo;
 
-BOOST_AUTO_TEST_CASE(penalized_problem_construction)
+TEST(cstrs_test, penalized_problem_construction)
 {
     using namespace detail;
     auto NP = 20u;
     problem udp{cec2006{1u}};
     population pop{udp, NP};
     penalized_udp udp_p{pop};
-    BOOST_CHECK(udp_p.m_pop_ptr == &pop);
-    BOOST_CHECK_EQUAL(udp_p.m_c_max.size(), udp.get_nc());
-    BOOST_CHECK_EQUAL(udp_p.m_f_hat_down.size(), udp.get_nf());
-    BOOST_CHECK_EQUAL(udp_p.m_f_hat_up.size(), udp.get_nf());
-    BOOST_CHECK_EQUAL(udp_p.m_f_hat_round.size(), udp.get_nf());
-    BOOST_CHECK_EQUAL(udp_p.get_nix(), udp.get_nix());
-    BOOST_CHECK_EQUAL(udp_p.m_fitness_map.size(), NP);
+    EXPECT_TRUE(udp_p.m_pop_ptr == &pop);
+    EXPECT_EQ(udp_p.m_c_max.size(), udp.get_nc());
+    EXPECT_EQ(udp_p.m_f_hat_down.size(), udp.get_nf());
+    EXPECT_EQ(udp_p.m_f_hat_up.size(), udp.get_nf());
+    EXPECT_EQ(udp_p.m_f_hat_round.size(), udp.get_nf());
+    EXPECT_EQ(udp_p.get_nix(), udp.get_nix());
+    EXPECT_EQ(udp_p.m_fitness_map.size(), NP);
     // We also test get bounds here
-    BOOST_CHECK(udp_p.get_bounds() == udp.get_bounds());
+    EXPECT_TRUE(udp_p.get_bounds() == udp.get_bounds());
     // And the debug stream operator
     std::ostringstream text;
     text << udp_p;
-    BOOST_CHECK(text.str().find("Best (hat down)") != std::string::npos);
+    EXPECT_TRUE(text.str().find("Best (hat down)") != std::string::npos);
 }
 
-BOOST_AUTO_TEST_CASE(penalized_problem_fitness_cache)
+TEST(cstrs_test, penalized_problem_fitness_cache)
 {
     using namespace detail;
     auto NP = 20u;
     problem udp{cec2006{1u}};
     population pop{udp, NP};
     penalized_udp udp_p{pop};
-    BOOST_CHECK_EQUAL(udp_p.m_pop_ptr->get_problem().get_fevals(), NP);
+    EXPECT_EQ(udp_p.m_pop_ptr->get_problem().get_fevals(), NP);
     population new_pop{udp_p};
     // The following lines do not cause fevals increments as the cache is hit.
     for (decltype(NP) i = 0u; i < NP; ++i) {
         new_pop.push_back(pop.get_x()[i]);
     }
     // We check the cache was hit -> not increasing the fevals
-    BOOST_CHECK_EQUAL(udp_p.m_pop_ptr->get_problem().get_fevals(), NP);
+    EXPECT_EQ(udp_p.m_pop_ptr->get_problem().get_fevals(), NP);
     new_pop.set_x(0, vector_double(13, 0.5));
     // We check the cache was not hit -> increasing the fevals
-    BOOST_CHECK_EQUAL(udp_p.m_pop_ptr->get_problem().get_fevals(), NP + 1);
+    EXPECT_EQ(udp_p.m_pop_ptr->get_problem().get_fevals(), NP + 1);
     new_pop.set_x(1, vector_double(13, 0.5));
     // We check the cache was hit -> not increasing the fevals
-    BOOST_CHECK_EQUAL(udp_p.m_pop_ptr->get_problem().get_fevals(), NP + 1);
+    EXPECT_EQ(udp_p.m_pop_ptr->get_problem().get_fevals(), NP + 1);
 }
 
-BOOST_AUTO_TEST_CASE(cstrs_self_adaptive_construction)
+TEST(cstrs_test, cstrs_self_adaptive_construction)
 {
     { // default constructor
         cstrs_self_adaptive udp;
-        BOOST_CHECK(udp.get_inner_algorithm().extract<de>() != NULL);
-        BOOST_CHECK(udp.get_inner_algorithm().extract<compass_search>() == NULL);
+        EXPECT_TRUE(udp.get_inner_algorithm().extract<de>() != NULL);
+        EXPECT_TRUE(udp.get_inner_algorithm().extract<compass_search>() == NULL);
     }
     { // constructor from iters
-        BOOST_CHECK_NO_THROW((cstrs_self_adaptive{1500u}));
-        BOOST_CHECK_NO_THROW((cstrs_self_adaptive{1500u, de{}}));
-        BOOST_CHECK_NO_THROW((cstrs_self_adaptive{1500u, de{}, 32u}));
+        EXPECT_NO_THROW((cstrs_self_adaptive{1500u}));
+        EXPECT_NO_THROW((cstrs_self_adaptive{1500u, de{}}));
+        EXPECT_NO_THROW((cstrs_self_adaptive{1500u, de{}, 32u}));
     }
     // Here we only test that evolution is deterministic if the
     // seed is controlled
@@ -121,44 +121,44 @@ BOOST_AUTO_TEST_CASE(cstrs_self_adaptive_construction)
         cstrs_self_adaptive user_algo1{150u, de{10u, 0.8, 0.9, 2u, 1e-6, 1e-6, 32u}, 32u};
         user_algo1.set_verbosity(1u);
         pop1 = user_algo1.evolve(pop1);
-        BOOST_CHECK(user_algo1.get_log().size() > 0u);
+        EXPECT_TRUE(user_algo1.get_log().size() > 0u);
 
         cstrs_self_adaptive user_algo2{150u, de{10u, 0.8, 0.9, 2u, 1e-6, 1e-6, 32u}, 32u};
         user_algo2.set_verbosity(1u);
         pop2 = user_algo2.evolve(pop2);
 
-        BOOST_CHECK(user_algo1.get_log() == user_algo2.get_log());
+        EXPECT_TRUE(user_algo1.get_log() == user_algo2.get_log());
         user_algo2.set_seed(32u);
         user_algo2.get_inner_algorithm().extract<de>()->set_seed(32u);
         pop3 = user_algo2.evolve(pop3);
 
-        BOOST_CHECK(user_algo1.get_log() == user_algo2.get_log());
+        EXPECT_TRUE(user_algo1.get_log() == user_algo2.get_log());
     }
     // We then check that the evolve throws if called on unsuitable problems
     {
         cstrs_self_adaptive user_algo{150u, de{10u, 0.8, 0.9, 2u, 1e-6, 1e-6, 32u}, 32u};
-        BOOST_CHECK_THROW(user_algo.evolve(population{zdt{}, 15u}), std::invalid_argument);
+        EXPECT_THROW(user_algo.evolve(population{zdt{}, 15u}), std::invalid_argument);
     }
     {
         cstrs_self_adaptive user_algo{150u, de{10u, 0.8, 0.9, 2u, 1e-6, 1e-6, 32u}, 32u};
-        BOOST_CHECK_THROW(user_algo.evolve(population{inventory{}, 15u}), std::invalid_argument);
+        EXPECT_THROW(user_algo.evolve(population{inventory{}, 15u}), std::invalid_argument);
     }
     {
         cstrs_self_adaptive user_algo{150u, de{10u, 0.8, 0.9, 2u, 1e-6, 1e-6, 32u}, 32u};
-        BOOST_CHECK_THROW(user_algo.evolve(population{rosenbrock{}, 15u}), std::invalid_argument);
+        EXPECT_THROW(user_algo.evolve(population{rosenbrock{}, 15u}), std::invalid_argument);
     }
     {
         cstrs_self_adaptive user_algo{150u, de{10u, 0.8, 0.9, 2u, 1e-6, 1e-6, 32u}, 32u};
-        BOOST_CHECK_THROW(user_algo.evolve(population{hock_schittkowski_71{}, 3u}), std::invalid_argument);
+        EXPECT_THROW(user_algo.evolve(population{hock_schittkowski_71{}, 3u}), std::invalid_argument);
     }
     // And a clean exit for 0 iterations
     problem prob{hock_schittkowski_71{}};
     population pop{prob, 10u};
-    BOOST_CHECK((cstrs_self_adaptive{0u, de{10u, 0.8, 0.9, 2u, 1e-6, 1e-6, 32u}, 32u}.evolve(pop).get_x()[0])
+    EXPECT_TRUE((cstrs_self_adaptive{0u, de{10u, 0.8, 0.9, 2u, 1e-6, 1e-6, 32u}, 32u}.evolve(pop).get_x()[0])
                 == (pop.get_x()[0]));
 }
 
-BOOST_AUTO_TEST_CASE(cstrs_self_adaptive_serialization)
+TEST(cstrs_test, cstrs_self_adaptive_serialization)
 {
     // Make one evolution
     problem prob{hock_schittkowski_71{}};
@@ -184,18 +184,18 @@ BOOST_AUTO_TEST_CASE(cstrs_self_adaptive_serialization)
     }
     auto after_text = boost::lexical_cast<std::string>(algo);
     auto after_log = algo.extract<cstrs_self_adaptive>()->get_log();
-    BOOST_CHECK_EQUAL(before_text, after_text);
-    BOOST_CHECK(before_log == after_log);
+    EXPECT_EQ(before_text, after_text);
+    EXPECT_TRUE(before_log == after_log);
     // so we implement a close check
-    BOOST_CHECK(before_log.size() > 0u);
+    EXPECT_TRUE(before_log.size() > 0u);
     for (auto i = 0u; i < before_log.size(); ++i) {
-        BOOST_CHECK_EQUAL(std::get<0>(before_log[i]), std::get<0>(after_log[i]));
-        BOOST_CHECK_EQUAL(std::get<1>(before_log[i]), std::get<1>(after_log[i]));
-        BOOST_CHECK_CLOSE(std::get<2>(before_log[i]), std::get<2>(after_log[i]), 1e-8);
-        BOOST_CHECK_CLOSE(std::get<3>(before_log[i]), std::get<3>(after_log[i]), 1e-8);
-        BOOST_CHECK_EQUAL(std::get<4>(before_log[i]), std::get<4>(after_log[i]));
-        BOOST_CHECK_CLOSE(std::get<5>(before_log[i]), std::get<5>(after_log[i]), 1e-8);
-        BOOST_CHECK_EQUAL(std::get<6>(before_log[i]), std::get<6>(after_log[i]));
+        EXPECT_EQ(std::get<0>(before_log[i]), std::get<0>(after_log[i]));
+        EXPECT_EQ(std::get<1>(before_log[i]), std::get<1>(after_log[i]));
+        EXPECT_NEAR(std::get<2>(before_log[i]), std::get<2>(after_log[i]), 1e-8);
+        EXPECT_NEAR(std::get<3>(before_log[i]), std::get<3>(after_log[i]), 1e-8);
+        EXPECT_EQ(std::get<4>(before_log[i]), std::get<4>(after_log[i]));
+        EXPECT_NEAR(std::get<5>(before_log[i]), std::get<5>(after_log[i]), 1e-8);
+        EXPECT_EQ(std::get<6>(before_log[i]), std::get<6>(after_log[i]));
     }
 }
 
@@ -228,11 +228,11 @@ struct ts3 {
     }
 };
 
-BOOST_AUTO_TEST_CASE(cstrs_self_adaptive_threading_test)
+TEST(cstrs_test, cstrs_self_adaptive_threading_test)
 {
-    BOOST_CHECK((algorithm{cstrs_self_adaptive{1500u, ts1{}, 32u}}.get_thread_safety() == thread_safety::basic));
-    BOOST_CHECK((algorithm{cstrs_self_adaptive{1500u, ts2{}, 32u}}.get_thread_safety() == thread_safety::none));
-    BOOST_CHECK((algorithm{cstrs_self_adaptive{1500u, ts3{}, 32u}}.get_thread_safety() == thread_safety::basic));
+    EXPECT_TRUE((algorithm{cstrs_self_adaptive{1500u, ts1{}, 32u}}.get_thread_safety() == thread_safety::basic));
+    EXPECT_TRUE((algorithm{cstrs_self_adaptive{1500u, ts2{}, 32u}}.get_thread_safety() == thread_safety::none));
+    EXPECT_TRUE((algorithm{cstrs_self_adaptive{1500u, ts3{}, 32u}}.get_thread_safety() == thread_safety::basic));
 }
 
 struct ia1 {
@@ -243,32 +243,32 @@ struct ia1 {
     double m_data = 0.;
 };
 
-BOOST_AUTO_TEST_CASE(cstrs_self_adaptive_inner_algo_get_test)
+TEST(cstrs_test, cstrs_self_adaptive_inner_algo_get_test)
 {
     // We check that the correct overload is called according to (*this) being const or not
     {
         const cstrs_self_adaptive uda(1500u, ia1{}, 32u);
-        BOOST_CHECK(std::is_const<decltype(uda)>::value);
-        BOOST_CHECK(std::is_const<std::remove_reference<decltype(uda.get_inner_algorithm())>::type>::value);
+        EXPECT_TRUE(std::is_const<decltype(uda)>::value);
+        EXPECT_TRUE(std::is_const<std::remove_reference<decltype(uda.get_inner_algorithm())>::type>::value);
     }
     {
         cstrs_self_adaptive uda(1500u, ia1{}, 32u);
-        BOOST_CHECK(!std::is_const<decltype(uda)>::value);
-        BOOST_CHECK(!std::is_const<std::remove_reference<decltype(uda.get_inner_algorithm())>::type>::value);
+        EXPECT_TRUE(!std::is_const<decltype(uda)>::value);
+        EXPECT_TRUE(!std::is_const<std::remove_reference<decltype(uda.get_inner_algorithm())>::type>::value);
     }
 }
 
-BOOST_AUTO_TEST_CASE(cstrs_self_adaptive_all_feasible_test)
+TEST(cstrs_test, cstrs_self_adaptive_all_feasible_test)
 {
     // We check the behavior when all individuals are feasible
 
     // We build an all feasible population
     problem prob{hock_schittkowski_71{}};
     population pop{prob, 4u};
-    BOOST_CHECK_EQUAL(prob.get_nf(), 3u);
-    BOOST_CHECK_EQUAL(prob.get_nobj(), 1u);
-    BOOST_CHECK_EQUAL(prob.get_nec(), 1u);
-    BOOST_CHECK_EQUAL(prob.get_nic(), 1u);
+    EXPECT_EQ(prob.get_nf(), 3u);
+    EXPECT_EQ(prob.get_nobj(), 1u);
+    EXPECT_EQ(prob.get_nec(), 1u);
+    EXPECT_EQ(prob.get_nic(), 1u);
     pop.set_xf(0, vector_double{1., 2., 3., 4.}, vector_double{2, 0., -1});
     pop.set_xf(1, vector_double{2., 2., 3., 4.}, vector_double{3, 0., -2});
     pop.set_xf(2, vector_double{3., 2., 3., 4.}, vector_double{5, 0., -2});
@@ -277,28 +277,28 @@ BOOST_AUTO_TEST_CASE(cstrs_self_adaptive_all_feasible_test)
     // We define the penalized_udp problem. Upon construction the update method will be called
     // and all penalties assigned. We test the correctness of their value
     detail::penalized_udp udp_p{pop};
-    BOOST_CHECK_EQUAL(udp_p.m_scaling_factor, 0.);
-    BOOST_CHECK_EQUAL(udp_p.m_i_hat_up, 0.);
-    BOOST_CHECK_EQUAL(udp_p.m_i_hat_down, 0.);
-    BOOST_CHECK_EQUAL(udp_p.m_i_hat_round, 0.);
-    BOOST_CHECK_EQUAL(udp_p.m_apply_penalty_1, false);
-    BOOST_CHECK((udp_p.m_c_max == vector_double{0., 0.}));
-    BOOST_CHECK_EQUAL(udp_p.m_n_feasible, 4);
-    BOOST_CHECK((udp_p.m_f_hat_up == vector_double{2, 0., -1}));
-    BOOST_CHECK((udp_p.m_f_hat_round == vector_double{2, 0., -1}));
+    EXPECT_EQ(udp_p.m_scaling_factor, 0.);
+    EXPECT_EQ(udp_p.m_i_hat_up, 0.);
+    EXPECT_EQ(udp_p.m_i_hat_down, 0.);
+    EXPECT_EQ(udp_p.m_i_hat_round, 0.);
+    EXPECT_EQ(udp_p.m_apply_penalty_1, false);
+    EXPECT_TRUE((udp_p.m_c_max == vector_double{0., 0.}));
+    EXPECT_EQ(udp_p.m_n_feasible, 4);
+    EXPECT_TRUE((udp_p.m_f_hat_up == vector_double{2, 0., -1}));
+    EXPECT_TRUE((udp_p.m_f_hat_round == vector_double{2, 0., -1}));
 }
 
-BOOST_AUTO_TEST_CASE(cstrs_self_adaptive_infeasible_better_than_hat_down_test)
+TEST(cstrs_test, cstrs_self_adaptive_infeasible_better_than_hat_down_test)
 {
     // We check the behavior when all individuals are feasible
 
     // We build an all feasible population
     problem prob{hock_schittkowski_71{}};
     population pop{prob, 4u};
-    BOOST_CHECK_EQUAL(prob.get_nf(), 3u);
-    BOOST_CHECK_EQUAL(prob.get_nobj(), 1u);
-    BOOST_CHECK_EQUAL(prob.get_nec(), 1u);
-    BOOST_CHECK_EQUAL(prob.get_nic(), 1u);
+    EXPECT_EQ(prob.get_nf(), 3u);
+    EXPECT_EQ(prob.get_nobj(), 1u);
+    EXPECT_EQ(prob.get_nec(), 1u);
+    EXPECT_EQ(prob.get_nic(), 1u);
     pop.set_xf(0, vector_double{1., 2., 3., 4.}, vector_double{2, 0., -1.}); // feasible (hat_down)
     pop.set_xf(1, vector_double{2., 2., 3., 4.}, vector_double{1, 0., 1.});  // infeasible (better than hat_down)
     pop.set_xf(2, vector_double{2., 2., 3., 4.}, vector_double{0, 0., 1.});  // infeasible (better than hat_down)
@@ -307,23 +307,23 @@ BOOST_AUTO_TEST_CASE(cstrs_self_adaptive_infeasible_better_than_hat_down_test)
     // We define the penalized_udp problem. Upon construction the update method will be called
     // and all penalties assigned. We test the correctness of their value
     detail::penalized_udp udp_p{pop};
-    BOOST_CHECK((udp_p.m_f_hat_up == vector_double{0, 0., 1.}));
-    BOOST_CHECK((udp_p.m_f_hat_down == vector_double{2, 0., -1.}));
-    BOOST_CHECK((udp_p.m_f_hat_round == vector_double{7, 3.4, 23}));
-    BOOST_CHECK_EQUAL(udp_p.m_apply_penalty_1, true);
+    EXPECT_TRUE((udp_p.m_f_hat_up == vector_double{0, 0., 1.}));
+    EXPECT_TRUE((udp_p.m_f_hat_down == vector_double{2, 0., -1.}));
+    EXPECT_TRUE((udp_p.m_f_hat_round == vector_double{7, 3.4, 23}));
+    EXPECT_EQ(udp_p.m_apply_penalty_1, true);
 }
 
-BOOST_AUTO_TEST_CASE(cstrs_self_adaptive_infeasible_not_better_than_hat_down_test)
+TEST(cstrs_test, cstrs_self_adaptive_infeasible_not_better_than_hat_down_test)
 {
     // We check the behavior when all individuals are feasible
 
     // We build an all feasible population
     problem prob{hock_schittkowski_71{}};
     population pop{prob, 5u};
-    BOOST_CHECK_EQUAL(prob.get_nf(), 3u);
-    BOOST_CHECK_EQUAL(prob.get_nobj(), 1u);
-    BOOST_CHECK_EQUAL(prob.get_nec(), 1u);
-    BOOST_CHECK_EQUAL(prob.get_nic(), 1u);
+    EXPECT_EQ(prob.get_nf(), 3u);
+    EXPECT_EQ(prob.get_nobj(), 1u);
+    EXPECT_EQ(prob.get_nec(), 1u);
+    EXPECT_EQ(prob.get_nic(), 1u);
     pop.set_xf(0, vector_double{1., 2., 3., 4.}, vector_double{2, 0., -1.});  // feasible (hat_down)
     pop.set_xf(1, vector_double{2., 2., 3., 4.}, vector_double{3, 21, 10.});  // infeasible (worse than hat_down)
     pop.set_xf(2, vector_double{2., 2., 3., 4.}, vector_double{3, 22, 10.});  // infeasible (worse than hat_down)
@@ -333,23 +333,23 @@ BOOST_AUTO_TEST_CASE(cstrs_self_adaptive_infeasible_not_better_than_hat_down_tes
     // We define the penalized_udp problem. Upon construction the update method will be called
     // and all penalties assigned. We test the correctness of their value
     detail::penalized_udp udp_p{pop};
-    BOOST_CHECK((udp_p.m_f_hat_up == vector_double{4, 22., 10.}));
-    BOOST_CHECK((udp_p.m_f_hat_down == vector_double{2, 0., -1.}));
-    BOOST_CHECK((udp_p.m_f_hat_round == vector_double{7, 3.4, 23}));
-    BOOST_CHECK_EQUAL(udp_p.m_apply_penalty_1, false);
+    EXPECT_TRUE((udp_p.m_f_hat_up == vector_double{4, 22., 10.}));
+    EXPECT_TRUE((udp_p.m_f_hat_down == vector_double{2, 0., -1.}));
+    EXPECT_TRUE((udp_p.m_f_hat_round == vector_double{7, 3.4, 23}));
+    EXPECT_EQ(udp_p.m_apply_penalty_1, false);
 }
 
-BOOST_AUTO_TEST_CASE(cstrs_self_adaptive_all_infeasible_test)
+TEST(cstrs_test, cstrs_self_adaptive_all_infeasible_test)
 {
     // We check the behavior when all individuals are feasible
 
     // We build an all feasible population
     problem prob{hock_schittkowski_71{}};
     population pop{prob, 4u};
-    BOOST_CHECK_EQUAL(prob.get_nf(), 3u);
-    BOOST_CHECK_EQUAL(prob.get_nobj(), 1u);
-    BOOST_CHECK_EQUAL(prob.get_nec(), 1u);
-    BOOST_CHECK_EQUAL(prob.get_nic(), 1u);
+    EXPECT_EQ(prob.get_nf(), 3u);
+    EXPECT_EQ(prob.get_nobj(), 1u);
+    EXPECT_EQ(prob.get_nec(), 1u);
+    EXPECT_EQ(prob.get_nic(), 1u);
     pop.set_xf(0, vector_double{1., 2., 3., 4.}, vector_double{2., 1., 1.});
     pop.set_xf(1, vector_double{2., 2., 3., 4.}, vector_double{1., 1., 1.});
     pop.set_xf(2, vector_double{2., 2., 3., 4.}, vector_double{4, 22., 10.});
@@ -358,8 +358,8 @@ BOOST_AUTO_TEST_CASE(cstrs_self_adaptive_all_infeasible_test)
     // We define the penalized_udp problem. Upon construction the update method will be called
     // and all penalties assigned. We test the correctness of their value
     detail::penalized_udp udp_p{pop};
-    BOOST_CHECK((udp_p.m_f_hat_up == vector_double{7, 22., 10.}));
-    BOOST_CHECK((udp_p.m_f_hat_down == vector_double{1., 1., 1.}));
-    BOOST_CHECK((udp_p.m_f_hat_round == vector_double{7, 22., 10.}));
-    BOOST_CHECK_EQUAL(udp_p.m_apply_penalty_1, true);
+    EXPECT_TRUE((udp_p.m_f_hat_up == vector_double{7, 22., 10.}));
+    EXPECT_TRUE((udp_p.m_f_hat_down == vector_double{1., 1., 1.}));
+    EXPECT_TRUE((udp_p.m_f_hat_round == vector_double{7, 22., 10.}));
+    EXPECT_EQ(udp_p.m_apply_penalty_1, true);
 }

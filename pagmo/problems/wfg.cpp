@@ -31,12 +31,11 @@ see https://www.gnu.org/licenses/. */
 #include <initializer_list>
 #include <iostream>
 #include <iterator>
+#include <numbers>
 #include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
-
-#include <boost/math/constants/constants.hpp>
 
 #include <pagmo/detail/constants.hpp>
 #include <pagmo/exceptions.hpp>
@@ -181,14 +180,14 @@ double wfg::convex(const vector_double &parameters, const vector_double::size_ty
     double g = 1.;
     if (m == 1) {
         for (decltype(m_dim_obj) i = 0u; i < m_dim_obj - 1; ++i) {
-            g *= 1.0 - std::cos(parameters[i] * boost::math::constants::pi<double>() / 2.0);
+            g *= 1.0 - std::cos(parameters[i] * std::numbers::pi / 2.0);
         }
         return g;
     } else {
         for (decltype(m_dim_obj) i = 0u; i < m_dim_obj - m; ++i) {
-            g *= 1.0 - std::cos(parameters[i] * boost::math::constants::pi<double>() / 2.0);
+            g *= 1.0 - std::cos(parameters[i] * std::numbers::pi / 2.0);
         }
-        return g * (1 - std::sin(parameters[m_dim_obj - m] * boost::math::constants::pi<double>() / 2.0));
+        return g * (1 - std::sin(parameters[m_dim_obj - m] * std::numbers::pi / 2.0));
     }
 }
 
@@ -197,25 +196,24 @@ double wfg::concave(const vector_double &parameters, const vector_double::size_t
     double g = 1.;
     if (m == 1) {
         for (decltype(m_dim_obj) i = 0u; i < m_dim_obj - 1; ++i) {
-            g *= std::sin(parameters[i] * boost::math::constants::pi<double>() / 2.0);
+            g *= std::sin(parameters[i] * std::numbers::pi / 2.0);
         }
         return g;
     } else if (m > 1 && m < m_dim_obj) {
         for (decltype(m_dim_obj) i = 0u; i < m_dim_obj - m; ++i) {
-            g *= std::sin(parameters[i] * boost::math::constants::pi<double>() / 2.0);
+            g *= std::sin(parameters[i] * std::numbers::pi / 2.0);
         }
-        return g * std::cos(parameters[m_dim_obj - m] * boost::math::constants::pi<double>() / 2.0);
+        return g * std::cos(parameters[m_dim_obj - m] * std::numbers::pi / 2.0);
     } else {
-        return std::cos(parameters[0] * boost::math::constants::pi<double>() / 2.0);
+        return std::cos(parameters[0] * std::numbers::pi / 2.0);
     }
 }
 
 double wfg::mixed(const double parameters_0, const double alpha, const double deg_const) const
 {
     return std::pow((1.0 - parameters_0
-                     - std::cos(2 * deg_const * boost::math::constants::pi<double>() * parameters_0
-                                + boost::math::constants::pi<double>() / 2.0)
-                           / (2.0 * deg_const * boost::math::constants::pi<double>())),
+                     - std::cos(2 * deg_const * std::numbers::pi * parameters_0 + std::numbers::pi / 2.0)
+                           / (2.0 * deg_const * std::numbers::pi)),
                     alpha);
 }
 
@@ -223,8 +221,7 @@ double wfg::disconnected(const double parameters_0, const double alpha, const do
 {
     return 1.0
            - std::pow(parameters_0, alpha)
-                 * std::pow(std::cos(deg_const * std::pow(parameters_0, beta) * boost::math::constants::pi<double>()),
-                            2);
+                 * std::pow(std::cos(deg_const * std::pow(parameters_0, beta) * std::numbers::pi), 2);
 }
 
 // We now define the transformation functions:
@@ -264,7 +261,7 @@ double wfg::s_decept(const double y, const double a_par, const double b_par, con
 double wfg::s_multi(const double y, const double a_par, const double b_par, const double c_par) const
 {
     return (1
-            + std::cos((4.0 * a_par + 2.0) * boost::math::constants::pi<double>()
+            + std::cos((4.0 * a_par + 2.0) * std::numbers::pi
                        * (0.5 - (std::abs(y - c_par)) / (2.0 * (std::floor(c_par - y) + c_par))))
             + 4.0 * b_par * std::pow(std::abs(y - c_par) / (2 * (std::floor(c_par - y) + c_par)), 2))
            / (b_par + 2.0);

@@ -29,11 +29,10 @@ see https://www.gnu.org/licenses/. */
 #include <cassert>
 #include <cmath>
 #include <cstdlib>
+#include <numbers>
 #include <stdexcept>
 #include <string>
 #include <utility>
-
-#include <boost/math/constants/constants.hpp>
 
 #include <pagmo/detail/constants.hpp>
 #include <pagmo/exceptions.hpp>
@@ -495,7 +494,7 @@ void cec2013::ackley_func(const double *x, double *f, const unsigned nx, const d
     }
     sum1 = -0.2 * std::sqrt(sum1 / nx);
     sum2 /= nx;
-    f[0] = boost::math::constants::e<double>() - 20.0 * std::exp(sum1) - std::exp(sum2) + 20.0;
+    f[0] = std::exp(1.0) - 20.0 * std::exp(sum1) - std::exp(sum2) + 20.0;
 }
 
 void cec2013::weierstrass_func(const double *x, double *f, const unsigned nx, const double *Os, const double *Mr,

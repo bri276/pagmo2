@@ -33,8 +33,8 @@ see https://www.gnu.org/licenses/. */
 
 #endif
 
-#define BOOST_TEST_MODULE bfe_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <functional>
 #include <iostream>
@@ -69,50 +69,50 @@ inline vector_double udbfe0(const problem &p, const vector_double &dvs)
     return vector_double(p.get_nf() * (dvs.size() / p.get_nx()), .5);
 }
 
-BOOST_AUTO_TEST_CASE(type_traits_tests)
+TEST(bfe_test, type_traits_tests)
 {
-    BOOST_CHECK(IsUdBfe<default_bfe>);
-    BOOST_CHECK(!IsUdBfe<const default_bfe>);
-    BOOST_CHECK(!IsUdBfe<default_bfe &>);
-    BOOST_CHECK(!IsUdBfe<const default_bfe &>);
+    EXPECT_TRUE(IsUdBfe<default_bfe>);
+    EXPECT_TRUE(!IsUdBfe<const default_bfe>);
+    EXPECT_TRUE(!IsUdBfe<default_bfe &>);
+    EXPECT_TRUE(!IsUdBfe<const default_bfe &>);
 
-    BOOST_CHECK(IsUdBfe<decltype(&udbfe0)>);
-    BOOST_CHECK(IsUdBfe<udbfe_func_t>);
+    EXPECT_TRUE(IsUdBfe<decltype(&udbfe0)>);
+    EXPECT_TRUE(IsUdBfe<udbfe_func_t>);
 
     struct non_udbfe_00 {
     };
-    BOOST_CHECK(!IsUdBfe<non_udbfe_00>);
-    BOOST_CHECK(!HasBfeCallOperator<non_udbfe_00>);
+    EXPECT_TRUE(!IsUdBfe<non_udbfe_00>);
+    EXPECT_TRUE(!HasBfeCallOperator<non_udbfe_00>);
 
     struct non_udbfe_01 {
         vector_double operator()();
     };
-    BOOST_CHECK(!IsUdBfe<non_udbfe_01>);
-    BOOST_CHECK(!HasBfeCallOperator<non_udbfe_01>);
+    EXPECT_TRUE(!IsUdBfe<non_udbfe_01>);
+    EXPECT_TRUE(!HasBfeCallOperator<non_udbfe_01>);
 
     struct non_udbfe_02 {
         // NOTE: non-const operator.
         vector_double operator()(const problem &, const vector_double &);
     };
-    BOOST_CHECK(!IsUdBfe<non_udbfe_02>);
-    BOOST_CHECK(!HasBfeCallOperator<non_udbfe_02>);
+    EXPECT_TRUE(!IsUdBfe<non_udbfe_02>);
+    EXPECT_TRUE(!HasBfeCallOperator<non_udbfe_02>);
 
     struct non_udbfe_03 {
         // NOTE: not def ctible.
         non_udbfe_03() = delete;
         vector_double operator()(const problem &, const vector_double &) const;
     };
-    BOOST_CHECK(!IsUdBfe<non_udbfe_03>);
-    BOOST_CHECK(HasBfeCallOperator<non_udbfe_03>);
+    EXPECT_TRUE(!IsUdBfe<non_udbfe_03>);
+    EXPECT_TRUE(HasBfeCallOperator<non_udbfe_03>);
 
-    BOOST_CHECK(IsUdBfe<decltype(&udbfe0)>);
+    EXPECT_TRUE(IsUdBfe<decltype(&udbfe0)>);
     struct udbfe_00 {
         vector_double operator()(const problem &, const vector_double &) const;
     };
-    BOOST_CHECK(IsUdBfe<udbfe_00>);
+    EXPECT_TRUE(IsUdBfe<udbfe_00>);
 
     // Test std::function as well.
-    BOOST_CHECK(IsUdBfe<std::function<vector_double(const problem &, const vector_double &)>>);
+    EXPECT_TRUE(IsUdBfe<std::function<vector_double(const problem &, const vector_double &)>>);
 }
 
 struct udbfe1 {
@@ -142,77 +142,77 @@ struct udbfe2 {
     std::unique_ptr<std::string> foo = std::unique_ptr<std::string>{new std::string{"hello world"}};
 };
 
-BOOST_AUTO_TEST_CASE(basic_tests)
+TEST(bfe_test, basic_tests)
 {
     bfe bfe0;
     problem p;
 
     // Public methods.
-    BOOST_CHECK(bfe0.extract<default_bfe>() != nullptr);
-    BOOST_CHECK(bfe0.extract<udbfe_func_t>() == nullptr);
-    BOOST_CHECK(static_cast<const bfe &>(bfe0).extract<default_bfe>() != nullptr);
-    BOOST_CHECK(static_cast<const bfe &>(bfe0).extract<udbfe_func_t>() == nullptr);
-    BOOST_CHECK(bfe0.is<default_bfe>());
-    BOOST_CHECK(!bfe0.is<udbfe_func_t>());
-    BOOST_CHECK(bfe0.get_name() == "Default batch fitness evaluator");
-    BOOST_CHECK(bfe{udbfe1{}}.get_name() == detail::type_name<udbfe1>());
-    BOOST_CHECK(bfe0.get_extra_info().empty());
-    BOOST_CHECK(bfe0.get_thread_safety() == thread_safety::basic);
+    EXPECT_TRUE(bfe0.extract<default_bfe>() != nullptr);
+    EXPECT_TRUE(bfe0.extract<udbfe_func_t>() == nullptr);
+    EXPECT_TRUE(static_cast<const bfe &>(bfe0).extract<default_bfe>() != nullptr);
+    EXPECT_TRUE(static_cast<const bfe &>(bfe0).extract<udbfe_func_t>() == nullptr);
+    EXPECT_TRUE(bfe0.is<default_bfe>());
+    EXPECT_TRUE(!bfe0.is<udbfe_func_t>());
+    EXPECT_TRUE(bfe0.get_name() == "Default batch fitness evaluator");
+    EXPECT_TRUE(bfe{udbfe1{}}.get_name() == detail::type_name<udbfe1>());
+    EXPECT_TRUE(bfe0.get_extra_info().empty());
+    EXPECT_TRUE(bfe0.get_thread_safety() == thread_safety::basic);
 
     // Constructors, assignments.
     bfe bfe1{udbfe0};
-    BOOST_CHECK(bfe1.is<udbfe_func_t>());
-    BOOST_CHECK(*bfe1.extract<udbfe_func_t>() == udbfe0);
+    EXPECT_TRUE(bfe1.is<udbfe_func_t>());
+    EXPECT_TRUE(*bfe1.extract<udbfe_func_t>() == udbfe0);
     // Generic constructor with copy.
     udbfe1 b1;
     bfe bfe2{b1};
-    BOOST_CHECK(b1.foo == "hello world");
-    BOOST_CHECK(bfe2.extract<udbfe1>()->foo == "hello world");
+    EXPECT_TRUE(b1.foo == "hello world");
+    EXPECT_TRUE(bfe2.extract<udbfe1>()->foo == "hello world");
     // Generic constructor with move.
     udbfe2 b2;
     bfe bfe3{std::move(b2)};
-    BOOST_CHECK(b2.foo.get() == nullptr);
-    BOOST_CHECK(bfe3.extract<udbfe2>()->foo.get() != nullptr);
-    BOOST_CHECK(*bfe3.extract<udbfe2>()->foo == "hello world");
+    EXPECT_TRUE(b2.foo.get() == nullptr);
+    EXPECT_TRUE(bfe3.extract<udbfe2>()->foo.get() != nullptr);
+    EXPECT_TRUE(*bfe3.extract<udbfe2>()->foo == "hello world");
     // Copy constructor.
     udbfe2 b3;
     bfe bfe4{b3}, bfe5{bfe4};
-    BOOST_CHECK(*bfe5.extract<udbfe2>()->foo == "hello world");
-    BOOST_CHECK(bfe5.extract<udbfe2>()->foo.get() != bfe4.extract<udbfe2>()->foo.get());
-    BOOST_CHECK(bfe5(p, vector_double{}) == vector_double{});
-    BOOST_CHECK(bfe5.get_name() == "frobniz");
-    BOOST_CHECK(bfe5.get_thread_safety() == thread_safety::constant);
+    EXPECT_TRUE(*bfe5.extract<udbfe2>()->foo == "hello world");
+    EXPECT_TRUE(bfe5.extract<udbfe2>()->foo.get() != bfe4.extract<udbfe2>()->foo.get());
+    EXPECT_TRUE(bfe5(p, vector_double{}) == vector_double{});
+    EXPECT_TRUE(bfe5.get_name() == "frobniz");
+    EXPECT_TRUE(bfe5.get_thread_safety() == thread_safety::constant);
     // Move constructor.
     bfe bfe6{std::move(bfe5)};
-    BOOST_CHECK(*bfe6.extract<udbfe2>()->foo == "hello world");
-    BOOST_CHECK(bfe6(p, vector_double{}) == vector_double{});
-    BOOST_CHECK(bfe6.get_name() == "frobniz");
-    BOOST_CHECK(bfe6.get_thread_safety() == thread_safety::constant);
+    EXPECT_TRUE(*bfe6.extract<udbfe2>()->foo == "hello world");
+    EXPECT_TRUE(bfe6(p, vector_double{}) == vector_double{});
+    EXPECT_TRUE(bfe6.get_name() == "frobniz");
+    EXPECT_TRUE(bfe6.get_thread_safety() == thread_safety::constant);
     // Revive bfe5 via copy assignment.
     bfe5 = bfe6;
-    BOOST_CHECK(*bfe5.extract<udbfe2>()->foo == "hello world");
-    BOOST_CHECK(bfe5(p, vector_double{}) == vector_double{});
-    BOOST_CHECK(bfe5.get_name() == "frobniz");
-    BOOST_CHECK(bfe5.get_thread_safety() == thread_safety::constant);
+    EXPECT_TRUE(*bfe5.extract<udbfe2>()->foo == "hello world");
+    EXPECT_TRUE(bfe5(p, vector_double{}) == vector_double{});
+    EXPECT_TRUE(bfe5.get_name() == "frobniz");
+    EXPECT_TRUE(bfe5.get_thread_safety() == thread_safety::constant);
     // Revive bfe5 via move assignment.
     bfe bfe7{std::move(bfe5)};
     bfe5 = std::move(bfe6);
-    BOOST_CHECK(*bfe5.extract<udbfe2>()->foo == "hello world");
-    BOOST_CHECK(bfe5(p, vector_double{}) == vector_double{});
-    BOOST_CHECK(bfe5.get_name() == "frobniz");
-    BOOST_CHECK(bfe5.get_thread_safety() == thread_safety::constant);
+    EXPECT_TRUE(*bfe5.extract<udbfe2>()->foo == "hello world");
+    EXPECT_TRUE(bfe5(p, vector_double{}) == vector_double{});
+    EXPECT_TRUE(bfe5.get_name() == "frobniz");
+    EXPECT_TRUE(bfe5.get_thread_safety() == thread_safety::constant);
     // Self move-assignment.
     bfe5 = std::move(*&bfe5);
-    BOOST_CHECK(*bfe5.extract<udbfe2>()->foo == "hello world");
-    BOOST_CHECK(bfe5(p, vector_double{}) == vector_double{});
-    BOOST_CHECK(bfe5.get_name() == "frobniz");
-    BOOST_CHECK(bfe5.get_thread_safety() == thread_safety::constant);
+    EXPECT_TRUE(*bfe5.extract<udbfe2>()->foo == "hello world");
+    EXPECT_TRUE(bfe5(p, vector_double{}) == vector_double{});
+    EXPECT_TRUE(bfe5.get_name() == "frobniz");
+    EXPECT_TRUE(bfe5.get_thread_safety() == thread_safety::constant);
 
     // Minimal iostream test.
     {
         std::ostringstream oss;
         oss << bfe0;
-        BOOST_CHECK(!oss.str().empty());
+        EXPECT_TRUE(!oss.str().empty());
     }
 
     // Minimal serialization test.
@@ -225,18 +225,18 @@ BOOST_AUTO_TEST_CASE(basic_tests)
             oarchive << bfe0;
         }
         bfe0 = bfe{udbfe0};
-        BOOST_CHECK(bfe0.is<udbfe_func_t>());
-        BOOST_CHECK(before != boost::lexical_cast<std::string>(bfe0));
+        EXPECT_TRUE(bfe0.is<udbfe_func_t>());
+        EXPECT_TRUE(before != boost::lexical_cast<std::string>(bfe0));
         {
             boost::archive::binary_iarchive iarchive(ss);
             iarchive >> bfe0;
         }
-        BOOST_CHECK(before == boost::lexical_cast<std::string>(bfe0));
-        BOOST_CHECK(bfe0.is<default_bfe>());
+        EXPECT_TRUE(before == boost::lexical_cast<std::string>(bfe0));
+        EXPECT_TRUE(bfe0.is<default_bfe>());
     }
 }
 
-BOOST_AUTO_TEST_CASE(optional_tests)
+TEST(bfe_test, optional_tests)
 {
     // get_name().
     struct udbfe_00 {
@@ -249,7 +249,7 @@ BOOST_AUTO_TEST_CASE(optional_tests)
             return "frobniz";
         }
     };
-    BOOST_CHECK_EQUAL(bfe{udbfe_00{}}.get_name(), "frobniz");
+    EXPECT_EQ(bfe{udbfe_00{}}.get_name(), "frobniz");
     struct udbfe_01 {
         vector_double operator()(const problem &, const vector_double &) const
         {
@@ -261,7 +261,7 @@ BOOST_AUTO_TEST_CASE(optional_tests)
             return "frobniz";
         }
     };
-    BOOST_CHECK(bfe{udbfe_01{}}.get_name() != "frobniz");
+    EXPECT_TRUE(bfe{udbfe_01{}}.get_name() != "frobniz");
 
     // get_extra_info().
     struct udbfe_02 {
@@ -274,7 +274,7 @@ BOOST_AUTO_TEST_CASE(optional_tests)
             return "frobniz";
         }
     };
-    BOOST_CHECK_EQUAL(bfe{udbfe_02{}}.get_extra_info(), "frobniz");
+    EXPECT_EQ(bfe{udbfe_02{}}.get_extra_info(), "frobniz");
     struct udbfe_03 {
         vector_double operator()(const problem &, const vector_double &) const
         {
@@ -286,7 +286,7 @@ BOOST_AUTO_TEST_CASE(optional_tests)
             return "frobniz";
         }
     };
-    BOOST_CHECK(bfe{udbfe_03{}}.get_extra_info().empty());
+    EXPECT_TRUE(bfe{udbfe_03{}}.get_extra_info().empty());
 
     // get_thread_safety().
     struct udbfe_04 {
@@ -299,7 +299,7 @@ BOOST_AUTO_TEST_CASE(optional_tests)
             return thread_safety::constant;
         }
     };
-    BOOST_CHECK_EQUAL(bfe{udbfe_04{}}.get_thread_safety(), thread_safety::constant);
+    EXPECT_EQ(bfe{udbfe_04{}}.get_thread_safety(), thread_safety::constant);
     struct udbfe_05 {
         vector_double operator()(const problem &, const vector_double &) const
         {
@@ -311,10 +311,10 @@ BOOST_AUTO_TEST_CASE(optional_tests)
             return thread_safety::constant;
         }
     };
-    BOOST_CHECK_EQUAL(bfe{udbfe_05{}}.get_thread_safety(), thread_safety::basic);
+    EXPECT_EQ(bfe{udbfe_05{}}.get_thread_safety(), thread_safety::basic);
 }
 
-BOOST_AUTO_TEST_CASE(stream_operator)
+TEST(bfe_test, stream_operator)
 {
     struct udbfe_00 {
         vector_double operator()(const problem &, const vector_double &) const
@@ -325,7 +325,7 @@ BOOST_AUTO_TEST_CASE(stream_operator)
     {
         std::ostringstream oss;
         oss << bfe{udbfe_00{}};
-        BOOST_CHECK(!oss.str().empty());
+        EXPECT_TRUE(!oss.str().empty());
     }
     struct udbfe_01 {
         vector_double operator()(const problem &, const vector_double &) const
@@ -341,13 +341,13 @@ BOOST_AUTO_TEST_CASE(stream_operator)
         std::ostringstream oss;
         oss << bfe{udbfe_01{}};
         const auto st = oss.str();
-        BOOST_CHECK(boost::contains(st, "bartoppo"));
-        BOOST_CHECK(boost::contains(st, "Extra info:"));
+        EXPECT_TRUE(boost::contains(st, "bartoppo"));
+        EXPECT_TRUE(boost::contains(st, "Extra info:"));
     }
     std::cout << bfe{} << '\n';
 }
 
-BOOST_AUTO_TEST_CASE(call_operator)
+TEST(bfe_test, call_operator)
 {
     struct udbfe_00 {
         vector_double operator()(const problem &p, const vector_double &dvs) const
@@ -356,11 +356,11 @@ BOOST_AUTO_TEST_CASE(call_operator)
         }
     };
     bfe bfe0{udbfe_00{}};
-    BOOST_CHECK(bfe0(problem{}, vector_double{.5}) == vector_double{1.});
-    BOOST_CHECK(bfe0(problem{null_problem{3}}, vector_double{.5}) == (vector_double{1., 1., 1.}));
+    EXPECT_TRUE(bfe0(problem{}, vector_double{.5}) == vector_double{1.});
+    EXPECT_TRUE(bfe0(problem{null_problem{3}}, vector_double{.5}) == (vector_double{1., 1., 1.}));
     // Try with a function.
     bfe bfe0a{udbfe0};
-    BOOST_CHECK(bfe0a(problem{null_problem{3}}, vector_double{.5}) == (vector_double{.5, .5, .5}));
+    EXPECT_TRUE(bfe0a(problem{null_problem{3}}, vector_double{.5}) == (vector_double{.5, .5, .5}));
     // Try passing in a wrong dvs.
     BOOST_CHECK_EXCEPTION(
         bfe0(problem{rosenbrock{}}, vector_double{.5}), std::invalid_argument, [](const std::invalid_argument &ia) {
@@ -429,10 +429,10 @@ struct udbfe_a {
 PAGMO_S11N_BFE_EXPORT(udbfe_a)
 
 // Serialization tests.
-BOOST_AUTO_TEST_CASE(s11n)
+TEST(bfe_test, s11n)
 {
     bfe bfe0{udbfe_a{}};
-    BOOST_CHECK(bfe0.extract<udbfe_a>()->state == 42);
+    EXPECT_TRUE(bfe0.extract<udbfe_a>()->state == 42);
     bfe0.extract<udbfe_a>()->state = -42;
     // Store the string representation.
     std::stringstream ss;
@@ -449,83 +449,83 @@ BOOST_AUTO_TEST_CASE(s11n)
         iarchive >> bfe0;
     }
     auto after = boost::lexical_cast<std::string>(bfe0);
-    BOOST_CHECK_EQUAL(before, after);
-    BOOST_CHECK(bfe0.is<udbfe_a>());
-    BOOST_CHECK(bfe0.extract<udbfe_a>()->state = -42);
+    EXPECT_EQ(before, after);
+    EXPECT_TRUE(bfe0.is<udbfe_a>());
+    EXPECT_TRUE(bfe0.extract<udbfe_a>()->state = -42);
 }
 
-BOOST_AUTO_TEST_CASE(lambda_std_function)
+TEST(bfe_test, lambda_std_function)
 {
     auto fun = [](const problem &p, const vector_double &dvs) {
         return vector_double(p.get_nf() * (dvs.size() / p.get_nx()), 1.);
     };
-    BOOST_CHECK(!IsUdBfe<decltype(fun)>);
+    EXPECT_TRUE(!IsUdBfe<decltype(fun)>);
 #if !defined(_MSC_VER)
-    BOOST_CHECK(IsUdBfe<decltype(+fun)>);
+    EXPECT_TRUE(IsUdBfe<decltype(+fun)>);
 #endif
     auto stdfun = std::function<vector_double(const problem &, const vector_double &)>(fun);
-    BOOST_CHECK(IsUdBfe<decltype(stdfun)>);
+    EXPECT_TRUE(IsUdBfe<decltype(stdfun)>);
 
 #if !defined(_MSC_VER)
     {
         bfe bfe0{+fun};
-        BOOST_CHECK(bfe0(problem{}, vector_double{.5}) == vector_double{1.});
-        BOOST_CHECK(bfe0(problem{null_problem{3}}, vector_double{.5}) == (vector_double{1., 1., 1.}));
+        EXPECT_TRUE(bfe0(problem{}, vector_double{.5}) == vector_double{1.});
+        EXPECT_TRUE(bfe0(problem{null_problem{3}}, vector_double{.5}) == (vector_double{1., 1., 1.}));
     }
 #endif
 
     {
         bfe bfe0{stdfun};
-        BOOST_CHECK(bfe0(problem{}, vector_double{.5}) == vector_double{1.});
-        BOOST_CHECK(bfe0(problem{null_problem{3}}, vector_double{.5}) == (vector_double{1., 1., 1.}));
+        EXPECT_TRUE(bfe0(problem{}, vector_double{.5}) == vector_double{1.});
+        EXPECT_TRUE(bfe0(problem{null_problem{3}}, vector_double{.5}) == (vector_double{1., 1., 1.}));
     }
 }
 
-BOOST_AUTO_TEST_CASE(is_valid)
+TEST(bfe_test, is_valid)
 {
     bfe p0;
-    BOOST_CHECK(p0.is_valid());
+    EXPECT_TRUE(p0.is_valid());
     bfe p1(std::move(p0));
-    BOOST_CHECK(!p0.is_valid());
+    EXPECT_TRUE(!p0.is_valid());
     p0 = bfe{udbfe_a{}};
-    BOOST_CHECK(p0.is_valid());
+    EXPECT_TRUE(p0.is_valid());
     p1 = std::move(p0);
-    BOOST_CHECK(!p0.is_valid());
+    EXPECT_TRUE(!p0.is_valid());
     p0 = bfe{udbfe_a{}};
-    BOOST_CHECK(p0.is_valid());
+    EXPECT_TRUE(p0.is_valid());
 }
 
-BOOST_AUTO_TEST_CASE(generic_assignment)
+TEST(bfe_test, generic_assignment)
 {
     bfe p0;
-    BOOST_CHECK(p0.is<default_bfe>());
-    BOOST_CHECK(&(p0 = udbfe_a{}) == &p0);
-    BOOST_CHECK(p0.is_valid());
-    BOOST_CHECK(p0.is<udbfe_a>());
+    EXPECT_TRUE(p0.is<default_bfe>());
+    EXPECT_TRUE(&(p0 = udbfe_a{}) == &p0);
+    EXPECT_TRUE(p0.is_valid());
+    EXPECT_TRUE(p0.is<udbfe_a>());
     p0 = udbfe0;
-    BOOST_CHECK(p0.is<udbfe_func_t>());
+    EXPECT_TRUE(p0.is<udbfe_func_t>());
     p0 = &udbfe0;
-    BOOST_CHECK(p0.is<udbfe_func_t>());
-    BOOST_CHECK((!std::is_assignable<bfe, void>::value));
-    BOOST_CHECK((!std::is_assignable<bfe, int &>::value));
-    BOOST_CHECK((!std::is_assignable<bfe, const int &>::value));
-    BOOST_CHECK((!std::is_assignable<bfe, int &&>::value));
+    EXPECT_TRUE(p0.is<udbfe_func_t>());
+    EXPECT_TRUE((!std::is_assignable<bfe, void>::value));
+    EXPECT_TRUE((!std::is_assignable<bfe, int &>::value));
+    EXPECT_TRUE((!std::is_assignable<bfe, const int &>::value));
+    EXPECT_TRUE((!std::is_assignable<bfe, int &&>::value));
 }
 
-BOOST_AUTO_TEST_CASE(type_index)
+TEST(bfe_test, type_index)
 {
     bfe p0;
-    BOOST_CHECK(p0.get_type_index() == std::type_index(typeid(default_bfe)));
+    EXPECT_TRUE(p0.get_type_index() == std::type_index(typeid(default_bfe)));
     p0 = bfe{udbfe1{}};
-    BOOST_CHECK(p0.get_type_index() == std::type_index(typeid(udbfe1)));
+    EXPECT_TRUE(p0.get_type_index() == std::type_index(typeid(udbfe1)));
 }
 
-BOOST_AUTO_TEST_CASE(get_ptr)
+TEST(bfe_test, get_ptr)
 {
     bfe p0;
-    BOOST_CHECK(p0.get_ptr() == p0.extract<default_bfe>());
-    BOOST_CHECK(static_cast<const bfe &>(p0).get_ptr() == static_cast<const bfe &>(p0).extract<default_bfe>());
+    EXPECT_TRUE(p0.get_ptr() == p0.extract<default_bfe>());
+    EXPECT_TRUE(static_cast<const bfe &>(p0).get_ptr() == static_cast<const bfe &>(p0).extract<default_bfe>());
     p0 = bfe{udbfe1{}};
-    BOOST_CHECK(p0.get_ptr() == p0.extract<udbfe1>());
-    BOOST_CHECK(static_cast<const bfe &>(p0).get_ptr() == static_cast<const bfe &>(p0).extract<udbfe1>());
+    EXPECT_TRUE(p0.get_ptr() == p0.extract<udbfe1>());
+    EXPECT_TRUE(static_cast<const bfe &>(p0).get_ptr() == static_cast<const bfe &>(p0).extract<udbfe1>());
 }

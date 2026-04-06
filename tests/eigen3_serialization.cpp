@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE eigen_s11n_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <iterator>
 #include <random>
@@ -55,17 +55,17 @@ void serialize_deserialize_and_compare(T &object)
     }
     auto nrows = object.rows();
     auto ncols = object.cols();
-    BOOST_CHECK_EQUAL(nrows, object_copy.rows());
-    BOOST_CHECK_EQUAL(ncols, object_copy.cols());
+    EXPECT_EQ(nrows, object_copy.rows());
+    EXPECT_EQ(ncols, object_copy.cols());
     // And then we check
     for (decltype(nrows) i = 0; i < nrows; ++i) {
         for (decltype(nrows) j = 0; j < ncols; ++j) {
-            BOOST_CHECK_EQUAL(object_copy(i, j), object(i, j));
+            EXPECT_EQ(object_copy(i, j), object(i, j));
         }
     }
 }
 
-BOOST_AUTO_TEST_CASE(matrix_serialization_test)
+TEST(eigen_s11n_test, matrix_serialization_test)
 {
     {
         Eigen::Matrix3f m;

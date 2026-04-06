@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE lennard_jones_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <boost/lexical_cast.hpp>
 #include <iostream>
@@ -41,29 +41,29 @@ see https://www.gnu.org/licenses/. */
 
 using namespace pagmo;
 
-BOOST_AUTO_TEST_CASE(lennard_jones_test)
+TEST(lennard_jones_test, lennard_jones_test)
 {
     // Problem construction
-    BOOST_CHECK_THROW(lennard_jones{0u}, std::invalid_argument);
-    BOOST_CHECK_THROW(lennard_jones{1u}, std::invalid_argument);
-    BOOST_CHECK_THROW(lennard_jones{2u}, std::invalid_argument);
-    BOOST_CHECK_THROW(lennard_jones{std::numeric_limits<unsigned>::max() / 2}, std::overflow_error);
+    EXPECT_THROW(lennard_jones{0u}, std::invalid_argument);
+    EXPECT_THROW(lennard_jones{1u}, std::invalid_argument);
+    EXPECT_THROW(lennard_jones{2u}, std::invalid_argument);
+    EXPECT_THROW(lennard_jones{std::numeric_limits<unsigned>::max() / 2}, std::overflow_error);
 
     lennard_jones lj{3u};
-    BOOST_CHECK_NO_THROW(problem{lj});
+    EXPECT_NO_THROW(problem{lj});
     // Pick a few reference points
     vector_double x1 = {1.12, -0.33, 2.34};
     vector_double x2 = {1.23, -1.23, 0.33};
     // Fitness test
-    BOOST_CHECK_CLOSE(lj.fitness(x1)[0], -1.7633355813175688, 1e-13);
-    BOOST_CHECK_CLOSE(lj.fitness(x2)[0], -1.833100934753864, 1e-13);
+    EXPECT_NEAR(lj.fitness(x1)[0], -1.7633355813175688, 1e-13);
+    EXPECT_NEAR(lj.fitness(x2)[0], -1.833100934753864, 1e-13);
     // Bounds Test
-    BOOST_CHECK((lj.get_bounds() == std::pair<vector_double, vector_double>{{-3, -3, -3}, {3, 3, 3}}));
+    EXPECT_TRUE((lj.get_bounds() == std::pair<vector_double, vector_double>{{-3, -3, -3}, {3, 3, 3}}));
     // Name and extra info tests
-    BOOST_CHECK(lj.get_name().find("Jones") != std::string::npos);
+    EXPECT_TRUE(lj.get_name().find("Jones") != std::string::npos);
 }
 
-BOOST_AUTO_TEST_CASE(lennard_jones_serialization_test)
+TEST(lennard_jones_test, lennard_jones_serialization_test)
 {
     problem p{lennard_jones{30u}};
     // Call objfun to increase the internal counters.
@@ -83,5 +83,5 @@ BOOST_AUTO_TEST_CASE(lennard_jones_serialization_test)
         iarchive >> p;
     }
     auto after = boost::lexical_cast<std::string>(p);
-    BOOST_CHECK_EQUAL(before, after);
+    EXPECT_EQ(before, after);
 }

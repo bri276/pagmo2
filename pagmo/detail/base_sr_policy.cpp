@@ -30,9 +30,7 @@ see https://www.gnu.org/licenses/. */
 #include <cmath>
 #include <stdexcept>
 #include <string>
-
-#include <boost/variant/get.hpp>
-#include <boost/variant/variant.hpp>
+#include <variant>
 
 #include <pagmo/detail/base_sr_policy.hpp>
 #include <pagmo/exceptions.hpp>
@@ -53,9 +51,9 @@ namespace detail
 // Helper to verify the ctor from a fractional rate.
 void base_sr_policy::verify_fp_ctor() const
 {
-    assert(m_migr_rate.which() == 1);
+    assert(std::holds_alternative<double>(m_migr_rate));
 
-    const auto rate = boost::get<double>(m_migr_rate);
+    const auto rate = std::get<double>(m_migr_rate);
 
     if (!std::isfinite(rate) || rate < 0. || rate > 1.) {
         pagmo_throw(std::invalid_argument,
@@ -66,7 +64,7 @@ void base_sr_policy::verify_fp_ctor() const
 }
 
 // Getter for the migration rate variant.
-const boost::variant<pop_size_t, double> &base_sr_policy::get_migr_rate() const
+const std::variant<pop_size_t, double> &base_sr_policy::get_migr_rate() const
 {
     return m_migr_rate;
 }

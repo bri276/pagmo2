@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE golomb_ruler_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <boost/lexical_cast.hpp>
 #include <iostream>
@@ -46,41 +46,41 @@ see https://www.gnu.org/licenses/. */
 
 using namespace pagmo;
 
-BOOST_AUTO_TEST_CASE(golomb_ruler_test)
+TEST(golomb_ruler_test, golomb_ruler_test)
 {
     // Problem construction
-    BOOST_CHECK_THROW((golomb_ruler{0u, 10u}), std::invalid_argument);
-    BOOST_CHECK_THROW((golomb_ruler{10u, 0u}), std::invalid_argument);
-    BOOST_CHECK_THROW((golomb_ruler{400u, std::numeric_limits<unsigned>::max() / 300u}), std::overflow_error);
+    EXPECT_THROW((golomb_ruler{0u, 10u}), std::invalid_argument);
+    EXPECT_THROW((golomb_ruler{10u, 0u}), std::invalid_argument);
+    EXPECT_THROW((golomb_ruler{400u, std::numeric_limits<unsigned>::max() / 300u}), std::overflow_error);
 
     golomb_ruler gr{4u, 4u};
-    BOOST_CHECK_NO_THROW(problem{gr});
+    EXPECT_NO_THROW(problem{gr});
 
     // Pick a few reference points
     vector_double x1 = {1, 3, 2}; // 0 1 4 6 -> 1,4,6,3,5,2
     vector_double x2 = {3, 4, 1}; // 0 3 7 8 -> 3,7,8,4,5,1
     vector_double x3 = {1, 3, 1}; // 0 1 4 5 -> 1,4,5,3,4,1
     // Fitness test
-    BOOST_CHECK_EQUAL(gr.fitness(x1)[0], 6);
-    BOOST_CHECK_EQUAL(gr.fitness(x1)[1], 0);
+    EXPECT_EQ(gr.fitness(x1)[0], 6);
+    EXPECT_EQ(gr.fitness(x1)[1], 0);
 
-    BOOST_CHECK_EQUAL(gr.fitness(x2)[0], 8);
-    BOOST_CHECK_EQUAL(gr.fitness(x2)[1], 0);
+    EXPECT_EQ(gr.fitness(x2)[0], 8);
+    EXPECT_EQ(gr.fitness(x2)[1], 0);
 
-    BOOST_CHECK_EQUAL(gr.fitness(x3)[0], 5);
-    BOOST_CHECK_EQUAL(gr.fitness(x3)[1], 2);
+    EXPECT_EQ(gr.fitness(x3)[0], 5);
+    EXPECT_EQ(gr.fitness(x3)[1], 2);
 
     // Problem dimension test
-    BOOST_CHECK_EQUAL(gr.get_nix(), 3u);
-    BOOST_CHECK_EQUAL(gr.get_nec(), 1u);
+    EXPECT_EQ(gr.get_nix(), 3u);
+    EXPECT_EQ(gr.get_nec(), 1u);
 
     // Bounds Test
-    BOOST_CHECK((gr.get_bounds() == std::pair<vector_double, vector_double>{{1, 1, 1}, {4, 4, 4}}));
+    EXPECT_TRUE((gr.get_bounds() == std::pair<vector_double, vector_double>{{1, 1, 1}, {4, 4, 4}}));
     // Name and extra info tests
-    BOOST_CHECK(gr.get_name().find("Golomb") != std::string::npos);
+    EXPECT_TRUE(gr.get_name().find("Golomb") != std::string::npos);
 }
 
-BOOST_AUTO_TEST_CASE(golomb_ruler_solve_order_4)
+TEST(golomb_ruler_test, golomb_ruler_solve_order_4)
 {
     // This tests always succeeds and its here only to show a solution strategy
     // that uses death penalty to deal with the constraint
@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE(golomb_ruler_solve_order_4)
     print(pop.champion_x(), " ", pop.champion_f());
 }
 
-BOOST_AUTO_TEST_CASE(golomb_ruler_serialization_test)
+TEST(golomb_ruler_test, golomb_ruler_serialization_test)
 {
     problem p{golomb_ruler{30u}};
     // Call objfun to increase the internal counters.
@@ -114,5 +114,5 @@ BOOST_AUTO_TEST_CASE(golomb_ruler_serialization_test)
         iarchive >> p;
     }
     auto after = boost::lexical_cast<std::string>(p);
-    BOOST_CHECK_EQUAL(before, after);
+    EXPECT_EQ(before, after);
 }

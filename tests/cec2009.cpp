@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE cec2009_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <iostream>
 #include <stdexcept>
@@ -43,7 +43,7 @@ see https://www.gnu.org/licenses/. */
 
 using namespace pagmo;
 
-BOOST_AUTO_TEST_CASE(cec2009_construction_test)
+TEST(cec2009_test, cec2009_construction_test)
 {
     // We check that all problems can be constructed
     for (unsigned i = 1u; i <= 10u; ++i) {
@@ -53,13 +53,13 @@ BOOST_AUTO_TEST_CASE(cec2009_construction_test)
         cec2009 udp{i, true};
     }
     // We check that wrong problem ids and dimensions cannot be constructed
-    BOOST_CHECK_THROW((cec2009{0u}), std::invalid_argument);
-    BOOST_CHECK_THROW((cec2009{11u}), std::invalid_argument);
-    BOOST_CHECK_THROW((cec2009{1u, false, 0u}), std::invalid_argument);
-    BOOST_CHECK_THROW((cec2009{8u, true, 0u}), std::invalid_argument);
+    EXPECT_THROW((cec2009{0u}), std::invalid_argument);
+    EXPECT_THROW((cec2009{11u}), std::invalid_argument);
+    EXPECT_THROW((cec2009{1u, false, 0u}), std::invalid_argument);
+    EXPECT_THROW((cec2009{8u, true, 0u}), std::invalid_argument);
 }
 
-BOOST_AUTO_TEST_CASE(cec2009_fitness_test)
+TEST(cec2009_test, cec2009_fitness_test)
 {
     std::mt19937 r_engine(32u);
 
@@ -68,35 +68,35 @@ BOOST_AUTO_TEST_CASE(cec2009_fitness_test)
         cec2009 udp{i, false};
         auto x = random_decision_vector(problem(udp), r_engine); // a random vector
         auto f = udp.fitness(x);
-        BOOST_CHECK_EQUAL(f.size(), udp.get_nobj());
-        BOOST_CHECK((udp.get_name().find("CEC2009 - UF")) != std::string::npos);
+        EXPECT_EQ(f.size(), udp.get_nobj());
+        EXPECT_TRUE((udp.get_name().find("CEC2009 - UF")) != std::string::npos);
     }
     // We check that all problems return a fitness of the correct dims
     for (unsigned i = 1u; i <= 10u; ++i) {
         cec2009 udp{i, true};
         auto x = random_decision_vector(problem(udp), r_engine); // a random vector
         auto f = udp.fitness(x);
-        BOOST_CHECK((udp.get_name().find("CEC2009 - CF")) != std::string::npos);
+        EXPECT_TRUE((udp.get_name().find("CEC2009 - CF")) != std::string::npos);
     }
 }
 
-BOOST_AUTO_TEST_CASE(cec2009_getters_test)
+TEST(cec2009_test, cec2009_getters_test)
 {
     // We check that all problems return a fitness
     for (unsigned i = 1u; i <= 10u; ++i) {
         cec2009 udp{i, false};
-        BOOST_CHECK((udp.get_name().find("CEC2009 - UF")) != std::string::npos);
-        BOOST_CHECK((udp.get_nic() == 0u));
-        BOOST_CHECK((problem(udp).get_nec() == 0u));
+        EXPECT_TRUE((udp.get_name().find("CEC2009 - UF")) != std::string::npos);
+        EXPECT_TRUE((udp.get_nic() == 0u));
+        EXPECT_TRUE((problem(udp).get_nec() == 0u));
     }
     for (unsigned i = 1u; i <= 10u; ++i) {
         cec2009 udp{i, true};
-        BOOST_CHECK((udp.get_name().find("CEC2009 - CF")) != std::string::npos);
-        BOOST_CHECK((problem(udp).get_nec() == 0u));
+        EXPECT_TRUE((udp.get_name().find("CEC2009 - CF")) != std::string::npos);
+        EXPECT_TRUE((problem(udp).get_nec() == 0u));
     }
 }
 
-BOOST_AUTO_TEST_CASE(cec2009_serialization_test)
+TEST(cec2009_test, cec2009_serialization_test)
 {
     problem p{cec2009{1u, false, 30u}};
     // Call objfun to increase the internal counters.
@@ -116,5 +116,5 @@ BOOST_AUTO_TEST_CASE(cec2009_serialization_test)
         iarchive >> p;
     }
     auto after = boost::lexical_cast<std::string>(p);
-    BOOST_CHECK_EQUAL(before, after);
+    EXPECT_EQ(before, after);
 }

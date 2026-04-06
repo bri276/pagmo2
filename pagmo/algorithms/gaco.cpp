@@ -31,14 +31,13 @@ see https://www.gnu.org/licenses/. */
 #include <iomanip>
 #include <iostream>
 #include <iterator>
+#include <numbers>
 #include <numeric>
 #include <random>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
-
-#include <boost/math/constants/constants.hpp>
 
 #include <pagmo/algorithm.hpp>
 #include <pagmo/algorithms/gaco.hpp>
@@ -707,7 +706,7 @@ void gaco::pheromone_computation(const unsigned gen, vector_double &prob_cumulat
             double sum_omega = 0;
 
             for (decltype(m_ker) l = 1; l <= m_ker; ++l) {
-                omega_new = 1.0 / (m_q * m_ker * std::sqrt(2 * boost::math::constants::pi<double>()))
+                omega_new = 1.0 / (m_q * m_ker * std::sqrt(2 * std::numbers::pi))
                             * std::exp(-std::pow(l - 1.0, 2) / (2.0 * std::pow(m_q, 2) * std::pow(m_ker, 2)));
                 omega_vec[l - 1] = omega_new;
                 sum_omega += omega_new;
@@ -730,7 +729,7 @@ void gaco::pheromone_computation(const unsigned gen, vector_double &prob_cumulat
         double sum_omega = 0;
 
         for (decltype(m_ker) l = 1; l <= m_ker; ++l) {
-            omega_new = 1.0 / (m_q * m_ker * std::sqrt(2 * boost::math::constants::pi<double>()))
+            omega_new = 1.0 / (m_q * m_ker * std::sqrt(2 * std::numbers::pi))
                         * std::exp(-std::pow(l - 1.0, 2) / (2.0 * std::pow(m_q, 2) * std::pow(m_ker, 2)));
             omega_vec[l - 1] = omega_new;
             sum_omega += omega_new;

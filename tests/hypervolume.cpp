@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE hypervolume_utils_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <cmath>
 #include <fstream>
@@ -60,18 +60,18 @@ using namespace pagmo;
 void assertContribs(const std::vector<vector_double> &points, std::vector<double> &ref, std::vector<double> &answers)
 {
     hypervolume hv = hypervolume(points, true);
-    BOOST_CHECK((hv.contributions(ref) == answers));
+    EXPECT_TRUE((hv.contributions(ref) == answers));
     for (unsigned i = 0u; i < answers.size(); i++) {
-        BOOST_CHECK((hv.exclusive(i, ref) == answers[i]));
+        EXPECT_TRUE((hv.exclusive(i, ref) == answers[i]));
     }
     hv = hypervolume(points, false);
-    BOOST_CHECK((hv.contributions(ref) == answers));
+    EXPECT_TRUE((hv.contributions(ref) == answers));
     for (unsigned i = 0u; i < answers.size(); i++) {
-        BOOST_CHECK((hv.exclusive(i, ref) == answers[i]));
+        EXPECT_TRUE((hv.exclusive(i, ref) == answers[i]));
     }
     hv.set_copy_points(false);
-    BOOST_CHECK((hv.contributions(ref) == answers));
-    BOOST_CHECK((hv.exclusive(0, ref) == answers[0]));
+    EXPECT_TRUE((hv.contributions(ref) == answers));
+    EXPECT_TRUE((hv.exclusive(0, ref) == answers[0]));
 }
 
 class hypervolume_test
@@ -90,7 +90,7 @@ public:
             m_method = hvwfg().clone();
         } else {
             // The specified algorithm is not available
-            BOOST_CHECK((false));
+            EXPECT_TRUE((false));
         }
     }
 
@@ -107,22 +107,22 @@ public:
             if (m_test_type == "compute") {
                 load_compute();
                 double hypvol = hv_obj.compute(m_ref_point, *m_method);
-                BOOST_CHECK((std::abs(hypvol - m_hv_ans) < m_eps));
+                EXPECT_TRUE((std::abs(hypvol - m_hv_ans) < m_eps));
             } else if (m_test_type == "exclusive") {
                 load_exclusive();
                 double hypvol = hv_obj.exclusive(m_p_idx, m_ref_point, *m_method);
-                BOOST_CHECK((std::abs(hypvol - m_hv_ans) < m_eps));
+                EXPECT_TRUE((std::abs(hypvol - m_hv_ans) < m_eps));
             } else if (m_test_type == "least_contributor") {
                 load_least_contributor();
                 auto point_idx = hv_obj.least_contributor(m_ref_point, *m_method);
-                BOOST_CHECK((point_idx == m_idx_ans));
+                EXPECT_TRUE((point_idx == m_idx_ans));
             } else if (m_test_type == "greatest_contributor") {
                 load_least_contributor(); // loads the same data as least contributor
                 auto point_idx = hv_obj.greatest_contributor(m_ref_point, *m_method);
-                BOOST_CHECK((point_idx == m_idx_ans));
+                EXPECT_TRUE((point_idx == m_idx_ans));
             } else {
                 // The specified computational method is not available (what do you want to compute?)
-                BOOST_CHECK((false));
+                EXPECT_TRUE((false));
             }
         }
     }
@@ -193,19 +193,19 @@ public:
     }
 };
 
-BOOST_AUTO_TEST_CASE(hypervolume_compute_test)
+TEST(hypervolume_utils_test, hypervolume_compute_test)
 {
     hypervolume hv;
 
     // by vector
     std::vector<vector_double> x1{{1, 2}, {3, 4}};
     hv = hypervolume(x1, true);
-    BOOST_CHECK(hv.get_points() == x1);
+    EXPECT_TRUE(hv.get_points() == x1);
 
     // by list constructor
     hv = hypervolume{{{6, 4}, {3, 5}}};
     std::vector<vector_double> x2{{6, 4}, {3, 5}};
-    BOOST_CHECK((hv.get_points() == x2));
+    EXPECT_TRUE((hv.get_points() == x2));
 
     // by population
     population pop1{problem{zdt{1, 5}}, 2};
@@ -213,65 +213,65 @@ BOOST_AUTO_TEST_CASE(hypervolume_compute_test)
 
     // errors
     population pop2{problem{rosenbrock(10)}, 2};
-    BOOST_CHECK_THROW(hypervolume(pop2, true), std::invalid_argument);
+    EXPECT_THROW(hypervolume(pop2, true), std::invalid_argument);
     // Checks the hypervolume cannot be constructed if nans are present
-    BOOST_CHECK_THROW(hypervolume({{std::numeric_limits<double>::quiet_NaN(), 2.}, {2., 1.}}), std::invalid_argument);
+    EXPECT_THROW(hypervolume({{std::numeric_limits<double>::quiet_NaN(), 2.}, {2., 1.}}), std::invalid_argument);
     // Checks the hypervolume cannot be constructed if point have different dimensions
-    BOOST_CHECK_THROW(hypervolume({{1., 2.}, {2., 1.}, {3, 0, 5}}), std::invalid_argument);
+    EXPECT_THROW(hypervolume({{1., 2.}, {2., 1.}, {3, 0, 5}}), std::invalid_argument);
     // Checks the hypervolume cannot be constructed if points have no dimension
     std::vector<double> empty;
     std::vector<std::vector<double>> emptyempty;
-    BOOST_CHECK_THROW(hypervolume({empty, empty}), std::invalid_argument);
+    EXPECT_THROW(hypervolume({empty, empty}), std::invalid_argument);
     // Checks the hypervolume cannot be constructed if points are empty
-    BOOST_CHECK_THROW(hypervolume{emptyempty}, std::invalid_argument);
+    EXPECT_THROW(hypervolume{emptyempty}, std::invalid_argument);
 
     // 2d computation of hypervolume indicator
     hv = hypervolume{{{1, 2}, {2, 1}}};
-    BOOST_CHECK((hv.compute({3, 3}) == 3));
+    EXPECT_TRUE((hv.compute({3, 3}) == 3));
 
     // point on the border of refpoint(2D)
-    BOOST_CHECK((hv.compute({2, 2}) == 0));
+    EXPECT_TRUE((hv.compute({2, 2}) == 0));
 
     // 3d computation of hypervolume indicator
     hv = hypervolume({{1, 1, 1}, {2, 2, 2}});
-    BOOST_CHECK((hv.compute({3, 3, 3}) == 8));
+    EXPECT_TRUE((hv.compute({3, 3, 3}) == 8));
 
     // points on the border of refpoint(3D)
     hv = hypervolume({{1, 2, 1}, {2, 1, 1}});
-    BOOST_CHECK((hv.compute({2, 2, 2}) == 0));
+    EXPECT_TRUE((hv.compute({2, 2, 2}) == 0));
 
     // 4d computation of hypervolume indicator
     hv = hypervolume({{1, 1, 1, 1}, {2, 2, 2, 2}});
-    BOOST_CHECK((hv.compute({3, 3, 3, 3}) == 16));
+    EXPECT_TRUE((hv.compute({3, 3, 3, 3}) == 16));
 
     // points on the border of refpoint(4D)
     hv = hypervolume({{1, 1, 1, 3}, {2, 2, 2, 3}});
-    BOOST_CHECK((hv.compute({3, 3, 3, 3}) == 0));
+    EXPECT_TRUE((hv.compute({3, 3, 3, 3}) == 0));
 
     // 4d duplicate point
     hv = hypervolume({{1, 1, 1, 1}, {1, 1, 1, 1}});
-    BOOST_CHECK((hv.compute({2, 2, 2, 2}) == 1));
+    EXPECT_TRUE((hv.compute({2, 2, 2, 2}) == 1));
 
     // 4d duplicate and dominated
     hv = hypervolume({{1.0, 1.0, 1.0, 1.0}, {1.0, 1.0, 1.0, 1.0}, {0.0, 0.0, 0.0, 0.0}});
-    BOOST_CHECK((hv.compute({2.0, 2.0, 2.0, 2.0}) == 16.0));
+    EXPECT_TRUE((hv.compute({2.0, 2.0, 2.0, 2.0}) == 16.0));
 
     // test for flags
     hv = hypervolume({{1, 1, 1}, {2, 2, 2}}, false);
     hv.set_copy_points(false);
-    BOOST_CHECK((hv.compute({3, 3, 3}) == 8));
+    EXPECT_TRUE((hv.compute({3, 3, 3}) == 8));
 
     // tests for invalid reference points
     hv = hypervolume({{1, 3}, {2, 2}, {3, 1}});
     // equal to some other point
-    BOOST_CHECK_THROW(hv.compute({3, 1}), std::invalid_argument);
+    EXPECT_THROW(hv.compute({3, 1}), std::invalid_argument);
     // refpoint dominating some points
-    BOOST_CHECK_THROW(hv.compute({1.5, 1.5}), std::invalid_argument);
+    EXPECT_THROW(hv.compute({1.5, 1.5}), std::invalid_argument);
     // refpoint dominating all points
-    BOOST_CHECK_THROW(hv.compute({0, 0}), std::invalid_argument);
+    EXPECT_THROW(hv.compute({0, 0}), std::invalid_argument);
 
     // invalid dimensions of points.
-    BOOST_CHECK_THROW(hv = hypervolume({{2.3, 3.4, 5.6}, {1.0, 2.0, 3.0, 4.0}}), std::invalid_argument);
+    EXPECT_THROW(hv = hypervolume({{2.3, 3.4, 5.6}, {1.0, 2.0, 3.0, 4.0}}), std::invalid_argument);
 
     // Calling specific algorithms
     hv2d hv_algo_2d;
@@ -280,38 +280,38 @@ BOOST_AUTO_TEST_CASE(hypervolume_compute_test)
     hvwfg hv_algo_nd2 = hvwfg(3u); // stop-dimension 3
 
     hv = hypervolume({{2.3, 4.5}, {3.4, 3.4}, {6.0, 1.2}});
-    BOOST_CHECK((hv.compute({7.0, 7.0}) == 17.91));
-    BOOST_CHECK((hv.compute({7.0, 7.0}, hv_algo_2d) == 17.91));
-    BOOST_CHECK_THROW(hv.compute({7.0, 7.0}, hv_algo_3d), std::invalid_argument);
-    BOOST_CHECK((hv.compute({7.0, 7.0}, hv_algo_nd) == 17.91));
-    BOOST_CHECK((hv.compute({7.0, 7.0}, hv_algo_nd2) == 17.91));
+    EXPECT_TRUE((hv.compute({7.0, 7.0}) == 17.91));
+    EXPECT_TRUE((hv.compute({7.0, 7.0}, hv_algo_2d) == 17.91));
+    EXPECT_THROW(hv.compute({7.0, 7.0}, hv_algo_3d), std::invalid_argument);
+    EXPECT_TRUE((hv.compute({7.0, 7.0}, hv_algo_nd) == 17.91));
+    EXPECT_TRUE((hv.compute({7.0, 7.0}, hv_algo_nd2) == 17.91));
 
     hv = hypervolume({{2.3, 4.5, 3.2}, {3.4, 3.4, 3.4}, {6.0, 1.2, 3.6}});
-    BOOST_CHECK((hv.compute({7.0, 7.0, 7.0}) == 66.386));
-    BOOST_CHECK_THROW(hv.compute({7.0, 7.0, 7.0}, hv_algo_2d), std::invalid_argument);
-    BOOST_CHECK((hv.compute({7.0, 7.0, 7.0}, hv_algo_3d) == 66.386));
-    BOOST_CHECK((hv.compute({7.0, 7.0, 7.0}, hv_algo_nd) == 66.386));
-    BOOST_CHECK((hv.compute({7.0, 7.0, 7.0}, hv_algo_nd2) == 66.386));
+    EXPECT_TRUE((hv.compute({7.0, 7.0, 7.0}) == 66.386));
+    EXPECT_THROW(hv.compute({7.0, 7.0, 7.0}, hv_algo_2d), std::invalid_argument);
+    EXPECT_TRUE((hv.compute({7.0, 7.0, 7.0}, hv_algo_3d) == 66.386));
+    EXPECT_TRUE((hv.compute({7.0, 7.0, 7.0}, hv_algo_nd) == 66.386));
+    EXPECT_TRUE((hv.compute({7.0, 7.0, 7.0}, hv_algo_nd2) == 66.386));
 
     hv = hypervolume({{2.3, 4.5, 3.2}, {3.4, 3.4, 3.4}, {6.0, 1.2, 3.6}});
-    BOOST_CHECK((hv.compute({7.0, 7.0, 7.0}) == 66.386));
-    BOOST_CHECK_THROW(hv.compute({7.0, 7.0, 7.0}, hv_algo_2d), std::invalid_argument);
-    BOOST_CHECK((hv.compute({7.0, 7.0, 7.0}, hv_algo_3d) == 66.386));
-    BOOST_CHECK((hv.compute({7.0, 7.0, 7.0}, hv_algo_nd) == 66.386));
-    BOOST_CHECK((hv.compute({7.0, 7.0, 7.0}, hv_algo_nd2) == 66.386));
+    EXPECT_TRUE((hv.compute({7.0, 7.0, 7.0}) == 66.386));
+    EXPECT_THROW(hv.compute({7.0, 7.0, 7.0}, hv_algo_2d), std::invalid_argument);
+    EXPECT_TRUE((hv.compute({7.0, 7.0, 7.0}, hv_algo_3d) == 66.386));
+    EXPECT_TRUE((hv.compute({7.0, 7.0, 7.0}, hv_algo_nd) == 66.386));
+    EXPECT_TRUE((hv.compute({7.0, 7.0, 7.0}, hv_algo_nd2) == 66.386));
 
     hv = hypervolume({{2.3, 4.5, 3.2, 1.9, 6.0}, {3.4, 3.4, 3.4, 2.1, 5.8}, {6.0, 1.2, 3.6, 3.0, 6.0}});
-    BOOST_CHECK((hv.compute({7.0, 7.0, 7.0, 7.0, 7.0}) == 373.21228));
-    BOOST_CHECK_THROW(hv.compute({7.0, 7.0, 7.0, 7.0, 7.0}, hv_algo_2d), std::invalid_argument);
-    BOOST_CHECK_THROW(hv.compute({7.0, 7.0, 7.0, 7.0, 7.0}, hv_algo_3d), std::invalid_argument);
-    BOOST_CHECK((hv.compute({7.0, 7.0, 7.0, 7.0, 7.0}, hv_algo_nd) == 373.21228));
-    BOOST_CHECK((hv.compute({7.0, 7.0, 7.0, 7.0, 7.0}, hv_algo_nd2) == 373.21228));
+    EXPECT_TRUE((hv.compute({7.0, 7.0, 7.0, 7.0, 7.0}) == 373.21228));
+    EXPECT_THROW(hv.compute({7.0, 7.0, 7.0, 7.0, 7.0}, hv_algo_2d), std::invalid_argument);
+    EXPECT_THROW(hv.compute({7.0, 7.0, 7.0, 7.0, 7.0}, hv_algo_3d), std::invalid_argument);
+    EXPECT_TRUE((hv.compute({7.0, 7.0, 7.0, 7.0, 7.0}, hv_algo_nd) == 373.21228));
+    EXPECT_TRUE((hv.compute({7.0, 7.0, 7.0, 7.0, 7.0}, hv_algo_nd2) == 373.21228));
 
-    BOOST_CHECK_THROW(hvwfg(0), std::invalid_argument);
-    BOOST_CHECK_THROW(hvwfg(1), std::invalid_argument);
+    EXPECT_THROW(hvwfg(0), std::invalid_argument);
+    EXPECT_THROW(hvwfg(1), std::invalid_argument);
 }
 
-BOOST_AUTO_TEST_CASE(hypervolume_contributions_test)
+TEST(hypervolume_utils_test, hypervolume_contributions_test)
 {
     // Tests for contributions and exclusive hypervolumes
     std::vector<vector_double> points;
@@ -349,15 +349,15 @@ BOOST_AUTO_TEST_CASE(hypervolume_contributions_test)
     // some test especially for the base-method of hv-algo (which should be called from hv2d
     hypervolume hv = hypervolume(points, true);
     hv2d hv2dalgo = hv2d();
-    BOOST_CHECK((hv.contributions(ref, hv2dalgo) == answers));
+    EXPECT_TRUE((hv.contributions(ref, hv2dalgo) == answers));
 
     // testing the default implementation
     hv_fake_algo fa{};
-    BOOST_CHECK((hv_fake_algo{}.contributions(points, ref) == answers));
-    BOOST_CHECK((hv.contributions(ref, fa) == answers));
+    EXPECT_TRUE((hv_fake_algo{}.contributions(points, ref) == answers));
+    EXPECT_TRUE((hv.contributions(ref, fa) == answers));
 
     points = std::vector<vector_double>{{1, 1}};
-    BOOST_CHECK((hv_fake_algo{}.contributions(points, vector_double{3, 3}) == vector_double{4}));
+    EXPECT_TRUE((hv_fake_algo{}.contributions(points, vector_double{3, 3}) == vector_double{4}));
 
     // Gradually adding duplicate points to the set, making sure the contribution change accordingly.
     points = {{1, 1}};
@@ -477,49 +477,49 @@ BOOST_AUTO_TEST_CASE(hypervolume_contributions_test)
     assertContribs(points, ref, answers);
 }
 
-BOOST_AUTO_TEST_CASE(hypervolume_least_contribution_test)
+TEST(hypervolume_utils_test, hypervolume_least_contribution_test)
 {
     hypervolume hv;
     std::vector<double> ref = {4, 4};
 
     hv = hypervolume({{3, 1}, {2, 2}, {1, 3}}, true); // All points are least contributors
-    BOOST_CHECK((hv.least_contributor(ref) <= 2));
-    BOOST_CHECK((hv.greatest_contributor(ref) <= 2));
+    EXPECT_TRUE((hv.least_contributor(ref) <= 2));
+    EXPECT_TRUE((hv.greatest_contributor(ref) <= 2));
     hv = hypervolume({{3, 1}, {2, 2}, {1, 3}}, false); // All points are least contributors
-    BOOST_CHECK((hv.least_contributor(ref) <= 2));
-    BOOST_CHECK((hv.greatest_contributor(ref) <= 2));
+    EXPECT_TRUE((hv.least_contributor(ref) <= 2));
+    EXPECT_TRUE((hv.greatest_contributor(ref) <= 2));
     hv = hypervolume({{3, 1}, {2, 2}, {1, 3}}, true); // All points are least contributors
     hv.set_copy_points(false);
-    BOOST_CHECK((hv.least_contributor(ref) <= 2));
-    BOOST_CHECK((hv.greatest_contributor(ref) <= 2));
+    EXPECT_TRUE((hv.least_contributor(ref) <= 2));
+    EXPECT_TRUE((hv.greatest_contributor(ref) <= 2));
     hv = hypervolume({{3, 1}, {2, 2}, {1, 3}}, false); // All points are least contributors
     hv.set_copy_points(false);
-    BOOST_CHECK((hv.least_contributor(ref) <= 2));
-    BOOST_CHECK((hv.greatest_contributor(ref) <= 2));
+    EXPECT_TRUE((hv.least_contributor(ref) <= 2));
+    EXPECT_TRUE((hv.greatest_contributor(ref) <= 2));
 
     // Call corner case
     hv = hypervolume({{1, 2}}, true);
     hv_fake_algo al;
-    BOOST_CHECK((hv.least_contributor(ref, al)) == 0u);
-    BOOST_CHECK((hv.greatest_contributor(ref, al)) == 0u);
+    EXPECT_TRUE((hv.least_contributor(ref, al)) == 0u);
+    EXPECT_TRUE((hv.greatest_contributor(ref, al)) == 0u);
 
     hv = hypervolume({{2.5, 1}, {2, 2}, {1, 3}});
-    BOOST_CHECK((hv.least_contributor(ref) == 1));
+    EXPECT_TRUE((hv.least_contributor(ref) == 1));
 
     hv = hypervolume({{3.5, 1}, {2, 2}, {1, 3}});
-    BOOST_CHECK((hv.least_contributor(ref) == 0));
+    EXPECT_TRUE((hv.least_contributor(ref) == 0));
 
     hv = hypervolume({{3, 1}, {2.5, 2.5}, {1, 3}});
-    BOOST_CHECK((hv.least_contributor(ref) == 1));
+    EXPECT_TRUE((hv.least_contributor(ref) == 1));
 
     hv = hypervolume({{3, 1}, {2, 2}, {1, 3.5}});
-    BOOST_CHECK((hv.least_contributor(ref) == 2));
+    EXPECT_TRUE((hv.least_contributor(ref) == 2));
 
     hv = hypervolume({{3, 1}, {2, 2}, {1, 3.5}});
-    BOOST_CHECK_THROW(hv.least_contributor({4, 4, 4}), std::invalid_argument);
+    EXPECT_THROW(hv.least_contributor({4, 4, 4}), std::invalid_argument);
 }
 
-BOOST_AUTO_TEST_CASE(hypervolume_exclusive_test)
+TEST(hypervolume_utils_test, hypervolume_exclusive_test)
 {
     hypervolume hv;
     std::vector<double> ref = {4, 4};
@@ -527,49 +527,49 @@ BOOST_AUTO_TEST_CASE(hypervolume_exclusive_test)
     // all are equal(take first->idx = 0)
     {
         hv = hypervolume({{3, 1}, {2, 2}, {1, 3}}, true);
-        BOOST_CHECK((hv.exclusive(0, ref) == 1));
-        BOOST_CHECK((hv.exclusive(1, ref) == 1));
-        BOOST_CHECK((hv.exclusive(2, ref) == 1));
+        EXPECT_TRUE((hv.exclusive(0, ref) == 1));
+        EXPECT_TRUE((hv.exclusive(1, ref) == 1));
+        EXPECT_TRUE((hv.exclusive(2, ref) == 1));
         hv.set_copy_points(true);
-        BOOST_CHECK((hv.exclusive(0, ref) == 1));
-        BOOST_CHECK((hv.exclusive(1, ref) == 1));
-        BOOST_CHECK((hv.exclusive(2, ref) == 1));
+        EXPECT_TRUE((hv.exclusive(0, ref) == 1));
+        EXPECT_TRUE((hv.exclusive(1, ref) == 1));
+        EXPECT_TRUE((hv.exclusive(2, ref) == 1));
     }
     {
         hv = hypervolume({{3, 1}, {2, 2}, {1, 3}}, false);
-        BOOST_CHECK((hv.exclusive(0, ref) == 1));
-        BOOST_CHECK((hv.exclusive(1, ref) == 1));
-        BOOST_CHECK((hv.exclusive(2, ref) == 1));
+        EXPECT_TRUE((hv.exclusive(0, ref) == 1));
+        EXPECT_TRUE((hv.exclusive(1, ref) == 1));
+        EXPECT_TRUE((hv.exclusive(2, ref) == 1));
         hv.set_copy_points(true);
-        BOOST_CHECK((hv.exclusive(0, ref) == 1));
-        BOOST_CHECK((hv.exclusive(1, ref) == 1));
-        BOOST_CHECK((hv.exclusive(2, ref) == 1));
+        EXPECT_TRUE((hv.exclusive(0, ref) == 1));
+        EXPECT_TRUE((hv.exclusive(1, ref) == 1));
+        EXPECT_TRUE((hv.exclusive(2, ref) == 1));
     }
 
     // index out of bounds
-    BOOST_CHECK_THROW(hv.exclusive(200, ref), std::invalid_argument);
+    EXPECT_THROW(hv.exclusive(200, ref), std::invalid_argument);
 
     // picking the wrong algorithm
     hv3d hv_algo_3d;
     hv = hypervolume({{3, 1}, {2, 2}, {1, 3}}, true);
-    BOOST_CHECK_THROW(hv.exclusive(0, ref, hv_algo_3d), std::invalid_argument);
+    EXPECT_THROW(hv.exclusive(0, ref, hv_algo_3d), std::invalid_argument);
 }
 
-BOOST_AUTO_TEST_CASE(hypervolume_refpoint_test)
+TEST(hypervolume_utils_test, hypervolume_refpoint_test)
 {
     hypervolume hv = hypervolume({{3, 1}, {2, 2}, {1, 3}});
     hypervolume hv_empty = hypervolume{};
 
-    BOOST_CHECK((hv_empty.refpoint() == vector_double{}));
+    EXPECT_TRUE((hv_empty.refpoint() == vector_double{}));
 
-    BOOST_CHECK((hv.refpoint() == vector_double{3, 3}));
-    BOOST_CHECK((hv.refpoint(5) == vector_double{8, 8}));
-    BOOST_CHECK((hv.refpoint(0) == vector_double{3, 3}));
-    BOOST_CHECK((hv.refpoint(-0) == vector_double{3, 3}));
-    BOOST_CHECK((hv.refpoint(-1) == vector_double{2, 2}));
+    EXPECT_TRUE((hv.refpoint() == vector_double{3, 3}));
+    EXPECT_TRUE((hv.refpoint(5) == vector_double{8, 8}));
+    EXPECT_TRUE((hv.refpoint(0) == vector_double{3, 3}));
+    EXPECT_TRUE((hv.refpoint(-0) == vector_double{3, 3}));
+    EXPECT_TRUE((hv.refpoint(-1) == vector_double{2, 2}));
 }
 
-BOOST_AUTO_TEST_CASE(hypervolume_approximation_test)
+TEST(hypervolume_utils_test, hypervolume_approximation_test)
 {
     hypervolume hv;
     double correct;
@@ -589,24 +589,24 @@ BOOST_AUTO_TEST_CASE(hypervolume_approximation_test)
 
     hv = hypervolume({{2.3, 4.5}, {3.4, 3.4}, {6.0, 1.2}});
     correct = 17.91;
-    BOOST_CHECK(((hv.compute({7.0, 7.0}, hv_bf_fpras) <= correct * (1.0 + epsilon))
+    EXPECT_TRUE(((hv.compute({7.0, 7.0}, hv_bf_fpras) <= correct * (1.0 + epsilon))
                  && (hv.compute({7.0, 7.0}, hv_bf_fpras) >= correct * (1.0 - epsilon))));
 
     hv = hypervolume({{2.3, 4.5, 3.2}, {3.4, 3.4, 3.4}, {6.0, 1.2, 3.6}});
     correct = 66.386;
-    BOOST_CHECK(((hv.compute({7.0, 7.0, 7.0}, hv_bf_fpras) <= correct * (1.0 + epsilon))
+    EXPECT_TRUE(((hv.compute({7.0, 7.0, 7.0}, hv_bf_fpras) <= correct * (1.0 + epsilon))
                  && (hv.compute({7.0, 7.0, 7.0}, hv_bf_fpras) >= correct * (1.0 - epsilon))));
 
     hv = hypervolume({{2.3, 4.5, 3.2, 1.9, 6.0}, {3.4, 3.4, 3.4, 2.1, 5.8}, {6.0, 1.2, 3.6, 3.0, 6.0}});
     correct = 373.21228;
-    BOOST_CHECK(((hv.compute({7.0, 7.0, 7.0, 7.0, 7.0}, hv_bf_fpras) <= correct * (1.0 + epsilon))
+    EXPECT_TRUE(((hv.compute({7.0, 7.0, 7.0, 7.0, 7.0}, hv_bf_fpras) <= correct * (1.0 + epsilon))
                  && (hv.compute({7.0, 7.0, 7.0, 7.0, 7.0}, hv_bf_fpras) >= correct * (1.0 - epsilon))));
 
-    BOOST_CHECK_THROW(bf_fpras(1.1, delta, seed), std::invalid_argument);
-    BOOST_CHECK_THROW(bf_fpras(epsilon, -2.0, seed), std::invalid_argument);
+    EXPECT_THROW(bf_fpras(1.1, delta, seed), std::invalid_argument);
+    EXPECT_THROW(bf_fpras(epsilon, -2.0, seed), std::invalid_argument);
 }
 
-BOOST_AUTO_TEST_CASE(hypervolume_contributor_approximation_test)
+TEST(hypervolume_utils_test, hypervolume_contributor_approximation_test)
 {
     hypervolume hv;
     std::vector<double> ref = {4, 4};
@@ -623,19 +623,19 @@ BOOST_AUTO_TEST_CASE(hypervolume_contributor_approximation_test)
     bf_approx hv_bf_approx(true, 1, epsilon, delta, 0.775, 0.2, 0.1, 0.25, seed);
 
     hv = hypervolume({{2.5, 1}, {2, 2}, {1, 3}});
-    BOOST_CHECK((hv.least_contributor(ref, hv_bf_approx) == 1));
+    EXPECT_TRUE((hv.least_contributor(ref, hv_bf_approx) == 1));
 
     hv = hypervolume({{3.5, 1}, {2, 2}, {1, 3}});
-    BOOST_CHECK((hv.least_contributor(ref, hv_bf_approx) == 0));
+    EXPECT_TRUE((hv.least_contributor(ref, hv_bf_approx) == 0));
 
     hv = hypervolume({{3, 1}, {2.5, 2.5}, {1, 3}});
-    BOOST_CHECK((hv.least_contributor(ref, hv_bf_approx) == 1));
+    EXPECT_TRUE((hv.least_contributor(ref, hv_bf_approx) == 1));
 
     hv = hypervolume({{3, 1}, {2, 2}, {1, 3.5}});
-    BOOST_CHECK((hv.least_contributor(ref, hv_bf_approx) == 2));
+    EXPECT_TRUE((hv.least_contributor(ref, hv_bf_approx) == 2));
 
-    BOOST_CHECK_THROW(bf_approx(true, 1, epsilon, 5000.0, 0.775, 0.2, 0.1, 0.25, seed), std::invalid_argument);
-    BOOST_CHECK_THROW(bf_approx(true, 1, -1.0, delta, 0.775, 0.2, 0.1, 0.25, seed), std::invalid_argument);
+    EXPECT_THROW(bf_approx(true, 1, epsilon, 5000.0, 0.775, 0.2, 0.1, 0.25, seed), std::invalid_argument);
+    EXPECT_THROW(bf_approx(true, 1, -1.0, delta, 0.775, 0.2, 0.1, 0.25, seed), std::invalid_argument);
 
     // The following case should actually trigger the sampling routines
     hv = hypervolume({{2.49, 3.15, 2.3, 5.1, 5.07},   {4.47, 5.89, 5.1, 1.61, 3.7},   {1.88, 6.33, 3.43, 6.45, 6.63},
@@ -652,11 +652,11 @@ BOOST_AUTO_TEST_CASE(hypervolume_contributor_approximation_test)
                       {4.62, 2.86, 5.92, 3.9, 6.44}});
 
     ref = {10.0, 10.0, 10.0, 10.0, 10.0};
-    BOOST_CHECK((hv.least_contributor(ref, hv_bf_approx) == 31));
-    BOOST_CHECK((hv.greatest_contributor(ref, hv_bf_approx) == 9));
+    EXPECT_TRUE((hv.least_contributor(ref, hv_bf_approx) == 31));
+    EXPECT_TRUE((hv.greatest_contributor(ref, hv_bf_approx) == 9));
 }
 
-BOOST_AUTO_TEST_CASE(hypervolume_test_instances)
+TEST(hypervolume_utils_test, hypervolume_test_instances)
 {
     /** uses some precomputed fronts and hypervolumes to test if algorithms are correct */
     std::string line;
@@ -699,11 +699,11 @@ BOOST_AUTO_TEST_CASE(hypervolume_test_instances)
         ifs.close();
     } else {
         // The testcase file is missing
-        BOOST_CHECK((false));
+        EXPECT_TRUE((false));
     }
 }
 
-BOOST_AUTO_TEST_CASE(hypervolume_serialization_test)
+TEST(hypervolume_utils_test, hypervolume_serialization_test)
 {
     // Construct the object
     hypervolume hv({{1., 1.}, {-1., 3.}}, false);
@@ -723,93 +723,93 @@ BOOST_AUTO_TEST_CASE(hypervolume_serialization_test)
         iarchive >> hv;
     }
     auto after = hv.compute({4., 4.});
-    BOOST_CHECK_EQUAL(before, after);
-    BOOST_CHECK_EQUAL(hv.get_copy_points(), false);
-    BOOST_CHECK_EQUAL(hv.get_verify(), false);
+    EXPECT_EQ(before, after);
+    EXPECT_EQ(hv.get_copy_points(), false);
+    EXPECT_EQ(hv.get_verify(), false);
 }
 
-BOOST_AUTO_TEST_CASE(hypervolume_construction_test)
+TEST(hypervolume_utils_test, hypervolume_construction_test)
 {
     population pop_empty(zdt(1u, 10u));
     population pop_ok(zdt(1u, 10u), 10u);
     population pop_wrong1(hock_schittkowski_71{}, 10u);
     population pop_wrong2(rosenbrock{10u}, 10u);
-    BOOST_CHECK_THROW((hypervolume{pop_empty, true}), std::invalid_argument);
-    BOOST_CHECK_THROW((hypervolume{pop_wrong1, true}), std::invalid_argument);
-    BOOST_CHECK_THROW((hypervolume{pop_wrong2, true}), std::invalid_argument);
-    BOOST_CHECK_NO_THROW((hypervolume{pop_ok, true}));
+    EXPECT_THROW((hypervolume{pop_empty, true}), std::invalid_argument);
+    EXPECT_THROW((hypervolume{pop_wrong1, true}), std::invalid_argument);
+    EXPECT_THROW((hypervolume{pop_wrong2, true}), std::invalid_argument);
+    EXPECT_NO_THROW((hypervolume{pop_ok, true}));
     auto points = pop_ok.get_f();
     auto hv = hypervolume{pop_ok, true};
-    BOOST_CHECK(points == hv.get_points());
-    BOOST_CHECK_THROW((hypervolume(std::vector<vector_double>{}, true)), std::invalid_argument);
-    BOOST_CHECK_THROW((hypervolume{{{1.}, {2.}}, true}), std::invalid_argument);
+    EXPECT_TRUE(points == hv.get_points());
+    EXPECT_THROW((hypervolume(std::vector<vector_double>{}, true)), std::invalid_argument);
+    EXPECT_THROW((hypervolume{{{1.}, {2.}}, true}), std::invalid_argument);
 }
 
-BOOST_AUTO_TEST_CASE(hypervolume_cmp_test)
+TEST(hypervolume_utils_test, hypervolume_cmp_test)
 {
     // expected_hv_operations
-    BOOST_CHECK_CLOSE(detail::expected_hv_operations(10u, 1u), 10. * std::log(10), 1e-12);
-    BOOST_CHECK_CLOSE(detail::expected_hv_operations(10u, 4u), 4. * 100., 1e-12);
-    BOOST_CHECK_CLOSE(detail::expected_hv_operations(10u, 5u), 0.0005 * 5. * std::pow(10, 5. * 0.5), 1e-12);
+    EXPECT_NEAR(detail::expected_hv_operations(10u, 1u), 10. * std::log(10), 1e-12);
+    EXPECT_NEAR(detail::expected_hv_operations(10u, 4u), 4. * 100., 1e-12);
+    EXPECT_NEAR(detail::expected_hv_operations(10u, 5u), 0.0005 * 5. * std::pow(10, 5. * 0.5), 1e-12);
     // dom_cmp
     vector_double a, b;
     a = {1, 2};
     b = {1, 2};
-    BOOST_CHECK(hv_fake_algo::accessible_cmp(a, b, 0u) == 3);
-    BOOST_CHECK(hv_fake_algo::accessible_cmp(a, b, 2u) == 3);
+    EXPECT_TRUE(hv_fake_algo::accessible_cmp(a, b, 0u) == 3);
+    EXPECT_TRUE(hv_fake_algo::accessible_cmp(a, b, 2u) == 3);
     a = {1, 2};
     b = {2, 1};
-    BOOST_CHECK(hv_fake_algo::accessible_cmp(a, b, 0u) == 4);
-    BOOST_CHECK(hv_fake_algo::accessible_cmp(a, b, 2u) == 4);
+    EXPECT_TRUE(hv_fake_algo::accessible_cmp(a, b, 0u) == 4);
+    EXPECT_TRUE(hv_fake_algo::accessible_cmp(a, b, 2u) == 4);
     a = {2, 1};
     b = {1, 2};
-    BOOST_CHECK(hv_fake_algo::accessible_cmp(a, b, 0u) == 4);
-    BOOST_CHECK(hv_fake_algo::accessible_cmp(a, b, 2u) == 4);
+    EXPECT_TRUE(hv_fake_algo::accessible_cmp(a, b, 0u) == 4);
+    EXPECT_TRUE(hv_fake_algo::accessible_cmp(a, b, 2u) == 4);
     a = {1, 1};
     b = {2, 2};
-    BOOST_CHECK(hv_fake_algo::accessible_cmp(a, b, 0u) == 2);
-    BOOST_CHECK(hv_fake_algo::accessible_cmp(a, b, 2u) == 2);
+    EXPECT_TRUE(hv_fake_algo::accessible_cmp(a, b, 0u) == 2);
+    EXPECT_TRUE(hv_fake_algo::accessible_cmp(a, b, 2u) == 2);
     a = {3, 3};
     b = {2, 2};
-    BOOST_CHECK(hv_fake_algo::accessible_cmp(a, b, 0u) == 1);
-    BOOST_CHECK(hv_fake_algo::accessible_cmp(a, b, 2u) == 1);
+    EXPECT_TRUE(hv_fake_algo::accessible_cmp(a, b, 0u) == 1);
+    EXPECT_TRUE(hv_fake_algo::accessible_cmp(a, b, 2u) == 1);
 }
 
-BOOST_AUTO_TEST_CASE(hypervolume_name_getters_test)
+TEST(hypervolume_utils_test, hypervolume_name_getters_test)
 {
     hv_fake_algo al;
-    BOOST_CHECK(al.get_name().find("hv_fake") != std::string::npos);
+    EXPECT_TRUE(al.get_name().find("hv_fake") != std::string::npos);
     hv2d al1;
-    BOOST_CHECK(al1.get_name().find("hv2d") != std::string::npos);
+    EXPECT_TRUE(al1.get_name().find("hv2d") != std::string::npos);
     hv3d al2;
-    BOOST_CHECK(al2.get_name().find("hv3d") != std::string::npos);
+    EXPECT_TRUE(al2.get_name().find("hv3d") != std::string::npos);
     hvwfg al3;
-    BOOST_CHECK(al3.get_name().find("WFG") != std::string::npos);
+    EXPECT_TRUE(al3.get_name().find("WFG") != std::string::npos);
     bf_approx al4;
-    BOOST_CHECK(al4.get_name().find("Bringmann-Friedrich") != std::string::npos);
+    EXPECT_TRUE(al4.get_name().find("Bringmann-Friedrich") != std::string::npos);
     bf_fpras al5;
-    BOOST_CHECK(al5.get_name().find("bf_fpras") != std::string::npos);
+    EXPECT_TRUE(al5.get_name().find("bf_fpras") != std::string::npos);
 }
 
-BOOST_AUTO_TEST_CASE(hypervolume_bf_approx_test)
+TEST(hypervolume_utils_test, hypervolume_bf_approx_test)
 {
     bf_approx al;
     std::vector<vector_double> points;
     vector_double ref;
-    BOOST_CHECK_THROW(al.compute(points, ref), std::invalid_argument);
+    EXPECT_THROW(al.compute(points, ref), std::invalid_argument);
     auto al_clone = al.clone();
-    BOOST_CHECK(al_clone->get_name().find("Bringmann-Friedrich") != std::string::npos);
+    EXPECT_TRUE(al_clone->get_name().find("Bringmann-Friedrich") != std::string::npos);
 }
 
-BOOST_AUTO_TEST_CASE(hypervolume_bf_pras_test)
+TEST(hypervolume_utils_test, hypervolume_bf_pras_test)
 {
     bf_fpras al;
     std::vector<vector_double> points;
     vector_double ref;
-    BOOST_CHECK_THROW(al.exclusive(0u, points, ref), std::invalid_argument);
-    BOOST_CHECK_THROW(al.least_contributor(points, ref), std::invalid_argument);
-    BOOST_CHECK_THROW(al.greatest_contributor(points, ref), std::invalid_argument);
-    BOOST_CHECK_THROW(al.contributions(points, ref), std::invalid_argument);
+    EXPECT_THROW(al.exclusive(0u, points, ref), std::invalid_argument);
+    EXPECT_THROW(al.least_contributor(points, ref), std::invalid_argument);
+    EXPECT_THROW(al.greatest_contributor(points, ref), std::invalid_argument);
+    EXPECT_THROW(al.contributions(points, ref), std::invalid_argument);
     auto al_clone = al.clone();
-    BOOST_CHECK(al_clone->get_name().find("bf_fpras") != std::string::npos);
+    EXPECT_TRUE(al_clone->get_name().find("bf_fpras") != std::string::npos);
 }

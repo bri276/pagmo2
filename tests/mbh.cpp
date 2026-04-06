@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE mbh_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/test/tools/floating_point_comparison.hpp>
@@ -50,32 +50,32 @@ see https://www.gnu.org/licenses/. */
 
 using namespace pagmo;
 
-BOOST_AUTO_TEST_CASE(mbh_algorithm_construction)
+TEST(mbh_test, mbh_algorithm_construction)
 {
     compass_search inner_algo{100u, 0.1, 0.001, 0.7};
     {
         mbh user_algo{inner_algo, 5, 1e-3};
-        BOOST_CHECK((user_algo.get_perturb() == vector_double{1e-3}));
-        BOOST_CHECK(user_algo.get_verbosity() == 0u);
-        BOOST_CHECK((user_algo.get_log() == mbh::log_type{}));
+        EXPECT_TRUE((user_algo.get_perturb() == vector_double{1e-3}));
+        EXPECT_TRUE(user_algo.get_verbosity() == 0u);
+        EXPECT_TRUE((user_algo.get_log() == mbh::log_type{}));
     }
     {
         mbh user_algo{inner_algo, 5, {1e-3, 1e-2, 1e-3, 1e-2}};
-        BOOST_CHECK((user_algo.get_perturb() == vector_double{1e-3, 1e-2, 1e-3, 1e-2}));
-        BOOST_CHECK(user_algo.get_verbosity() == 0u);
-        BOOST_CHECK((user_algo.get_log() == mbh::log_type{}));
+        EXPECT_TRUE((user_algo.get_perturb() == vector_double{1e-3, 1e-2, 1e-3, 1e-2}));
+        EXPECT_TRUE(user_algo.get_verbosity() == 0u);
+        EXPECT_TRUE((user_algo.get_log() == mbh::log_type{}));
     }
-    BOOST_CHECK_THROW((mbh{inner_algo, 5u, -2.1}), std::invalid_argument);
-    BOOST_CHECK_THROW((mbh{inner_algo, 5u, 3.2}), std::invalid_argument);
-    BOOST_CHECK_THROW((mbh{inner_algo, 5u, std::nan("")}), std::invalid_argument);
-    BOOST_CHECK_THROW((mbh{inner_algo, 5u, {0.2, 0.1, 0.}}), std::invalid_argument);
-    BOOST_CHECK_THROW((mbh{inner_algo, 5u, {0.2, 0.1, -0.12}}), std::invalid_argument);
-    BOOST_CHECK_THROW((mbh{inner_algo, 5u, {0.2, 1.1, 0.12}}), std::invalid_argument);
-    BOOST_CHECK_THROW((mbh{inner_algo, 5u, {0.2, std::nan(""), 0.12}}), std::invalid_argument);
-    BOOST_CHECK_NO_THROW(mbh{});
+    EXPECT_THROW((mbh{inner_algo, 5u, -2.1}), std::invalid_argument);
+    EXPECT_THROW((mbh{inner_algo, 5u, 3.2}), std::invalid_argument);
+    EXPECT_THROW((mbh{inner_algo, 5u, std::nan("")}), std::invalid_argument);
+    EXPECT_THROW((mbh{inner_algo, 5u, {0.2, 0.1, 0.}}), std::invalid_argument);
+    EXPECT_THROW((mbh{inner_algo, 5u, {0.2, 0.1, -0.12}}), std::invalid_argument);
+    EXPECT_THROW((mbh{inner_algo, 5u, {0.2, 1.1, 0.12}}), std::invalid_argument);
+    EXPECT_THROW((mbh{inner_algo, 5u, {0.2, std::nan(""), 0.12}}), std::invalid_argument);
+    EXPECT_NO_THROW(mbh{});
 }
 
-BOOST_AUTO_TEST_CASE(mbh_evolve_test)
+TEST(mbh_test, mbh_evolve_test)
 {
     // Here we only test that evolution is deterministic if the
     // seed is controlled
@@ -90,32 +90,32 @@ BOOST_AUTO_TEST_CASE(mbh_evolve_test)
         user_algo1.set_verbosity(1u);
         pop1 = user_algo1.evolve(pop1);
 
-        BOOST_CHECK(user_algo1.get_log().size() > 0u);
+        EXPECT_TRUE(user_algo1.get_log().size() > 0u);
 
         mbh user_algo2{compass_search{100u, 0.1, 0.001, 0.7}, 5u, 0.1, 23u};
         user_algo2.set_verbosity(1u);
         pop2 = user_algo2.evolve(pop2);
 
-        BOOST_CHECK(user_algo1.get_log() == user_algo2.get_log());
+        EXPECT_TRUE(user_algo1.get_log() == user_algo2.get_log());
 
         user_algo2.set_seed(23u);
         pop3 = user_algo2.evolve(pop3);
 
-        BOOST_CHECK(user_algo1.get_log() == user_algo2.get_log());
+        EXPECT_TRUE(user_algo1.get_log() == user_algo2.get_log());
     }
     // We then check that the evolve throws if called on unsuitable problems
     {
         mbh user_algo{compass_search{100u, 0.1, 0.001, 0.7}, 5u, 0.1, 23u};
-        BOOST_CHECK_THROW(user_algo.evolve(population{problem{zdt{}}, 15u}), std::invalid_argument);
+        EXPECT_THROW(user_algo.evolve(population{problem{zdt{}}, 15u}), std::invalid_argument);
     }
     {
         mbh user_algo{compass_search{100u, 0.1, 0.001, 0.7}, 5u, 0.1, 23u};
-        BOOST_CHECK_THROW(user_algo.evolve(population{problem{inventory{}}, 15u}), std::invalid_argument);
+        EXPECT_THROW(user_algo.evolve(population{problem{inventory{}}, 15u}), std::invalid_argument);
     }
     // And that it throws if called with a wrong dimension of the perturbation vector
     {
         mbh user_algo{compass_search{100u, 0.1, 0.001, 0.7}, 5u, {1e-3, 1e-2}, 23u};
-        BOOST_CHECK_THROW(user_algo.evolve(population{problem{hock_schittkowski_71{}}, 15u}), std::invalid_argument);
+        EXPECT_THROW(user_algo.evolve(population{problem{hock_schittkowski_71{}}, 15u}), std::invalid_argument);
     }
     // Here we test that the algo can be called twice with problems of different dimensions (Issue #505)
     {
@@ -136,28 +136,28 @@ BOOST_AUTO_TEST_CASE(mbh_evolve_test)
     // And a clean exit for 0 generations
     problem prob{hock_schittkowski_71{}};
     population pop{prob, 10u};
-    BOOST_CHECK((mbh{compass_search{100u, 0.1, 0.001, 0.7}, 0u, {1e-3, 1e-2}, 23u}.evolve(pop).get_x()[0])
+    EXPECT_TRUE((mbh{compass_search{100u, 0.1, 0.001, 0.7}, 0u, {1e-3, 1e-2}, 23u}.evolve(pop).get_x()[0])
                 == (pop.get_x()[0]));
 }
 
-BOOST_AUTO_TEST_CASE(mbh_setters_getters_test)
+TEST(mbh_test, mbh_setters_getters_test)
 {
     mbh user_algo{compass_search{100u, 0.1, 0.001, 0.7}, 5u, {1e-3, 1e-2}, 23u};
     user_algo.set_verbosity(23u);
-    BOOST_CHECK(user_algo.get_verbosity() == 23u);
+    EXPECT_TRUE(user_algo.get_verbosity() == 23u);
     user_algo.set_seed(23u);
-    BOOST_CHECK(user_algo.get_seed() == 23u);
+    EXPECT_TRUE(user_algo.get_seed() == 23u);
     user_algo.set_perturb({0.1, 0.2, 0.3, 0.4});
-    BOOST_CHECK((user_algo.get_perturb() == vector_double{0.1, 0.2, 0.3, 0.4}));
-    BOOST_CHECK_THROW(user_algo.set_perturb({0.1, std::nan(""), 0.3, 0.4}), std::invalid_argument);
-    BOOST_CHECK_THROW(user_algo.set_perturb({0.1, -0.2, 0.3, 0.4}), std::invalid_argument);
-    BOOST_CHECK_THROW(user_algo.set_perturb({0.1, 2.3, 0.3, 0.4}), std::invalid_argument);
-    BOOST_CHECK(user_algo.get_name().find("Monotonic Basin Hopping") != std::string::npos);
-    BOOST_CHECK(user_algo.get_extra_info().find("Inner algorithm extra info") != std::string::npos);
-    BOOST_CHECK_NO_THROW(user_algo.get_log());
+    EXPECT_TRUE((user_algo.get_perturb() == vector_double{0.1, 0.2, 0.3, 0.4}));
+    EXPECT_THROW(user_algo.set_perturb({0.1, std::nan(""), 0.3, 0.4}), std::invalid_argument);
+    EXPECT_THROW(user_algo.set_perturb({0.1, -0.2, 0.3, 0.4}), std::invalid_argument);
+    EXPECT_THROW(user_algo.set_perturb({0.1, 2.3, 0.3, 0.4}), std::invalid_argument);
+    EXPECT_TRUE(user_algo.get_name().find("Monotonic Basin Hopping") != std::string::npos);
+    EXPECT_TRUE(user_algo.get_extra_info().find("Inner algorithm extra info") != std::string::npos);
+    EXPECT_NO_THROW(user_algo.get_log());
 }
 
-BOOST_AUTO_TEST_CASE(mbh_serialization_test)
+TEST(mbh_test, mbh_serialization_test)
 {
     // Make one evolution
     problem prob{hock_schittkowski_71{}};
@@ -183,16 +183,16 @@ BOOST_AUTO_TEST_CASE(mbh_serialization_test)
     }
     auto after_text = boost::lexical_cast<std::string>(algo);
     auto after_log = algo.extract<mbh>()->get_log();
-    BOOST_CHECK_EQUAL(before_text, after_text);
-    BOOST_CHECK(before_log == after_log);
+    EXPECT_EQ(before_text, after_text);
+    EXPECT_TRUE(before_log == after_log);
     // so we implement a close check
-    BOOST_CHECK(before_log.size() > 0u);
+    EXPECT_TRUE(before_log.size() > 0u);
     for (auto i = 0u; i < before_log.size(); ++i) {
-        BOOST_CHECK_EQUAL(std::get<0>(before_log[i]), std::get<0>(after_log[i]));
-        BOOST_CHECK_CLOSE(std::get<1>(before_log[i]), std::get<1>(after_log[i]), 1e-8);
-        BOOST_CHECK_EQUAL(std::get<2>(before_log[i]), std::get<2>(after_log[i]));
-        BOOST_CHECK_CLOSE(std::get<3>(before_log[i]), std::get<3>(after_log[i]), 1e-8);
-        BOOST_CHECK_EQUAL(std::get<4>(before_log[i]), std::get<4>(after_log[i]));
+        EXPECT_EQ(std::get<0>(before_log[i]), std::get<0>(after_log[i]));
+        EXPECT_NEAR(std::get<1>(before_log[i]), std::get<1>(after_log[i]), 1e-8);
+        EXPECT_EQ(std::get<2>(before_log[i]), std::get<2>(after_log[i]));
+        EXPECT_NEAR(std::get<3>(before_log[i]), std::get<3>(after_log[i]), 1e-8);
+        EXPECT_EQ(std::get<4>(before_log[i]), std::get<4>(after_log[i]));
     }
 }
 
@@ -225,11 +225,11 @@ struct ts3 {
     }
 };
 
-BOOST_AUTO_TEST_CASE(mbh_threading_test)
+TEST(mbh_test, mbh_threading_test)
 {
-    BOOST_CHECK((algorithm{mbh{ts1{}, 5u, 1e-2, 23u}}.get_thread_safety() == thread_safety::basic));
-    BOOST_CHECK((algorithm{mbh{ts2{}, 5u, 1e-2, 23u}}.get_thread_safety() == thread_safety::none));
-    BOOST_CHECK((algorithm{mbh{ts3{}, 5u, 1e-2, 23u}}.get_thread_safety() == thread_safety::basic));
+    EXPECT_TRUE((algorithm{mbh{ts1{}, 5u, 1e-2, 23u}}.get_thread_safety() == thread_safety::basic));
+    EXPECT_TRUE((algorithm{mbh{ts2{}, 5u, 1e-2, 23u}}.get_thread_safety() == thread_safety::none));
+    EXPECT_TRUE((algorithm{mbh{ts3{}, 5u, 1e-2, 23u}}.get_thread_safety() == thread_safety::basic));
 }
 
 struct ia1 {
@@ -240,17 +240,17 @@ struct ia1 {
     double m_data = 0.;
 };
 
-BOOST_AUTO_TEST_CASE(mbh_inner_algo_get_test)
+TEST(mbh_test, mbh_inner_algo_get_test)
 {
     // We check that the correct overload is called according to (*this) being const or not
     {
         const mbh uda(ia1{}, 5u, 1e-2, 23u);
-        BOOST_CHECK(std::is_const<decltype(uda)>::value);
-        BOOST_CHECK(std::is_const<std::remove_reference<decltype(uda.get_inner_algorithm())>::type>::value);
+        EXPECT_TRUE(std::is_const<decltype(uda)>::value);
+        EXPECT_TRUE(std::is_const<std::remove_reference<decltype(uda.get_inner_algorithm())>::type>::value);
     }
     {
         mbh uda(ia1{}, 5u, 1e-2, 23u);
-        BOOST_CHECK(!std::is_const<decltype(uda)>::value);
-        BOOST_CHECK(!std::is_const<std::remove_reference<decltype(uda.get_inner_algorithm())>::type>::value);
+        EXPECT_TRUE(!std::is_const<decltype(uda)>::value);
+        EXPECT_TRUE(!std::is_const<std::remove_reference<decltype(uda.get_inner_algorithm())>::type>::value);
     }
 }

@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE ipopt_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <initializer_list>
 #include <limits>
@@ -65,12 +65,12 @@ using namespace pagmo;
 // NOTE: this test checks that the output of the various virtual methods implemented
 // from the C++ Ipopt API is consistent with the manually-coded hs71 problem from the official
 // Ipopt documentation (bits of which were copy-pasted here).
-BOOST_AUTO_TEST_CASE(ipopt_nlp_test)
+TEST(ipopt_test, ipopt_nlp_test)
 {
-    BOOST_CHECK(detail::ipopt_internal_test() == 0u);
+    EXPECT_TRUE(detail::ipopt_internal_test() == 0u);
 }
 
-BOOST_AUTO_TEST_CASE(ipopt_evolve_test_00)
+TEST(ipopt_test, ipopt_evolve_test_00)
 {
     ipopt ip;
     algorithm algo(ip);
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE(ipopt_evolve_test_00)
     algo.evolve(pop);
 }
 
-BOOST_AUTO_TEST_CASE(ipopt_evolve_test_01)
+TEST(ipopt_test, ipopt_evolve_test_01)
 {
     ipopt ip;
     algorithm algo(ip);
@@ -90,13 +90,13 @@ BOOST_AUTO_TEST_CASE(ipopt_evolve_test_01)
     prob.set_c_tol({1E-8, 1E-8});
     population pop(prob, 1);
     algo.evolve(pop);
-    BOOST_CHECK_EQUAL(Ipopt::Solve_Succeeded, algo.extract<ipopt>()->get_last_opt_result());
-    BOOST_CHECK(!algo.get_extra_info().empty());
-    BOOST_CHECK(!algo.extract<ipopt>()->get_log().empty());
+    EXPECT_EQ(Ipopt::Solve_Succeeded, algo.extract<ipopt>()->get_last_opt_result());
+    EXPECT_TRUE(!algo.get_extra_info().empty());
+    EXPECT_TRUE(!algo.extract<ipopt>()->get_log().empty());
 }
 
 // Empty pop.
-BOOST_AUTO_TEST_CASE(ipopt_evolve_test_02)
+TEST(ipopt_test, ipopt_evolve_test_02)
 {
     ipopt ip;
     algorithm algo(ip);
@@ -143,38 +143,38 @@ struct throw_hs71_2 : hock_schittkowski_71 {
     mutable unsigned counter = 0;
 };
 
-BOOST_AUTO_TEST_CASE(ipopt_failure_modes)
+TEST(ipopt_test, ipopt_failure_modes)
 {
     {
         // Multiobjective.
         algorithm algo(ipopt{});
         population pop(zdt{}, 1);
         algo.extract<ipopt>()->set_selection("random");
-        BOOST_CHECK_THROW(algo.evolve(pop), std::invalid_argument);
+        EXPECT_THROW(algo.evolve(pop), std::invalid_argument);
     }
     {
         // Problem does not provide gradient.
         algorithm algo(ipopt{});
         population pop(schwefel{20}, 1);
-        BOOST_CHECK_THROW(algo.evolve(pop), std::invalid_argument);
+        EXPECT_THROW(algo.evolve(pop), std::invalid_argument);
     }
     {
         // Problem's objfun throws.
         algorithm algo(ipopt{});
         population pop(throw_hs71_0{}, 1);
-        BOOST_CHECK_THROW(algo.evolve(pop), std::invalid_argument);
+        EXPECT_THROW(algo.evolve(pop), std::invalid_argument);
     }
     {
         // Problem's gradient throws.
         algorithm algo(ipopt{});
         population pop(throw_hs71_1{}, 1);
-        BOOST_CHECK_THROW(algo.evolve(pop), std::invalid_argument);
+        EXPECT_THROW(algo.evolve(pop), std::invalid_argument);
     }
     {
         // Problem's gradient throws.
         algorithm algo(ipopt{});
         population pop(throw_hs71_2{}, 1);
-        BOOST_CHECK_THROW(algo.evolve(pop), std::invalid_argument);
+        EXPECT_THROW(algo.evolve(pop), std::invalid_argument);
     }
     {
         // Explicitly requiring exact hessians in a problem that does
@@ -182,42 +182,42 @@ BOOST_AUTO_TEST_CASE(ipopt_failure_modes)
         algorithm algo(ipopt{});
         algo.extract<ipopt>()->set_string_option("hessian_approximation", "exact");
         population pop(luksan_vlcek1{}, 1);
-        BOOST_CHECK_THROW(algo.evolve(pop), std::invalid_argument);
+        EXPECT_THROW(algo.evolve(pop), std::invalid_argument);
     }
     {
         // Set bogus string option.
         algorithm algo(ipopt{});
         population pop(hock_schittkowski_71{}, 1);
         algo.extract<ipopt>()->set_string_option("hello,", "world");
-        BOOST_CHECK_THROW(algo.evolve(pop), std::invalid_argument);
+        EXPECT_THROW(algo.evolve(pop), std::invalid_argument);
     }
     {
         // Set bogus integer option.
         algorithm algo(ipopt{});
         population pop(hock_schittkowski_71{}, 1);
         algo.extract<ipopt>()->set_integer_option("hello, world", 3);
-        BOOST_CHECK_THROW(algo.evolve(pop), std::invalid_argument);
+        EXPECT_THROW(algo.evolve(pop), std::invalid_argument);
     }
     {
         // Set bogus numeric option.
         algorithm algo(ipopt{});
         population pop(hock_schittkowski_71{}, 1);
         algo.extract<ipopt>()->set_numeric_option("hello, world", 3.);
-        BOOST_CHECK_THROW(algo.evolve(pop), std::invalid_argument);
+        EXPECT_THROW(algo.evolve(pop), std::invalid_argument);
     }
     {
         // Initial guess out of bounds.
         algorithm algo(ipopt{});
         population pop(hock_schittkowski_71{}, 1);
         pop.set_x(0, {-100., -100., -100., -100.});
-        BOOST_CHECK_THROW(algo.evolve(pop), std::invalid_argument);
+        EXPECT_THROW(algo.evolve(pop), std::invalid_argument);
     }
     if (std::numeric_limits<double>::has_quiet_NaN) {
         // Initial guess has nans.
         algorithm algo(ipopt{});
         population pop(hock_schittkowski_71{}, 1);
         pop.set_x(0, {2., 2., 2., std::numeric_limits<double>::quiet_NaN()});
-        BOOST_CHECK_THROW(algo.evolve(pop), std::invalid_argument);
+        EXPECT_THROW(algo.evolve(pop), std::invalid_argument);
     }
 }
 
@@ -235,7 +235,7 @@ struct hs71_no_sp : hock_schittkowski_71 {
     }
 };
 
-BOOST_AUTO_TEST_CASE(ipopt_hess_not_sp)
+TEST(ipopt_test, ipopt_hess_not_sp)
 {
     ipopt ip;
     algorithm algo(ip);
@@ -246,7 +246,7 @@ BOOST_AUTO_TEST_CASE(ipopt_hess_not_sp)
     algo.evolve(pop);
 }
 
-BOOST_AUTO_TEST_CASE(ipopt_serialization)
+TEST(ipopt_test, ipopt_serialization)
 {
     for (auto r : {"best", "worst", "random"}) {
         for (auto s : {"best", "worst", "random"}) {
@@ -273,8 +273,8 @@ BOOST_AUTO_TEST_CASE(ipopt_serialization)
                 iarchive >> algo;
             }
             auto after_text = boost::lexical_cast<std::string>(algo);
-            BOOST_CHECK_EQUAL(before_text, after_text);
-            BOOST_CHECK(s_log == algo.extract<ipopt>()->get_log());
+            EXPECT_EQ(before_text, after_text);
+            EXPECT_TRUE(s_log == algo.extract<ipopt>()->get_log());
         }
     }
     for (auto r : {0u, 4u, 7u}) {
@@ -302,13 +302,13 @@ BOOST_AUTO_TEST_CASE(ipopt_serialization)
                 iarchive >> algo;
             }
             auto after_text = boost::lexical_cast<std::string>(algo);
-            BOOST_CHECK_EQUAL(before_text, after_text);
-            BOOST_CHECK(s_log == algo.extract<ipopt>()->get_log());
+            EXPECT_EQ(before_text, after_text);
+            EXPECT_TRUE(s_log == algo.extract<ipopt>()->get_log());
         }
     }
 }
 
-BOOST_AUTO_TEST_CASE(ipopt_options)
+TEST(ipopt_test, ipopt_options)
 {
     ipopt ip;
     // String.
@@ -318,29 +318,29 @@ BOOST_AUTO_TEST_CASE(ipopt_options)
         (ip.get_string_options()
          == std::map<std::string, std::string>{{"bart", "simpson"}, {"homer", "simpson"}, {"marge", "simpson"}}));
     ip.reset_string_options();
-    BOOST_CHECK(ip.get_string_options().empty());
+    EXPECT_TRUE(ip.get_string_options().empty());
     // Integer.
     ip.set_integer_option("bart", 1);
     ip.set_integer_options({{"homer", 2}, {"marge", 3}});
     BOOST_CHECK(
         (ip.get_integer_options() == std::map<std::string, Ipopt::Index>{{"bart", 1}, {"homer", 2}, {"marge", 3}}));
     ip.reset_integer_options();
-    BOOST_CHECK(ip.get_integer_options().empty());
+    EXPECT_TRUE(ip.get_integer_options().empty());
     // Numeric.
     ip.set_numeric_option("bart", 1);
     ip.set_numeric_options({{"homer", 2}, {"marge", 3}});
-    BOOST_CHECK((ip.get_numeric_options() == std::map<std::string, double>{{"bart", 1}, {"homer", 2}, {"marge", 3}}));
+    EXPECT_TRUE((ip.get_numeric_options() == std::map<std::string, double>{{"bart", 1}, {"homer", 2}, {"marge", 3}}));
     ip.reset_numeric_options();
-    BOOST_CHECK(ip.get_numeric_options().empty());
+    EXPECT_TRUE(ip.get_numeric_options().empty());
 }
 
-BOOST_AUTO_TEST_CASE(ipopt_thread_safety)
+TEST(ipopt_test, ipopt_thread_safety)
 {
-    BOOST_CHECK(algorithm(ipopt{}).get_thread_safety() == thread_safety::none);
+    EXPECT_TRUE(algorithm(ipopt{}).get_thread_safety() == thread_safety::none);
     // Check the island selection type.
 #if defined(PAGMO_WITH_FORK_ISLAND)
-    BOOST_CHECK((island{ipopt{}, luksan_vlcek1{4}, 10}.is<fork_island>()));
+    EXPECT_TRUE((island{ipopt{}, luksan_vlcek1{4}, 10}.is<fork_island>()));
 #else
-    BOOST_CHECK((island{ipopt{}, luksan_vlcek1{4}, 10}.is<thread_island>()));
+    EXPECT_TRUE((island{ipopt{}, luksan_vlcek1{4}, 10}.is<thread_island>()));
 #endif
 }

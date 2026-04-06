@@ -35,14 +35,12 @@ see https://www.gnu.org/licenses/. */
 #include <utility>
 #include <vector>
 
-// #include <boost/graph/adjacency_list.hpp>
-#include <boost/numeric/conversion/cast.hpp>
-
 #include <pagmo/exceptions.hpp>
 #include <pagmo/s11n.hpp>
 #include <pagmo/topologies/fully_connected.hpp>
 #include <pagmo/topology.hpp>
 #include <pagmo/types.hpp>
+#include <pagmo/utils/cast.hpp>
 
 // MINGW-specific warnings.
 #if defined(__GNUC__) && defined(__MINGW32__)
@@ -99,7 +97,7 @@ std::pair<std::vector<std::size_t>, vector_double> fully_connected::get_connecti
     std::pair<std::vector<std::size_t>, vector_double> retval;
 
     // Prepare storage for the indices list.
-    retval.first.resize(boost::numeric_cast<decltype(retval.first.size())>(num_vertices - 1u));
+    retval.first.resize(numeric_cast<decltype(retval.first.size())>(num_vertices - 1u));
 
     // Fill in the indices list.
     for (std::size_t j = 0; j < i; ++j) {
@@ -110,7 +108,7 @@ std::pair<std::vector<std::size_t>, vector_double> fully_connected::get_connecti
     }
 
     // Fill the weights list with m_weight.
-    retval.second.resize(boost::numeric_cast<decltype(retval.second.size())>(num_vertices - 1u), m_weight);
+    retval.second.resize(numeric_cast<decltype(retval.second.size())>(num_vertices - 1u), m_weight);
 
     return retval;
 }
@@ -144,8 +142,8 @@ bgl_graph_t fully_connected::to_bgl() const
 
                     // Establish the connection between i and j.
                     const auto result = boost::add_edge(
-                        boost::vertex(boost::numeric_cast<bgl_graph_t::vertices_size_type>(i), retval),
-                        boost::vertex(boost::numeric_cast<bgl_graph_t::vertices_size_type>(j), retval), retval);
+                        boost::vertex(numeric_cast<bgl_graph_t::vertices_size_type>(i), retval),
+                        boost::vertex(numeric_cast<bgl_graph_t::vertices_size_type>(j), retval), retval);
 
                     assert(result.second);
 

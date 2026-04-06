@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE sea_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/test/tools/floating_point_comparison.hpp>
@@ -48,15 +48,15 @@ see https://www.gnu.org/licenses/. */
 using namespace pagmo;
 using namespace std;
 
-BOOST_AUTO_TEST_CASE(sea_algorithm_construction)
+TEST(sea_test, sea_algorithm_construction)
 {
     sea user_algo{1234u, 42u};
-    BOOST_CHECK(user_algo.get_verbosity() == 0u);
-    BOOST_CHECK(user_algo.get_seed() == 42u);
-    BOOST_CHECK((user_algo.get_log() == sea::log_type{}));
+    EXPECT_TRUE(user_algo.get_verbosity() == 0u);
+    EXPECT_TRUE(user_algo.get_seed() == 42u);
+    EXPECT_TRUE((user_algo.get_log() == sea::log_type{}));
 }
 
-BOOST_AUTO_TEST_CASE(sea_evolve_test)
+TEST(sea_test, sea_evolve_test)
 {
     // Here we only test that evolution is deterministic if the
     // seed is controlled.
@@ -74,13 +74,13 @@ BOOST_AUTO_TEST_CASE(sea_evolve_test)
         user_algo2.set_verbosity(1u);
         pop2 = user_algo2.evolve(pop2);
 
-        BOOST_CHECK(user_algo1.get_log() == user_algo2.get_log());
+        EXPECT_TRUE(user_algo1.get_log() == user_algo2.get_log());
 
         population pop3{prob, 5u, 23u};
         user_algo2.set_seed(23u);
         pop3 = user_algo2.evolve(pop3);
 
-        BOOST_CHECK(user_algo1.get_log() == user_algo2.get_log());
+        EXPECT_TRUE(user_algo1.get_log() == user_algo2.get_log());
     }
     // On a single objective stochastic problem
     {
@@ -95,37 +95,37 @@ BOOST_AUTO_TEST_CASE(sea_evolve_test)
         user_algo2.set_verbosity(2u); // more verbosity here to also cover the relative code lines
         pop2 = user_algo2.evolve(pop2);
 
-        BOOST_CHECK(user_algo1.get_log() == user_algo2.get_log());
+        EXPECT_TRUE(user_algo1.get_log() == user_algo2.get_log());
 
         population pop3{prob, 5u, 23u};
         user_algo2.set_seed(23u);
         pop3 = user_algo2.evolve(pop3);
 
-        BOOST_CHECK(user_algo1.get_log() == user_algo2.get_log());
+        EXPECT_TRUE(user_algo1.get_log() == user_algo2.get_log());
     }
     // We then check that the evolve throws if called on unsuitable problems
-    BOOST_CHECK_THROW(sea{10u}.evolve(population{problem{zdt{}}, 5u, 23u}), std::invalid_argument);
-    BOOST_CHECK_THROW(sea{10u}.evolve(population{problem{hock_schittkowski_71{}}, 5u, 23u}), std::invalid_argument);
+    EXPECT_THROW(sea{10u}.evolve(population{problem{zdt{}}, 5u, 23u}), std::invalid_argument);
+    EXPECT_THROW(sea{10u}.evolve(population{problem{hock_schittkowski_71{}}, 5u, 23u}), std::invalid_argument);
     // Or with not enough individuals
-    BOOST_CHECK_THROW(sea{10u}.evolve(population{problem{rosenbrock{}}, 0u}), std::invalid_argument);
+    EXPECT_THROW(sea{10u}.evolve(population{problem{rosenbrock{}}, 0u}), std::invalid_argument);
     // And a clean exit for 0 generations
     population pop{rosenbrock{25u}, 10u};
-    BOOST_CHECK(sea{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);
+    EXPECT_TRUE(sea{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);
 }
 
-BOOST_AUTO_TEST_CASE(sea_setters_getters_test)
+TEST(sea_test, sea_setters_getters_test)
 {
     sea user_algo{10u, 23u};
     user_algo.set_verbosity(23u);
-    BOOST_CHECK(user_algo.get_verbosity() == 23u);
+    EXPECT_TRUE(user_algo.get_verbosity() == 23u);
     user_algo.set_seed(23u);
-    BOOST_CHECK(user_algo.get_seed() == 23u);
-    BOOST_CHECK(user_algo.get_name().find("Simple Evolutionary Algorithm") != std::string::npos);
-    BOOST_CHECK(user_algo.get_extra_info().find("Verbosity") != std::string::npos);
-    BOOST_CHECK_NO_THROW(user_algo.get_log());
+    EXPECT_TRUE(user_algo.get_seed() == 23u);
+    EXPECT_TRUE(user_algo.get_name().find("Simple Evolutionary Algorithm") != std::string::npos);
+    EXPECT_TRUE(user_algo.get_extra_info().find("Verbosity") != std::string::npos);
+    EXPECT_NO_THROW(user_algo.get_log());
 }
 
-BOOST_AUTO_TEST_CASE(sea_serialization_test)
+TEST(sea_test, sea_serialization_test)
 {
     // Make one evolution
     problem prob{rosenbrock{25u}};
@@ -151,13 +151,13 @@ BOOST_AUTO_TEST_CASE(sea_serialization_test)
     }
     auto after_text = boost::lexical_cast<std::string>(algo);
     auto after_log = algo.extract<sea>()->get_log();
-    BOOST_CHECK_EQUAL(before_text, after_text);
-    BOOST_CHECK(before_log == after_log);
+    EXPECT_EQ(before_text, after_text);
+    EXPECT_TRUE(before_log == after_log);
     // so we implement a close check
     for (auto i = 0u; i < before_log.size(); ++i) {
-        BOOST_CHECK_EQUAL(std::get<0>(before_log[i]), std::get<0>(after_log[i]));
-        BOOST_CHECK_EQUAL(std::get<1>(before_log[i]), std::get<1>(after_log[i]));
-        BOOST_CHECK_CLOSE(std::get<2>(before_log[i]), std::get<2>(after_log[i]), 1e-8);
-        BOOST_CHECK_CLOSE(std::get<3>(before_log[i]), std::get<3>(after_log[i]), 1e-8);
+        EXPECT_EQ(std::get<0>(before_log[i]), std::get<0>(after_log[i]));
+        EXPECT_EQ(std::get<1>(before_log[i]), std::get<1>(after_log[i]));
+        EXPECT_NEAR(std::get<2>(before_log[i]), std::get<2>(after_log[i]), 1e-8);
+        EXPECT_NEAR(std::get<3>(before_log[i]), std::get<3>(after_log[i]), 1e-8);
     }
 }

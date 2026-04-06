@@ -42,8 +42,6 @@ see https://www.gnu.org/licenses/. */
 #include <utility>
 #include <vector>
 
-#include <boost/type_traits/integral_constant.hpp>
-
 #include <pagmo/concepts.hpp>
 #include <pagmo/config.hpp>
 #include <pagmo/detail/pagmo.fwd.hpp>

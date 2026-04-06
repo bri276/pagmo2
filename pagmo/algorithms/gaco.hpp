@@ -29,12 +29,11 @@ see https://www.gnu.org/licenses/. */
 #ifndef PAGMO_ALGORITHMS_GACO_HPP
 #define PAGMO_ALGORITHMS_GACO_HPP
 
+#include <optional>
 #include <random>
 #include <string>
 #include <tuple>
 #include <vector>
-
-#include <boost/optional.hpp>
 
 #include <pagmo/algorithm.hpp>
 #include <pagmo/bfe.hpp>
@@ -261,7 +260,7 @@ private:
     mutable unsigned m_n_impstop;
     mutable unsigned m_gen_mark;
     mutable vector_double::size_type m_fevals;
-    boost::optional<bfe> m_bfe;
+    std::optional<bfe> m_bfe;
 };
 
 } // namespace pagmo

@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE decompose_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/test/tools/floating_point_comparison.hpp>
@@ -65,7 +65,7 @@ struct mc_01 {
     }
 };
 
-BOOST_AUTO_TEST_CASE(decompose_construction_test)
+TEST(decompose_test, decompose_construction_test)
 {
     // First we check directly the two constructors
     problem p0{decompose{}};
@@ -77,42 +77,42 @@ BOOST_AUTO_TEST_CASE(decompose_construction_test)
     // We check that the default constructor constructs a problem
     // which has an identical representation to the problem
     // built by the explicit constructor.
-    BOOST_CHECK(p0_string == p1_string);
+    EXPECT_TRUE(p0_string == p1_string);
 
     // We check the throws
     auto inf = std::numeric_limits<double>::infinity();
     auto nan = std::numeric_limits<double>::quiet_NaN();
     // single objective problem
-    BOOST_CHECK_THROW(decompose(rosenbrock{}, {0.5, 0.5}, {0., 0.}), std::invalid_argument);
+    EXPECT_THROW(decompose(rosenbrock{}, {0.5, 0.5}, {0., 0.}), std::invalid_argument);
     // constrained problem
-    BOOST_CHECK_THROW(decompose(mc_01{}, {0.5, 0.5}, {0., 0.}, "weighted", false), std::invalid_argument);
+    EXPECT_THROW(decompose(mc_01{}, {0.5, 0.5}, {0., 0.}, "weighted", false), std::invalid_argument);
     // random decomposition method
-    BOOST_CHECK_THROW(decompose(zdt{1u, 2u}, {0.5, 0.5}, {0., 0.}, "my_method", false), std::invalid_argument);
+    EXPECT_THROW(decompose(zdt{1u, 2u}, {0.5, 0.5}, {0., 0.}, "my_method", false), std::invalid_argument);
     // wrong length for the weights
-    BOOST_CHECK_THROW(decompose(zdt{1u, 2u}, {0.5, 0.2, 0.3}, {0., 0.}, "weighted", false), std::invalid_argument);
-    BOOST_CHECK_THROW(decompose(zdt{1u, 2u}, {0.5, inf}, {0., 0.}, "weighted", false), std::invalid_argument);
+    EXPECT_THROW(decompose(zdt{1u, 2u}, {0.5, 0.2, 0.3}, {0., 0.}, "weighted", false), std::invalid_argument);
+    EXPECT_THROW(decompose(zdt{1u, 2u}, {0.5, inf}, {0., 0.}, "weighted", false), std::invalid_argument);
     // wrong length for the reference point
-    BOOST_CHECK_THROW(decompose(zdt{1u, 2u}, {0.5, 0.5}, {1.}, "weighted", false), std::invalid_argument);
-    BOOST_CHECK_THROW(decompose(zdt{1u, 2u}, {0.5, 0.5}, {0., nan}, "weighted", false), std::invalid_argument);
+    EXPECT_THROW(decompose(zdt{1u, 2u}, {0.5, 0.5}, {1.}, "weighted", false), std::invalid_argument);
+    EXPECT_THROW(decompose(zdt{1u, 2u}, {0.5, 0.5}, {0., nan}, "weighted", false), std::invalid_argument);
     // weight sum != 1
-    BOOST_CHECK_THROW(decompose(zdt{1u, 2u}, {0.9, 0.5}, {0., 0.}, "weighted", false), std::invalid_argument);
+    EXPECT_THROW(decompose(zdt{1u, 2u}, {0.9, 0.5}, {0., 0.}, "weighted", false), std::invalid_argument);
     // weight contains negative component
-    BOOST_CHECK_THROW(decompose(zdt{1u, 2u}, {1.5, -0.5}, {0., 0.}, "weighted", false), std::invalid_argument);
+    EXPECT_THROW(decompose(zdt{1u, 2u}, {1.5, -0.5}, {0., 0.}, "weighted", false), std::invalid_argument);
 
     print(p1);
 }
 
-BOOST_AUTO_TEST_CASE(decompose_integration_into_problem_test)
+TEST(decompose_test, decompose_integration_into_problem_test)
 {
     problem p{decompose{zdt{1u, 2u}, {0.5, 0.5}, {0., 0.}, "weighted", false}};
-    BOOST_CHECK(p.has_gradient() == false);
-    BOOST_CHECK(p.has_hessians() == false);
-    BOOST_CHECK(p.get_nobj() == 1u);
-    BOOST_CHECK_THROW(p.gradient({1, 2}), not_implemented_error);
-    BOOST_CHECK_THROW(p.hessians({1, 2}), not_implemented_error);
+    EXPECT_TRUE(p.has_gradient() == false);
+    EXPECT_TRUE(p.has_hessians() == false);
+    EXPECT_TRUE(p.get_nobj() == 1u);
+    EXPECT_THROW(p.gradient({1, 2}), not_implemented_error);
+    EXPECT_THROW(p.hessians({1, 2}), not_implemented_error);
 }
 
-BOOST_AUTO_TEST_CASE(decompose_fitness_test)
+TEST(decompose_test, decompose_fitness_test)
 {
     problem p{zdt{1u, 2u}};
     vector_double lambda{0.5, 0.5};
@@ -127,8 +127,8 @@ BOOST_AUTO_TEST_CASE(decompose_fitness_test)
     auto fdtch = pdtch.fitness(point);
     auto fdbi = pdbi.fitness(point);
 
-    BOOST_CHECK_CLOSE(fdw[0], f[0] * lambda[0] + f[1] * lambda[1], 1e-8);
-    BOOST_CHECK_CLOSE(fdtch[0], std::max(lambda[0] * std::abs(f[0] - z[0]), lambda[1] * std::abs(f[1] - z[1])), 1e-8);
+    EXPECT_NEAR(fdw[0], f[0] * lambda[0] + f[1] * lambda[1], 1e-8);
+    EXPECT_NEAR(fdtch[0], std::max(lambda[0] * std::abs(f[0] - z[0]), lambda[1] * std::abs(f[1] - z[1])), 1e-8);
     double lnorm = std::sqrt(lambda[0] * lambda[0] + lambda[1] * lambda[1]);
     vector_double ilambda{lambda[0] / lnorm, lambda[1] / lnorm};
     double d1 = (f[0] - z[0]) * ilambda[0] + (f[1] - z[1]) * ilambda[1];
@@ -137,10 +137,10 @@ BOOST_AUTO_TEST_CASE(decompose_fitness_test)
     d20 *= d20;
     d21 *= d21;
     double d2 = std::sqrt(d20 + d21);
-    BOOST_CHECK_CLOSE(fdbi[0], d1 + 5.0 * d2, 1e-8);
+    EXPECT_NEAR(fdbi[0], d1 + 5.0 * d2, 1e-8);
 }
 
-BOOST_AUTO_TEST_CASE(original_fitness_test)
+TEST(decompose_test, original_fitness_test)
 {
     zdt p{zdt{1u, 2u}};
     vector_double lambda{0.5, 0.5};
@@ -156,47 +156,47 @@ BOOST_AUTO_TEST_CASE(original_fitness_test)
     auto fdbi = pdbi.original_fitness(dv);
 
     // We check that the original fitness is always the same
-    BOOST_CHECK(f == fdw);
-    BOOST_CHECK(f == fdtch);
-    BOOST_CHECK(f == fdbi);
+    EXPECT_TRUE(f == fdw);
+    EXPECT_TRUE(f == fdtch);
+    EXPECT_TRUE(f == fdbi);
 }
 
-BOOST_AUTO_TEST_CASE(decompose_ideal_point_adaptation_test)
+TEST(decompose_test, decompose_ideal_point_adaptation_test)
 {
     // no adaptation
     {
         problem p{decompose{zdt{1u, 2u}, {0.5, 0.5}, {2., 2.}, "weighted", false}};
-        BOOST_CHECK(p.extract<decompose>()->get_z() == vector_double({2., 2.}));
+        EXPECT_TRUE(p.extract<decompose>()->get_z() == vector_double({2., 2.}));
         p.fitness({1., 1.});
-        BOOST_CHECK(p.extract<decompose>()->get_z() == vector_double({2., 2.}));
+        EXPECT_TRUE(p.extract<decompose>()->get_z() == vector_double({2., 2.}));
     }
 
     // adaptation at work
     {
         problem p{decompose{zdt{1u, 2u}, {0.5, 0.5}, {2., 2.}, "weighted", true}};
-        BOOST_CHECK(p.extract<decompose>()->get_z() == vector_double({2., 2.}));
+        EXPECT_TRUE(p.extract<decompose>()->get_z() == vector_double({2., 2.}));
         p.fitness({1., 1.});
-        BOOST_CHECK(p.extract<decompose>()->get_z() == vector_double({1., 2.}));
+        EXPECT_TRUE(p.extract<decompose>()->get_z() == vector_double({1., 2.}));
         p.fitness({0., 0.});
-        BOOST_CHECK(p.extract<decompose>()->get_z() == vector_double({0., 1.}));
+        EXPECT_TRUE(p.extract<decompose>()->get_z() == vector_double({0., 1.}));
     }
 }
 
-BOOST_AUTO_TEST_CASE(decompose_has_dense_sparsities_test)
+TEST(decompose_test, decompose_has_dense_sparsities_test)
 {
     problem p{decompose{zdt{1u, 2u}, {0.5, 0.5}, {2., 2.}, "weighted", false}};
-    BOOST_CHECK(p.gradient_sparsity() == detail::dense_gradient(1u, 2u));
-    BOOST_CHECK(p.hessians_sparsity() == detail::dense_hessians(1u, 2u));
+    EXPECT_TRUE(p.gradient_sparsity() == detail::dense_gradient(1u, 2u));
+    EXPECT_TRUE(p.hessians_sparsity() == detail::dense_hessians(1u, 2u));
 }
 
-BOOST_AUTO_TEST_CASE(decompose_name_and_extra_info_test)
+TEST(decompose_test, decompose_name_and_extra_info_test)
 {
     decompose p{zdt{1u, 2u}, {0.5, 0.5}, {2., 2.}, "weighted", false};
-    BOOST_CHECK(p.get_name().find("[decomposed]") != std::string::npos);
-    BOOST_CHECK(p.get_extra_info().find("Ideal point adaptation") != std::string::npos);
+    EXPECT_TRUE(p.get_name().find("[decomposed]") != std::string::npos);
+    EXPECT_TRUE(p.get_extra_info().find("Ideal point adaptation") != std::string::npos);
 }
 
-BOOST_AUTO_TEST_CASE(decompose_serialization_test)
+TEST(decompose_test, decompose_serialization_test)
 {
     problem p{decompose{zdt{1u, 2u}, {0.5, 0.5}, {2., 2.}, "weighted", false}};
     // Call objfun to increase the internal counters.
@@ -216,16 +216,16 @@ BOOST_AUTO_TEST_CASE(decompose_serialization_test)
         iarchive >> p;
     }
     auto after = boost::lexical_cast<std::string>(p);
-    BOOST_CHECK_EQUAL(before, after);
+    EXPECT_EQ(before, after);
 }
 
 template <typename T>
 void check_inheritance(T udp, const vector_double &w, const vector_double &r)
 {
-    BOOST_CHECK_EQUAL(problem(decompose(udp, w, r)).get_nobj(), 1u);
-    BOOST_CHECK_EQUAL(problem(decompose(udp, w, r)).get_nix(), problem(udp).get_nix());
-    BOOST_CHECK(problem(decompose(udp, w, r)).get_bounds() == problem(udp).get_bounds());
-    BOOST_CHECK_EQUAL(problem(decompose(udp, w, r)).has_set_seed(), problem(udp).has_set_seed());
+    EXPECT_EQ(problem(decompose(udp, w, r)).get_nobj(), 1u);
+    EXPECT_EQ(problem(decompose(udp, w, r)).get_nix(), problem(udp).get_nix());
+    EXPECT_TRUE(problem(decompose(udp, w, r)).get_bounds() == problem(udp).get_bounds());
+    EXPECT_EQ(problem(decompose(udp, w, r)).has_set_seed(), problem(udp).has_set_seed());
 }
 
 struct smobjp {
@@ -253,7 +253,7 @@ struct smobjp {
     unsigned m_seed;
 };
 
-BOOST_AUTO_TEST_CASE(decompose_inheritance_test)
+TEST(decompose_test, decompose_inheritance_test)
 {
     check_inheritance(zdt{1u, 2u}, vector_double{0.5, 0.5}, vector_double{1.5, 1.5});
     // We check the forwarding of the integer dimension
@@ -264,24 +264,24 @@ BOOST_AUTO_TEST_CASE(decompose_inheritance_test)
     problem p{decompose{smobjp(1234567u), vector_double{0.5, 0.5}, vector_double{1.5, 1.5}}};
     std::ostringstream ss1, ss2;
     ss1 << p;
-    BOOST_CHECK(ss1.str().find(std::to_string(1234567u)) != std::string::npos);
+    EXPECT_TRUE(ss1.str().find(std::to_string(1234567u)) != std::string::npos);
     p.set_seed(5672543u);
     ss2 << p;
-    BOOST_CHECK(ss2.str().find(std::to_string(5672543u)) != std::string::npos);
+    EXPECT_TRUE(ss2.str().find(std::to_string(5672543u)) != std::string::npos);
 }
 
-BOOST_AUTO_TEST_CASE(decompose_inner_algo_get_test)
+TEST(decompose_test, decompose_inner_algo_get_test)
 {
     // We check that the correct overload is called according to (*this) being const or not
     {
         const decompose udp(zdt{1u, 2u}, {0.5, 0.5}, {2., 2.}, "weighted", false);
-        BOOST_CHECK(std::is_const<decltype(udp)>::value);
-        BOOST_CHECK(std::is_const<std::remove_reference<decltype(udp.get_inner_problem())>::type>::value);
+        EXPECT_TRUE(std::is_const<decltype(udp)>::value);
+        EXPECT_TRUE(std::is_const<std::remove_reference<decltype(udp.get_inner_problem())>::type>::value);
     }
     {
         decompose udp(zdt{1u, 2u}, {0.5, 0.5}, {2., 2.}, "weighted", false);
-        BOOST_CHECK(!std::is_const<decltype(udp)>::value);
-        BOOST_CHECK(!std::is_const<std::remove_reference<decltype(udp.get_inner_problem())>::type>::value);
+        EXPECT_TRUE(!std::is_const<decltype(udp)>::value);
+        EXPECT_TRUE(!std::is_const<std::remove_reference<decltype(udp.get_inner_problem())>::type>::value);
     }
 }
 
@@ -304,10 +304,10 @@ struct ts2 {
     }
 };
 
-BOOST_AUTO_TEST_CASE(decompose_thread_safety_test)
+TEST(decompose_test, decompose_thread_safety_test)
 {
     zdt p0{1, 2};
     decompose t{p0, {0.5, 0.5}, {2., 2.}};
-    BOOST_CHECK(t.get_thread_safety() == thread_safety::basic);
-    BOOST_CHECK((decompose{ts2{}, {0.5, 0.5}, {2., 2.}}.get_thread_safety() == thread_safety::none));
+    EXPECT_TRUE(t.get_thread_safety() == thread_safety::basic);
+    EXPECT_TRUE((decompose{ts2{}, {0.5, 0.5}, {2., 2.}}.get_thread_safety() == thread_safety::none));
 }

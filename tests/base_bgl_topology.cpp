@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE base_bgl_topology
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <atomic>
 #include <initializer_list>
@@ -39,7 +39,6 @@ see https://www.gnu.org/licenses/. */
 #include <utility>
 
 #include <boost/algorithm/string/predicate.hpp>
-#include <boost/graph/adjacency_list.hpp>
 
 #include <pagmo/s11n.hpp>
 #include <pagmo/topologies/base_bgl_topology.hpp>
@@ -48,104 +47,104 @@ using namespace pagmo;
 
 using bbt = base_bgl_topology;
 
-BOOST_AUTO_TEST_CASE(basic_test)
+TEST(base_bgl_topology, basic_test)
 {
     bbt t0;
-    BOOST_CHECK(t0.num_vertices() == 0u);
+    EXPECT_TRUE(t0.num_vertices() == 0u);
 
     t0.add_vertex();
-    BOOST_CHECK(t0.num_vertices() == 1u);
-    BOOST_CHECK(t0.get_connections(0).first.empty());
-    BOOST_CHECK(t0.get_connections(0).second.empty());
+    EXPECT_TRUE(t0.num_vertices() == 1u);
+    EXPECT_TRUE(t0.get_connections(0).first.empty());
+    EXPECT_TRUE(t0.get_connections(0).second.empty());
 
     t0.add_vertex();
     t0.add_vertex();
     t0.add_vertex();
-    BOOST_CHECK(t0.num_vertices() == 4u);
-    BOOST_CHECK(t0.get_connections(0).first.empty());
-    BOOST_CHECK(t0.get_connections(0).second.empty());
-    BOOST_CHECK(t0.get_connections(1).first.empty());
-    BOOST_CHECK(t0.get_connections(1).second.empty());
-    BOOST_CHECK(t0.get_connections(2).first.empty());
-    BOOST_CHECK(t0.get_connections(2).second.empty());
-    BOOST_CHECK(t0.get_connections(3).first.empty());
-    BOOST_CHECK(t0.get_connections(3).second.empty());
+    EXPECT_TRUE(t0.num_vertices() == 4u);
+    EXPECT_TRUE(t0.get_connections(0).first.empty());
+    EXPECT_TRUE(t0.get_connections(0).second.empty());
+    EXPECT_TRUE(t0.get_connections(1).first.empty());
+    EXPECT_TRUE(t0.get_connections(1).second.empty());
+    EXPECT_TRUE(t0.get_connections(2).first.empty());
+    EXPECT_TRUE(t0.get_connections(2).second.empty());
+    EXPECT_TRUE(t0.get_connections(3).first.empty());
+    EXPECT_TRUE(t0.get_connections(3).second.empty());
 
     t0.add_edge(0, 1);
     t0.add_edge(0, 2);
-    BOOST_CHECK(t0.are_adjacent(0, 1));
-    BOOST_CHECK(t0.are_adjacent(0, 2));
-    BOOST_CHECK(!t0.are_adjacent(1, 0));
-    BOOST_CHECK(!t0.are_adjacent(2, 0));
+    EXPECT_TRUE(t0.are_adjacent(0, 1));
+    EXPECT_TRUE(t0.are_adjacent(0, 2));
+    EXPECT_TRUE(!t0.are_adjacent(1, 0));
+    EXPECT_TRUE(!t0.are_adjacent(2, 0));
 
     t0.add_edge(1, 0);
     t0.add_edge(2, 0);
-    BOOST_CHECK(t0.get_edge_weight(1, 0) == 1.);
-    BOOST_CHECK(t0.get_edge_weight(2, 0) == 1.);
+    EXPECT_TRUE(t0.get_edge_weight(1, 0) == 1.);
+    EXPECT_TRUE(t0.get_edge_weight(2, 0) == 1.);
 
     auto conns = t0.get_connections(0);
     using c_vec = decltype(conns.first);
     using w_vec = decltype(conns.second);
 
-    BOOST_CHECK((conns.first == c_vec{1, 2} || conns.first == c_vec{2, 1}));
-    BOOST_CHECK((conns.second == w_vec{1., 1.}));
+    EXPECT_TRUE((conns.first == c_vec{1, 2} || conns.first == c_vec{2, 1}));
+    EXPECT_TRUE((conns.second == w_vec{1., 1.}));
 
     conns = t0.get_connections(1);
 
-    BOOST_CHECK((conns.first == c_vec{0}));
-    BOOST_CHECK((conns.second == w_vec{1.}));
+    EXPECT_TRUE((conns.first == c_vec{0}));
+    EXPECT_TRUE((conns.second == w_vec{1.}));
 
     conns = t0.get_connections(2);
 
-    BOOST_CHECK((conns.first == c_vec{0}));
-    BOOST_CHECK((conns.second == w_vec{1.}));
+    EXPECT_TRUE((conns.first == c_vec{0}));
+    EXPECT_TRUE((conns.second == w_vec{1.}));
 
     t0.remove_edge(0, 2);
-    BOOST_CHECK(t0.get_connections(2).first.empty());
-    BOOST_CHECK(t0.get_connections(2).second.empty());
+    EXPECT_TRUE(t0.get_connections(2).first.empty());
+    EXPECT_TRUE(t0.get_connections(2).second.empty());
 
     t0.set_weight(0, 1, .5);
-    BOOST_CHECK(t0.get_edge_weight(0, 1) == .5);
+    EXPECT_TRUE(t0.get_edge_weight(0, 1) == .5);
 
     conns = t0.get_connections(1);
 
-    BOOST_CHECK((conns.first == c_vec{0}));
-    BOOST_CHECK((conns.second == w_vec{.5}));
+    EXPECT_TRUE((conns.first == c_vec{0}));
+    EXPECT_TRUE((conns.second == w_vec{.5}));
 
     t0.set_all_weights(.25);
-    BOOST_CHECK(t0.get_connections(0).second.size() == 2u);
-    BOOST_CHECK(t0.get_connections(0).second[0] == .25);
-    BOOST_CHECK(t0.get_connections(0).second[1] == .25);
+    EXPECT_TRUE(t0.get_connections(0).second.size() == 2u);
+    EXPECT_TRUE(t0.get_connections(0).second[0] == .25);
+    EXPECT_TRUE(t0.get_connections(0).second[1] == .25);
 
     // Test copy/move.
     auto t1(t0);
-    BOOST_CHECK(t1.get_connections(0).second.size() == 2u);
-    BOOST_CHECK(t1.get_connections(0).second[0] == .25);
-    BOOST_CHECK(t1.get_connections(0).second[1] == .25);
+    EXPECT_TRUE(t1.get_connections(0).second.size() == 2u);
+    EXPECT_TRUE(t1.get_connections(0).second[0] == .25);
+    EXPECT_TRUE(t1.get_connections(0).second[1] == .25);
 
     auto t2(std::move(t1));
-    BOOST_CHECK(t2.get_connections(0).second.size() == 2u);
-    BOOST_CHECK(t2.get_connections(0).second[0] == .25);
-    BOOST_CHECK(t2.get_connections(0).second[1] == .25);
+    EXPECT_TRUE(t2.get_connections(0).second.size() == 2u);
+    EXPECT_TRUE(t2.get_connections(0).second[0] == .25);
+    EXPECT_TRUE(t2.get_connections(0).second[1] == .25);
 
     bbt t3;
     t3 = t2;
-    BOOST_CHECK(t3.get_connections(0).second.size() == 2u);
-    BOOST_CHECK(t3.get_connections(0).second[0] == .25);
-    BOOST_CHECK(t3.get_connections(0).second[1] == .25);
+    EXPECT_TRUE(t3.get_connections(0).second.size() == 2u);
+    EXPECT_TRUE(t3.get_connections(0).second[0] == .25);
+    EXPECT_TRUE(t3.get_connections(0).second[1] == .25);
 
     bbt t4;
     t4 = std::move(t3);
-    BOOST_CHECK(t4.get_connections(0).second.size() == 2u);
-    BOOST_CHECK(t4.get_connections(0).second[0] == .25);
-    BOOST_CHECK(t4.get_connections(0).second[1] == .25);
+    EXPECT_TRUE(t4.get_connections(0).second.size() == 2u);
+    EXPECT_TRUE(t4.get_connections(0).second[0] == .25);
+    EXPECT_TRUE(t4.get_connections(0).second[1] == .25);
 
     const auto str = t4.get_extra_info();
-    BOOST_CHECK(boost::contains(str, "Number of vertices: 4"));
-    BOOST_CHECK(boost::contains(str, "Number of edges: 3"));
+    EXPECT_TRUE(boost::contains(str, "Number of vertices: 4"));
+    EXPECT_TRUE(boost::contains(str, "Number of edges: 3"));
 }
 
-BOOST_AUTO_TEST_CASE(error_handling)
+TEST(base_bgl_topology, error_handling)
 {
     bbt t0;
 
@@ -211,7 +210,7 @@ BOOST_AUTO_TEST_CASE(error_handling)
     });
 }
 
-BOOST_AUTO_TEST_CASE(s11n_test)
+TEST(base_bgl_topology, s11n_test)
 {
     bbt t0;
     t0.add_vertex();
@@ -235,17 +234,17 @@ BOOST_AUTO_TEST_CASE(s11n_test)
             boost::archive::binary_iarchive iarchive(ss);
             iarchive >> t1;
         }
-        BOOST_CHECK(t1.num_vertices() == 4u);
-        BOOST_CHECK(t1.are_adjacent(0, 1));
-        BOOST_CHECK(t1.are_adjacent(0, 2));
-        BOOST_CHECK(t1.are_adjacent(1, 0));
-        BOOST_CHECK(!t1.are_adjacent(2, 0));
-        BOOST_CHECK(t1.get_connections(1).second.size() == 1u);
-        BOOST_CHECK(t1.get_connections(1).second[0] == .5);
+        EXPECT_TRUE(t1.num_vertices() == 4u);
+        EXPECT_TRUE(t1.are_adjacent(0, 1));
+        EXPECT_TRUE(t1.are_adjacent(0, 2));
+        EXPECT_TRUE(t1.are_adjacent(1, 0));
+        EXPECT_TRUE(!t1.are_adjacent(2, 0));
+        EXPECT_TRUE(t1.get_connections(1).second.size() == 1u);
+        EXPECT_TRUE(t1.get_connections(1).second[0] == .5);
     }
 }
 
-BOOST_AUTO_TEST_CASE(thread_torture_test)
+TEST(base_bgl_topology, thread_torture_test)
 {
     std::atomic<int> barrier(0), failures(0);
 
@@ -299,50 +298,50 @@ BOOST_AUTO_TEST_CASE(thread_torture_test)
         t.join();
     }
 
-    BOOST_CHECK(failures.load() == 0);
+    EXPECT_TRUE(failures.load() == 0);
 }
 
-BOOST_AUTO_TEST_CASE(to_bgl_test)
+TEST(base_bgl_topology, to_bgl_test)
 {
     bbt t0;
 
     auto b = t0.to_bgl();
 
-    BOOST_CHECK(boost::num_vertices(b) == 0u);
+    EXPECT_TRUE(boost::num_vertices(b) == 0u);
 
     t0.add_vertex();
     t0.add_vertex();
     t0.add_vertex();
 
     b = t0.to_bgl();
-    BOOST_CHECK(boost::num_vertices(b) == 3u);
+    EXPECT_TRUE(boost::num_vertices(b) == 3u);
     auto a_vertices = boost::adjacent_vertices(boost::vertex(0, b), b);
-    BOOST_CHECK(a_vertices.first == a_vertices.second);
+    EXPECT_TRUE(a_vertices.first == a_vertices.second);
     a_vertices = boost::adjacent_vertices(boost::vertex(1, b), b);
-    BOOST_CHECK(a_vertices.first == a_vertices.second);
+    EXPECT_TRUE(a_vertices.first == a_vertices.second);
     a_vertices = boost::adjacent_vertices(boost::vertex(2, b), b);
-    BOOST_CHECK(a_vertices.first == a_vertices.second);
+    EXPECT_TRUE(a_vertices.first == a_vertices.second);
 
     t0.add_edge(0, 1, .25);
     t0.add_edge(1, 2, 1);
     b = t0.to_bgl();
-    BOOST_CHECK(boost::num_vertices(b) == 3u);
+    EXPECT_TRUE(boost::num_vertices(b) == 3u);
     a_vertices = boost::adjacent_vertices(boost::vertex(0, b), b);
-    BOOST_CHECK(a_vertices.second - a_vertices.first == 1);
+    EXPECT_TRUE(a_vertices.second - a_vertices.first == 1);
     auto vi = boost::vertex(0, b);
     for (auto av = boost::adjacent_vertices(vi, b); av.first != av.second; ++av.first) {
         const auto e = boost::edge(vi, boost::vertex(*av.first, b), b);
-        BOOST_CHECK(e.second);
-        BOOST_CHECK(b[e.first] == .25);
+        EXPECT_TRUE(e.second);
+        EXPECT_TRUE(b[e.first] == .25);
     }
     a_vertices = boost::adjacent_vertices(boost::vertex(1, b), b);
-    BOOST_CHECK(a_vertices.second - a_vertices.first == 1);
+    EXPECT_TRUE(a_vertices.second - a_vertices.first == 1);
     vi = boost::vertex(1, b);
     for (auto av = boost::adjacent_vertices(vi, b); av.first != av.second; ++av.first) {
         const auto e = boost::edge(vi, boost::vertex(*av.first, b), b);
-        BOOST_CHECK(e.second);
-        BOOST_CHECK(b[e.first] == 1.);
+        EXPECT_TRUE(e.second);
+        EXPECT_TRUE(b[e.first] == 1.);
     }
     a_vertices = boost::adjacent_vertices(boost::vertex(2, b), b);
-    BOOST_CHECK(a_vertices.first == a_vertices.second);
+    EXPECT_TRUE(a_vertices.first == a_vertices.second);
 }

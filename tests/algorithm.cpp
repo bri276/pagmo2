@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE algorithm_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <iostream>
 #include <sstream>
@@ -101,7 +101,7 @@ struct al_02 {
 };
 PAGMO_S11N_ALGORITHM_EXPORT(al_02)
 
-BOOST_AUTO_TEST_CASE(algorithm_construction_test)
+TEST(algorithm_test, algorithm_construction_test)
 {
     // We construct two different algorithms. One having all the
     // mandatory and optional methods implemented, the other
@@ -109,59 +109,59 @@ BOOST_AUTO_TEST_CASE(algorithm_construction_test)
     algorithm algo_full{al_01{}};
     algorithm algo_minimal{al_02{}};
     // We test that the optional methods are appropriately detected in the full case
-    BOOST_CHECK(algo_full.has_set_seed() == true);
-    BOOST_CHECK(algo_full.has_set_verbosity() == true);
-    BOOST_CHECK_NO_THROW(algo_full.set_seed(1u));
-    BOOST_CHECK_NO_THROW(algo_full.set_verbosity(1u));
+    EXPECT_TRUE(algo_full.has_set_seed() == true);
+    EXPECT_TRUE(algo_full.has_set_verbosity() == true);
+    EXPECT_NO_THROW(algo_full.set_seed(1u));
+    EXPECT_NO_THROW(algo_full.set_verbosity(1u));
     // And in the minimal case
-    BOOST_CHECK(algo_minimal.has_set_seed() == false);
-    BOOST_CHECK(algo_minimal.has_set_verbosity() == false);
-    BOOST_CHECK_THROW(algo_minimal.set_seed(1u), not_implemented_error);
-    BOOST_CHECK_THROW(algo_minimal.set_verbosity(1u), not_implemented_error);
+    EXPECT_TRUE(algo_minimal.has_set_seed() == false);
+    EXPECT_TRUE(algo_minimal.has_set_verbosity() == false);
+    EXPECT_THROW(algo_minimal.set_seed(1u), not_implemented_error);
+    EXPECT_THROW(algo_minimal.set_verbosity(1u), not_implemented_error);
     // We check that at construction the name has been assigned
-    BOOST_CHECK(algo_full.get_name() == "name");
-    BOOST_CHECK(algo_minimal.get_name() == detail::type_name<al_02>());
+    EXPECT_TRUE(algo_full.get_name() == "name");
+    EXPECT_TRUE(algo_minimal.get_name() == detail::type_name<al_02>());
     // Default constructor.
     algorithm a0;
-    BOOST_CHECK((a0.extract<null_algorithm>() != nullptr));
+    EXPECT_TRUE((a0.extract<null_algorithm>() != nullptr));
     // Check copy semantics.
     algorithm a1{a0};
-    BOOST_CHECK((a0.extract<null_algorithm>() != nullptr));
-    BOOST_CHECK((a1.extract<null_algorithm>() != nullptr));
+    EXPECT_TRUE((a0.extract<null_algorithm>() != nullptr));
+    EXPECT_TRUE((a1.extract<null_algorithm>() != nullptr));
     algorithm a2{al_01{}};
     a2 = a1;
-    BOOST_CHECK((a2.extract<null_algorithm>() != nullptr));
-    BOOST_CHECK((a1.extract<null_algorithm>() != nullptr));
+    EXPECT_TRUE((a2.extract<null_algorithm>() != nullptr));
+    EXPECT_TRUE((a1.extract<null_algorithm>() != nullptr));
     // Move semantics.
     algorithm a3{std::move(a0)};
-    BOOST_CHECK((a3.extract<null_algorithm>() != nullptr));
+    EXPECT_TRUE((a3.extract<null_algorithm>() != nullptr));
     algorithm a4{al_01{}};
     a4 = std::move(a2);
-    BOOST_CHECK((a4.extract<null_algorithm>() != nullptr));
+    EXPECT_TRUE((a4.extract<null_algorithm>() != nullptr));
     // Check we can revive moved-from objects.
     a0 = a4;
-    BOOST_CHECK((a0.extract<null_algorithm>() != nullptr));
+    EXPECT_TRUE((a0.extract<null_algorithm>() != nullptr));
     a2 = std::move(a4);
-    BOOST_CHECK((a2.extract<null_algorithm>() != nullptr));
+    EXPECT_TRUE((a2.extract<null_algorithm>() != nullptr));
 
     // Check the IsUdAlgorithm type trait.
-    BOOST_CHECK(IsUdAlgorithm<al_01>);
-    BOOST_CHECK(IsUdAlgorithm<null_algorithm>);
-    BOOST_CHECK(!IsUdAlgorithm<al_01 &>);
-    BOOST_CHECK(!IsUdAlgorithm<const al_01>);
-    BOOST_CHECK(!IsUdAlgorithm<int>);
-    BOOST_CHECK(!IsUdAlgorithm<void>);
-    BOOST_CHECK(!IsUdAlgorithm<std::string>);
-    BOOST_CHECK((std::is_constructible<algorithm, al_01>::value));
-    BOOST_CHECK((std::is_constructible<algorithm, null_algorithm>::value));
-    BOOST_CHECK((std::is_constructible<algorithm, al_01 &>::value));
-    BOOST_CHECK((std::is_constructible<algorithm, const null_algorithm &>::value));
-    BOOST_CHECK((std::is_constructible<algorithm, al_01 &&>::value));
-    BOOST_CHECK((!std::is_constructible<algorithm, int>::value));
-    BOOST_CHECK((!std::is_constructible<algorithm, std::string>::value));
+    EXPECT_TRUE(IsUdAlgorithm<al_01>);
+    EXPECT_TRUE(IsUdAlgorithm<null_algorithm>);
+    EXPECT_TRUE(!IsUdAlgorithm<al_01 &>);
+    EXPECT_TRUE(!IsUdAlgorithm<const al_01>);
+    EXPECT_TRUE(!IsUdAlgorithm<int>);
+    EXPECT_TRUE(!IsUdAlgorithm<void>);
+    EXPECT_TRUE(!IsUdAlgorithm<std::string>);
+    EXPECT_TRUE((std::is_constructible<algorithm, al_01>::value));
+    EXPECT_TRUE((std::is_constructible<algorithm, null_algorithm>::value));
+    EXPECT_TRUE((std::is_constructible<algorithm, al_01 &>::value));
+    EXPECT_TRUE((std::is_constructible<algorithm, const null_algorithm &>::value));
+    EXPECT_TRUE((std::is_constructible<algorithm, al_01 &&>::value));
+    EXPECT_TRUE((!std::is_constructible<algorithm, int>::value));
+    EXPECT_TRUE((!std::is_constructible<algorithm, std::string>::value));
 }
 
-BOOST_AUTO_TEST_CASE(algorithm_copy_constructor_test)
+TEST(algorithm_test, algorithm_copy_constructor_test)
 {
     // We check the copy constructor
     algorithm algo{al_01{}};
@@ -177,16 +177,16 @@ BOOST_AUTO_TEST_CASE(algorithm_copy_constructor_test)
     auto a2 = algo_copy.extract<al_01>();
 
     // 1 - We check the resources pointed to by m_ptr have different address
-    BOOST_CHECK(a1 != 0);
-    BOOST_CHECK(a2 != 0);
-    BOOST_CHECK(a1 != a2);
+    EXPECT_TRUE(a1 != 0);
+    EXPECT_TRUE(a2 != 0);
+    EXPECT_TRUE(a1 != a2);
     // 2 - We check that the other members are copied
-    BOOST_CHECK(algo.get_name() == algo_copy.get_name());
-    BOOST_CHECK(algo.has_set_seed() == algo_copy.has_set_seed());
-    BOOST_CHECK(algo.has_set_verbosity() == algo_copy.has_set_verbosity());
+    EXPECT_TRUE(algo.get_name() == algo_copy.get_name());
+    EXPECT_TRUE(algo.has_set_seed() == algo_copy.has_set_seed());
+    EXPECT_TRUE(algo.has_set_verbosity() == algo_copy.has_set_verbosity());
 }
 
-BOOST_AUTO_TEST_CASE(algorithm_move_constructor_test)
+TEST(algorithm_test, algorithm_move_constructor_test)
 {
     // We instantiate an algorithm
     algorithm algo{al_01{}};
@@ -206,9 +206,9 @@ BOOST_AUTO_TEST_CASE(algorithm_move_constructor_test)
     // And the string representation of the moved algo
     auto moved_algo_string = boost::lexical_cast<std::string>(moved_algo);
     // 1 - We check the resource pointed by m_ptr has been moved from algo to moved_algo
-    BOOST_CHECK(a1 == a2);
+    EXPECT_TRUE(a1 == a2);
     // 2 - We check that the two string representations are identical
-    BOOST_CHECK(algo_string == moved_algo_string);
+    EXPECT_TRUE(algo_string == moved_algo_string);
 }
 
 // Algorithm with overrides
@@ -246,14 +246,14 @@ struct al_03 {
     };
 };
 
-BOOST_AUTO_TEST_CASE(algorithm_override_mechanics_test)
+TEST(algorithm_test, algorithm_override_mechanics_test)
 {
     algorithm algo{al_03{}};
-    BOOST_CHECK(algo.has_set_seed() == false);
-    BOOST_CHECK(algo.has_set_verbosity() == false);
+    EXPECT_TRUE(algo.has_set_seed() == false);
+    EXPECT_TRUE(algo.has_set_verbosity() == false);
 }
 
-BOOST_AUTO_TEST_CASE(algorithm_move_assignment_test)
+TEST(algorithm_test, algorithm_move_assignment_test)
 {
     // We instantiate an algorithm
     algorithm algo{al_01{}};
@@ -274,12 +274,12 @@ BOOST_AUTO_TEST_CASE(algorithm_move_assignment_test)
     // And the string representation of the moved algo
     auto moved_algo_string = boost::lexical_cast<std::string>(moved_algo);
     // 1 - We check the resource pointed by m_ptr has been moved from algo to moved_algo
-    BOOST_CHECK(a1 == a2);
+    EXPECT_TRUE(a1 == a2);
     // 2 - We check that the two string representations are identical
-    BOOST_CHECK(algo_string == moved_algo_string);
+    EXPECT_TRUE(algo_string == moved_algo_string);
 }
 
-BOOST_AUTO_TEST_CASE(algorithm_copy_assignment_test)
+TEST(algorithm_test, algorithm_copy_assignment_test)
 {
     // We check the copy constructor
     algorithm algo{al_01{}};
@@ -296,16 +296,16 @@ BOOST_AUTO_TEST_CASE(algorithm_copy_assignment_test)
     auto a2 = algo_copy.extract<al_01>();
 
     // 1 - We check the resources pointed to by m_ptr have different address
-    BOOST_CHECK(a1 != 0);
-    BOOST_CHECK(a2 != 0);
-    BOOST_CHECK(a1 != a2);
+    EXPECT_TRUE(a1 != 0);
+    EXPECT_TRUE(a2 != 0);
+    EXPECT_TRUE(a1 != a2);
     // 2 - We check that the other members are copied
-    BOOST_CHECK(algo.get_name() == algo_copy.get_name());
-    BOOST_CHECK(algo.has_set_seed() == algo_copy.has_set_seed());
-    BOOST_CHECK(algo.has_set_verbosity() == algo_copy.has_set_verbosity());
+    EXPECT_TRUE(algo.get_name() == algo_copy.get_name());
+    EXPECT_TRUE(algo.has_set_seed() == algo_copy.has_set_seed());
+    EXPECT_TRUE(algo.has_set_verbosity() == algo_copy.has_set_verbosity());
 }
 
-BOOST_AUTO_TEST_CASE(algorithm_extract_is_test)
+TEST(algorithm_test, algorithm_extract_is_test)
 {
     algorithm algo{al_01{}};
     algo.set_seed(1u);
@@ -313,60 +313,60 @@ BOOST_AUTO_TEST_CASE(algorithm_extract_is_test)
     auto user_algo = algo.extract<al_01>();
 
     // We check thet we can access to public data members
-    BOOST_CHECK(user_algo->m_seed == 1u);
-    BOOST_CHECK(user_algo->m_verbosity == 1u);
+    EXPECT_TRUE(user_algo->m_seed == 1u);
+    EXPECT_TRUE(user_algo->m_verbosity == 1u);
 
     // We check that a non successful cast returns a null pointer
-    BOOST_CHECK(!algo.extract<al_02>());
+    EXPECT_TRUE(!algo.extract<al_02>());
 
     // We check the is method
-    BOOST_CHECK(algo.is<al_01>());
-    BOOST_CHECK(!algo.is<al_02>());
+    EXPECT_TRUE(algo.is<al_01>());
+    EXPECT_TRUE(!algo.is<al_02>());
 }
 
-BOOST_AUTO_TEST_CASE(algorithm_evolve_test)
+TEST(algorithm_test, algorithm_evolve_test)
 {
     algorithm algo{al_01{}};
     population pop{problem{rosenbrock{5}}, 2u};
     population pop_out = algo.evolve(pop);
     // We test that the evolve is called and does what
     // its supposed to, in this case return the same population
-    BOOST_CHECK(pop.size() == pop_out.size());
-    BOOST_CHECK(pop.get_x() == pop_out.get_x());
-    BOOST_CHECK(pop.get_f() == pop_out.get_f());
-    BOOST_CHECK(pop.get_ID() == pop_out.get_ID());
+    EXPECT_TRUE(pop.size() == pop_out.size());
+    EXPECT_TRUE(pop.get_x() == pop_out.get_x());
+    EXPECT_TRUE(pop.get_f() == pop_out.get_f());
+    EXPECT_TRUE(pop.get_ID() == pop_out.get_ID());
 }
 
-BOOST_AUTO_TEST_CASE(algorithm_setters_test)
+TEST(algorithm_test, algorithm_setters_test)
 {
     algorithm algo{al_01{}};
     algo.set_seed(32u);
-    BOOST_CHECK(algo.extract<al_01>()->m_seed == 32u);
+    EXPECT_TRUE(algo.extract<al_01>()->m_seed == 32u);
     algo.set_verbosity(32u);
-    BOOST_CHECK(algo.extract<al_01>()->m_verbosity == 32u);
+    EXPECT_TRUE(algo.extract<al_01>()->m_verbosity == 32u);
 }
 
-BOOST_AUTO_TEST_CASE(algorithm_has_test)
+TEST(algorithm_test, algorithm_has_test)
 {
     algorithm algo{al_01{}};
-    BOOST_CHECK(algo.has_set_seed() == true);
-    BOOST_CHECK(algo.has_set_seed() == algo.is_stochastic());
-    BOOST_CHECK(algo.has_set_verbosity() == true);
+    EXPECT_TRUE(algo.has_set_seed() == true);
+    EXPECT_TRUE(algo.has_set_seed() == algo.is_stochastic());
+    EXPECT_TRUE(algo.has_set_verbosity() == true);
 }
 
-BOOST_AUTO_TEST_CASE(algorithm_getters_test)
+TEST(algorithm_test, algorithm_getters_test)
 {
     {
         algorithm algo{al_01{}};
-        BOOST_CHECK(algo.get_name() == "name");
-        BOOST_CHECK(algo.get_extra_info().find("Seed") != std::string::npos);
+        EXPECT_TRUE(algo.get_name() == "name");
+        EXPECT_TRUE(algo.get_extra_info().find("Seed") != std::string::npos);
     }
     algorithm algo{al_02{}};
-    BOOST_CHECK(algo.get_name().find("al_02") != std::string::npos);
-    BOOST_CHECK(algo.get_extra_info().find("") != std::string::npos);
+    EXPECT_TRUE(algo.get_name().find("al_02") != std::string::npos);
+    EXPECT_TRUE(algo.get_extra_info().find("") != std::string::npos);
 }
 
-BOOST_AUTO_TEST_CASE(algorithm_serialization_test)
+TEST(algorithm_test, algorithm_serialization_test)
 {
     // Instantiate an algorithm
     algorithm algo{al_01{}};
@@ -389,13 +389,13 @@ BOOST_AUTO_TEST_CASE(algorithm_serialization_test)
         iarchive >> algo2;
     }
     auto after = boost::lexical_cast<std::string>(algo2);
-    BOOST_CHECK_EQUAL(before, after);
+    EXPECT_EQ(before, after);
     // Check explicitly that the properties of base_p where restored as well.
-    BOOST_CHECK_EQUAL(algo.extract<al_01>()->m_seed, algo2.extract<al_01>()->m_seed);
-    BOOST_CHECK_EQUAL(algo.extract<al_01>()->m_verbosity, algo2.extract<al_01>()->m_verbosity);
+    EXPECT_EQ(algo.extract<al_01>()->m_seed, algo2.extract<al_01>()->m_seed);
+    EXPECT_EQ(algo.extract<al_01>()->m_verbosity, algo2.extract<al_01>()->m_verbosity);
 }
 
-BOOST_AUTO_TEST_CASE(null_algorithm_construction_and_evolve)
+TEST(algorithm_test, null_algorithm_construction_and_evolve)
 {
     // Trivial checks
     null_algorithm user_algo{};
@@ -404,16 +404,16 @@ BOOST_AUTO_TEST_CASE(null_algorithm_construction_and_evolve)
     population pop(user_prob, 20u);
     auto evolved_pop = user_algo.evolve(pop);
     for (decltype(pop.size()) i = 0u; i < pop.size(); ++i) {
-        BOOST_CHECK(pop.get_x()[i] == evolved_pop.get_x()[i]);
-        BOOST_CHECK(pop.get_f()[i] == evolved_pop.get_f()[i]);
-        BOOST_CHECK(pop.get_ID()[i] == evolved_pop.get_ID()[i]);
+        EXPECT_TRUE(pop.get_x()[i] == evolved_pop.get_x()[i]);
+        EXPECT_TRUE(pop.get_f()[i] == evolved_pop.get_f()[i]);
+        EXPECT_TRUE(pop.get_ID()[i] == evolved_pop.get_ID()[i]);
     }
 }
 
-BOOST_AUTO_TEST_CASE(serialization_test)
+TEST(algorithm_test, serialization_test)
 {
     algorithm algo{};
-    BOOST_CHECK_EQUAL(algo.get_name(), "Null algorithm");
+    EXPECT_EQ(algo.get_name(), "Null algorithm");
     std::stringstream ss;
     {
         boost::archive::binary_oarchive oarchive(ss);
@@ -426,15 +426,15 @@ BOOST_AUTO_TEST_CASE(serialization_test)
     }
 }
 
-BOOST_AUTO_TEST_CASE(extract_test)
+TEST(algorithm_test, extract_test)
 {
     algorithm p;
-    BOOST_CHECK(p.is<null_algorithm>());
-    BOOST_CHECK((std::is_same<null_algorithm *, decltype(p.extract<null_algorithm>())>::value));
+    EXPECT_TRUE(p.is<null_algorithm>());
+    EXPECT_TRUE((std::is_same<null_algorithm *, decltype(p.extract<null_algorithm>())>::value));
     BOOST_CHECK((std::is_same<null_algorithm const *,
                               decltype(static_cast<const algorithm &>(p).extract<null_algorithm>())>::value));
-    BOOST_CHECK(p.extract<null_algorithm>() != nullptr);
-    BOOST_CHECK(static_cast<const algorithm &>(p).extract<null_algorithm>() != nullptr);
+    EXPECT_TRUE(p.extract<null_algorithm>() != nullptr);
+    EXPECT_TRUE(static_cast<const algorithm &>(p).extract<null_algorithm>() != nullptr);
 }
 
 struct ts1 {
@@ -466,61 +466,61 @@ struct ts3 {
     }
 };
 
-BOOST_AUTO_TEST_CASE(thread_safety_test)
+TEST(algorithm_test, thread_safety_test)
 {
-    BOOST_CHECK(algorithm{}.get_thread_safety() == thread_safety::basic);
-    BOOST_CHECK(algorithm{ts1{}}.get_thread_safety() == thread_safety::basic);
-    BOOST_CHECK(algorithm{ts2{}}.get_thread_safety() == thread_safety::none);
-    BOOST_CHECK(algorithm{ts3{}}.get_thread_safety() == thread_safety::basic);
+    EXPECT_TRUE(algorithm{}.get_thread_safety() == thread_safety::basic);
+    EXPECT_TRUE(algorithm{ts1{}}.get_thread_safety() == thread_safety::basic);
+    EXPECT_TRUE(algorithm{ts2{}}.get_thread_safety() == thread_safety::none);
+    EXPECT_TRUE(algorithm{ts3{}}.get_thread_safety() == thread_safety::basic);
 }
 
-BOOST_AUTO_TEST_CASE(is_valid)
+TEST(algorithm_test, is_valid)
 {
     algorithm p0;
-    BOOST_CHECK(p0.is_valid());
+    EXPECT_TRUE(p0.is_valid());
     algorithm p1(std::move(p0));
-    BOOST_CHECK(!p0.is_valid());
+    EXPECT_TRUE(!p0.is_valid());
     p0 = algorithm{al_01{}};
-    BOOST_CHECK(p0.is_valid());
+    EXPECT_TRUE(p0.is_valid());
     p1 = std::move(p0);
-    BOOST_CHECK(!p0.is_valid());
+    EXPECT_TRUE(!p0.is_valid());
     p0 = algorithm{al_01{}};
-    BOOST_CHECK(p0.is_valid());
+    EXPECT_TRUE(p0.is_valid());
 }
 
-BOOST_AUTO_TEST_CASE(generic_assignment)
+TEST(algorithm_test, generic_assignment)
 {
     algorithm p0;
-    BOOST_CHECK(p0.is<null_algorithm>());
-    BOOST_CHECK(&(p0 = al_01{}) == &p0);
-    BOOST_CHECK(p0.is_valid());
-    BOOST_CHECK(p0.is<al_01>());
-    BOOST_CHECK((!std::is_assignable<algorithm, void>::value));
-    BOOST_CHECK((!std::is_assignable<algorithm, int &>::value));
-    BOOST_CHECK((!std::is_assignable<algorithm, const int &>::value));
-    BOOST_CHECK((!std::is_assignable<algorithm, int &&>::value));
+    EXPECT_TRUE(p0.is<null_algorithm>());
+    EXPECT_TRUE(&(p0 = al_01{}) == &p0);
+    EXPECT_TRUE(p0.is_valid());
+    EXPECT_TRUE(p0.is<al_01>());
+    EXPECT_TRUE((!std::is_assignable<algorithm, void>::value));
+    EXPECT_TRUE((!std::is_assignable<algorithm, int &>::value));
+    EXPECT_TRUE((!std::is_assignable<algorithm, const int &>::value));
+    EXPECT_TRUE((!std::is_assignable<algorithm, int &&>::value));
 }
 
-BOOST_AUTO_TEST_CASE(type_index)
+TEST(algorithm_test, type_index)
 {
     algorithm p0;
-    BOOST_CHECK(p0.get_type_index() == std::type_index(typeid(null_algorithm)));
+    EXPECT_TRUE(p0.get_type_index() == std::type_index(typeid(null_algorithm)));
     p0 = algorithm{al_01{}};
-    BOOST_CHECK(p0.get_type_index() == std::type_index(typeid(al_01)));
+    EXPECT_TRUE(p0.get_type_index() == std::type_index(typeid(al_01)));
 }
 
-BOOST_AUTO_TEST_CASE(get_ptr)
+TEST(algorithm_test, get_ptr)
 {
     algorithm p0;
-    BOOST_CHECK(p0.get_ptr() == p0.extract<null_algorithm>());
-    BOOST_CHECK(static_cast<const algorithm &>(p0).get_ptr()
+    EXPECT_TRUE(p0.get_ptr() == p0.extract<null_algorithm>());
+    EXPECT_TRUE(static_cast<const algorithm &>(p0).get_ptr()
                 == static_cast<const algorithm &>(p0).extract<null_algorithm>());
     p0 = algorithm{al_01{}};
-    BOOST_CHECK(p0.get_ptr() == p0.extract<al_01>());
-    BOOST_CHECK(static_cast<const algorithm &>(p0).get_ptr() == static_cast<const algorithm &>(p0).extract<al_01>());
+    EXPECT_TRUE(p0.get_ptr() == p0.extract<al_01>());
+    EXPECT_TRUE(static_cast<const algorithm &>(p0).get_ptr() == static_cast<const algorithm &>(p0).extract<al_01>());
 }
 
-BOOST_AUTO_TEST_CASE(stream_operator)
+TEST(algorithm_test, stream_operator)
 {
     std::cout << algorithm{} << '\n';
 }

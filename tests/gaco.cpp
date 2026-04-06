@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE gaco_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <iostream>
 #include <string>
@@ -54,22 +54,22 @@ see https://www.gnu.org/licenses/. */
 using namespace pagmo;
 
 // Construction tests: we verify that the algorithm throws an error for wrong input parameters
-BOOST_AUTO_TEST_CASE(construction_test)
+TEST(gaco_test, construction_test)
 {
     gaco user_algo{2u, 13u, 1.0, 0.0, 0.01, 1u, 7u, 1000u, 1000u, 0.0, false, 23u};
-    BOOST_CHECK(user_algo.get_verbosity() == 0u);
-    BOOST_CHECK(user_algo.get_seed() == 23u);
-    BOOST_CHECK((user_algo.get_log() == gaco::log_type{}));
-    BOOST_CHECK_THROW((gaco{2u, 13u, 1.0, 0.0, -0.01, 1u, 7u, 1000u, 1000u, 0.1, false, 23u}), std::invalid_argument);
-    BOOST_CHECK_THROW((gaco{2u, 13u, 1.0, 0.0, 0.01, 1u, 7u, 1000u, 1000u, -0.1, false, 23u}), std::invalid_argument);
-    BOOST_CHECK_THROW((gaco{2u, 13u, -1.0, 0.0, 0.01, 1u, 7u, 1000u, 1000u, 0.0, false, 23u}), std::invalid_argument);
-    BOOST_CHECK_THROW((gaco{2u, 13u, 1.0, 0.0, 0.01, 3u, 7u, 1000u, 1000u, 0.0, false, 23u}), std::invalid_argument);
-    BOOST_CHECK_THROW((gaco{2u, 13u, 1.0, 0.0, 0.01, 0u, 7u, 1000u, 1000u, 0.0, false, 23u}), std::invalid_argument);
-    BOOST_CHECK_THROW((gaco{2u, 13u, 1.0, 0.0, 0.01, 0u, 7u, 1000u, 1000u, 0.0, true, 23u}), std::invalid_argument);
-    BOOST_CHECK_THROW((gaco{2u, 1u, 1.0, 0.0, 0.01, 1u, 7u, 1000u, 1000u, 0.0, false, 23u}), std::invalid_argument);
+    EXPECT_TRUE(user_algo.get_verbosity() == 0u);
+    EXPECT_TRUE(user_algo.get_seed() == 23u);
+    EXPECT_TRUE((user_algo.get_log() == gaco::log_type{}));
+    EXPECT_THROW((gaco{2u, 13u, 1.0, 0.0, -0.01, 1u, 7u, 1000u, 1000u, 0.1, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((gaco{2u, 13u, 1.0, 0.0, 0.01, 1u, 7u, 1000u, 1000u, -0.1, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((gaco{2u, 13u, -1.0, 0.0, 0.01, 1u, 7u, 1000u, 1000u, 0.0, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((gaco{2u, 13u, 1.0, 0.0, 0.01, 3u, 7u, 1000u, 1000u, 0.0, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((gaco{2u, 13u, 1.0, 0.0, 0.01, 0u, 7u, 1000u, 1000u, 0.0, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((gaco{2u, 13u, 1.0, 0.0, 0.01, 0u, 7u, 1000u, 1000u, 0.0, true, 23u}), std::invalid_argument);
+    EXPECT_THROW((gaco{2u, 1u, 1.0, 0.0, 0.01, 1u, 7u, 1000u, 1000u, 0.0, false, 23u}), std::invalid_argument);
 }
 
-BOOST_AUTO_TEST_CASE(evolve_test)
+TEST(gaco_test, evolve_test)
 {
     // Here we only test that evolution is deterministic if the
     // seed is controlled for all variants
@@ -82,18 +82,18 @@ BOOST_AUTO_TEST_CASE(evolve_test)
             gaco user_algo1{3u, 5u, 1.0, 1e9, 0.01, i, 7u, 1000u, 1000u, 0.0, false, 23u};
             user_algo1.set_verbosity(1u);
             pop1 = user_algo1.evolve(pop1);
-            BOOST_CHECK(user_algo1.get_log().size() > 0u);
+            EXPECT_TRUE(user_algo1.get_log().size() > 0u);
             gaco user_algo2{3u, 5u, 1.0, 1e9, 0.01, i, 7u, 1000u, 1000u, 0.0, false, 23u};
             user_algo2.set_verbosity(1u);
             pop2 = user_algo2.evolve(pop2);
 
-            BOOST_CHECK(user_algo1.get_log() == user_algo2.get_log());
+            EXPECT_TRUE(user_algo1.get_log() == user_algo2.get_log());
 
             gaco user_algo3{3u, 5u, 1.0, 1e9, 0.01, i, 7u, 1000u, 1000u, 0.0, false, 23u};
             user_algo3.set_verbosity(1u);
             pop3 = user_algo3.evolve(pop3);
 
-            BOOST_CHECK(user_algo2.get_log() == user_algo3.get_log());
+            EXPECT_TRUE(user_algo2.get_log() == user_algo3.get_log());
         }
     }
     // Here we check that the exit condition of impstop and evalstop actually provoke an exit within 300u gen
@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE(evolve_test)
         problem prob{rosenbrock{2u}};
         population pop{prob, 20u, 23u};
         pop = user_algo.evolve(pop);
-        BOOST_CHECK(user_algo.get_log().size() < 200u);
+        EXPECT_TRUE(user_algo.get_log().size() < 200u);
     }
     {
         gaco user_algo{200u, 15u, 1.0, 0.0, 0.01, 150u, 7u, 1000u, 1u, 0.0, false, 23u};
@@ -112,38 +112,38 @@ BOOST_AUTO_TEST_CASE(evolve_test)
         problem prob{rosenbrock{2u}};
         population pop{prob, 20u, 23u};
         pop = user_algo.evolve(pop);
-        BOOST_CHECK(user_algo.get_log().size() < 200u);
+        EXPECT_TRUE(user_algo.get_log().size() < 200u);
     }
 
     // We then check that the evolve throws if called on unsuitable problems
     // Integer variables problem
-    //    BOOST_CHECK_THROW(gaco{2u}.evolve(population{problem{minlp_rastrigin{}}, 64u}), std::invalid_argument);
+    //    EXPECT_THROW(gaco{2u}.evolve(population{problem{minlp_rastrigin{}}, 64u}), std::invalid_argument);
     // Multi-objective problem
-    BOOST_CHECK_THROW(gaco{2u}.evolve(population{problem{zdt{}}, 64u}), std::invalid_argument);
+    EXPECT_THROW(gaco{2u}.evolve(population{problem{zdt{}}, 64u}), std::invalid_argument);
     // Population size smaller than ker size
-    BOOST_CHECK_THROW(gaco{2u}.evolve(population{problem{rosenbrock{}}, 60u}), std::invalid_argument);
+    EXPECT_THROW(gaco{2u}.evolve(population{problem{rosenbrock{}}, 60u}), std::invalid_argument);
     // Population size smaller than 2
-    BOOST_CHECK_THROW(gaco{1u}.evolve(population{problem{rosenbrock{}}, 1}), std::invalid_argument);
+    EXPECT_THROW(gaco{1u}.evolve(population{problem{rosenbrock{}}, 1}), std::invalid_argument);
     // Stochastic problem
-    BOOST_CHECK_THROW((gaco{}.evolve(population{inventory{}, 65u, 23u})), std::invalid_argument);
+    EXPECT_THROW((gaco{}.evolve(population{inventory{}, 65u, 23u})), std::invalid_argument);
     // and a clean exit for 0 generation
     population pop{rosenbrock{2u}, 10u};
-    BOOST_CHECK(gaco{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);
+    EXPECT_TRUE(gaco{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);
 }
 
-BOOST_AUTO_TEST_CASE(setters_getters_test)
+TEST(gaco_test, setters_getters_test)
 {
     gaco user_algo{10u, 13u, 1.0, 0.0, 0.01, 9u, 7u, 1000u, 1000u, 0.0, false, 23u};
     user_algo.set_verbosity(23u);
-    BOOST_CHECK(user_algo.get_verbosity() == 23u);
+    EXPECT_TRUE(user_algo.get_verbosity() == 23u);
     user_algo.set_seed(23u);
-    BOOST_CHECK(user_algo.get_seed() == 23u);
-    BOOST_CHECK(user_algo.get_name().find("GACO: Ant Colony Optimization") != std::string::npos);
-    BOOST_CHECK(user_algo.get_extra_info().find("Oracle parameter") != std::string::npos);
-    BOOST_CHECK_NO_THROW(user_algo.get_log());
+    EXPECT_TRUE(user_algo.get_seed() == 23u);
+    EXPECT_TRUE(user_algo.get_name().find("GACO: Ant Colony Optimization") != std::string::npos);
+    EXPECT_TRUE(user_algo.get_extra_info().find("Oracle parameter") != std::string::npos);
+    EXPECT_NO_THROW(user_algo.get_log());
 }
 
-BOOST_AUTO_TEST_CASE(serialization_test)
+TEST(gaco_test, serialization_test)
 {
     // Make one evolution
     problem prob{rosenbrock{2u}};
@@ -169,23 +169,23 @@ BOOST_AUTO_TEST_CASE(serialization_test)
     }
     auto after_text = boost::lexical_cast<std::string>(algo);
     auto after_log = algo.extract<gaco>()->get_log();
-    BOOST_CHECK_EQUAL(before_text, after_text);
-    BOOST_CHECK(before_log == after_log);
+    EXPECT_EQ(before_text, after_text);
+    EXPECT_TRUE(before_log == after_log);
     // so we implement a close check
-    BOOST_CHECK(before_log.size() > 0u);
+    EXPECT_TRUE(before_log.size() > 0u);
     for (auto i = 0u; i < before_log.size(); ++i) {
-        BOOST_CHECK_EQUAL(std::get<0>(before_log[i]), std::get<0>(after_log[i]));
-        BOOST_CHECK_EQUAL(std::get<1>(before_log[i]), std::get<1>(after_log[i]));
-        BOOST_CHECK_CLOSE(std::get<2>(before_log[i]), std::get<2>(after_log[i]), 1e-8);
-        BOOST_CHECK_EQUAL(std::get<3>(before_log[i]), std::get<3>(after_log[i]));
-        BOOST_CHECK_CLOSE(std::get<4>(before_log[i]), std::get<4>(after_log[i]), 1e-8);
-        BOOST_CHECK_CLOSE(std::get<5>(before_log[i]), std::get<5>(after_log[i]), 1e-8);
-        BOOST_CHECK_CLOSE(std::get<6>(before_log[i]), std::get<6>(after_log[i]), 1e-8);
+        EXPECT_EQ(std::get<0>(before_log[i]), std::get<0>(after_log[i]));
+        EXPECT_EQ(std::get<1>(before_log[i]), std::get<1>(after_log[i]));
+        EXPECT_NEAR(std::get<2>(before_log[i]), std::get<2>(after_log[i]), 1e-8);
+        EXPECT_EQ(std::get<3>(before_log[i]), std::get<3>(after_log[i]));
+        EXPECT_NEAR(std::get<4>(before_log[i]), std::get<4>(after_log[i]), 1e-8);
+        EXPECT_NEAR(std::get<5>(before_log[i]), std::get<5>(after_log[i]), 1e-8);
+        EXPECT_NEAR(std::get<6>(before_log[i]), std::get<6>(after_log[i]), 1e-8);
     }
 }
 
 // Coverage tests: we make sure that the algorithm is tested in all the lines
-BOOST_AUTO_TEST_CASE(miscellaneous_tests)
+TEST(gaco_test, miscellaneous_tests)
 {
     problem prob{hock_schittkowski_71{}};
     population population1{prob, 15u, 23u};
@@ -219,16 +219,16 @@ BOOST_AUTO_TEST_CASE(miscellaneous_tests)
     gaco user_algo7{20u, 15u, 1.0, 1e9, 0.0, 9u, 7u, 10000u, 10000u, 0.0, false, 23u}; // 3
     user_algo7.set_verbosity(1u);
     population7 = user_algo7.evolve(population7);
-    BOOST_CHECK(user_algo1.get_log().size() > 0u);
-    BOOST_CHECK(user_algo2.get_log().size() > 0u);
-    BOOST_CHECK(user_algo3.get_log().size() > 0u);
-    BOOST_CHECK(user_algo4.get_log().size() > 0u);
-    BOOST_CHECK(user_algo5.get_log().size() > 0u);
-    BOOST_CHECK(user_algo6.get_log().size() > 0u);
-    BOOST_CHECK(user_algo7.get_log().size() > 0u);
+    EXPECT_TRUE(user_algo1.get_log().size() > 0u);
+    EXPECT_TRUE(user_algo2.get_log().size() > 0u);
+    EXPECT_TRUE(user_algo3.get_log().size() > 0u);
+    EXPECT_TRUE(user_algo4.get_log().size() > 0u);
+    EXPECT_TRUE(user_algo5.get_log().size() > 0u);
+    EXPECT_TRUE(user_algo6.get_log().size() > 0u);
+    EXPECT_TRUE(user_algo7.get_log().size() > 0u);
 }
 
-BOOST_AUTO_TEST_CASE(construction_test_2)
+TEST(gaco_test, construction_test_2)
 {
     cec2006 udp(1u);
     problem prob(udp);
@@ -280,14 +280,14 @@ struct udp_nan {
     }
 };
 
-BOOST_AUTO_TEST_CASE(test_for_inf_and_nan)
+TEST(gaco_test, test_for_inf_and_nan)
 {
     gaco{10, 10, 1., -15., 0., 7}.evolve(population{problem{udp_inf{}}, 15u});
     gaco{10, 10, 1., -15., 0., 7}.evolve(population{problem{udp_nan{}}, 15u});
 }
 
 // Memory test: we verify that the algorithm has implemented memory correctly
-BOOST_AUTO_TEST_CASE(memory_test)
+TEST(gaco_test, memory_test)
 {
     gaco uda{1u, 20u, 1.0, 1e9, 0.01, 1u, 7u, 1000u, 1000u, 100.0, true, 23u};
     gaco uda_2{10u, 20u, 1.0, 1e9, 0.01, 1u, 7u, 1000u, 1000u, 100.0, false, 23u};
@@ -308,11 +308,11 @@ BOOST_AUTO_TEST_CASE(memory_test)
     }
     pop_2 = uda_2.evolve(pop_2);
     pop_3 = uda_3.evolve(pop_3);
-    BOOST_CHECK_EQUAL(pop_1.champion_f()[0], pop_2.champion_f()[0]);
+    EXPECT_EQ(pop_1.champion_f()[0], pop_2.champion_f()[0]);
 }
 
 // Integer tests: we verify that the returned population is actually made by integers
-BOOST_AUTO_TEST_CASE(integer_test_1)
+TEST(gaco_test, integer_test_1)
 {
     population pop{minlp_rastrigin{3u, 3u}, 10u, 23u};
     gaco uda{10u, 10u, 1.0, 1e9, 0.0, 5u, 7u, 1000u, 1000u, 0.0, false, 23u};
@@ -320,11 +320,11 @@ BOOST_AUTO_TEST_CASE(integer_test_1)
     pop = uda.evolve(pop);
     for (decltype(pop.size()) i = 0u; i < pop.size(); ++i) {
         auto x = pop.get_x()[i];
-        BOOST_CHECK(std::all_of(x.begin() + 3, x.end(), [](double el) { return (el == std::floor(el)); }));
+        EXPECT_TRUE(std::all_of(x.begin() + 3, x.end(), [](double el) { return (el == std::floor(el)); }));
     }
 }
 
-BOOST_AUTO_TEST_CASE(integer_test_2)
+TEST(gaco_test, integer_test_2)
 {
     population pop{golomb_ruler{7, 10}, 10u, 23u};
     gaco uda{10u, 10u, 1.0, 25.0, 0.01, 5u, 7u, 1000u, 1000u, 0.0, false, 23u};
@@ -332,11 +332,11 @@ BOOST_AUTO_TEST_CASE(integer_test_2)
     pop = uda.evolve(pop);
     for (decltype(pop.size()) i = 0u; i < pop.size(); ++i) {
         auto x = pop.get_x()[i];
-        BOOST_CHECK(std::all_of(x.begin(), x.end(), [](double el) { return (el == std::floor(el)); }));
+        EXPECT_TRUE(std::all_of(x.begin(), x.end(), [](double el) { return (el == std::floor(el)); }));
     }
 }
 
-BOOST_AUTO_TEST_CASE(bfe_usage_test)
+TEST(gaco_test, bfe_usage_test)
 {
     population pop{rosenbrock{10u}, 200u, 23u};
     gaco uda{40u, 10u, 1.0, 25.0, 0.01, 5u, 7u, 1000u, 1000u, 0.0, false, 23u};
@@ -351,10 +351,10 @@ BOOST_AUTO_TEST_CASE(bfe_usage_test)
     uda_2.set_seed(23u);
     pop_2 = uda_2.evolve(pop_2);
 
-    BOOST_CHECK_EQUAL(pop.champion_f()[0], pop_2.champion_f()[0]);
+    EXPECT_EQ(pop.champion_f()[0], pop_2.champion_f()[0]);
 }
 
-BOOST_AUTO_TEST_CASE(out_of_bounds_test)
+TEST(gaco_test, out_of_bounds_test)
 {
     population pop{rosenbrock{}, 10u, 23u};
     pop.set_x(0, {-20., 12}); // both out of bounds

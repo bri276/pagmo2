@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE luksan_vlcek1_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <boost/lexical_cast.hpp>
 #include <iostream>
@@ -41,36 +41,36 @@ see https://www.gnu.org/licenses/. */
 
 using namespace pagmo;
 
-BOOST_AUTO_TEST_CASE(luksan_vlcek1_test)
+TEST(luksan_vlcek1_test, luksan_vlcek1_test)
 {
     // 1 - Construction
-    BOOST_CHECK_NO_THROW(luksan_vlcek1{3});
-    BOOST_CHECK_NO_THROW(problem{luksan_vlcek1{3}});
-    BOOST_CHECK_THROW(luksan_vlcek1{2}, std::invalid_argument);
-    BOOST_CHECK_THROW(problem{luksan_vlcek1{1}}, std::invalid_argument);
+    EXPECT_NO_THROW(luksan_vlcek1{3});
+    EXPECT_NO_THROW(problem{luksan_vlcek1{3}});
+    EXPECT_THROW(luksan_vlcek1{2}, std::invalid_argument);
+    EXPECT_THROW(problem{luksan_vlcek1{1}}, std::invalid_argument);
     problem prob{luksan_vlcek1{3}};
-    BOOST_CHECK_EQUAL(prob.get_nic(), 0u);
-    BOOST_CHECK_EQUAL(prob.get_nec(), 1u);
-    BOOST_CHECK_EQUAL(prob.get_nobj(), 1u);
-    BOOST_CHECK_EQUAL(prob.gradient_sparsity().size(), 6u);
+    EXPECT_EQ(prob.get_nic(), 0u);
+    EXPECT_EQ(prob.get_nec(), 1u);
+    EXPECT_EQ(prob.get_nobj(), 1u);
+    EXPECT_EQ(prob.gradient_sparsity().size(), 6u);
     problem prob2{luksan_vlcek1{100}};
-    BOOST_CHECK_EQUAL(prob2.get_nic(), 0u);
-    BOOST_CHECK_EQUAL(prob2.get_nec(), 98u);
-    BOOST_CHECK_EQUAL(prob2.get_nobj(), 1u);
-    BOOST_CHECK_EQUAL(prob2.gradient_sparsity().size(), 394u);
+    EXPECT_EQ(prob2.get_nic(), 0u);
+    EXPECT_EQ(prob2.get_nec(), 98u);
+    EXPECT_EQ(prob2.get_nobj(), 1u);
+    EXPECT_EQ(prob2.gradient_sparsity().size(), 394u);
     {
         auto sp = estimate_sparsity([prob](const vector_double &x) { return prob.fitness(x); }, {0.1, 0.2, 0.3}, 1e-8);
-        BOOST_CHECK(prob.gradient_sparsity() == sp);
+        EXPECT_TRUE(prob.gradient_sparsity() == sp);
     }
     {
         auto sp = estimate_sparsity([prob2](const vector_double &x) { return prob2.fitness(x); },
                                     vector_double(100, 0.1), 1e-8);
-        BOOST_CHECK(prob2.gradient_sparsity() == sp);
+        EXPECT_TRUE(prob2.gradient_sparsity() == sp);
     }
     auto res = prob.gradient({1., 2., 3.});
     auto gh = estimate_gradient_h([prob](const vector_double &x) { return prob.fitness(x); }, {1., 2., 3.}, 1e-2);
     for (unsigned i = 0; i < res.size(); ++i) {
-        BOOST_CHECK_CLOSE(gh[i], res[i], 1e-8);
+        EXPECT_NEAR(gh[i], res[i], 1e-8);
     }
     res = prob2.gradient(vector_double(100, 0.1));
     gh = estimate_gradient_h([prob2](const vector_double &x) { return prob2.fitness(x); }, vector_double(100, 0.1),
@@ -81,12 +81,12 @@ BOOST_AUTO_TEST_CASE(luksan_vlcek1_test)
     for (auto &pair : ghs) {
         auto i = pair.first;
         auto j = pair.second;
-        BOOST_CHECK_CLOSE(gh[i * 100 + j], res[counter], 1e-8);
+        EXPECT_NEAR(gh[i * 100 + j], res[counter], 1e-8);
         ++counter;
     }
 }
 
-BOOST_AUTO_TEST_CASE(luksan_vlcek1_serialization_test)
+TEST(luksan_vlcek1_test, luksan_vlcek1_serialization_test)
 {
     problem p{luksan_vlcek1{3}};
     // Call objfun to increase the internal counters.
@@ -106,5 +106,5 @@ BOOST_AUTO_TEST_CASE(luksan_vlcek1_serialization_test)
         iarchive >> p;
     }
     auto after = boost::lexical_cast<std::string>(p);
-    BOOST_CHECK_EQUAL(before, after);
+    EXPECT_EQ(before, after);
 }

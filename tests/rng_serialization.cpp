@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE rng_serialization_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <iterator>
 #include <random>
@@ -40,7 +40,7 @@ static std::mt19937 rng;
 
 static const int ntrials = 100;
 
-BOOST_AUTO_TEST_CASE(rng_serialization_test)
+TEST(rng_serialization_test, rng_serialization_test)
 {
     using r_type = std::mt19937;
     using ia_type = boost::archive::binary_iarchive;
@@ -74,6 +74,6 @@ BOOST_AUTO_TEST_CASE(rng_serialization_test)
         std::vector<r_type::result_type> v2;
         std::generate_n(std::back_inserter(v2), 100, r);
         BOOST_CHECK_EQUAL_COLLECTIONS(v1.begin(), v1.end(), v2.begin(), v2.end());
-        BOOST_CHECK(r_copy == r);
+        EXPECT_TRUE(r_copy == r);
     }
 }

@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE cec2013_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <iostream>
 #include <random>
@@ -46,7 +46,7 @@ see https://www.gnu.org/licenses/. */
 
 using namespace pagmo;
 
-BOOST_AUTO_TEST_CASE(cec2013_test)
+TEST(cec2013_test, cec2013_test)
 {
     std::mt19937 r_engine(32u);
     // We check that all problems can be constructed at all dimensions and that the name returned makes sense
@@ -56,17 +56,17 @@ BOOST_AUTO_TEST_CASE(cec2013_test)
         for (auto dim : allowed_dims) {
             cec2013 udp{i, dim};
             auto x = random_decision_vector(problem(udp), r_engine); // a random vector
-            BOOST_CHECK_NO_THROW(udp.fitness(x));
+            EXPECT_NO_THROW(udp.fitness(x));
         }
-        BOOST_CHECK((cec2013{i, 2u}.get_name().find("CEC2013 - f")) != std::string::npos);
+        EXPECT_TRUE((cec2013{i, 2u}.get_name().find("CEC2013 - f")) != std::string::npos);
     }
     // We check that wrong problem ids and dimensions cannot be constructed
-    BOOST_CHECK_THROW((cec2013{0u, 2u}), std::invalid_argument);
-    BOOST_CHECK_THROW((cec2013{29u, 2u}), std::invalid_argument);
-    BOOST_CHECK_THROW((cec2013{10u, 3u}), std::invalid_argument);
+    EXPECT_THROW((cec2013{0u, 2u}), std::invalid_argument);
+    EXPECT_THROW((cec2013{29u, 2u}), std::invalid_argument);
+    EXPECT_THROW((cec2013{10u, 3u}), std::invalid_argument);
 }
 
-BOOST_AUTO_TEST_CASE(cec2013_serialization_test)
+TEST(cec2013_test, cec2013_serialization_test)
 {
     problem p{cec2013{1u, 2u}};
     // Call objfun to increase the internal counters.
@@ -86,5 +86,5 @@ BOOST_AUTO_TEST_CASE(cec2013_serialization_test)
         iarchive >> p;
     }
     auto after = boost::lexical_cast<std::string>(p);
-    BOOST_CHECK_EQUAL(before, after);
+    EXPECT_EQ(before, after);
 }

@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE griewank_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <boost/lexical_cast.hpp>
 #include <iostream>
@@ -40,29 +40,29 @@ see https://www.gnu.org/licenses/. */
 
 using namespace pagmo;
 
-BOOST_AUTO_TEST_CASE(griewank_test)
+TEST(griewank_test, griewank_test)
 {
     // Problem construction
     griewank gri1{1u};
     griewank gri3{3u};
-    BOOST_CHECK_THROW(griewank{0u}, std::invalid_argument);
-    BOOST_CHECK_NO_THROW(problem{gri3});
+    EXPECT_THROW(griewank{0u}, std::invalid_argument);
+    EXPECT_NO_THROW(problem{gri3});
     // Pick a few reference points
     vector_double x1 = {1.12};
     vector_double x3 = {-23.45, 12.34, 111.12};
     // Fitness test
-    BOOST_CHECK_CLOSE(gri1.fitness(x1)[0], 0.5646311537232878, 1e-13);
-    BOOST_CHECK_CLOSE(gri1.fitness(x3)[0], 4.241511427781268, 1e-13);
+    EXPECT_NEAR(gri1.fitness(x1)[0], 0.5646311537232878, 1e-13);
+    EXPECT_NEAR(gri1.fitness(x3)[0], 4.241511427781268, 1e-13);
     // Bounds Test
-    BOOST_CHECK((gri3.get_bounds() == std::pair<vector_double, vector_double>{{-600, -600, -600}, {600, 600, 600}}));
+    EXPECT_TRUE((gri3.get_bounds() == std::pair<vector_double, vector_double>{{-600, -600, -600}, {600, 600, 600}}));
     // Name and extra info tests
-    BOOST_CHECK(gri3.get_name().find("Griewank") != std::string::npos);
+    EXPECT_TRUE(gri3.get_name().find("Griewank") != std::string::npos);
     // Best known test
     auto x_best = gri3.best_known();
-    BOOST_CHECK((x_best == vector_double{0., 0., 0.}));
+    EXPECT_TRUE((x_best == vector_double{0., 0., 0.}));
 }
 
-BOOST_AUTO_TEST_CASE(griewank_serialization_test)
+TEST(griewank_test, griewank_serialization_test)
 {
     problem p{griewank{4u}};
     // Call objfun to increase the internal counters.
@@ -82,5 +82,5 @@ BOOST_AUTO_TEST_CASE(griewank_serialization_test)
         iarchive >> p;
     }
     auto after = boost::lexical_cast<std::string>(p);
-    BOOST_CHECK_EQUAL(before, after);
+    EXPECT_EQ(before, after);
 }

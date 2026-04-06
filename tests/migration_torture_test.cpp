@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE migration_torture_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <initializer_list>
 #include <tuple>
@@ -42,7 +42,7 @@ using namespace pagmo;
 // A test to stress the migration machinery:
 // do only 1 generation per evolve, 100 individuals
 // per island, many evolves.
-BOOST_AUTO_TEST_CASE(migration_torture_00)
+TEST(migration_torture_test, migration_torture_00)
 {
     for (auto mt : {migration_type::p2p, migration_type::broadcast}) {
         for (auto mh : {migrant_handling::preserve, migrant_handling::evict}) {
@@ -63,24 +63,24 @@ BOOST_AUTO_TEST_CASE(migration_torture_00)
                 (void)archi.get_topology();
                 (void)archi.get_migration_log();
                 const auto mig_db = archi.get_migrants_db();
-                BOOST_CHECK(mig_db.size() == 40u);
+                EXPECT_TRUE(mig_db.size() == 40u);
                 for (const auto &mig_g : mig_db) {
-                    BOOST_CHECK(std::get<0>(mig_g).size() == std::get<1>(mig_g).size());
-                    BOOST_CHECK(std::get<0>(mig_g).size() == std::get<2>(mig_g).size());
+                    EXPECT_TRUE(std::get<0>(mig_g).size() == std::get<1>(mig_g).size());
+                    EXPECT_TRUE(std::get<0>(mig_g).size() == std::get<2>(mig_g).size());
                     for (decltype(std::get<0>(mig_g).size()) j = 0; j < std::get<0>(mig_g).size(); ++j) {
-                        BOOST_CHECK(std::get<1>(mig_g)[j].size() == 100u);
-                        BOOST_CHECK(std::get<2>(mig_g)[j].size() == 1u);
+                        EXPECT_TRUE(std::get<1>(mig_g)[j].size() == 100u);
+                        EXPECT_TRUE(std::get<2>(mig_g)[j].size() == 1u);
                     }
                 }
             }
 
-            BOOST_CHECK_NO_THROW(archi.wait_check());
+            EXPECT_NO_THROW(archi.wait_check());
 
             for (const auto &t : archi.get_migration_log()) {
                 // Check timestamp.
-                BOOST_CHECK(std::get<0>(t) >= 0.);
+                EXPECT_TRUE(std::get<0>(t) >= 0.);
                 // Check that source and destination islands are different.
-                BOOST_CHECK(std::get<4>(t) != std::get<5>(t));
+                EXPECT_TRUE(std::get<4>(t) != std::get<5>(t));
             }
         }
     }

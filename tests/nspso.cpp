@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE nspso_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <algorithm>
 #include <boost/lexical_cast.hpp>
@@ -49,51 +49,51 @@ see https://www.gnu.org/licenses/. */
 
 using namespace pagmo;
 
-BOOST_AUTO_TEST_CASE(nspso_algorithm_construction)
+TEST(nspso_test, nspso_algorithm_construction)
 {
     nspso user_algo{1u, 0.9, 0.01, 0.5, 0.5, 0.5, 2u, "crowding distance", false, 24u};
-    BOOST_CHECK_NO_THROW(nspso{});
-    BOOST_CHECK(user_algo.get_verbosity() == 0u);
-    BOOST_CHECK(user_algo.get_seed() == 24u);
+    EXPECT_NO_THROW(nspso{});
+    EXPECT_TRUE(user_algo.get_verbosity() == 0u);
+    EXPECT_TRUE(user_algo.get_seed() == 24u);
     // Check the throws
     // Wrong omega
-    BOOST_CHECK_THROW((nspso{1u, -10., 0.01, 0.5, 0.5, 0.5, 2u, "crowding distance", false, 24u}),
+    EXPECT_THROW((nspso{1u, -10., 0.01, 0.5, 0.5, 0.5, 2u, "crowding distance", false, 24u}),
                       std::invalid_argument);
-    BOOST_CHECK_THROW((nspso{1u, 10., 0.01, 0.5, 0.5, 0.5, 2u, "crowding distance", false, 24u}),
+    EXPECT_THROW((nspso{1u, 10., 0.01, 0.5, 0.5, 0.5, 2u, "crowding distance", false, 24u}),
                       std::invalid_argument);
     // Wrong c1, c2 and chi
-    BOOST_CHECK_THROW((nspso{1u, 0.95, -0.01, 0.5, 0.5, 0.5, 2u, "crowding distance", false, 24u}),
+    EXPECT_THROW((nspso{1u, 0.95, -0.01, 0.5, 0.5, 0.5, 2u, "crowding distance", false, 24u}),
                       std::invalid_argument);
-    BOOST_CHECK_THROW((nspso{1u, 0.95, 0.01, -0.5, 0.5, 0.5, 2u, "crowding distance", false, 24u}),
+    EXPECT_THROW((nspso{1u, 0.95, 0.01, -0.5, 0.5, 0.5, 2u, "crowding distance", false, 24u}),
                       std::invalid_argument);
-    BOOST_CHECK_THROW((nspso{1u, 0.95, 0.01, 0.5, -0.5, 0.5, 2u, "crowding distance", false, 24u}),
+    EXPECT_THROW((nspso{1u, 0.95, 0.01, 0.5, -0.5, 0.5, 2u, "crowding distance", false, 24u}),
                       std::invalid_argument);
     // Wrong v_coeff
-    BOOST_CHECK_THROW((nspso{1u, 0.95, 0.01, 0.5, 0.5, -0.5, 2u, "crowding distance", false, 24u}),
+    EXPECT_THROW((nspso{1u, 0.95, 0.01, 0.5, 0.5, -0.5, 2u, "crowding distance", false, 24u}),
                       std::invalid_argument);
-    BOOST_CHECK_THROW((nspso{1u, 0.95, 0.01, 0.5, 0.5, 1.5, 2u, "crowding distance", false, 24u}),
+    EXPECT_THROW((nspso{1u, 0.95, 0.01, 0.5, 0.5, 1.5, 2u, "crowding distance", false, 24u}),
                       std::invalid_argument);
     // Wrong leader_selection_range
-    BOOST_CHECK_THROW((nspso{1u, 0.95, 0.01, 0.5, 0.5, 0.5, 101u, "crowding distance", false, 24u}),
+    EXPECT_THROW((nspso{1u, 0.95, 0.01, 0.5, 0.5, 0.5, 101u, "crowding distance", false, 24u}),
                       std::invalid_argument);
     // Wrong eta_m
-    BOOST_CHECK_THROW((nspso{1u, 0.95, 0.01, 0.5, 0.5, 0.5, 2u, "something else", false, 24u}), std::invalid_argument);
+    EXPECT_THROW((nspso{1u, 0.95, 0.01, 0.5, 0.5, 0.5, 2u, "something else", false, 24u}), std::invalid_argument);
 }
 
-BOOST_AUTO_TEST_CASE(nspso_evolve_test)
+TEST(nspso_test, nspso_evolve_test)
 {
     // We check that the problem is checked to be suitable
     // stochastic
-    BOOST_CHECK_THROW((nspso{}.evolve(population{inventory{}, 5u, 23u})), std::invalid_argument);
+    EXPECT_THROW((nspso{}.evolve(population{inventory{}, 5u, 23u})), std::invalid_argument);
     // constrained prob
-    BOOST_CHECK_THROW((nspso{}.evolve(population{hock_schittkowski_71{}, 5u, 23u})), std::invalid_argument);
+    EXPECT_THROW((nspso{}.evolve(population{hock_schittkowski_71{}, 5u, 23u})), std::invalid_argument);
     // single objective prob
-    BOOST_CHECK_THROW((nspso{}.evolve(population{rosenbrock{}, 5u, 23u})), std::invalid_argument);
+    EXPECT_THROW((nspso{}.evolve(population{rosenbrock{}, 5u, 23u})), std::invalid_argument);
     // wrong pop size
-    BOOST_CHECK_THROW((nspso{}.evolve(population{zdt{}, 1u, 23u})), std::invalid_argument);
+    EXPECT_THROW((nspso{}.evolve(population{zdt{}, 1u, 23u})), std::invalid_argument);
     // and a clean exit for 0 generation
     population pop{zdt{2u}, 10u};
-    BOOST_CHECK(nspso{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);
+    EXPECT_TRUE(nspso{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);
     // We check for deterministic behaviour if the seed is controlled
     // we treat the last three components of the decision vector as integers
     // to trigger all cases
@@ -106,17 +106,17 @@ BOOST_AUTO_TEST_CASE(nspso_evolve_test)
     user_algo1.set_verbosity(1u);
     pop1 = user_algo1.evolve(pop1);
 
-    BOOST_CHECK(user_algo1.get_log().size() > 0u);
+    EXPECT_TRUE(user_algo1.get_log().size() > 0u);
 
     nspso user_algo2{10u, 0.95, 0.01, 0.5, 0.5, 0.5, 2u, "crowding distance", false, 24u};
     user_algo2.set_verbosity(1u);
     pop2 = user_algo2.evolve(pop2);
-    BOOST_CHECK(user_algo1.get_log() == user_algo2.get_log());
+    EXPECT_TRUE(user_algo1.get_log() == user_algo2.get_log());
 
     user_algo2.set_seed(24u);
     pop3 = user_algo2.evolve(pop3);
 
-    BOOST_CHECK(user_algo1.get_log() == user_algo2.get_log());
+    EXPECT_TRUE(user_algo1.get_log() == user_algo2.get_log());
 
     // We evolve for many-objectives
     wfg udp_2{4u, 16u, 15u, 14u};
@@ -149,18 +149,18 @@ BOOST_AUTO_TEST_CASE(nspso_evolve_test)
     pop9 = user_algo4.evolve(pop9);
 }
 
-BOOST_AUTO_TEST_CASE(nspso_setters_getters_test)
+TEST(nspso_test, nspso_setters_getters_test)
 {
     nspso user_algo{10u, 0.95, 0.01, 0.5, 0.5, 0.5, 2u, "crowding distance", false, 24u};
     user_algo.set_verbosity(200u);
-    BOOST_CHECK(user_algo.get_verbosity() == 200u);
+    EXPECT_TRUE(user_algo.get_verbosity() == 200u);
     user_algo.set_seed(23456u);
-    BOOST_CHECK(user_algo.get_seed() == 23456u);
-    BOOST_CHECK(user_algo.get_name().find("NSPSO") != std::string::npos);
-    BOOST_CHECK(user_algo.get_extra_info().find("Verbosity") != std::string::npos);
+    EXPECT_TRUE(user_algo.get_seed() == 23456u);
+    EXPECT_TRUE(user_algo.get_name().find("NSPSO") != std::string::npos);
+    EXPECT_TRUE(user_algo.get_extra_info().find("Verbosity") != std::string::npos);
 }
 
-BOOST_AUTO_TEST_CASE(nspso_serialization_test)
+TEST(nspso_test, nspso_serialization_test)
 {
     // Make one evolution
     problem prob{zdt{1u, 30u}};
@@ -185,20 +185,20 @@ BOOST_AUTO_TEST_CASE(nspso_serialization_test)
     }
     auto after_text = boost::lexical_cast<std::string>(algo);
     auto after_log = algo.extract<nspso>()->get_log();
-    BOOST_CHECK_EQUAL(before_text, after_text);
-    BOOST_CHECK(before_log == after_log);
+    EXPECT_EQ(before_text, after_text);
+    EXPECT_TRUE(before_log == after_log);
     // so we implement a close check
-    BOOST_CHECK(before_log.size() > 0u);
+    EXPECT_TRUE(before_log.size() > 0u);
     for (auto i = 0u; i < before_log.size(); ++i) {
-        BOOST_CHECK_EQUAL(std::get<0>(before_log[i]), std::get<0>(after_log[i]));
-        BOOST_CHECK_EQUAL(std::get<1>(before_log[i]), std::get<1>(after_log[i]));
+        EXPECT_EQ(std::get<0>(before_log[i]), std::get<0>(after_log[i]));
+        EXPECT_EQ(std::get<1>(before_log[i]), std::get<1>(after_log[i]));
         for (auto j = 0u; j < 2u; ++j) {
-            BOOST_CHECK_CLOSE(std::get<2>(before_log[i])[j], std::get<2>(after_log[i])[j], 1e-8);
+            EXPECT_NEAR(std::get<2>(before_log[i])[j], std::get<2>(after_log[i])[j], 1e-8);
         }
     }
 }
 
-BOOST_AUTO_TEST_CASE(bfe_usage_test)
+TEST(nspso_test, bfe_usage_test)
 {
     // 1 - Algorithm with bfe disabled
     problem prob{wfg(5u, 16u, 15u, 14u)};
@@ -226,10 +226,10 @@ BOOST_AUTO_TEST_CASE(bfe_usage_test)
 
     // 7 - Evolve the population
     pop2 = algo2.evolve(pop);
-    BOOST_CHECK(algo1.extract<nspso>()->get_log() == algo2.extract<nspso>()->get_log());
+    EXPECT_TRUE(algo1.extract<nspso>()->get_log() == algo2.extract<nspso>()->get_log());
 }
 
-BOOST_AUTO_TEST_CASE(memory_test)
+TEST(nspso_test, memory_test)
 {
     nspso uda{1u, 0.95, 0.01, 0.5, 0.5, 0.5, 2u, "crowding distance", true, 24u};
     nspso uda_2{10u, 0.95, 0.01, 0.5, 0.5, 0.5, 2u, "crowding distance", false, 24u};
@@ -244,5 +244,5 @@ BOOST_AUTO_TEST_CASE(memory_test)
         pop_1 = uda.evolve(pop_1);
     }
     pop_2 = uda_2.evolve(pop_2);
-    BOOST_CHECK(pop_1.get_f() == pop_2.get_f());
+    EXPECT_TRUE(pop_1.get_f() == pop_2.get_f());
 }

@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE gradients_and_hessians_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <limits>
 #include <stdexcept>
@@ -84,14 +84,14 @@ struct dummy_problem_malformed {
     }
 };
 
-BOOST_AUTO_TEST_CASE(estimate_sparsity_test)
+TEST(gradients_and_hessians_test, estimate_sparsity_test)
 {
     {
         dummy_problem udp{};
         dummy_problem_malformed udp2{};
         auto sp
             = estimate_sparsity([udp](const vector_double &x) { return udp.fitness(x); }, {0.1, 0.2, 0.3, 0.4}, 1e-8);
-        BOOST_CHECK((sp == sparsity_pattern{{0, 0}, {0, 1}, {0, 2}, {0, 3}, {1, 1}, {1, 2}, {1, 3}, {2, 2}}));
+        EXPECT_TRUE((sp == sparsity_pattern{{0, 0}, {0, 1}, {0, 2}, {0, 3}, {1, 1}, {1, 2}, {1, 3}, {2, 2}}));
         BOOST_CHECK_THROW(
             estimate_sparsity([udp2](const vector_double &x) { return udp2.fitness(x); }, {0.1, 0.2, 0.3, 0.4}, 1e-8),
             std::invalid_argument);
@@ -101,7 +101,7 @@ BOOST_AUTO_TEST_CASE(estimate_sparsity_test)
         problem prob2{dummy_problem_malformed{}};
         auto sp
             = estimate_sparsity([prob](const vector_double &x) { return prob.fitness(x); }, {0.1, 0.2, 0.3, 0.4}, 1e-8);
-        BOOST_CHECK((sp == sparsity_pattern{{0, 0}, {0, 1}, {0, 2}, {0, 3}, {1, 1}, {1, 2}, {1, 3}, {2, 2}}));
+        EXPECT_TRUE((sp == sparsity_pattern{{0, 0}, {0, 1}, {0, 2}, {0, 3}, {1, 1}, {1, 2}, {1, 3}, {2, 2}}));
         BOOST_CHECK_THROW(
             estimate_sparsity([prob2](const vector_double &x) { return prob2.fitness(x); }, {0.1, 0.2, 0.3, 0.4}, 1e-8),
             std::invalid_argument);
@@ -129,7 +129,7 @@ struct dummy_problem_easy_grad {
     }
 };
 
-BOOST_AUTO_TEST_CASE(estimate_gradient_test)
+TEST(gradients_and_hessians_test, estimate_gradient_test)
 {
 
     dummy_problem_easy_grad udp{};
@@ -144,9 +144,9 @@ BOOST_AUTO_TEST_CASE(estimate_gradient_test)
     auto gh = estimate_gradient_h([udp](const vector_double &x) { return udp.fitness(x); }, {0.1, 0.2, 0.3, 0.4}, 1e-2);
     vector_double res = {1, 0.4, 0.6, 0.48, 0.024, 0.012, 0.008, 0.006, 0.9950041652780257660956, 0, 0, 0};
     for (unsigned i = 0u; i < res.size(); ++i) {
-        BOOST_CHECK_CLOSE(gh[i], res[i], 1e-7);
+        EXPECT_NEAR(gh[i], res[i], 1e-7);
     }
     for (unsigned i = 0u; i < res.size(); ++i) {
-        BOOST_CHECK_CLOSE(gh[i], res[i], 1e-11);
+        EXPECT_NEAR(gh[i], res[i], 1e-11);
     }
 }

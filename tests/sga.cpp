@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE sga_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <boost/lexical_cast.hpp>
 
@@ -51,55 +51,55 @@ see https://www.gnu.org/licenses/. */
 
 using namespace pagmo;
 
-BOOST_AUTO_TEST_CASE(sga_algorithm_construction)
+TEST(sga_test, sga_algorithm_construction)
 {
     // sga uda{1u, 0.5, 10., .02, .5, 1u, 2u, "gaussian", "truncated", "sbx", 0u};
     // We check the default constructor, a correct call and the possibility to build a pagmo::algorithm
-    BOOST_CHECK_NO_THROW(sga{});
-    BOOST_CHECK_NO_THROW((sga{1u, .95, 10., .02, .5, 5u, "exponential", "gaussian", "tournament", 32u}));
-    BOOST_CHECK_NO_THROW((sga{1u, .95, 10., .02, .5, 5u, "exponential", "uniform", "tournament", 32u}));
-    BOOST_CHECK_NO_THROW((sga{1u, .95, 10., .02, 20., 5u, "exponential", "polynomial", "tournament", 32u}));
-    BOOST_CHECK_NO_THROW((sga{1u, .95, 10., .02, .5, 5u, "exponential", "gaussian", "truncated", 32u}));
-    BOOST_CHECK_NO_THROW((sga{1u, .95, 10., .02, .5, 5u, "binomial", "gaussian", "tournament", 32u}));
-    BOOST_CHECK_NO_THROW((sga{1u, .95, 10., .02, .5, 5u, "sbx", "gaussian", "tournament", 32u}));
-    BOOST_CHECK_NO_THROW(algorithm(sga{}));
+    EXPECT_NO_THROW(sga{});
+    EXPECT_NO_THROW((sga{1u, .95, 10., .02, .5, 5u, "exponential", "gaussian", "tournament", 32u}));
+    EXPECT_NO_THROW((sga{1u, .95, 10., .02, .5, 5u, "exponential", "uniform", "tournament", 32u}));
+    EXPECT_NO_THROW((sga{1u, .95, 10., .02, 20., 5u, "exponential", "polynomial", "tournament", 32u}));
+    EXPECT_NO_THROW((sga{1u, .95, 10., .02, .5, 5u, "exponential", "gaussian", "truncated", 32u}));
+    EXPECT_NO_THROW((sga{1u, .95, 10., .02, .5, 5u, "binomial", "gaussian", "tournament", 32u}));
+    EXPECT_NO_THROW((sga{1u, .95, 10., .02, .5, 5u, "sbx", "gaussian", "tournament", 32u}));
+    EXPECT_NO_THROW(algorithm(sga{}));
     // We check incorrect calls to the constructor
-    BOOST_CHECK_THROW((sga{1u, 12., 10., .02, .5, 5u, "exponential", "gaussian", "tournament", 32u}),
+    EXPECT_THROW((sga{1u, 12., 10., .02, .5, 5u, "exponential", "gaussian", "tournament", 32u}),
                       std::invalid_argument);
-    BOOST_CHECK_THROW((sga{1u, -1.1, 10., .02, .5, 5u, "exponential", "gaussian", "tournament", 32u}),
+    EXPECT_THROW((sga{1u, -1.1, 10., .02, .5, 5u, "exponential", "gaussian", "tournament", 32u}),
                       std::invalid_argument);
-    BOOST_CHECK_THROW((sga{1u, .95, 0.1, .02, .5, 5u, "exponential", "gaussian", "truncated", 32u}),
+    EXPECT_THROW((sga{1u, .95, 0.1, .02, .5, 5u, "exponential", "gaussian", "truncated", 32u}),
                       std::invalid_argument);
-    BOOST_CHECK_THROW((sga{1u, .95, 101., .02, .5, 5u, "exponential", "gaussian", "tournament", 32u}),
+    EXPECT_THROW((sga{1u, .95, 101., .02, .5, 5u, "exponential", "gaussian", "tournament", 32u}),
                       std::invalid_argument);
-    BOOST_CHECK_THROW((sga{1u, .95, 10., -0.2, .5, 5u, "exponential", "gaussian", "truncated", 32u}),
+    EXPECT_THROW((sga{1u, .95, 10., -0.2, .5, 5u, "exponential", "gaussian", "truncated", 32u}),
                       std::invalid_argument);
-    BOOST_CHECK_THROW((sga{1u, .95, 10., 1.3, .5, 5u, "exponential", "gaussian", "tournament", 32u}),
+    EXPECT_THROW((sga{1u, .95, 10., 1.3, .5, 5u, "exponential", "gaussian", "tournament", 32u}),
                       std::invalid_argument);
-    BOOST_CHECK_THROW((sga{1u, .95, 10., .02, .5, 5u, "exponential", "unknown_method", "tournament", 32u}),
+    EXPECT_THROW((sga{1u, .95, 10., .02, .5, 5u, "exponential", "unknown_method", "tournament", 32u}),
                       std::invalid_argument);
-    BOOST_CHECK_THROW((sga{1u, .95, 10., .02, .5, 5u, "exponential", "gaussian", "unknown_method", 32u}),
+    EXPECT_THROW((sga{1u, .95, 10., .02, .5, 5u, "exponential", "gaussian", "unknown_method", 32u}),
                       std::invalid_argument);
-    BOOST_CHECK_THROW((sga{1u, .95, 10., .02, .5, 5u, "unknown_method", "gaussian", "truncated", 32u}),
+    EXPECT_THROW((sga{1u, .95, 10., .02, .5, 5u, "unknown_method", "gaussian", "truncated", 32u}),
                       std::invalid_argument);
-    BOOST_CHECK_THROW((sga{1u, .95, 10., .02, .5, 5u, "exponential", "polynomial", "tournament", 32u}),
+    EXPECT_THROW((sga{1u, .95, 10., .02, .5, 5u, "exponential", "polynomial", "tournament", 32u}),
                       std::invalid_argument);
-    BOOST_CHECK_THROW((sga{1u, .95, 10., .02, 101, 5u, "exponential", "polynomial", "truncated", 32u}),
+    EXPECT_THROW((sga{1u, .95, 10., .02, 101, 5u, "exponential", "polynomial", "truncated", 32u}),
                       std::invalid_argument);
-    BOOST_CHECK_THROW((sga{1u, .95, 10., .02, -3, 5u, "exponential", "uniform", "tournament", 32u}),
+    EXPECT_THROW((sga{1u, .95, 10., .02, -3, 5u, "exponential", "uniform", "tournament", 32u}),
                       std::invalid_argument);
-    BOOST_CHECK_THROW((sga{1u, .95, 10., .02, 1.1, 5u, "exponential", "uniform", "tournament", 32u}),
+    EXPECT_THROW((sga{1u, .95, 10., .02, 1.1, 5u, "exponential", "uniform", "tournament", 32u}),
                       std::invalid_argument);
-    BOOST_CHECK_THROW((sga{1u, .95, 10., .02, 0.9, 0u, "exponential", "uniform", "tournament", 32u}),
+    EXPECT_THROW((sga{1u, .95, 10., .02, 0.9, 0u, "exponential", "uniform", "tournament", 32u}),
                       std::invalid_argument);
 }
-BOOST_AUTO_TEST_CASE(sga_evolve_test)
+TEST(sga_test, sga_evolve_test)
 {
     // We start testing the various throws in case the evolve is called on a population
     // not suitable for sga
-    BOOST_CHECK_THROW((sga{}.evolve(population{zdt{}, 5u, 23u})), std::invalid_argument);
-    BOOST_CHECK_THROW((sga{}.evolve(population{hock_schittkowski_71{}, 5u, 23u})), std::invalid_argument);
-    BOOST_CHECK_THROW((sga{}.evolve(population{schwefel{20u}, 1u, 23u})), std::invalid_argument);
+    EXPECT_THROW((sga{}.evolve(population{zdt{}, 5u, 23u})), std::invalid_argument);
+    EXPECT_THROW((sga{}.evolve(population{hock_schittkowski_71{}, 5u, 23u})), std::invalid_argument);
+    EXPECT_THROW((sga{}.evolve(population{schwefel{20u}, 1u, 23u})), std::invalid_argument);
     BOOST_CHECK_THROW((sga{1u, .95, 10., .02, .5, 21u, "exponential", "gaussian", "tournament", 32u}.evolve(
                           population{schwefel{20u}, 20u, 23u})),
                       std::invalid_argument);
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE(sga_evolve_test)
                       std::invalid_argument);
     // And a clean exit for 0 generations
     population pop{schwefel{25u}, 10u};
-    BOOST_CHECK(sga{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);
+    EXPECT_TRUE(sga{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);
     // The we test that evolution is deterministic if the
     // seed is controlled.
     std::vector<sga> udas = {
@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE(sga_evolve_test)
         pop2 = uda.evolve(pop2);
         auto log2 = uda.get_log();
 
-        BOOST_CHECK(log1 == log2);
+        EXPECT_TRUE(log1 == log2);
     }
     // And on a stochastic one
     for (sga &uda : udas) {
@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE(sga_evolve_test)
         pop2 = uda.evolve(pop2);
         auto log2 = uda.get_log();
 
-        BOOST_CHECK(log1 == log2);
+        EXPECT_TRUE(log1 == log2);
     }
     // And on a MINLP
     for (sga &uda : udas) {
@@ -166,15 +166,15 @@ BOOST_AUTO_TEST_CASE(sga_evolve_test)
         pop2 = uda.evolve(pop2);
         auto log2 = uda.get_log();
 
-        BOOST_CHECK(log1 == log2);
+        EXPECT_TRUE(log1 == log2);
     }
     // We call the extra info and chech they do not throw
     for (sga &uda : udas) {
-        BOOST_CHECK_NO_THROW(uda.get_extra_info());
+        EXPECT_NO_THROW(uda.get_extra_info());
     }
 }
 
-BOOST_AUTO_TEST_CASE(sga_serialization_test)
+TEST(sga_test, sga_serialization_test)
 {
     // Make one evolution
     problem prob{schwefel{20u}};
@@ -202,14 +202,14 @@ BOOST_AUTO_TEST_CASE(sga_serialization_test)
     }
     auto after_text = boost::lexical_cast<std::string>(algo);
     auto after_log = algo.extract<sga>()->get_log();
-    BOOST_CHECK_EQUAL(before_text, after_text);
-    BOOST_CHECK(before_log == after_log);
+    EXPECT_EQ(before_text, after_text);
+    EXPECT_TRUE(before_log == after_log);
     // so we implement a close check
 
     for (auto i = 0u; i < before_log.size(); ++i) {
-        BOOST_CHECK_EQUAL(std::get<0>(before_log[i]), std::get<0>(after_log[i]));
-        BOOST_CHECK_EQUAL(std::get<1>(before_log[i]), std::get<1>(after_log[i]));
-        BOOST_CHECK_CLOSE(std::get<2>(before_log[i]), std::get<2>(after_log[i]), 1e-8);
-        BOOST_CHECK_CLOSE(std::get<3>(before_log[i]), std::get<3>(after_log[i]), 1e-8);
+        EXPECT_EQ(std::get<0>(before_log[i]), std::get<0>(after_log[i]));
+        EXPECT_EQ(std::get<1>(before_log[i]), std::get<1>(after_log[i]));
+        EXPECT_NEAR(std::get<2>(before_log[i]), std::get<2>(after_log[i]), 1e-8);
+        EXPECT_NEAR(std::get<3>(before_log[i]), std::get<3>(after_log[i]), 1e-8);
     }
 }

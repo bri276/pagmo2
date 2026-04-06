@@ -41,7 +41,6 @@ see https://www.gnu.org/licenses/. */
 #include <vector>
 
 #include <boost/graph/adjacency_list.hpp>
-#include <boost/type_traits/integral_constant.hpp>
 
 #include <pagmo/concepts.hpp>
 #include <pagmo/config.hpp>

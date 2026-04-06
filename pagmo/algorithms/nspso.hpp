@@ -21,11 +21,10 @@ see https://www.gnu.org/licenses/. */
 #ifndef PAGMO_ALGORITHMS_NSPSO_HPP
 #define PAGMO_ALGORITHMS_NSPSO_HPP
 
+#include <optional>
 #include <string>
 #include <tuple>
 #include <vector>
-
-#include <boost/optional.hpp>
 
 #include <pagmo/algorithm.hpp>
 #include <pagmo/detail/visibility.hpp>
@@ -139,7 +138,7 @@ private:
     unsigned m_seed;
     unsigned m_verbosity;
     mutable log_type m_log;
-    boost::optional<bfe> m_bfe;
+    std::optional<bfe> m_bfe;
 };
 
 } // namespace pagmo

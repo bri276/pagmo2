@@ -29,12 +29,11 @@ see https://www.gnu.org/licenses/. */
 #ifndef PAGMO_ALGORITHMS_MACO_HPP
 #define PAGMO_ALGORITHMS_MACO_HPP
 
+#include <optional>
 #include <random>
 #include <string>
 #include <tuple>
 #include <vector>
-
-#include <boost/optional.hpp>
 
 #include <pagmo/algorithm.hpp>
 #include <pagmo/bfe.hpp>
@@ -137,7 +136,7 @@ private:
     mutable std::vector<vector_double> m_sol_archive;
     mutable unsigned m_n_evalstop;
     mutable unsigned m_gen_mark;
-    boost::optional<bfe> m_bfe;
+    std::optional<bfe> m_bfe;
     mutable population m_pop;
 };
 

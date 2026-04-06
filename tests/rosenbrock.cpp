@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE rosenbrock_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <cmath>
 #include <iostream>
@@ -44,42 +44,42 @@ see https://www.gnu.org/licenses/. */
 
 using namespace pagmo;
 
-BOOST_AUTO_TEST_CASE(rosenbrock_test)
+TEST(rosenbrock_test, rosenbrock_test)
 {
     // Problem construction
     rosenbrock ros2{2u};
     rosenbrock ros5{5u};
-    BOOST_CHECK_THROW(rosenbrock{0u}, std::invalid_argument);
-    BOOST_CHECK_THROW(rosenbrock{1u}, std::invalid_argument);
-    BOOST_CHECK_NO_THROW(problem{rosenbrock{2u}});
+    EXPECT_THROW(rosenbrock{0u}, std::invalid_argument);
+    EXPECT_THROW(rosenbrock{1u}, std::invalid_argument);
+    EXPECT_NO_THROW(problem{rosenbrock{2u}});
     // Pick a few reference points
     vector_double x2 = {1., 1.};
     vector_double x5 = {1., 1., 1., 1., 1.};
     // Fitness test
-    BOOST_CHECK((ros2.fitness({1., 1.}) == vector_double{0.}));
-    BOOST_CHECK((ros5.fitness({1., 1., 1., 1., 1.}) == vector_double{0.}));
+    EXPECT_TRUE((ros2.fitness({1., 1.}) == vector_double{0.}));
+    EXPECT_TRUE((ros5.fitness({1., 1., 1., 1., 1.}) == vector_double{0.}));
     // Bounds Test
-    BOOST_CHECK((ros2.get_bounds() == std::pair<vector_double, vector_double>{{-5., -5.}, {10., 10.}}));
+    EXPECT_TRUE((ros2.get_bounds() == std::pair<vector_double, vector_double>{{-5., -5.}, {10., 10.}}));
     // Name and extra info tests
-    BOOST_CHECK(ros5.get_name().find("Rosenbrock") != std::string::npos);
+    EXPECT_TRUE(ros5.get_name().find("Rosenbrock") != std::string::npos);
     // Best known test
     auto x_best = ros2.best_known();
-    BOOST_CHECK((x_best == vector_double{1., 1.}));
+    EXPECT_TRUE((x_best == vector_double{1., 1.}));
     // Gradient test.
     auto g2 = ros2.gradient({.1, .2});
-    BOOST_CHECK(std::abs(g2[0] + 9.4) < 1E-8);
-    BOOST_CHECK(std::abs(g2[1] - 38.) < 1E-8);
+    EXPECT_TRUE(std::abs(g2[0] + 9.4) < 1E-8);
+    EXPECT_TRUE(std::abs(g2[1] - 38.) < 1E-8);
     auto g5 = ros5.gradient({.1, .2, .3, .4, .5});
-    BOOST_CHECK(std::abs(g5[0] + 9.4) < 1E-8);
-    BOOST_CHECK(std::abs(g5[1] - 15.6) < 1E-8);
-    BOOST_CHECK(std::abs(g5[2] - 13.4) < 1E-8);
-    BOOST_CHECK(std::abs(g5[3] - 6.4) < 1E-8);
-    BOOST_CHECK(std::abs(g5[4] - 68.) < 1E-8);
+    EXPECT_TRUE(std::abs(g5[0] + 9.4) < 1E-8);
+    EXPECT_TRUE(std::abs(g5[1] - 15.6) < 1E-8);
+    EXPECT_TRUE(std::abs(g5[2] - 13.4) < 1E-8);
+    EXPECT_TRUE(std::abs(g5[3] - 6.4) < 1E-8);
+    EXPECT_TRUE(std::abs(g5[4] - 68.) < 1E-8);
     // Thread safety level.
-    BOOST_CHECK(problem{rosenbrock{}}.get_thread_safety() == thread_safety::constant);
+    EXPECT_TRUE(problem{rosenbrock{}}.get_thread_safety() == thread_safety::constant);
 }
 
-BOOST_AUTO_TEST_CASE(rosenbrock_serialization_test)
+TEST(rosenbrock_test, rosenbrock_serialization_test)
 {
     problem p{rosenbrock{4u}};
     // Call objfun to increase the internal counters.
@@ -99,5 +99,5 @@ BOOST_AUTO_TEST_CASE(rosenbrock_serialization_test)
         iarchive >> p;
     }
     auto after = boost::lexical_cast<std::string>(p);
-    BOOST_CHECK_EQUAL(before, after);
+    EXPECT_EQ(before, after);
 }

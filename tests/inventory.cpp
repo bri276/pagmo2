@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE inventory_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <iostream>
 #include <stdexcept>
@@ -42,7 +42,7 @@ see https://www.gnu.org/licenses/. */
 
 using namespace pagmo;
 
-BOOST_AUTO_TEST_CASE(inventory_test)
+TEST(inventory_test, inventory_test)
 {
     // We check construction, seed setter and fitness determinism
     inventory prob(5, 5, 24);
@@ -51,21 +51,21 @@ BOOST_AUTO_TEST_CASE(inventory_test)
     auto f2 = prob.fitness({3, 6, 7, 2, 2});
     prob.set_seed(24u);
     auto f3 = prob.fitness({3, 6, 7, 2, 2});
-    BOOST_CHECK(f1 == f3);
-    BOOST_CHECK(f1 != f2);
+    EXPECT_TRUE(f1 == f3);
+    EXPECT_TRUE(f1 != f2);
 
     // Checking bounds
-    BOOST_CHECK((prob.get_bounds()
+    EXPECT_TRUE((prob.get_bounds()
                  == std::pair<vector_double, vector_double>({{0., 0., 0., 0., 0}, {200., 200., 200., 200., 200.}})));
 
     // Checking the name and extra info methods
-    BOOST_CHECK(prob.get_name().find("Inventory") != std::string::npos);
-    BOOST_CHECK(prob.get_extra_info().find("Weeks") != std::string::npos);
-    BOOST_CHECK(prob.get_extra_info().find("Sample size") != std::string::npos);
-    BOOST_CHECK(prob.get_extra_info().find("Seed") != std::string::npos);
+    EXPECT_TRUE(prob.get_name().find("Inventory") != std::string::npos);
+    EXPECT_TRUE(prob.get_extra_info().find("Weeks") != std::string::npos);
+    EXPECT_TRUE(prob.get_extra_info().find("Sample size") != std::string::npos);
+    EXPECT_TRUE(prob.get_extra_info().find("Seed") != std::string::npos);
 }
 
-BOOST_AUTO_TEST_CASE(inventory_serialization_test)
+TEST(inventory_test, inventory_serialization_test)
 {
     problem p{inventory{5u, 5u, 32u}};
     // Call objfun to increase the internal counters.
@@ -85,5 +85,5 @@ BOOST_AUTO_TEST_CASE(inventory_serialization_test)
         iarchive >> p;
     }
     auto after = boost::lexical_cast<std::string>(p);
-    BOOST_CHECK_EQUAL(before, after);
+    EXPECT_EQ(before, after);
 }

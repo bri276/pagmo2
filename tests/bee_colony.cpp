@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE bee_colony_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/test/tools/floating_point_comparison.hpp>
@@ -53,17 +53,17 @@ see https://www.gnu.org/licenses/. */
 
 using namespace pagmo;
 
-BOOST_AUTO_TEST_CASE(bee_colony_algorithm_construction)
+TEST(bee_colony_test, bee_colony_algorithm_construction)
 {
     bee_colony user_algo{1234u, 10u, 23u};
-    BOOST_CHECK(user_algo.get_verbosity() == 0u);
-    BOOST_CHECK(user_algo.get_seed() == 23u);
-    BOOST_CHECK((user_algo.get_log() == bee_colony::log_type{}));
+    EXPECT_TRUE(user_algo.get_verbosity() == 0u);
+    EXPECT_TRUE(user_algo.get_seed() == 23u);
+    EXPECT_TRUE((user_algo.get_log() == bee_colony::log_type{}));
 
-    BOOST_CHECK_THROW((bee_colony{1234u, 0u, 23u}), std::invalid_argument);
+    EXPECT_THROW((bee_colony{1234u, 0u, 23u}), std::invalid_argument);
 }
 
-BOOST_AUTO_TEST_CASE(bee_colony_evolve_test)
+TEST(bee_colony_test, bee_colony_evolve_test)
 {
     // Here we only test that evolution is deterministic if the
     // seed is controlled for all variants
@@ -76,27 +76,27 @@ BOOST_AUTO_TEST_CASE(bee_colony_evolve_test)
     user_algo1.set_verbosity(1u);
     pop1 = user_algo1.evolve(pop1);
 
-    BOOST_CHECK(user_algo1.get_log().size() > 0u);
+    EXPECT_TRUE(user_algo1.get_log().size() > 0u);
 
     bee_colony user_algo2{10u, 4u, 23u};
     user_algo2.set_verbosity(1u);
     pop2 = user_algo2.evolve(pop2);
 
-    BOOST_CHECK(user_algo1.get_log() == user_algo2.get_log());
+    EXPECT_TRUE(user_algo1.get_log() == user_algo2.get_log());
 
     user_algo2.set_seed(23u);
     pop3 = user_algo2.evolve(pop3);
 
-    BOOST_CHECK(user_algo1.get_log() == user_algo2.get_log());
+    EXPECT_TRUE(user_algo1.get_log() == user_algo2.get_log());
 
     // We then check that the evolve throws if called on unsuitable problems
-    BOOST_CHECK_THROW(bee_colony{10u}.evolve(population{problem{rosenbrock{}}, 1u}), std::invalid_argument);
-    BOOST_CHECK_THROW(bee_colony{10u}.evolve(population{problem{zdt{}}, 15u}), std::invalid_argument);
-    BOOST_CHECK_THROW(bee_colony{10u}.evolve(population{problem{hock_schittkowski_71{}}, 15u}), std::invalid_argument);
-    BOOST_CHECK_THROW(bee_colony{10u}.evolve(population{problem{inventory{}}, 15u}), std::invalid_argument);
+    EXPECT_THROW(bee_colony{10u}.evolve(population{problem{rosenbrock{}}, 1u}), std::invalid_argument);
+    EXPECT_THROW(bee_colony{10u}.evolve(population{problem{zdt{}}, 15u}), std::invalid_argument);
+    EXPECT_THROW(bee_colony{10u}.evolve(population{problem{hock_schittkowski_71{}}, 15u}), std::invalid_argument);
+    EXPECT_THROW(bee_colony{10u}.evolve(population{problem{inventory{}}, 15u}), std::invalid_argument);
     // And a clean exit for 0 generations
     population pop{rosenbrock{25u}, 10u};
-    BOOST_CHECK(bee_colony{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);
+    EXPECT_TRUE(bee_colony{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);
 
     // To cover the case of fitness < 0
     struct my_problem {
@@ -118,23 +118,23 @@ BOOST_AUTO_TEST_CASE(bee_colony_evolve_test)
         }
         unsigned m_dim;
     };
-    BOOST_CHECK_NO_THROW(user_algo1.evolve(population{my_problem(3u), 10u, 23u}));
+    EXPECT_NO_THROW(user_algo1.evolve(population{my_problem(3u), 10u, 23u}));
 }
 
-BOOST_AUTO_TEST_CASE(bee_colony_setters_getters_test)
+TEST(bee_colony_test, bee_colony_setters_getters_test)
 {
     bee_colony user_algo{10u, 10u, 1u};
     user_algo.set_verbosity(11u);
-    BOOST_CHECK(user_algo.get_verbosity() == 11u);
+    EXPECT_TRUE(user_algo.get_verbosity() == 11u);
     user_algo.set_seed(5u);
-    BOOST_CHECK(user_algo.get_seed() == 5u);
-    BOOST_CHECK(user_algo.get_gen() == 10u);
-    BOOST_CHECK(user_algo.get_name().find("Artificial Bee Colony") != std::string::npos);
-    BOOST_CHECK(user_algo.get_extra_info().find("Limit") != std::string::npos);
-    BOOST_CHECK_NO_THROW(user_algo.get_log());
+    EXPECT_TRUE(user_algo.get_seed() == 5u);
+    EXPECT_TRUE(user_algo.get_gen() == 10u);
+    EXPECT_TRUE(user_algo.get_name().find("Artificial Bee Colony") != std::string::npos);
+    EXPECT_TRUE(user_algo.get_extra_info().find("Limit") != std::string::npos);
+    EXPECT_NO_THROW(user_algo.get_log());
 }
 
-BOOST_AUTO_TEST_CASE(bee_colony_serialization_test)
+TEST(bee_colony_test, bee_colony_serialization_test)
 {
     // We test the serialization of a pagmo algorithm when constructed with bee_colony
     // Make one evolution
@@ -161,14 +161,14 @@ BOOST_AUTO_TEST_CASE(bee_colony_serialization_test)
     }
     auto after_text = boost::lexical_cast<std::string>(algo);
     auto after_log = algo.extract<bee_colony>()->get_log();
-    BOOST_CHECK_EQUAL(before_text, after_text);
-    BOOST_CHECK(before_log == after_log);
+    EXPECT_EQ(before_text, after_text);
+    EXPECT_TRUE(before_log == after_log);
     // so we implement a close check
-    BOOST_CHECK(before_log.size() > 0u);
+    EXPECT_TRUE(before_log.size() > 0u);
     for (auto i = 0u; i < before_log.size(); ++i) {
-        BOOST_CHECK_EQUAL(std::get<0>(before_log[i]), std::get<0>(after_log[i]));
-        BOOST_CHECK_EQUAL(std::get<1>(before_log[i]), std::get<1>(after_log[i]));
-        BOOST_CHECK_CLOSE(std::get<2>(before_log[i]), std::get<2>(after_log[i]), 1e-8);
-        BOOST_CHECK_CLOSE(std::get<3>(before_log[i]), std::get<3>(after_log[i]), 1e-8);
+        EXPECT_EQ(std::get<0>(before_log[i]), std::get<0>(after_log[i]));
+        EXPECT_EQ(std::get<1>(before_log[i]), std::get<1>(after_log[i]));
+        EXPECT_NEAR(std::get<2>(before_log[i]), std::get<2>(after_log[i]), 1e-8);
+        EXPECT_NEAR(std::get<3>(before_log[i]), std::get<3>(after_log[i]), 1e-8);
     }
 }

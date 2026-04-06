@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE unconnected
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <sstream>
 
@@ -41,17 +41,17 @@ see https://www.gnu.org/licenses/. */
 
 using namespace pagmo;
 
-BOOST_AUTO_TEST_CASE(basic_test)
+TEST(unconnected, basic_test)
 {
     unconnected r0;
 
-    BOOST_CHECK(r0.get_connections(0).first.empty());
-    BOOST_CHECK(r0.get_connections(0).second.empty());
+    EXPECT_TRUE(r0.get_connections(0).first.empty());
+    EXPECT_TRUE(r0.get_connections(0).second.empty());
 
     r0.push_back();
 
-    BOOST_CHECK(r0.get_connections(1).first.empty());
-    BOOST_CHECK(r0.get_connections(1).second.empty());
+    EXPECT_TRUE(r0.get_connections(1).first.empty());
+    EXPECT_TRUE(r0.get_connections(1).second.empty());
 
     // Minimal serialization test.
     {
@@ -62,18 +62,18 @@ BOOST_AUTO_TEST_CASE(basic_test)
             oarchive << t0;
         }
         topology t1(ring{});
-        BOOST_CHECK(!t1.is<unconnected>());
+        EXPECT_TRUE(!t1.is<unconnected>());
         {
             boost::archive::binary_iarchive iarchive(ss);
             iarchive >> t1;
         }
-        BOOST_CHECK(t1.is<unconnected>());
+        EXPECT_TRUE(t1.is<unconnected>());
     }
 }
 
-BOOST_AUTO_TEST_CASE(to_bgl_test)
+TEST(unconnected, to_bgl_test)
 {
-    BOOST_CHECK(!HasToBgl<unconnected>);
+    EXPECT_TRUE(!HasToBgl<unconnected>);
 
     BOOST_CHECK_EXCEPTION(
         topology{unconnected{}}.to_bgl(), not_implemented_error, [](const not_implemented_error &nie) {

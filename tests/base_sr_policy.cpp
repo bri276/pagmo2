@@ -26,18 +26,18 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE base_sr_policy
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <limits>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
+#include <variant>
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/numeric/conversion/converter_policies.hpp>
-#include <boost/variant/get.hpp>
 
 #include <pagmo/detail/base_sr_policy.hpp>
 #include <pagmo/s11n.hpp>
@@ -47,29 +47,29 @@ using namespace pagmo;
 
 using bsrp = detail::base_sr_policy;
 
-BOOST_AUTO_TEST_CASE(basic_test)
+TEST(base_sr_policy, basic_test)
 {
     bsrp b0(0);
-    BOOST_CHECK(b0.get_migr_rate().which() == 0);
-    BOOST_CHECK(boost::get<pop_size_t>(b0.get_migr_rate()) == 0);
+    EXPECT_TRUE(b0.get_migr_rate().index() == 0);
+    EXPECT_TRUE(std::get<pop_size_t>(b0.get_migr_rate()) == 0);
 
     b0 = bsrp(4u);
-    BOOST_CHECK(b0.get_migr_rate().which() == 0);
-    BOOST_CHECK(boost::get<pop_size_t>(b0.get_migr_rate()) == 4);
+    EXPECT_TRUE(b0.get_migr_rate().index() == 0);
+    EXPECT_TRUE(std::get<pop_size_t>(b0.get_migr_rate()) == 4);
 
     b0 = bsrp(.1);
-    BOOST_CHECK(b0.get_migr_rate().which() == 1);
-    BOOST_CHECK(boost::get<double>(b0.get_migr_rate()) == .1);
+    EXPECT_TRUE(b0.get_migr_rate().index() == 1);
+    EXPECT_TRUE(std::get<double>(b0.get_migr_rate()) == .1);
 
     b0 = bsrp(0.l);
-    BOOST_CHECK(b0.get_migr_rate().which() == 1);
-    BOOST_CHECK(boost::get<double>(b0.get_migr_rate()) == 0.);
+    EXPECT_TRUE(b0.get_migr_rate().index() == 1);
+    EXPECT_TRUE(std::get<double>(b0.get_migr_rate()) == 0.);
 
     b0 = bsrp(1.f);
-    BOOST_CHECK(b0.get_migr_rate().which() == 1);
-    BOOST_CHECK(boost::get<double>(b0.get_migr_rate()) == 1.);
+    EXPECT_TRUE(b0.get_migr_rate().index() == 1);
+    EXPECT_TRUE(std::get<double>(b0.get_migr_rate()) == 1.);
 
-    BOOST_CHECK((!std::is_constructible<bsrp, const std::string &>::value));
+    EXPECT_TRUE((!std::is_constructible<bsrp, const std::string &>::value));
 
     // Minimal serialization test.
     {
@@ -83,8 +83,8 @@ BOOST_AUTO_TEST_CASE(basic_test)
             boost::archive::binary_iarchive iarchive(ss);
             iarchive >> b1;
         }
-        BOOST_CHECK(b1.get_migr_rate().which() == 1);
-        BOOST_CHECK(boost::get<double>(b1.get_migr_rate()) == 1.);
+        EXPECT_TRUE(b1.get_migr_rate().index() == 1);
+        EXPECT_TRUE(std::get<double>(b1.get_migr_rate()) == 1.);
     }
 
     // Error handling.
@@ -104,5 +104,5 @@ BOOST_AUTO_TEST_CASE(basic_test)
                 ia.what(), "Invalid fractional migration rate specified in the constructor of a replacement/selection "
                            "policy: the rate must be in the [0., 1.] range, but it is ");
         });
-    BOOST_CHECK_THROW(b0 = bsrp(-1), boost::numeric::negative_overflow);
+    EXPECT_THROW(b0 = bsrp(-1), boost::numeric::negative_overflow);
 }

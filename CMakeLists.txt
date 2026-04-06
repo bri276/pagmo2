@@ -173,9 +173,6 @@ endif ()
 # TBB dependency
 include(cmake/find_or_build_tbb.cmake)
 
-# Boost dependency
-include(cmake/find_or_build_boost.cmake)
-
 # Eigen3 dependency
 include(cmake/find_or_build_eigen.cmake)
 
@@ -184,6 +181,12 @@ include(cmake/find_or_build_nlopt.cmake)
 
 # IPOPT dependency
 include(cmake/find_or_build_ipopt.cmake)
+
+# Boost dependency (for serialization)
+include(cmake/find_or_build_boost.cmake)
+
+# Google Test dependency
+include(cmake/find_or_build_gtest.cmake)
 
 # List of source files.
 set(PAGMO_SRC_FILES
@@ -371,19 +374,25 @@ endif()
 # Threads.
 target_link_libraries(pagmo PUBLIC Threads::Threads)
 
-# Boost linking - use PRIVATE to avoid export issues
-if(TARGET boost_boost)
-    target_link_libraries(pagmo PRIVATE boost_boost)
-    # Also need to expose boost headers publicly for pagmo's public API
-    get_target_property(BOOST_INCLUDE_DIRS boost_boost INTERFACE_INCLUDE_DIRECTORIES)
-    if(BOOST_INCLUDE_DIRS)
-        target_include_directories(pagmo PUBLIC ${BOOST_INCLUDE_DIRS})
+# TBB.
+# NOTE: TBB is a private dependency because
+# all uses of TBB are limited to the .cpp files,
+# thus fully encapsulated in the pagmo library.
+target_link_libraries(pagmo PRIVATE pagmo_tbb_wrapper)
+
+# Boost serialization and header-only libraries for the main library
+if(TARGET boost_serialization)
+    target_link_libraries(pagmo PRIVATE boost_serialization)
+    # Expose serialization headers publicly since pagmo's API uses them
+    get_target_property(BOOST_SERIAL_INCLUDE_DIRS boost_serialization INTERFACE_INCLUDE_DIRECTORIES)
+    if(BOOST_SERIAL_INCLUDE_DIRS)
+        target_include_directories(pagmo PUBLIC ${BOOST_SERIAL_INCLUDE_DIRS})
     endif()
-    message(STATUS "Linked with boost_boost (private)")
+    message(STATUS "Linked with boost_serialization (private)")
 endif()
 
 # Link additional header-only boost libraries needed by pagmo
-foreach(boost_lib IN ITEMS boost_any boost_math boost_safe_numerics boost_bimap boost_system boost_graph boost_lexical_cast boost_integer boost_variant boost_variant2 boost_property_map boost_container boost_move boost_type_index boost_multi_index boost_type_traits boost_config boost_mpl boost_cat boost_preprocessor)
+foreach(boost_lib IN ITEMS boost_any boost_math boost_safe_numerics boost_bimap boost_system boost_graph boost_lexical_cast boost_integer boost_variant boost_variant2 boost_property_map boost_container boost_move boost_type_index boost_multi_index boost_type_traits boost_config boost_mpl)
     if(TARGET ${boost_lib})
         target_link_libraries(pagmo PRIVATE ${boost_lib})
         get_target_property(BOOST_LIB_INCLUDE_DIRS ${boost_lib} INTERFACE_INCLUDE_DIRECTORIES)
@@ -394,22 +403,8 @@ foreach(boost_lib IN ITEMS boost_any boost_math boost_safe_numerics boost_bimap 
     endif()
 endforeach()
 
-target_link_libraries(pagmo PRIVATE boost_serialization)
-# Expose serialization headers publicly since pagmo's API uses them
-get_target_property(BOOST_SERIAL_INCLUDE_DIRS boost_serialization INTERFACE_INCLUDE_DIRECTORIES)
-if(BOOST_SERIAL_INCLUDE_DIRS)
-    target_include_directories(pagmo PUBLIC ${BOOST_SERIAL_INCLUDE_DIRS})
-endif()
-message(STATUS "Linked with boost_serialization (private)")
-
 # NOTE: quench warnings from Boost when building the library.
 target_compile_definitions(pagmo PRIVATE BOOST_ALLOW_DEPRECATED_HEADERS)
-
-# TBB.
-# NOTE: TBB is a private dependency because
-# all uses of TBB are limited to the .cpp files,
-# thus fully encapsulated in the pagmo library.
-target_link_libraries(pagmo PRIVATE pagmo_tbb_wrapper)
 
 if(PAGMO_WITH_EIGEN3)
     # Link pagmo to eigen3 privately and expose headers publicly

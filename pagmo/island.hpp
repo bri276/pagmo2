@@ -29,6 +29,7 @@ see https://www.gnu.org/licenses/. */
 #ifndef PAGMO_ISLAND_HPP
 #define PAGMO_ISLAND_HPP
 
+#include <any>
 #include <concepts>
 #include <functional>
 #include <future>
@@ -43,9 +44,6 @@ see https://www.gnu.org/licenses/. */
 #include <typeinfo>
 #include <utility>
 #include <vector>
-
-#include <boost/any.hpp>
-#include <boost/type_traits/integral_constant.hpp>
 
 #include <pagmo/algorithm.hpp>
 #include <pagmo/bfe.hpp>
@@ -340,7 +338,7 @@ namespace detail
 // do anything, but in Python we need to override this getter so that it returns
 // a RAII object that unlocks the GIL, otherwise we could run into deadlocks in Python
 // if isl::wait()/isl::wait_check() holds the GIL while waiting.
-PAGMO_DLL_PUBLIC extern std::function<boost::any()> wait_raii_getter;
+PAGMO_DLL_PUBLIC extern std::function<std::any()> wait_raii_getter;
 
 // NOTE: this structure holds an std::function that implements the logic for the selection of the UDI
 // type in the constructor of island_data. The logic is decoupled so that we can override the default logic with

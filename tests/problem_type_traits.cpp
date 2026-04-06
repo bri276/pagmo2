@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE problem_type_traits_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <string>
 #include <utility>
@@ -66,14 +66,14 @@ struct f_05 {
     vector_double fitness(const vector_double &) const;
 };
 
-BOOST_AUTO_TEST_CASE(has_fitness_test)
+TEST(problem_type_traits_test, has_fitness_test)
 {
-    BOOST_CHECK((!HasFitness<f_00>));
-    BOOST_CHECK((!HasFitness<f_01>));
-    BOOST_CHECK((!HasFitness<f_02>));
-    BOOST_CHECK((!HasFitness<f_03>));
-    BOOST_CHECK((!HasFitness<f_04>));
-    BOOST_CHECK((HasFitness<f_05>));
+    EXPECT_TRUE((!HasFitness<f_00>));
+    EXPECT_TRUE((!HasFitness<f_01>));
+    EXPECT_TRUE((!HasFitness<f_02>));
+    EXPECT_TRUE((!HasFitness<f_03>));
+    EXPECT_TRUE((!HasFitness<f_04>));
+    EXPECT_TRUE((HasFitness<f_05>));
 }
 
 // No fitness.
@@ -94,12 +94,12 @@ struct no_03 {
     vector_double::size_type get_nobj() const;
 };
 
-BOOST_AUTO_TEST_CASE(has_get_nobj_test)
+TEST(problem_type_traits_test, has_get_nobj_test)
 {
-    BOOST_CHECK((!HasFitness<no_00>));
-    BOOST_CHECK((!HasFitness<no_01>));
-    BOOST_CHECK((!HasFitness<no_02>));
-    BOOST_CHECK((!HasFitness<no_03>));
+    EXPECT_TRUE((!HasFitness<no_00>));
+    EXPECT_TRUE((!HasFitness<no_01>));
+    EXPECT_TRUE((!HasFitness<no_02>));
+    EXPECT_TRUE((!HasFitness<no_03>));
 }
 
 struct db_00 {
@@ -121,13 +121,13 @@ struct db_03 {
 struct db_04 {
 };
 
-BOOST_AUTO_TEST_CASE(has_bounds_test)
+TEST(problem_type_traits_test, has_bounds_test)
 {
-    BOOST_CHECK((!HasBounds<db_00>));
-    BOOST_CHECK((HasBounds<db_01>));
-    BOOST_CHECK((!HasBounds<db_02>));
-    BOOST_CHECK((!HasBounds<db_03>));
-    BOOST_CHECK((!HasBounds<db_04>));
+    EXPECT_TRUE((!HasBounds<db_00>));
+    EXPECT_TRUE((HasBounds<db_01>));
+    EXPECT_TRUE((!HasBounds<db_02>));
+    EXPECT_TRUE((!HasBounds<db_03>));
+    EXPECT_TRUE((!HasBounds<db_04>));
 }
 
 struct c_00 {
@@ -167,28 +167,28 @@ struct c_07 {
     vector_double::size_type get_nic() const;
 };
 
-BOOST_AUTO_TEST_CASE(has_e_constraints_test)
+TEST(problem_type_traits_test, has_e_constraints_test)
 {
-    BOOST_CHECK((!HasEConstraints<c_00>));
-    BOOST_CHECK((HasEConstraints<c_01>));
-    BOOST_CHECK((!HasEConstraints<c_02>));
-    BOOST_CHECK((!HasEConstraints<c_03>));
-    BOOST_CHECK((HasEConstraints<c_04>));
-    BOOST_CHECK((HasEConstraints<c_05>));
-    BOOST_CHECK((HasEConstraints<c_06>));
-    BOOST_CHECK((!HasEConstraints<c_07>));
+    EXPECT_TRUE((!HasEConstraints<c_00>));
+    EXPECT_TRUE((HasEConstraints<c_01>));
+    EXPECT_TRUE((!HasEConstraints<c_02>));
+    EXPECT_TRUE((!HasEConstraints<c_03>));
+    EXPECT_TRUE((HasEConstraints<c_04>));
+    EXPECT_TRUE((HasEConstraints<c_05>));
+    EXPECT_TRUE((HasEConstraints<c_06>));
+    EXPECT_TRUE((!HasEConstraints<c_07>));
 }
 
-BOOST_AUTO_TEST_CASE(has_i_constraints_test)
+TEST(problem_type_traits_test, has_i_constraints_test)
 {
-    BOOST_CHECK((!HasIConstraints<c_00>));
-    BOOST_CHECK((HasIConstraints<c_01>));
-    BOOST_CHECK((HasIConstraints<c_02>));
-    BOOST_CHECK((HasIConstraints<c_03>));
-    BOOST_CHECK((!HasIConstraints<c_04>));
-    BOOST_CHECK((!HasIConstraints<c_05>));
-    BOOST_CHECK((!HasIConstraints<c_06>));
-    BOOST_CHECK((HasIConstraints<c_07>));
+    EXPECT_TRUE((!HasIConstraints<c_00>));
+    EXPECT_TRUE((HasIConstraints<c_01>));
+    EXPECT_TRUE((HasIConstraints<c_02>));
+    EXPECT_TRUE((HasIConstraints<c_03>));
+    EXPECT_TRUE((!HasIConstraints<c_04>));
+    EXPECT_TRUE((!HasIConstraints<c_05>));
+    EXPECT_TRUE((!HasIConstraints<c_06>));
+    EXPECT_TRUE((HasIConstraints<c_07>));
 }
 
 struct i_00 {
@@ -211,13 +211,13 @@ struct i_04 {
     vector_double::size_type get_nixx() const;
 };
 
-BOOST_AUTO_TEST_CASE(has_integer_part_test)
+TEST(problem_type_traits_test, has_integer_part_test)
 {
-    BOOST_CHECK((!HasIntegerPart<i_00>));
-    BOOST_CHECK((HasIntegerPart<i_01>));
-    BOOST_CHECK((!HasIntegerPart<i_02>));
-    BOOST_CHECK((!HasIntegerPart<i_03>));
-    BOOST_CHECK((!HasIntegerPart<i_04>));
+    EXPECT_TRUE((!HasIntegerPart<i_00>));
+    EXPECT_TRUE((HasIntegerPart<i_01>));
+    EXPECT_TRUE((!HasIntegerPart<i_02>));
+    EXPECT_TRUE((!HasIntegerPart<i_03>));
+    EXPECT_TRUE((!HasIntegerPart<i_04>));
 }
 
 struct n_00 {
@@ -236,12 +236,12 @@ struct n_03 {
     void get_name() const;
 };
 
-BOOST_AUTO_TEST_CASE(has_name_test)
+TEST(problem_type_traits_test, has_name_test)
 {
-    BOOST_CHECK((!HasGetName<n_00>));
-    BOOST_CHECK((HasGetName<n_01>));
-    BOOST_CHECK((!HasGetName<n_02>));
-    BOOST_CHECK((!HasGetName<n_03>));
+    EXPECT_TRUE((!HasGetName<n_00>));
+    EXPECT_TRUE((HasGetName<n_01>));
+    EXPECT_TRUE((!HasGetName<n_02>));
+    EXPECT_TRUE((!HasGetName<n_03>));
 }
 
 struct ei_00 {
@@ -260,12 +260,12 @@ struct ei_03 {
     void get_extra_info() const;
 };
 
-BOOST_AUTO_TEST_CASE(has_extra_info_test)
+TEST(problem_type_traits_test, has_extra_info_test)
 {
-    BOOST_CHECK((!HasGetExtraInfo<ei_00>));
-    BOOST_CHECK((HasGetExtraInfo<ei_01>));
-    BOOST_CHECK((!HasGetExtraInfo<ei_02>));
-    BOOST_CHECK((!HasGetExtraInfo<ei_03>));
+    EXPECT_TRUE((!HasGetExtraInfo<ei_00>));
+    EXPECT_TRUE((HasGetExtraInfo<ei_01>));
+    EXPECT_TRUE((!HasGetExtraInfo<ei_02>));
+    EXPECT_TRUE((!HasGetExtraInfo<ei_03>));
 }
 
 struct grad_00 {
@@ -288,13 +288,13 @@ struct grad_04 {
     void gradient(const vector_double &) const;
 };
 
-BOOST_AUTO_TEST_CASE(has_gradient_test)
+TEST(problem_type_traits_test, has_gradient_test)
 {
-    BOOST_CHECK((!HasGradient<grad_00>));
-    BOOST_CHECK((HasGradient<grad_01>));
-    BOOST_CHECK((!HasGradient<grad_02>));
-    BOOST_CHECK((!HasGradient<grad_03>));
-    BOOST_CHECK((!HasGradient<grad_04>));
+    EXPECT_TRUE((!HasGradient<grad_00>));
+    EXPECT_TRUE((HasGradient<grad_01>));
+    EXPECT_TRUE((!HasGradient<grad_02>));
+    EXPECT_TRUE((!HasGradient<grad_03>));
+    EXPECT_TRUE((!HasGradient<grad_04>));
 }
 
 struct ov_grad_00 {
@@ -313,12 +313,12 @@ struct ov_grad_03 {
     void has_gradient() const;
 };
 
-BOOST_AUTO_TEST_CASE(override_has_gradient_test)
+TEST(problem_type_traits_test, override_has_gradient_test)
 {
-    BOOST_CHECK((!OverrideHasGradient<ov_grad_00>));
-    BOOST_CHECK((OverrideHasGradient<ov_grad_01>));
-    BOOST_CHECK((!OverrideHasGradient<ov_grad_02>));
-    BOOST_CHECK((!OverrideHasGradient<ov_grad_03>));
+    EXPECT_TRUE((!OverrideHasGradient<ov_grad_00>));
+    EXPECT_TRUE((OverrideHasGradient<ov_grad_01>));
+    EXPECT_TRUE((!OverrideHasGradient<ov_grad_02>));
+    EXPECT_TRUE((!OverrideHasGradient<ov_grad_03>));
 }
 
 struct gs_00 {
@@ -337,12 +337,12 @@ struct gs_03 {
     int gradient_sparsity() const;
 };
 
-BOOST_AUTO_TEST_CASE(has_gradient_sparsity_test)
+TEST(problem_type_traits_test, has_gradient_sparsity_test)
 {
-    BOOST_CHECK((!HasGradientSparsity<gs_00>));
-    BOOST_CHECK((HasGradientSparsity<gs_01>));
-    BOOST_CHECK((!HasGradientSparsity<gs_02>));
-    BOOST_CHECK((!HasGradientSparsity<gs_03>));
+    EXPECT_TRUE((!HasGradientSparsity<gs_00>));
+    EXPECT_TRUE((HasGradientSparsity<gs_01>));
+    EXPECT_TRUE((!HasGradientSparsity<gs_02>));
+    EXPECT_TRUE((!HasGradientSparsity<gs_03>));
 }
 
 struct ov_gs_00 {
@@ -361,12 +361,12 @@ struct ov_gs_03 {
     void has_gradient_sparsity() const;
 };
 
-BOOST_AUTO_TEST_CASE(override_has_gradient_sparsity_test)
+TEST(problem_type_traits_test, override_has_gradient_sparsity_test)
 {
-    BOOST_CHECK((!OverrideHasGradientSparsity<ov_gs_00>));
-    BOOST_CHECK((OverrideHasGradientSparsity<ov_gs_01>));
-    BOOST_CHECK((!OverrideHasGradientSparsity<ov_gs_02>));
-    BOOST_CHECK((!OverrideHasGradientSparsity<ov_gs_03>));
+    EXPECT_TRUE((!OverrideHasGradientSparsity<ov_gs_00>));
+    EXPECT_TRUE((OverrideHasGradientSparsity<ov_gs_01>));
+    EXPECT_TRUE((!OverrideHasGradientSparsity<ov_gs_02>));
+    EXPECT_TRUE((!OverrideHasGradientSparsity<ov_gs_03>));
 }
 
 struct hess_00 {
@@ -389,13 +389,13 @@ struct hess_04 {
     void hessians(const vector_double &) const;
 };
 
-BOOST_AUTO_TEST_CASE(has_hessians_test)
+TEST(problem_type_traits_test, has_hessians_test)
 {
-    BOOST_CHECK((!HasHessians<hess_00>));
-    BOOST_CHECK((HasHessians<hess_01>));
-    BOOST_CHECK((!HasHessians<hess_02>));
-    BOOST_CHECK((!HasHessians<hess_03>));
-    BOOST_CHECK((!HasHessians<hess_04>));
+    EXPECT_TRUE((!HasHessians<hess_00>));
+    EXPECT_TRUE((HasHessians<hess_01>));
+    EXPECT_TRUE((!HasHessians<hess_02>));
+    EXPECT_TRUE((!HasHessians<hess_03>));
+    EXPECT_TRUE((!HasHessians<hess_04>));
 }
 
 struct ov_hess_00 {
@@ -414,12 +414,12 @@ struct ov_hess_03 {
     void has_hessians() const;
 };
 
-BOOST_AUTO_TEST_CASE(override_has_hessians_test)
+TEST(problem_type_traits_test, override_has_hessians_test)
 {
-    BOOST_CHECK((!OverrideHasHessians<ov_hess_00>));
-    BOOST_CHECK((OverrideHasHessians<ov_hess_01>));
-    BOOST_CHECK((!OverrideHasHessians<ov_hess_02>));
-    BOOST_CHECK((!OverrideHasHessians<ov_hess_03>));
+    EXPECT_TRUE((!OverrideHasHessians<ov_hess_00>));
+    EXPECT_TRUE((OverrideHasHessians<ov_hess_01>));
+    EXPECT_TRUE((!OverrideHasHessians<ov_hess_02>));
+    EXPECT_TRUE((!OverrideHasHessians<ov_hess_03>));
 }
 
 struct hs_00 {
@@ -438,12 +438,12 @@ struct hs_03 {
     int hessians_sparsity() const;
 };
 
-BOOST_AUTO_TEST_CASE(has_hessians_sparsity_test)
+TEST(problem_type_traits_test, has_hessians_sparsity_test)
 {
-    BOOST_CHECK((!HasHessiansSparsity<hs_00>));
-    BOOST_CHECK((HasHessiansSparsity<hs_01>));
-    BOOST_CHECK((!HasHessiansSparsity<hs_02>));
-    BOOST_CHECK((!HasHessiansSparsity<hs_03>));
+    EXPECT_TRUE((!HasHessiansSparsity<hs_00>));
+    EXPECT_TRUE((HasHessiansSparsity<hs_01>));
+    EXPECT_TRUE((!HasHessiansSparsity<hs_02>));
+    EXPECT_TRUE((!HasHessiansSparsity<hs_03>));
 }
 
 struct ov_hs_00 {
@@ -462,12 +462,12 @@ struct ov_hs_03 {
     void has_hessians_sparsity() const;
 };
 
-BOOST_AUTO_TEST_CASE(override_has_hessians_sparsity_test)
+TEST(problem_type_traits_test, override_has_hessians_sparsity_test)
 {
-    BOOST_CHECK((!OverrideHasHessiansSparsity<ov_hs_00>));
-    BOOST_CHECK((OverrideHasHessiansSparsity<ov_hs_01>));
-    BOOST_CHECK((!OverrideHasHessiansSparsity<ov_hs_02>));
-    BOOST_CHECK((!OverrideHasHessiansSparsity<ov_hs_03>));
+    EXPECT_TRUE((!OverrideHasHessiansSparsity<ov_hs_00>));
+    EXPECT_TRUE((OverrideHasHessiansSparsity<ov_hs_01>));
+    EXPECT_TRUE((!OverrideHasHessiansSparsity<ov_hs_02>));
+    EXPECT_TRUE((!OverrideHasHessiansSparsity<ov_hs_03>));
 }
 
 struct hss_00 {
@@ -490,13 +490,13 @@ struct hss_04 {
     double set_seed(unsigned);
 };
 
-BOOST_AUTO_TEST_CASE(has_set_seed_test)
+TEST(problem_type_traits_test, has_set_seed_test)
 {
-    BOOST_CHECK((!HasSetSeed<hss_00>));
-    BOOST_CHECK((HasSetSeed<hss_01>));
-    BOOST_CHECK((HasSetSeed<hss_02>));
-    BOOST_CHECK((HasSetSeed<hss_03>));
-    BOOST_CHECK((!HasSetSeed<hss_04>));
+    EXPECT_TRUE((!HasSetSeed<hss_00>));
+    EXPECT_TRUE((HasSetSeed<hss_01>));
+    EXPECT_TRUE((HasSetSeed<hss_02>));
+    EXPECT_TRUE((HasSetSeed<hss_03>));
+    EXPECT_TRUE((!HasSetSeed<hss_04>));
 }
 
 struct ov_hss_00 {
@@ -515,10 +515,10 @@ struct ov_hss_03 {
     void has_set_seed() const;
 };
 
-BOOST_AUTO_TEST_CASE(override_has_set_seed_test)
+TEST(problem_type_traits_test, override_has_set_seed_test)
 {
-    BOOST_CHECK((!OverrideHasSetSeed<ov_hss_00>));
-    BOOST_CHECK((OverrideHasSetSeed<ov_hss_01>));
-    BOOST_CHECK((!OverrideHasSetSeed<ov_hss_02>));
-    BOOST_CHECK((!OverrideHasSetSeed<ov_hss_03>));
+    EXPECT_TRUE((!OverrideHasSetSeed<ov_hss_00>));
+    EXPECT_TRUE((OverrideHasSetSeed<ov_hss_01>));
+    EXPECT_TRUE((!OverrideHasSetSeed<ov_hss_02>));
+    EXPECT_TRUE((!OverrideHasSetSeed<ov_hss_03>));
 }

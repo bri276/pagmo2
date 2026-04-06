@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE translate_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/test/tools/floating_point_comparison.hpp>
@@ -49,7 +49,7 @@ see https://www.gnu.org/licenses/. */
 
 using namespace pagmo;
 
-BOOST_AUTO_TEST_CASE(translate_construction_test)
+TEST(translate_test, translate_construction_test)
 {
     // First we check directly the two constructors
     problem p0{translate{}};
@@ -61,14 +61,14 @@ BOOST_AUTO_TEST_CASE(translate_construction_test)
     // We check that the default constructor constructs a problem
     // which has an identical representation to the problem
     // built by the explicit constructor.
-    BOOST_CHECK(p0_string == p1_string);
+    EXPECT_TRUE(p0_string == p1_string);
 
     // We check that wrong size for translation results in an invalid_argument
     // exception
-    BOOST_CHECK_THROW((translate{null_problem{}, {1, 2}}), std::invalid_argument);
+    EXPECT_THROW((translate{null_problem{}, {1, 2}}), std::invalid_argument);
 }
 
-BOOST_AUTO_TEST_CASE(translate_functional_test)
+TEST(translate_test, translate_functional_test)
 {
     // Then we check that the hock_schittkowski_71 problem is actually translated
     {
@@ -79,29 +79,29 @@ BOOST_AUTO_TEST_CASE(translate_functional_test)
         problem p2{translate{t1, {-0.1, 0.2, -0.3, -0.4}}};
         vector_double x{3., 3., 3., 3.};
         // Fitness gradients and hessians are the same if the translation  is zero
-        BOOST_CHECK(p0.fitness(x) == p2.fitness(x));
-        BOOST_CHECK(p0.gradient(x) == p2.gradient(x));
-        BOOST_CHECK(p0.hessians(x) == p2.hessians(x));
+        EXPECT_TRUE(p0.fitness(x) == p2.fitness(x));
+        EXPECT_TRUE(p0.gradient(x) == p2.gradient(x));
+        EXPECT_TRUE(p0.hessians(x) == p2.hessians(x));
         // Bounds are unchanged if the translation is zero
-        BOOST_CHECK(p0.get_bounds().first != p1.get_bounds().first);
-        BOOST_CHECK(p0.get_bounds().first != p1.get_bounds().second);
+        EXPECT_TRUE(p0.get_bounds().first != p1.get_bounds().first);
+        EXPECT_TRUE(p0.get_bounds().first != p1.get_bounds().second);
         auto bounds0 = p0.get_bounds();
         auto bounds2 = p2.get_bounds();
         for (auto i = 0u; i < 4u; ++i) {
-            BOOST_CHECK_CLOSE(bounds0.first[i], bounds2.first[i], 1e-13);
-            BOOST_CHECK_CLOSE(bounds0.second[i], bounds2.second[i], 1e-13);
+            EXPECT_NEAR(bounds0.first[i], bounds2.first[i], 1e-13);
+            EXPECT_NEAR(bounds0.second[i], bounds2.second[i], 1e-13);
         }
         // We check that the problem's name has [translated] appended
-        BOOST_CHECK(p1.get_name().find("[translated]") != std::string::npos);
+        EXPECT_TRUE(p1.get_name().find("[translated]") != std::string::npos);
         // We check that extra info has "Translation Vector:" somewhere"
-        BOOST_CHECK(p1.get_extra_info().find("Translation Vector:") != std::string::npos);
+        EXPECT_TRUE(p1.get_extra_info().find("Translation Vector:") != std::string::npos);
         // We check we recover the translation vector
         auto translationvector = p1.extract<translate>()->get_translation();
-        BOOST_CHECK((translationvector == vector_double{0.1, -0.2, 0.3, 0.4}));
+        EXPECT_TRUE((translationvector == vector_double{0.1, -0.2, 0.3, 0.4}));
     }
 }
 
-BOOST_AUTO_TEST_CASE(translate_serialization_test)
+TEST(translate_test, translate_serialization_test)
 {
     // Do the checking with the full problem.
     hock_schittkowski_71 p0{};
@@ -126,14 +126,14 @@ BOOST_AUTO_TEST_CASE(translate_serialization_test)
         iarchive >> p;
     }
     auto after = boost::lexical_cast<std::string>(p);
-    BOOST_CHECK_EQUAL(before, after);
+    EXPECT_EQ(before, after);
 }
 
-BOOST_AUTO_TEST_CASE(translate_stochastic_test)
+TEST(translate_test, translate_stochastic_test)
 {
     hock_schittkowski_71 p0{};
     problem p{translate{p0, {0.1, -0.2, 0.3, 0.4}}};
-    BOOST_CHECK(!p.is_stochastic());
+    EXPECT_TRUE(!p.is_stochastic());
 }
 
 struct ts2 {
@@ -151,31 +151,31 @@ struct ts2 {
     }
 };
 
-BOOST_AUTO_TEST_CASE(translate_thread_safety_test)
+TEST(translate_test, translate_thread_safety_test)
 {
     hock_schittkowski_71 p0{};
     translate t{p0, {0.1, -0.2, 0.3, 0.4}};
-    BOOST_CHECK(t.get_thread_safety() == thread_safety::basic);
-    BOOST_CHECK((translate{ts2{}, {1}}.get_thread_safety() == thread_safety::none));
+    EXPECT_TRUE(t.get_thread_safety() == thread_safety::basic);
+    EXPECT_TRUE((translate{ts2{}, {1}}.get_thread_safety() == thread_safety::none));
 }
 
 template <typename T>
 void check_inheritance(T udp, const vector_double &t)
 {
-    BOOST_CHECK_EQUAL(problem(translate(udp, t)).get_nobj(), problem(udp).get_nobj());
-    BOOST_CHECK_EQUAL(problem(translate(udp, t)).get_nec(), problem(udp).get_nec());
-    BOOST_CHECK_EQUAL(problem(translate(udp, t)).get_nic(), problem(udp).get_nic());
-    BOOST_CHECK_EQUAL(problem(translate(udp, t)).get_nix(), problem(udp).get_nix());
-    BOOST_CHECK_EQUAL(problem(translate(udp, t)).has_gradient(), problem(udp).has_gradient());
-    BOOST_CHECK(translate(udp, t).gradient_sparsity() == problem(udp).gradient_sparsity());
-    BOOST_CHECK_EQUAL(problem(translate(udp, t)).has_gradient_sparsity(), problem(udp).has_gradient_sparsity());
-    BOOST_CHECK_EQUAL(problem(translate(udp, t)).has_hessians(), problem(udp).has_hessians());
-    BOOST_CHECK(problem(translate(udp, t)).hessians_sparsity() == problem(udp).hessians_sparsity());
-    BOOST_CHECK_EQUAL(problem(translate(udp, t)).has_hessians_sparsity(), problem(udp).has_hessians_sparsity());
-    BOOST_CHECK_EQUAL(problem(translate(udp, t)).has_set_seed(), problem(udp).has_set_seed());
+    EXPECT_EQ(problem(translate(udp, t)).get_nobj(), problem(udp).get_nobj());
+    EXPECT_EQ(problem(translate(udp, t)).get_nec(), problem(udp).get_nec());
+    EXPECT_EQ(problem(translate(udp, t)).get_nic(), problem(udp).get_nic());
+    EXPECT_EQ(problem(translate(udp, t)).get_nix(), problem(udp).get_nix());
+    EXPECT_EQ(problem(translate(udp, t)).has_gradient(), problem(udp).has_gradient());
+    EXPECT_TRUE(translate(udp, t).gradient_sparsity() == problem(udp).gradient_sparsity());
+    EXPECT_EQ(problem(translate(udp, t)).has_gradient_sparsity(), problem(udp).has_gradient_sparsity());
+    EXPECT_EQ(problem(translate(udp, t)).has_hessians(), problem(udp).has_hessians());
+    EXPECT_TRUE(problem(translate(udp, t)).hessians_sparsity() == problem(udp).hessians_sparsity());
+    EXPECT_EQ(problem(translate(udp, t)).has_hessians_sparsity(), problem(udp).has_hessians_sparsity());
+    EXPECT_EQ(problem(translate(udp, t)).has_set_seed(), problem(udp).has_set_seed());
 }
 
-BOOST_AUTO_TEST_CASE(translate_inheritance_test)
+TEST(translate_test, translate_inheritance_test)
 {
     check_inheritance(hock_schittkowski_71{}, vector_double(4, 0.5));
     check_inheritance(cec2006{1}, vector_double(13, 0.5));
@@ -189,24 +189,24 @@ BOOST_AUTO_TEST_CASE(translate_inheritance_test)
     problem p{translate{inventory{10u, 10u, 1234567u}, vector_double(10, 1.)}};
     std::ostringstream ss1, ss2;
     ss1 << p;
-    BOOST_CHECK(ss1.str().find(std::to_string(1234567u)) != std::string::npos);
+    EXPECT_TRUE(ss1.str().find(std::to_string(1234567u)) != std::string::npos);
     p.set_seed(5672543u);
     ss2 << p;
-    BOOST_CHECK(ss2.str().find(std::to_string(5672543u)) != std::string::npos);
+    EXPECT_TRUE(ss2.str().find(std::to_string(5672543u)) != std::string::npos);
 }
 
-BOOST_AUTO_TEST_CASE(translate_inner_algo_get_test)
+TEST(translate_test, translate_inner_algo_get_test)
 {
     // We check that the correct overload is called according to (*this) being const or not
     {
         const translate udp(hock_schittkowski_71{}, vector_double(4, 0.5));
-        BOOST_CHECK(std::is_const<decltype(udp)>::value);
-        BOOST_CHECK(std::is_const<std::remove_reference<decltype(udp.get_inner_problem())>::type>::value);
+        EXPECT_TRUE(std::is_const<decltype(udp)>::value);
+        EXPECT_TRUE(std::is_const<std::remove_reference<decltype(udp.get_inner_problem())>::type>::value);
     }
     {
         translate udp(hock_schittkowski_71{}, vector_double(4, 0.5));
-        BOOST_CHECK(!std::is_const<decltype(udp)>::value);
-        BOOST_CHECK(!std::is_const<std::remove_reference<decltype(udp.get_inner_problem())>::type>::value);
+        EXPECT_TRUE(!std::is_const<decltype(udp)>::value);
+        EXPECT_TRUE(!std::is_const<std::remove_reference<decltype(udp.get_inner_problem())>::type>::value);
     }
 }
 
@@ -231,15 +231,15 @@ struct udp_with_bfe {
     }
 };
 
-BOOST_AUTO_TEST_CASE(translate_batch_fitness_test)
+TEST(translate_test, translate_batch_fitness_test)
 {
     problem p0{udp_with_bfe{}};
     problem p1{translate{udp_with_bfe{}, {1, 1}}};
     problem p2{translate{translate{udp_with_bfe{}, {1, 1}}, {-1, -1}}};
 
-    BOOST_CHECK(p0.has_batch_fitness());
-    BOOST_CHECK(p1.has_batch_fitness());
-    BOOST_CHECK(p2.has_batch_fitness());
+    EXPECT_TRUE(p0.has_batch_fitness());
+    EXPECT_TRUE(p1.has_batch_fitness());
+    EXPECT_TRUE(p2.has_batch_fitness());
 
     vector_double dvs(10000u * 2u);
     std::iota(dvs.begin(), dvs.end(), 0.);
@@ -248,10 +248,10 @@ BOOST_AUTO_TEST_CASE(translate_batch_fitness_test)
     auto fvs1 = p1.batch_fitness(dvs);
     auto fvs2 = p2.batch_fitness(dvs);
 
-    BOOST_CHECK(fvs0 != fvs1);
-    BOOST_CHECK(fvs0 == fvs2);
+    EXPECT_TRUE(fvs0 != fvs1);
+    EXPECT_TRUE(fvs0 == fvs2);
 
     auto no_bfe = problem{translate{hock_schittkowski_71{}, {0.1, -0.2, 0.3, 0.4}}};
-    BOOST_CHECK(!no_bfe.has_batch_fitness());
-    BOOST_CHECK_THROW(no_bfe.batch_fitness({3., 3., 3., 3.}), not_implemented_error);
+    EXPECT_TRUE(!no_bfe.has_batch_fitness());
+    EXPECT_THROW(no_bfe.batch_fitness({3., 3., 3., 3.}), not_implemented_error);
 }

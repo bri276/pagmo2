@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE cec2014_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <iostream>
 #include <random>
@@ -48,7 +48,7 @@ see https://www.gnu.org/licenses/. */
 
 using namespace pagmo;
 
-BOOST_AUTO_TEST_CASE(cec2014_test)
+TEST(cec2014_test, cec2014_test)
 {
     std::mt19937 r_engine(32u);
     // We check that all problems can be constructed at all dimensions and that the name returned makes sense
@@ -62,17 +62,17 @@ BOOST_AUTO_TEST_CASE(cec2014_test)
             }
             cec2014 udp{i, dim};
             auto x = random_decision_vector(problem(udp), r_engine); // a random vector
-            BOOST_CHECK_NO_THROW(udp.fitness(x));
+            EXPECT_NO_THROW(udp.fitness(x));
         }
-        BOOST_CHECK((cec2014{i, 10u}.get_name().find("CEC2014 - f")) != std::string::npos);
+        EXPECT_TRUE((cec2014{i, 10u}.get_name().find("CEC2014 - f")) != std::string::npos);
     }
     // We check that wrong problem ids and dimensions cannot be constructed
-    BOOST_CHECK_THROW((cec2014{0u, 2u}), std::invalid_argument);
-    BOOST_CHECK_THROW((cec2014{29u, 2u}), std::invalid_argument);
-    BOOST_CHECK_THROW((cec2014{10u, 3u}), std::invalid_argument);
+    EXPECT_THROW((cec2014{0u, 2u}), std::invalid_argument);
+    EXPECT_THROW((cec2014{29u, 2u}), std::invalid_argument);
+    EXPECT_THROW((cec2014{10u, 3u}), std::invalid_argument);
 }
 
-BOOST_AUTO_TEST_CASE(cec2014_correctness_test)
+TEST(cec2014_test, cec2014_correctness_test)
 {
     std::unordered_map<unsigned, std::pair<unsigned, double>> results{
         {1, {100, 4604017218.1559124}},
@@ -116,12 +116,12 @@ BOOST_AUTO_TEST_CASE(cec2014_correctness_test)
         auto f_origin = prob.fitness(vector_double(10u, 0.))[0];
         auto f_min = prob.fitness(x_min)[0];
 
-        BOOST_CHECK_EQUAL(f_min, results[i].first);
-        BOOST_CHECK_CLOSE(f_origin, results[i].second, 1e-12); // Tolerance EPS added to be safe
+        EXPECT_EQ(f_min, results[i].first);
+        EXPECT_NEAR(f_origin, results[i].second, 1e-12); // Tolerance EPS added to be safe
     }
 }
 
-BOOST_AUTO_TEST_CASE(cec2014_serialization_test)
+TEST(cec2014_test, cec2014_serialization_test)
 {
     problem p{cec2014{1u, 10u}};
     // Call objfun to increase the internal counters.
@@ -141,5 +141,5 @@ BOOST_AUTO_TEST_CASE(cec2014_serialization_test)
         iarchive >> p;
     }
     auto after = boost::lexical_cast<std::string>(p);
-    BOOST_CHECK_EQUAL(before, after);
+    EXPECT_EQ(before, after);
 }

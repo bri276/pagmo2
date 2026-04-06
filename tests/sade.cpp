@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE sade_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/test/tools/floating_point_comparison.hpp>
@@ -47,20 +47,20 @@ see https://www.gnu.org/licenses/. */
 
 using namespace pagmo;
 
-BOOST_AUTO_TEST_CASE(construction_test)
+TEST(sade_test, construction_test)
 {
     sade user_algo{53u, 2u, 1u, 1e-6, 1e-6, false, 23u};
-    BOOST_CHECK(user_algo.get_verbosity() == 0u);
-    BOOST_CHECK(user_algo.get_seed() == 23u);
-    BOOST_CHECK((user_algo.get_log() == sade::log_type{}));
+    EXPECT_TRUE(user_algo.get_verbosity() == 0u);
+    EXPECT_TRUE(user_algo.get_seed() == 23u);
+    EXPECT_TRUE((user_algo.get_log() == sade::log_type{}));
 
-    BOOST_CHECK_THROW((sade{53u, 0u, 1u, 1e-6, 1e-6, false, 23u}), std::invalid_argument);
-    BOOST_CHECK_THROW((sade{53u, 23u, 1u, 1e-6, 1e-6, false, 23u}), std::invalid_argument);
-    BOOST_CHECK_THROW((sade{53u, 2u, 0u, 1e-6, 1e-6, false, 23u}), std::invalid_argument);
-    BOOST_CHECK_THROW((sade{53u, 2u, 3u, 1e-6, 1e-6, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((sade{53u, 0u, 1u, 1e-6, 1e-6, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((sade{53u, 23u, 1u, 1e-6, 1e-6, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((sade{53u, 2u, 0u, 1e-6, 1e-6, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((sade{53u, 2u, 3u, 1e-6, 1e-6, false, 23u}), std::invalid_argument);
 }
 
-BOOST_AUTO_TEST_CASE(evolve_test)
+TEST(sade_test, evolve_test)
 {
     // Here we only test that evolution is deterministic if the
     // seed is controlled for all variants
@@ -76,18 +76,18 @@ BOOST_AUTO_TEST_CASE(evolve_test)
                 user_algo1.set_verbosity(1u);
                 pop1 = user_algo1.evolve(pop1);
 
-                BOOST_CHECK(user_algo1.get_log().size() > 0u);
+                EXPECT_TRUE(user_algo1.get_log().size() > 0u);
 
                 sade user_algo2{10u, i, j, 1e-6, 1e-6, false, 23u};
                 user_algo2.set_verbosity(1u);
                 pop2 = user_algo2.evolve(pop2);
 
-                BOOST_CHECK(user_algo1.get_log() == user_algo2.get_log());
+                EXPECT_TRUE(user_algo1.get_log() == user_algo2.get_log());
 
                 user_algo2.set_seed(23u);
                 pop3 = user_algo2.evolve(pop3);
 
-                BOOST_CHECK(user_algo1.get_log() == user_algo2.get_log());
+                EXPECT_TRUE(user_algo1.get_log() == user_algo2.get_log());
             }
         }
     }
@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE(evolve_test)
         problem prob{rosenbrock{2u}};
         population pop{prob, 20u, 23u};
         pop = user_algo.evolve(pop);
-        BOOST_CHECK(user_algo.get_log().size() < 5000u);
+        EXPECT_TRUE(user_algo.get_log().size() < 5000u);
     }
     {
         sade user_algo{300u, 2, 1, 1e-16, 1e-3, false, 23u};
@@ -107,32 +107,32 @@ BOOST_AUTO_TEST_CASE(evolve_test)
         problem prob{rosenbrock{2u}};
         population pop{prob, 20u, 23u};
         pop = user_algo.evolve(pop);
-        BOOST_CHECK(user_algo.get_log().size() < 300u);
+        EXPECT_TRUE(user_algo.get_log().size() < 300u);
     }
 
     // We then check that the evolve throws if called on unsuitable problems
-    BOOST_CHECK_THROW(sade{10u}.evolve(population{problem{rosenbrock{}}, 6u}), std::invalid_argument);
-    BOOST_CHECK_THROW(sade{10u}.evolve(population{problem{zdt{}}, 15u}), std::invalid_argument);
-    BOOST_CHECK_THROW(sade{10u}.evolve(population{problem{hock_schittkowski_71{}}, 15u}), std::invalid_argument);
-    BOOST_CHECK_THROW(sade{10u}.evolve(population{problem{inventory{}}, 15u}), std::invalid_argument);
+    EXPECT_THROW(sade{10u}.evolve(population{problem{rosenbrock{}}, 6u}), std::invalid_argument);
+    EXPECT_THROW(sade{10u}.evolve(population{problem{zdt{}}, 15u}), std::invalid_argument);
+    EXPECT_THROW(sade{10u}.evolve(population{problem{hock_schittkowski_71{}}, 15u}), std::invalid_argument);
+    EXPECT_THROW(sade{10u}.evolve(population{problem{inventory{}}, 15u}), std::invalid_argument);
     // And a clean exit for 0 generations
     population pop{rosenbrock{25u}, 10u};
-    BOOST_CHECK(sade{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);
+    EXPECT_TRUE(sade{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);
 }
 
-BOOST_AUTO_TEST_CASE(setters_getters_test)
+TEST(sade_test, setters_getters_test)
 {
     sade user_algo{10000000u, 2, 1, 1e-6, 1e-6, false, 23u};
     user_algo.set_verbosity(23u);
-    BOOST_CHECK(user_algo.get_verbosity() == 23u);
+    EXPECT_TRUE(user_algo.get_verbosity() == 23u);
     user_algo.set_seed(23u);
-    BOOST_CHECK(user_algo.get_seed() == 23u);
-    BOOST_CHECK(user_algo.get_name().find("Self-adaptive") != std::string::npos);
-    BOOST_CHECK(user_algo.get_extra_info().find("Self adaptation variant") != std::string::npos);
-    BOOST_CHECK_NO_THROW(user_algo.get_log());
+    EXPECT_TRUE(user_algo.get_seed() == 23u);
+    EXPECT_TRUE(user_algo.get_name().find("Self-adaptive") != std::string::npos);
+    EXPECT_TRUE(user_algo.get_extra_info().find("Self adaptation variant") != std::string::npos);
+    EXPECT_NO_THROW(user_algo.get_log());
 }
 
-BOOST_AUTO_TEST_CASE(serialization_test)
+TEST(sade_test, serialization_test)
 {
     // Make one evolution
     problem prob{rosenbrock{2u}};
@@ -158,17 +158,17 @@ BOOST_AUTO_TEST_CASE(serialization_test)
     }
     auto after_text = boost::lexical_cast<std::string>(algo);
     auto after_log = algo.extract<sade>()->get_log();
-    BOOST_CHECK_EQUAL(before_text, after_text);
-    BOOST_CHECK(before_log == after_log);
+    EXPECT_EQ(before_text, after_text);
+    EXPECT_TRUE(before_log == after_log);
     // so we implement a close check
-    BOOST_CHECK(before_log.size() > 0u);
+    EXPECT_TRUE(before_log.size() > 0u);
     for (auto i = 0u; i < before_log.size(); ++i) {
-        BOOST_CHECK_EQUAL(std::get<0>(before_log[i]), std::get<0>(after_log[i]));
-        BOOST_CHECK_EQUAL(std::get<1>(before_log[i]), std::get<1>(after_log[i]));
-        BOOST_CHECK_CLOSE(std::get<2>(before_log[i]), std::get<2>(after_log[i]), 1e-8);
-        BOOST_CHECK_CLOSE(std::get<3>(before_log[i]), std::get<3>(after_log[i]), 1e-8);
-        BOOST_CHECK_CLOSE(std::get<4>(before_log[i]), std::get<4>(after_log[i]), 1e-8);
-        BOOST_CHECK_CLOSE(std::get<5>(before_log[i]), std::get<5>(after_log[i]), 1e-8);
-        BOOST_CHECK_CLOSE(std::get<6>(before_log[i]), std::get<6>(after_log[i]), 1e-8);
+        EXPECT_EQ(std::get<0>(before_log[i]), std::get<0>(after_log[i]));
+        EXPECT_EQ(std::get<1>(before_log[i]), std::get<1>(after_log[i]));
+        EXPECT_NEAR(std::get<2>(before_log[i]), std::get<2>(after_log[i]), 1e-8);
+        EXPECT_NEAR(std::get<3>(before_log[i]), std::get<3>(after_log[i]), 1e-8);
+        EXPECT_NEAR(std::get<4>(before_log[i]), std::get<4>(after_log[i]), 1e-8);
+        EXPECT_NEAR(std::get<5>(before_log[i]), std::get<5>(after_log[i]), 1e-8);
+        EXPECT_NEAR(std::get<6>(before_log[i]), std::get<6>(after_log[i]), 1e-8);
     }
 }

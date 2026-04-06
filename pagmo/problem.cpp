@@ -39,8 +39,6 @@ see https://www.gnu.org/licenses/. */
 #include <utility>
 #include <vector>
 
-#include <boost/numeric/conversion/cast.hpp>
-
 #include <pagmo/detail/bfe_impl.hpp>
 #include <pagmo/detail/type_name.hpp>
 #include <pagmo/exceptions.hpp>
@@ -48,6 +46,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/problem.hpp>
 #include <pagmo/problems/null_problem.hpp>
 #include <pagmo/types.hpp>
+#include <pagmo/utils/cast.hpp>
 #include <pagmo/utils/constrained.hpp>
 
 // MINGW-specific warnings.
@@ -124,7 +123,7 @@ sparsity_pattern dense_hessian(vector_double::size_type dim)
 // A collection of f_dim identical dense hessians.
 std::vector<sparsity_pattern> dense_hessians(vector_double::size_type f_dim, vector_double::size_type dim)
 {
-    return std::vector<sparsity_pattern>(boost::numeric_cast<std::vector<sparsity_pattern>::size_type>(f_dim),
+    return std::vector<sparsity_pattern>(numeric_cast<std::vector<sparsity_pattern>::size_type>(f_dim),
                                          dense_hessian(dim));
 }
 
@@ -230,7 +229,7 @@ void problem::generic_ctor_impl()
         }
         // We resize rather than push back here, so that an std::length_error is called quickly rather
         // than an std::bad_alloc after waiting the growth
-        m_hs_dim.resize(boost::numeric_cast<decltype(m_hs_dim.size())>(nf));
+        m_hs_dim.resize(numeric_cast<decltype(m_hs_dim.size())>(nf));
         std::fill(m_hs_dim.begin(), m_hs_dim.end(), nx * (nx - 1u) / 2u + nx); // lower triangular
     }
     // 10 - Constraint tolerance
@@ -977,7 +976,7 @@ vector_double prob_invoke_mem_batch_fitness(const problem &p, const vector_doubl
     // Increment the number of fitness evaluations, if
     // requested.
     if (incr_fevals) {
-        p.increment_fevals(boost::numeric_cast<unsigned long long>(dvs.size() / p.get_nx()));
+        p.increment_fevals(numeric_cast<unsigned long long>(dvs.size() / p.get_nx()));
     }
 
     return retval;

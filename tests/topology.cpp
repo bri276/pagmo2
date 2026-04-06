@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE topology_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <cstddef>
 #include <initializer_list>
@@ -43,7 +43,6 @@ see https://www.gnu.org/licenses/. */
 #include <vector>
 
 #include <boost/algorithm/string/predicate.hpp>
-#include <boost/graph/adjacency_list.hpp>
 
 #include <pagmo/detail/type_name.hpp>
 #include <pagmo/exceptions.hpp>
@@ -133,93 +132,93 @@ struct udt01 {
     int n_pushed = 0;
 };
 
-BOOST_AUTO_TEST_CASE(topology_type_traits_test)
+TEST(topology_test, topology_type_traits_test)
 {
-    BOOST_CHECK(!HasGetConnections<void>);
-    BOOST_CHECK(HasGetConnections<gc00>);
-    BOOST_CHECK(!HasGetConnections<ngc00>);
-    BOOST_CHECK(!HasGetConnections<ngc01>);
+    EXPECT_TRUE(!HasGetConnections<void>);
+    EXPECT_TRUE(HasGetConnections<gc00>);
+    EXPECT_TRUE(!HasGetConnections<ngc00>);
+    EXPECT_TRUE(!HasGetConnections<ngc01>);
 
-    BOOST_CHECK(!HasPushBack<void>);
-    BOOST_CHECK(HasPushBack<pb00>);
-    BOOST_CHECK(!HasPushBack<npb00>);
-    BOOST_CHECK(!HasPushBack<npb01>);
+    EXPECT_TRUE(!HasPushBack<void>);
+    EXPECT_TRUE(HasPushBack<pb00>);
+    EXPECT_TRUE(!HasPushBack<npb00>);
+    EXPECT_TRUE(!HasPushBack<npb01>);
 
-    BOOST_CHECK(!IsUdTopology<void>);
-    BOOST_CHECK(IsUdTopology<udt00>);
-    BOOST_CHECK(!IsUdTopology<gc00>);
-    BOOST_CHECK(!IsUdTopology<pb00>);
+    EXPECT_TRUE(!IsUdTopology<void>);
+    EXPECT_TRUE(IsUdTopology<udt00>);
+    EXPECT_TRUE(!IsUdTopology<gc00>);
+    EXPECT_TRUE(!IsUdTopology<pb00>);
 }
 
-BOOST_AUTO_TEST_CASE(topology_basic_tests)
+TEST(topology_test, topology_basic_tests)
 {
     topology def00;
-    BOOST_CHECK(def00.is<unconnected>());
+    EXPECT_TRUE(def00.is<unconnected>());
 
-    BOOST_CHECK((!std::is_constructible<topology, int>::value));
-    BOOST_CHECK((!std::is_constructible<topology, pb00>::value));
+    EXPECT_TRUE((!std::is_constructible<topology, int>::value));
+    EXPECT_TRUE((!std::is_constructible<topology, pb00>::value));
 
     topology t0{udt00{}}, t1{udt01{}};
 
-    BOOST_CHECK(t0.is_valid());
-    BOOST_CHECK(t0.is<udt00>());
-    BOOST_CHECK(!t0.is<udt01>());
-    BOOST_CHECK(t0.extract<udt00>() != nullptr);
-    BOOST_CHECK(static_cast<const topology &>(t0).extract<udt00>() != nullptr);
-    BOOST_CHECK(t0.extract<udt01>() == nullptr);
-    BOOST_CHECK(static_cast<const topology &>(t0).extract<udt01>() == nullptr);
-    BOOST_CHECK(t0.get_name() == "udt00");
-    BOOST_CHECK(topology{udt00a{}}.get_name() == detail::type_name<udt00a>());
-    BOOST_CHECK(t0.get_extra_info().empty());
+    EXPECT_TRUE(t0.is_valid());
+    EXPECT_TRUE(t0.is<udt00>());
+    EXPECT_TRUE(!t0.is<udt01>());
+    EXPECT_TRUE(t0.extract<udt00>() != nullptr);
+    EXPECT_TRUE(static_cast<const topology &>(t0).extract<udt00>() != nullptr);
+    EXPECT_TRUE(t0.extract<udt01>() == nullptr);
+    EXPECT_TRUE(static_cast<const topology &>(t0).extract<udt01>() == nullptr);
+    EXPECT_TRUE(t0.get_name() == "udt00");
+    EXPECT_TRUE(topology{udt00a{}}.get_name() == detail::type_name<udt00a>());
+    EXPECT_TRUE(t0.get_extra_info().empty());
 
     t0.push_back();
     t0.push_back();
 
-    BOOST_CHECK(t0.extract<udt00>()->n_pushed == 2);
+    EXPECT_TRUE(t0.extract<udt00>()->n_pushed == 2);
 
     // Copy construction.
     auto t3(t0);
-    BOOST_CHECK(t3.is_valid());
-    BOOST_CHECK(t3.is<udt00>());
-    BOOST_CHECK(t3.extract<udt00>()->n_pushed == 2);
-    BOOST_CHECK(static_cast<const topology &>(t3).extract<udt00>()->n_pushed == 2);
-    BOOST_CHECK(t3.get_name() == "udt00");
-    BOOST_CHECK(t3.get_extra_info().empty());
+    EXPECT_TRUE(t3.is_valid());
+    EXPECT_TRUE(t3.is<udt00>());
+    EXPECT_TRUE(t3.extract<udt00>()->n_pushed == 2);
+    EXPECT_TRUE(static_cast<const topology &>(t3).extract<udt00>()->n_pushed == 2);
+    EXPECT_TRUE(t3.get_name() == "udt00");
+    EXPECT_TRUE(t3.get_extra_info().empty());
 
     // Copy assignment.
     topology t4;
     t4 = t3;
-    BOOST_CHECK(t4.is_valid());
-    BOOST_CHECK(t4.is<udt00>());
-    BOOST_CHECK(t4.extract<udt00>()->n_pushed == 2);
-    BOOST_CHECK(static_cast<const topology &>(t4).extract<udt00>()->n_pushed == 2);
-    BOOST_CHECK(t4.get_name() == "udt00");
+    EXPECT_TRUE(t4.is_valid());
+    EXPECT_TRUE(t4.is<udt00>());
+    EXPECT_TRUE(t4.extract<udt00>()->n_pushed == 2);
+    EXPECT_TRUE(static_cast<const topology &>(t4).extract<udt00>()->n_pushed == 2);
+    EXPECT_TRUE(t4.get_name() == "udt00");
 
     // Move construction.
     auto t5(std::move(t4));
-    BOOST_CHECK(!t4.is_valid());
-    BOOST_CHECK(t5.is_valid());
-    BOOST_CHECK(t5.is<udt00>());
-    BOOST_CHECK(t5.extract<udt00>()->n_pushed == 2);
-    BOOST_CHECK(t5.get_name() == "udt00");
-    BOOST_CHECK(t5.get_extra_info().empty());
+    EXPECT_TRUE(!t4.is_valid());
+    EXPECT_TRUE(t5.is_valid());
+    EXPECT_TRUE(t5.is<udt00>());
+    EXPECT_TRUE(t5.extract<udt00>()->n_pushed == 2);
+    EXPECT_TRUE(t5.get_name() == "udt00");
+    EXPECT_TRUE(t5.get_extra_info().empty());
 
     // Move assignment.
     topology t6;
     t6 = std::move(t5);
-    BOOST_CHECK(!t5.is_valid());
-    BOOST_CHECK(t6.is_valid());
-    BOOST_CHECK(t6.is<udt00>());
-    BOOST_CHECK(t6.extract<udt00>()->n_pushed == 2);
-    BOOST_CHECK(t6.get_name() == "udt00");
+    EXPECT_TRUE(!t5.is_valid());
+    EXPECT_TRUE(t6.is_valid());
+    EXPECT_TRUE(t6.is<udt00>());
+    EXPECT_TRUE(t6.extract<udt00>()->n_pushed == 2);
+    EXPECT_TRUE(t6.get_name() == "udt00");
 
     // Generic assignment.
-    BOOST_CHECK((!std::is_assignable<topology &, int>::value));
+    EXPECT_TRUE((!std::is_assignable<topology &, int>::value));
     t6 = udt01{};
-    BOOST_CHECK(t6.is_valid());
-    BOOST_CHECK(t6.is<udt01>());
-    BOOST_CHECK(t6.extract<udt01>()->n_pushed == 0);
-    BOOST_CHECK(t6.get_extra_info() == "hello");
+    EXPECT_TRUE(t6.is_valid());
+    EXPECT_TRUE(t6.is<udt01>());
+    EXPECT_TRUE(t6.extract<udt01>()->n_pushed == 0);
+    EXPECT_TRUE(t6.get_extra_info() == "hello");
 }
 
 // Bad connections.
@@ -247,12 +246,12 @@ struct bc02 : udt00 {
     }
 };
 
-BOOST_AUTO_TEST_CASE(topology_get_connections_test)
+TEST(topology_test, topology_get_connections_test)
 {
     topology t0{udt00{}};
-    BOOST_CHECK(t0.get_connections(0) == t0.get_connections(1));
-    BOOST_CHECK((t0.get_connections(0).first == std::vector<std::size_t>{0, 1, 2}));
-    BOOST_CHECK((t0.get_connections(0).second == std::vector<double>{.1, .2, .3}));
+    EXPECT_TRUE(t0.get_connections(0) == t0.get_connections(1));
+    EXPECT_TRUE((t0.get_connections(0).first == std::vector<std::size_t>{0, 1, 2}));
+    EXPECT_TRUE((t0.get_connections(0).second == std::vector<double>{.1, .2, .3}));
 
     t0 = bc00{};
 
@@ -284,7 +283,7 @@ BOOST_AUTO_TEST_CASE(topology_get_connections_test)
     });
 }
 
-BOOST_AUTO_TEST_CASE(topology_s11n_test)
+TEST(topology_test, topology_s11n_test)
 {
     topology t0{udt00{}};
     t0.push_back();
@@ -296,18 +295,18 @@ BOOST_AUTO_TEST_CASE(topology_s11n_test)
         oarchive << t0;
     }
     topology t1;
-    BOOST_CHECK(!t1.is<udt00>());
+    EXPECT_TRUE(!t1.is<udt00>());
     {
         boost::archive::binary_iarchive iarchive(ss);
         iarchive >> t1;
     }
 
-    BOOST_CHECK(t1.is<udt00>());
-    BOOST_CHECK(t1.get_name() == "udt00");
-    BOOST_CHECK(t1.extract<udt00>()->n_pushed == 2);
+    EXPECT_TRUE(t1.is<udt00>());
+    EXPECT_TRUE(t1.get_name() == "udt00");
+    EXPECT_TRUE(t1.extract<udt00>()->n_pushed == 2);
 }
 
-BOOST_AUTO_TEST_CASE(topology_stream_test)
+TEST(topology_test, topology_stream_test)
 {
     {
         topology t0{udt01{}};
@@ -318,8 +317,8 @@ BOOST_AUTO_TEST_CASE(topology_stream_test)
 
         auto str = oss.str();
 
-        BOOST_CHECK(boost::contains(str, "Topology name:"));
-        BOOST_CHECK(boost::contains(str, "hello"));
+        EXPECT_TRUE(boost::contains(str, "Topology name:"));
+        EXPECT_TRUE(boost::contains(str, "hello"));
     }
 
     {
@@ -331,61 +330,61 @@ BOOST_AUTO_TEST_CASE(topology_stream_test)
 
         auto str = oss.str();
 
-        BOOST_CHECK(boost::contains(str, "Topology name: udt00"));
+        EXPECT_TRUE(boost::contains(str, "Topology name: udt00"));
     }
 
     std::cout << topology{} << '\n';
 }
 
-BOOST_AUTO_TEST_CASE(topology_push_back_n_test)
+TEST(topology_test, topology_push_back_n_test)
 {
     topology t0{ring{}};
 
     t0.push_back(0);
 
-    BOOST_CHECK(t0.extract<ring>()->num_vertices() == 0u);
+    EXPECT_TRUE(t0.extract<ring>()->num_vertices() == 0u);
 
     t0.push_back(2);
 
-    BOOST_CHECK(t0.extract<ring>()->num_vertices() == 2u);
-    BOOST_CHECK(t0.get_connections(0).first.size() == 1u);
-    BOOST_CHECK(t0.get_connections(0).first[0] == 1u);
-    BOOST_CHECK(t0.get_connections(1).first.size() == 1u);
-    BOOST_CHECK(t0.get_connections(1).first[0] == 0u);
+    EXPECT_TRUE(t0.extract<ring>()->num_vertices() == 2u);
+    EXPECT_TRUE(t0.get_connections(0).first.size() == 1u);
+    EXPECT_TRUE(t0.get_connections(0).first[0] == 1u);
+    EXPECT_TRUE(t0.get_connections(1).first.size() == 1u);
+    EXPECT_TRUE(t0.get_connections(1).first[0] == 0u);
 
     t0.push_back(5);
 
-    BOOST_CHECK(t0.extract<ring>()->num_vertices() == 7u);
+    EXPECT_TRUE(t0.extract<ring>()->num_vertices() == 7u);
 }
 
-BOOST_AUTO_TEST_CASE(topology_to_bgl_test)
+TEST(topology_test, topology_to_bgl_test)
 {
-    BOOST_CHECK(!HasToBgl<gc00>);
-    BOOST_CHECK(HasToBgl<with_to_bgl>);
+    EXPECT_TRUE(!HasToBgl<gc00>);
+    EXPECT_TRUE(HasToBgl<with_to_bgl>);
 
     BOOST_CHECK_EXCEPTION(topology{udt00{}}.to_bgl(), not_implemented_error, [](const not_implemented_error &nie) {
         return boost::contains(
             nie.what(), "The to_bgl() method has been invoked, but it is not implemented in a UDT of type 'udt00'");
     });
 
-    BOOST_CHECK(boost::num_vertices(topology{udt01{}}.to_bgl()) == 0);
+    EXPECT_TRUE(boost::num_vertices(topology{udt01{}}.to_bgl()) == 0);
 }
 
-BOOST_AUTO_TEST_CASE(type_index)
+TEST(topology_test, type_index)
 {
     topology p0;
-    BOOST_CHECK(p0.get_type_index() == std::type_index(typeid(unconnected)));
+    EXPECT_TRUE(p0.get_type_index() == std::type_index(typeid(unconnected)));
     p0 = topology{udt00a{}};
-    BOOST_CHECK(p0.get_type_index() == std::type_index(typeid(udt00a)));
+    EXPECT_TRUE(p0.get_type_index() == std::type_index(typeid(udt00a)));
 }
 
-BOOST_AUTO_TEST_CASE(get_ptr)
+TEST(topology_test, get_ptr)
 {
     topology p0;
-    BOOST_CHECK(p0.get_ptr() == p0.extract<unconnected>());
-    BOOST_CHECK(static_cast<const topology &>(p0).get_ptr()
+    EXPECT_TRUE(p0.get_ptr() == p0.extract<unconnected>());
+    EXPECT_TRUE(static_cast<const topology &>(p0).get_ptr()
                 == static_cast<const topology &>(p0).extract<unconnected>());
     p0 = topology{udt00a{}};
-    BOOST_CHECK(p0.get_ptr() == p0.extract<udt00a>());
-    BOOST_CHECK(static_cast<const topology &>(p0).get_ptr() == static_cast<const topology &>(p0).extract<udt00a>());
+    EXPECT_TRUE(p0.get_ptr() == p0.extract<udt00a>());
+    EXPECT_TRUE(static_cast<const topology &>(p0).get_ptr() == static_cast<const topology &>(p0).extract<udt00a>());
 }

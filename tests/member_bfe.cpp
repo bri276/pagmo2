@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE member_bfe_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <initializer_list>
 #include <sstream>
@@ -48,14 +48,14 @@ see https://www.gnu.org/licenses/. */
 
 using namespace pagmo;
 
-BOOST_AUTO_TEST_CASE(basic_tests)
+TEST(member_bfe_test, basic_tests)
 {
-    BOOST_CHECK(IsUdBfe<member_bfe>);
+    EXPECT_TRUE(IsUdBfe<member_bfe>);
 
     bfe bfe0{member_bfe{}};
-    BOOST_CHECK(bfe0.get_name() == "Member function batch fitness evaluator");
-    BOOST_CHECK(bfe0.get_extra_info().empty());
-    BOOST_CHECK_EQUAL(bfe0.get_thread_safety(), thread_safety::basic);
+    EXPECT_TRUE(bfe0.get_name() == "Member function batch fitness evaluator");
+    EXPECT_TRUE(bfe0.get_extra_info().empty());
+    EXPECT_EQ(bfe0.get_thread_safety(), thread_safety::basic);
 
     // Verify a problem which does not have batch_fitness.
     problem p;
@@ -80,10 +80,10 @@ BOOST_AUTO_TEST_CASE(basic_tests)
         }
     };
     p = problem{bf0{}};
-    BOOST_CHECK(p.get_fevals() == 0u);
-    BOOST_CHECK(bfe0(p, {1., 2., 3.}) == vector_double(3, 1.));
+    EXPECT_TRUE(p.get_fevals() == 0u);
+    EXPECT_TRUE(bfe0(p, {1., 2., 3.}) == vector_double(3, 1.));
     // Check fevals counters.
-    BOOST_CHECK(p.get_fevals() == 3u);
+    EXPECT_TRUE(p.get_fevals() == 3u);
 
     // Double-check error checking in the bfe.
     // A UDP which provides batch_fitness(), but with wrong retval.
@@ -114,10 +114,10 @@ BOOST_AUTO_TEST_CASE(basic_tests)
     });
 }
 
-BOOST_AUTO_TEST_CASE(s11n)
+TEST(member_bfe_test, s11n)
 {
     bfe bfe0{member_bfe{}};
-    BOOST_CHECK(bfe0.is<member_bfe>());
+    EXPECT_TRUE(bfe0.is<member_bfe>());
     // Store the string representation.
     std::stringstream ss;
     auto before = boost::lexical_cast<std::string>(bfe0);
@@ -128,12 +128,12 @@ BOOST_AUTO_TEST_CASE(s11n)
     }
     // Change the content of p before deserializing.
     bfe0 = bfe{};
-    BOOST_CHECK(!bfe0.is<member_bfe>());
+    EXPECT_TRUE(!bfe0.is<member_bfe>());
     {
         boost::archive::binary_iarchive iarchive(ss);
         iarchive >> bfe0;
     }
     auto after = boost::lexical_cast<std::string>(bfe0);
-    BOOST_CHECK_EQUAL(before, after);
-    BOOST_CHECK(bfe0.is<member_bfe>());
+    EXPECT_EQ(before, after);
+    EXPECT_TRUE(bfe0.is<member_bfe>());
 }

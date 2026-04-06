@@ -42,8 +42,6 @@ see https://www.gnu.org/licenses/. */
 #include <vector>
 
 #include <boost/iterator/indirect_iterator.hpp>
-#include <boost/numeric/conversion/cast.hpp>
-
 #include <pagmo/algorithm.hpp>
 #include <pagmo/bfe.hpp>
 #include <pagmo/concepts.hpp>
@@ -58,6 +56,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/topology.hpp>
 #include <pagmo/type_traits.hpp>
 #include <pagmo/types.hpp>
+#include <pagmo/utils/cast.hpp>
 
 namespace pagmo
 {
@@ -311,7 +310,7 @@ private:
         std::mt19937 eng(static_cast<std::mt19937::result_type>(static_cast<unsigned>(seed)));
         std::uniform_int_distribution<unsigned> udist;
         for (size_type i = 0; i < n; ++i) {
-            push_back(a, p, boost::numeric_cast<population::size_type>(size), udist(eng));
+            push_back(a, p, numeric_cast<population::size_type>(size), udist(eng));
         }
     }
     // algo, prob, rpol, spol.
@@ -324,7 +323,7 @@ private:
         std::mt19937 eng(static_cast<std::mt19937::result_type>(static_cast<unsigned>(seed)));
         std::uniform_int_distribution<unsigned> udist;
         for (size_type i = 0; i < n; ++i) {
-            push_back(a, p, boost::numeric_cast<population::size_type>(size), r_pol, s_pol, udist(eng));
+            push_back(a, p, numeric_cast<population::size_type>(size), r_pol, s_pol, udist(eng));
         }
     }
     // algo, prob, bfe.
@@ -340,7 +339,7 @@ private:
         std::mt19937 eng(static_cast<std::mt19937::result_type>(static_cast<unsigned>(seed)));
         std::uniform_int_distribution<unsigned> udist;
         for (size_type i = 0; i < n; ++i) {
-            push_back(a, p, b, boost::numeric_cast<population::size_type>(size), udist(eng));
+            push_back(a, p, b, numeric_cast<population::size_type>(size), udist(eng));
         }
     }
     // algo, prob, bfe, rpol, spol.
@@ -354,7 +353,7 @@ private:
         std::mt19937 eng(static_cast<std::mt19937::result_type>(static_cast<unsigned>(seed)));
         std::uniform_int_distribution<unsigned> udist;
         for (size_type i = 0; i < n; ++i) {
-            push_back(a, p, b, boost::numeric_cast<population::size_type>(size), r_pol, s_pol, udist(eng));
+            push_back(a, p, b, numeric_cast<population::size_type>(size), r_pol, s_pol, udist(eng));
         }
     }
     // isl, algo, prob.
@@ -366,7 +365,7 @@ private:
         std::mt19937 eng(static_cast<std::mt19937::result_type>(static_cast<unsigned>(seed)));
         std::uniform_int_distribution<unsigned> udist;
         for (size_type i = 0; i < n; ++i) {
-            push_back(isl, a, p, boost::numeric_cast<population::size_type>(size), udist(eng));
+            push_back(isl, a, p, numeric_cast<population::size_type>(size), udist(eng));
         }
     }
     // isl, algo, prob, rpol, spol.
@@ -380,7 +379,7 @@ private:
         std::mt19937 eng(static_cast<std::mt19937::result_type>(static_cast<unsigned>(seed)));
         std::uniform_int_distribution<unsigned> udist;
         for (size_type i = 0; i < n; ++i) {
-            push_back(isl, a, p, boost::numeric_cast<population::size_type>(size), r_pol, s_pol, udist(eng));
+            push_back(isl, a, p, numeric_cast<population::size_type>(size), r_pol, s_pol, udist(eng));
         }
     }
     // isl, algo, prob, bfe.
@@ -393,7 +392,7 @@ private:
         std::mt19937 eng(static_cast<std::mt19937::result_type>(static_cast<unsigned>(seed)));
         std::uniform_int_distribution<unsigned> udist;
         for (size_type i = 0; i < n; ++i) {
-            push_back(isl, a, p, b, boost::numeric_cast<population::size_type>(size), udist(eng));
+            push_back(isl, a, p, b, numeric_cast<population::size_type>(size), udist(eng));
         }
     }
     // isl, algo, prob, bfe, rpol, spol.
@@ -409,7 +408,7 @@ private:
         std::mt19937 eng(static_cast<std::mt19937::result_type>(static_cast<unsigned>(seed)));
         std::uniform_int_distribution<unsigned> udist;
         for (size_type i = 0; i < n; ++i) {
-            push_back(isl, a, p, b, boost::numeric_cast<population::size_type>(size), r_pol, s_pol, udist(eng));
+            push_back(isl, a, p, b, numeric_cast<population::size_type>(size), r_pol, s_pol, udist(eng));
         }
     }
 

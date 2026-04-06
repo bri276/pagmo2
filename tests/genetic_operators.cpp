@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE generic_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <limits>
@@ -36,7 +36,7 @@ see https://www.gnu.org/licenses/. */
 
 using namespace pagmo;
 
-BOOST_AUTO_TEST_CASE(sbx_crossover_test)
+TEST(generic_test, sbx_crossover_test)
 {
     detail::random_engine_type random_engine(32u);
     auto nan = std::numeric_limits<double>::quiet_NaN();
@@ -119,13 +119,13 @@ BOOST_AUTO_TEST_CASE(sbx_crossover_test)
         });
 }
 
-BOOST_AUTO_TEST_CASE(polynomial_mutation_test)
+TEST(generic_test, polynomial_mutation_test)
 {
     detail::random_engine_type random_engine(32u);
     auto nan = std::numeric_limits<double>::quiet_NaN();
     auto inf = std::numeric_limits<double>::infinity();
     vector_double dv = {-0.3, 2.4, 5};
-    BOOST_CHECK_NO_THROW(polynomial_mutation(dv, {{-2, -2, -2}, {3, 3, 3}}, 1u, 0.9, 10, random_engine));
+    EXPECT_NO_THROW(polynomial_mutation(dv, {{-2, -2, -2}, {3, 3, 3}}, 1u, 0.9, 10, random_engine));
     BOOST_CHECK_EXCEPTION(polynomial_mutation(dv, {{}, {}}, 1u, 0.9, 10, random_engine), std::invalid_argument,
                           [](const std::invalid_argument &ia) {
                               return boost::contains(ia.what(), "The bounds dimension cannot be zero");

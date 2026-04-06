@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE pso_gen_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <iostream>
 #include <limits> //  std::numeric_limits<double>::infinity();
@@ -107,45 +107,45 @@ struct my_sto_prob {
     unsigned m_seed;
 };
 
-BOOST_AUTO_TEST_CASE(construction)
+TEST(pso_gen_test, construction)
 {
-    BOOST_CHECK_NO_THROW(pso_gen{});
+    EXPECT_NO_THROW(pso_gen{});
     pso_gen user_algo{100, 0.79, 2., 2., 0.1, 5u, 2u, 4u, false, 23u};
-    BOOST_CHECK(user_algo.get_verbosity() == 0u);
-    BOOST_CHECK(user_algo.get_seed() == 23u);
-    BOOST_CHECK((user_algo.get_log() == pso_gen::log_type{}));
+    EXPECT_TRUE(user_algo.get_verbosity() == 0u);
+    EXPECT_TRUE(user_algo.get_seed() == 23u);
+    EXPECT_TRUE((user_algo.get_log() == pso_gen::log_type{}));
 
-    BOOST_CHECK_NO_THROW((pso_gen{100, 0.79, 2., 2., 0.1, 5u, 2u, 4u, false, 23u}));
+    EXPECT_NO_THROW((pso_gen{100, 0.79, 2., 2., 0.1, 5u, 2u, 4u, false, 23u}));
 
-    BOOST_CHECK_THROW((pso_gen{100, -0.79, 2., 2., 0.1, 5u, 2u, 4u, false, 23u}), std::invalid_argument);
-    BOOST_CHECK_THROW((pso_gen{100, 2.3, 2., 2., 0.1, 5u, 2u, 4u, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((pso_gen{100, -0.79, 2., 2., 0.1, 5u, 2u, 4u, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((pso_gen{100, 2.3, 2., 2., 0.1, 5u, 2u, 4u, false, 23u}), std::invalid_argument);
 
-    BOOST_CHECK_THROW((pso_gen{100, 0.79, -1., 2., 0.1, 5u, 2u, 4u, false, 23u}), std::invalid_argument);
-    BOOST_CHECK_THROW((pso_gen{100, 0.79, 2., -1., 0.1, 5u, 2u, 4u, false, 23u}), std::invalid_argument);
-    BOOST_CHECK_THROW((pso_gen{100, 0.79, 5., 2., 0.1, 5u, 2u, 4u, false, 23u}), std::invalid_argument);
-    BOOST_CHECK_THROW((pso_gen{100, 0.79, 2., 5., 0.1, 5u, 2u, 4u, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((pso_gen{100, 0.79, -1., 2., 0.1, 5u, 2u, 4u, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((pso_gen{100, 0.79, 2., -1., 0.1, 5u, 2u, 4u, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((pso_gen{100, 0.79, 5., 2., 0.1, 5u, 2u, 4u, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((pso_gen{100, 0.79, 2., 5., 0.1, 5u, 2u, 4u, false, 23u}), std::invalid_argument);
 
-    BOOST_CHECK_THROW((pso_gen{100, 0.79, 2., 2., -2.3, 5u, 2u, 4u, false, 23u}), std::invalid_argument);
-    BOOST_CHECK_THROW((pso_gen{100, 0.79, 2., 2., 1.1, 5u, 2u, 4u, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((pso_gen{100, 0.79, 2., 2., -2.3, 5u, 2u, 4u, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((pso_gen{100, 0.79, 2., 2., 1.1, 5u, 2u, 4u, false, 23u}), std::invalid_argument);
 
-    BOOST_CHECK_THROW((pso_gen{100, 0.79, 2., 2., 0.1, 8u, 2u, 4u, false, 23u}), std::invalid_argument);
-    BOOST_CHECK_THROW((pso_gen{100, 0.79, 2., 2., 0.1, 0u, 2u, 4u, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((pso_gen{100, 0.79, 2., 2., 0.1, 8u, 2u, 4u, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((pso_gen{100, 0.79, 2., 2., 0.1, 0u, 2u, 4u, false, 23u}), std::invalid_argument);
 
-    BOOST_CHECK_THROW((pso_gen{100, 0.79, 2., 2., 0.1, 5u, 6u, 4u, false, 23u}), std::invalid_argument);
-    BOOST_CHECK_THROW((pso_gen{100, 0.79, 2., 2., 0.1, 5u, 0u, 4u, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((pso_gen{100, 0.79, 2., 2., 0.1, 5u, 6u, 4u, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((pso_gen{100, 0.79, 2., 2., 0.1, 5u, 0u, 4u, false, 23u}), std::invalid_argument);
 
-    BOOST_CHECK_THROW((pso_gen{100, 0.79, 2., 2., 0.1, 5u, 2u, 0u, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((pso_gen{100, 0.79, 2., 2., 0.1, 5u, 2u, 0u, false, 23u}), std::invalid_argument);
 }
 
-BOOST_AUTO_TEST_CASE(evolve_test)
+TEST(pso_gen_test, evolve_test)
 {
     // We then check that the evolve throws if called on unsuitable problems
-    BOOST_CHECK_THROW(pso_gen{10u}.evolve(population{problem{rosenbrock{}}}), std::invalid_argument);
-    BOOST_CHECK_THROW(pso_gen{10u}.evolve(population{problem{zdt{}}, 15u}), std::invalid_argument);
-    BOOST_CHECK_THROW(pso_gen{10u}.evolve(population{problem{hock_schittkowski_71{}}, 15u}), std::invalid_argument);
+    EXPECT_THROW(pso_gen{10u}.evolve(population{problem{rosenbrock{}}}), std::invalid_argument);
+    EXPECT_THROW(pso_gen{10u}.evolve(population{problem{zdt{}}, 15u}), std::invalid_argument);
+    EXPECT_THROW(pso_gen{10u}.evolve(population{problem{hock_schittkowski_71{}}, 15u}), std::invalid_argument);
     // And a clean exit for 0 generations
     population pop{rosenbrock{2u}, 20u};
-    BOOST_CHECK(pso_gen{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);
+    EXPECT_TRUE(pso_gen{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);
 
     // We check that evolution is deterministic if the
     // seed is controlled and for all algorithmic variants
@@ -162,12 +162,12 @@ BOOST_AUTO_TEST_CASE(evolve_test)
             pso_gen user_algo2{10u, 0.79, 2., 2., 0.1, variant, neighb_type, 4u, false, 23u};
             user_algo2.set_verbosity(1u);
             pop2 = user_algo2.evolve(pop2);
-            BOOST_CHECK(user_algo1.get_log() == user_algo2.get_log());
+            EXPECT_TRUE(user_algo1.get_log() == user_algo2.get_log());
 
             population pop3{prob, 5u, 23u};
             user_algo2.set_seed(23u);
             pop3 = user_algo2.evolve(pop3);
-            BOOST_CHECK(user_algo1.get_log() == user_algo2.get_log());
+            EXPECT_TRUE(user_algo1.get_log() == user_algo2.get_log());
         }
     }
     // And with active memory
@@ -183,14 +183,14 @@ BOOST_AUTO_TEST_CASE(evolve_test)
             pso_gen user_algo2{10u, 0.79, 2., 2., 0.1, variant, neighb_type, 4u, true, 23u};
             user_algo2.set_verbosity(1u);
             pop2 = user_algo2.evolve(pop2);
-            BOOST_CHECK(user_algo1.get_log() == user_algo2.get_log());
+            EXPECT_TRUE(user_algo1.get_log() == user_algo2.get_log());
 
             population pop3{prob, 5u, 23u};
             pso_gen user_algo3{10u, 0.79, 2., 2., 0.1, variant, neighb_type, 4u, true, 0u};
             user_algo3.set_verbosity(1u);
             user_algo3.set_seed(23u);
             pop3 = user_algo3.evolve(pop3);
-            BOOST_CHECK(user_algo1.get_log() == user_algo3.get_log());
+            EXPECT_TRUE(user_algo1.get_log() == user_algo3.get_log());
         }
     }
     // 2) for stochastic optimization
@@ -206,12 +206,12 @@ BOOST_AUTO_TEST_CASE(evolve_test)
             pso_gen user_algo2{10u, 0.79, 2., 2., 0.1, variant, neighb_type, 4u, false, 23u};
             user_algo2.set_verbosity(1u);
             pop2 = user_algo2.evolve(pop2);
-            BOOST_CHECK(user_algo1.get_log() == user_algo2.get_log());
+            EXPECT_TRUE(user_algo1.get_log() == user_algo2.get_log());
 
             population pop3{prob, 5u, 23u};
             user_algo2.set_seed(23u);
             pop3 = user_algo2.evolve(pop3);
-            BOOST_CHECK(user_algo1.get_log() == user_algo2.get_log());
+            EXPECT_TRUE(user_algo1.get_log() == user_algo2.get_log());
         }
     }
     // And with active memory
@@ -227,31 +227,31 @@ BOOST_AUTO_TEST_CASE(evolve_test)
             pso_gen user_algo2{10u, 0.79, 2., 2., 0.1, variant, neighb_type, 4u, true, 23u};
             user_algo2.set_verbosity(1u);
             pop2 = user_algo2.evolve(pop2);
-            BOOST_CHECK(user_algo1.get_log() == user_algo2.get_log());
+            EXPECT_TRUE(user_algo1.get_log() == user_algo2.get_log());
 
             population pop3{prob, 5u, 23u};
             pso_gen user_algo3{10u, 0.79, 2., 2., 0.1, variant, neighb_type, 4u, true, 0u};
             user_algo3.set_verbosity(1u);
             user_algo3.set_seed(23u);
             pop3 = user_algo3.evolve(pop3);
-            BOOST_CHECK(user_algo1.get_log() == user_algo3.get_log());
+            EXPECT_TRUE(user_algo1.get_log() == user_algo3.get_log());
         }
     }
 }
-BOOST_AUTO_TEST_CASE(setters_getters_test)
+TEST(pso_gen_test, setters_getters_test)
 {
     pso_gen user_algo{5000u, 0.79, 2., 2., 0.1, 5u, 2u, 4u, false, 23u};
     user_algo.set_verbosity(200u);
-    BOOST_CHECK(user_algo.get_verbosity() == 200u);
+    EXPECT_TRUE(user_algo.get_verbosity() == 200u);
     user_algo.set_seed(23u);
-    BOOST_CHECK(user_algo.get_seed() == 23u);
-    BOOST_CHECK(user_algo.get_name().find("Particle Swarm") != std::string::npos);
-    BOOST_CHECK(user_algo.get_name().find("GPSO") != std::string::npos);
-    BOOST_CHECK(user_algo.get_extra_info().find("Verbosity") != std::string::npos);
-    BOOST_CHECK_NO_THROW(user_algo.get_log());
+    EXPECT_TRUE(user_algo.get_seed() == 23u);
+    EXPECT_TRUE(user_algo.get_name().find("Particle Swarm") != std::string::npos);
+    EXPECT_TRUE(user_algo.get_name().find("GPSO") != std::string::npos);
+    EXPECT_TRUE(user_algo.get_extra_info().find("Verbosity") != std::string::npos);
+    EXPECT_NO_THROW(user_algo.get_log());
 }
 
-BOOST_AUTO_TEST_CASE(serialization_test)
+TEST(pso_gen_test, serialization_test)
 {
     // Make one evolution
     problem prob{my_sto_prob{25u}};
@@ -277,19 +277,19 @@ BOOST_AUTO_TEST_CASE(serialization_test)
     }
     auto after_text = boost::lexical_cast<std::string>(algo);
     auto after_log = algo.extract<pso_gen>()->get_log();
-    BOOST_CHECK_EQUAL(before_text, after_text);
-    BOOST_CHECK(before_log == after_log);
+    EXPECT_EQ(before_text, after_text);
+    EXPECT_TRUE(before_log == after_log);
     for (auto i = 0u; i < before_log.size(); ++i) {
-        BOOST_CHECK_EQUAL(std::get<0>(before_log[i]), std::get<0>(after_log[i]));
-        BOOST_CHECK_EQUAL(std::get<1>(before_log[i]), std::get<1>(after_log[i]));
-        BOOST_CHECK_CLOSE(std::get<2>(before_log[i]), std::get<2>(after_log[i]), 1e-8);
-        BOOST_CHECK_CLOSE(std::get<3>(before_log[i]), std::get<3>(after_log[i]), 1e-8);
-        BOOST_CHECK_CLOSE(std::get<4>(before_log[i]), std::get<4>(after_log[i]), 1e-8);
-        BOOST_CHECK_CLOSE(std::get<5>(before_log[i]), std::get<5>(after_log[i]), 1e-8);
+        EXPECT_EQ(std::get<0>(before_log[i]), std::get<0>(after_log[i]));
+        EXPECT_EQ(std::get<1>(before_log[i]), std::get<1>(after_log[i]));
+        EXPECT_NEAR(std::get<2>(before_log[i]), std::get<2>(after_log[i]), 1e-8);
+        EXPECT_NEAR(std::get<3>(before_log[i]), std::get<3>(after_log[i]), 1e-8);
+        EXPECT_NEAR(std::get<4>(before_log[i]), std::get<4>(after_log[i]), 1e-8);
+        EXPECT_NEAR(std::get<5>(before_log[i]), std::get<5>(after_log[i]), 1e-8);
     }
 }
 
-BOOST_AUTO_TEST_CASE(bug)
+TEST(pso_gen_test, bug)
 {
     problem prob{rosenbrock{10u}};
     population pop1{prob, 11u, 23u};
@@ -298,7 +298,7 @@ BOOST_AUTO_TEST_CASE(bug)
     pop1 = user_algo1.evolve(pop1);
 }
 
-BOOST_AUTO_TEST_CASE(bfe_usage_test_not_stoch)
+TEST(pso_gen_test, bfe_usage_test_not_stoch)
 {
     population pop{rosenbrock{10u}, 30u, 23u};
     pso_gen uda{40u, 0.79, 2., 2., 0.1, 5u, 2u, 4u, false, 23u};
@@ -313,10 +313,10 @@ BOOST_AUTO_TEST_CASE(bfe_usage_test_not_stoch)
     uda_2.set_seed(23u);
     pop_2 = uda_2.evolve(pop_2);
 
-    BOOST_CHECK(pop.get_f() == pop_2.get_f());
+    EXPECT_TRUE(pop.get_f() == pop_2.get_f());
 }
 
-BOOST_AUTO_TEST_CASE(bfe_usage_test_stoch)
+TEST(pso_gen_test, bfe_usage_test_stoch)
 {
     population pop{my_sto_prob{25u, 10, 5}, 30u, 23u};
     pso_gen uda{45u, 0.79, 2., 2., 0.1, 5u, 2u, 4u, false, 23u};
@@ -331,5 +331,5 @@ BOOST_AUTO_TEST_CASE(bfe_usage_test_stoch)
     uda_2.set_seed(23u);
     pop_2 = uda_2.evolve(pop_2);
 
-    BOOST_CHECK(pop.get_f() == pop_2.get_f());
+    EXPECT_TRUE(pop.get_f() == pop_2.get_f());
 }

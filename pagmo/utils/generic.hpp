@@ -37,13 +37,12 @@ see https://www.gnu.org/licenses/. */
 #include <string>
 #include <vector>
 
-#include <boost/numeric/conversion/cast.hpp>
-
 #include <pagmo/detail/custom_comparisons.hpp>
 #include <pagmo/detail/visibility.hpp>
 #include <pagmo/exceptions.hpp>
 #include <pagmo/problem.hpp>
 #include <pagmo/types.hpp>
+#include <pagmo/utils/cast.hpp>
 
 namespace pagmo
 {
@@ -152,8 +151,8 @@ inline double uniform_integral_from_range_impl(double lb, double ub, Rng &r_engi
     // (in case of overflow, an exception will be thrown).
     long long l, u;
     try {
-        l = boost::numeric_cast<long long>(lb);
-        u = boost::numeric_cast<long long>(ub);
+        l = numeric_cast<long long>(lb);
+        u = numeric_cast<long long>(ub);
     } catch (...) {
         pagmo_throw(std::invalid_argument, "Cannot generate a random integer if the lower/upper bounds are not within "
                                            "the bounds of the long long type");
@@ -357,8 +356,8 @@ inline vector_double batch_random_decision_vector(const problem &prob, vector_do
         detail::uniform_integral_from_range_checks<true, false, false>(lb[i], ub[i]);
         try {
             // Check that the bounds can be converted safely to long long.
-            boost::numeric_cast<long long>(lb[i]);
-            boost::numeric_cast<long long>(ub[i]);
+            numeric_cast<long long>(lb[i]);
+            numeric_cast<long long>(ub[i]);
         } catch (...) {
             pagmo_throw(std::invalid_argument,
                         "Cannot generate a random integer if the lower/upper bounds are not within "

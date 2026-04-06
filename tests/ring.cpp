@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE ring
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <algorithm>
 #include <cstddef>
@@ -36,7 +36,6 @@ see https://www.gnu.org/licenses/. */
 #include <stdexcept>
 
 #include <boost/algorithm/string/predicate.hpp>
-#include <boost/graph/adjacency_list.hpp>
 
 #include <pagmo/s11n.hpp>
 #include <pagmo/topologies/ring.hpp>
@@ -57,78 +56,78 @@ void verify_ring_topology(const ring &r)
     for (std::size_t i = 0; i < s; ++i) {
         const auto conn = r.get_connections(i);
         if (s > 2u) {
-            BOOST_CHECK(conn.first.size() == 2u);
-            BOOST_CHECK(conn.second.size() == 2u);
+            EXPECT_TRUE(conn.first.size() == 2u);
+            EXPECT_TRUE(conn.second.size() == 2u);
         } else {
-            BOOST_CHECK(conn.first.size() == 1u);
-            BOOST_CHECK(conn.second.size() == 1u);
+            EXPECT_TRUE(conn.first.size() == 1u);
+            EXPECT_TRUE(conn.second.size() == 1u);
         }
-        BOOST_CHECK(std::all_of(conn.second.begin(), conn.second.end(), [w](double x) { return x == w; }));
+        EXPECT_TRUE(std::all_of(conn.second.begin(), conn.second.end(), [w](double x) { return x == w; }));
 
         const auto next = (i + 1u) % s;
         const auto prev = (i == 0u) ? (s - 1u) : (i - 1u);
-        BOOST_CHECK(std::find(conn.first.begin(), conn.first.end(), next) != conn.first.end());
-        BOOST_CHECK(std::find(conn.first.begin(), conn.first.end(), prev) != conn.first.end());
+        EXPECT_TRUE(std::find(conn.first.begin(), conn.first.end(), next) != conn.first.end());
+        EXPECT_TRUE(std::find(conn.first.begin(), conn.first.end(), prev) != conn.first.end());
     }
 }
 
-BOOST_AUTO_TEST_CASE(basic_test)
+TEST(ring, basic_test)
 {
     ring r0;
-    BOOST_CHECK(r0.get_weight() == 1);
-    BOOST_CHECK(r0.num_vertices() == 0u);
+    EXPECT_TRUE(r0.get_weight() == 1);
+    EXPECT_TRUE(r0.num_vertices() == 0u);
 
     r0.push_back();
-    BOOST_CHECK(r0.num_vertices() == 1u);
+    EXPECT_TRUE(r0.num_vertices() == 1u);
 
     r0.push_back();
-    BOOST_CHECK(r0.num_vertices() == 2u);
+    EXPECT_TRUE(r0.num_vertices() == 2u);
     verify_ring_topology(r0);
 
     r0.push_back();
-    BOOST_CHECK(r0.num_vertices() == 3u);
+    EXPECT_TRUE(r0.num_vertices() == 3u);
     verify_ring_topology(r0);
 
     r0.push_back();
-    BOOST_CHECK(r0.num_vertices() == 4u);
+    EXPECT_TRUE(r0.num_vertices() == 4u);
     verify_ring_topology(r0);
 
     r0.push_back();
-    BOOST_CHECK(r0.num_vertices() == 5u);
+    EXPECT_TRUE(r0.num_vertices() == 5u);
     verify_ring_topology(r0);
 
     r0.push_back();
-    BOOST_CHECK(r0.num_vertices() == 6u);
+    EXPECT_TRUE(r0.num_vertices() == 6u);
     verify_ring_topology(r0);
 
     r0 = ring(.5);
-    BOOST_CHECK(r0.get_weight() == .5);
-    BOOST_CHECK(r0.num_vertices() == 0u);
+    EXPECT_TRUE(r0.get_weight() == .5);
+    EXPECT_TRUE(r0.num_vertices() == 0u);
 
     r0.push_back();
-    BOOST_CHECK(r0.num_vertices() == 1u);
+    EXPECT_TRUE(r0.num_vertices() == 1u);
 
     r0.push_back();
-    BOOST_CHECK(r0.num_vertices() == 2u);
+    EXPECT_TRUE(r0.num_vertices() == 2u);
     verify_ring_topology(r0);
 
     r0.push_back();
-    BOOST_CHECK(r0.num_vertices() == 3u);
+    EXPECT_TRUE(r0.num_vertices() == 3u);
     verify_ring_topology(r0);
 
     r0.push_back();
-    BOOST_CHECK(r0.num_vertices() == 4u);
+    EXPECT_TRUE(r0.num_vertices() == 4u);
     verify_ring_topology(r0);
 
     r0.push_back();
-    BOOST_CHECK(r0.num_vertices() == 5u);
+    EXPECT_TRUE(r0.num_vertices() == 5u);
     verify_ring_topology(r0);
 
     r0.push_back();
-    BOOST_CHECK(r0.num_vertices() == 6u);
+    EXPECT_TRUE(r0.num_vertices() == 6u);
     verify_ring_topology(r0);
 
-    BOOST_CHECK(r0.get_name() == "Ring");
+    EXPECT_TRUE(r0.get_name() == "Ring");
 
     // Minimal serialization test.
     {
@@ -139,14 +138,14 @@ BOOST_AUTO_TEST_CASE(basic_test)
             oarchive << t0;
         }
         topology t1;
-        BOOST_CHECK(!t1.is<ring>());
+        EXPECT_TRUE(!t1.is<ring>());
         {
             boost::archive::binary_iarchive iarchive(ss);
             iarchive >> t1;
         }
-        BOOST_CHECK(t1.is<ring>());
-        BOOST_CHECK(t1.extract<ring>()->num_vertices() == 6u);
-        BOOST_CHECK(t1.extract<ring>()->get_weight() == .5);
+        EXPECT_TRUE(t1.is<ring>());
+        EXPECT_TRUE(t1.extract<ring>()->num_vertices() == 6u);
+        EXPECT_TRUE(t1.extract<ring>()->get_weight() == .5);
         verify_ring_topology(*t1.extract<ring>());
     }
 
@@ -162,28 +161,28 @@ BOOST_AUTO_TEST_CASE(basic_test)
 
     r0 = ring(0, 0);
 
-    BOOST_CHECK(r0.get_weight() == 0.);
-    BOOST_CHECK(r0.num_vertices() == 0u);
+    EXPECT_TRUE(r0.get_weight() == 0.);
+    EXPECT_TRUE(r0.num_vertices() == 0u);
     verify_ring_topology(r0);
 
     r0 = ring(1, .2);
-    BOOST_CHECK(r0.get_weight() == .2);
-    BOOST_CHECK(r0.num_vertices() == 1u);
+    EXPECT_TRUE(r0.get_weight() == .2);
+    EXPECT_TRUE(r0.num_vertices() == 1u);
     verify_ring_topology(r0);
 
     r0 = ring(2, .3);
-    BOOST_CHECK(r0.get_weight() == .3);
-    BOOST_CHECK(r0.num_vertices() == 2u);
+    EXPECT_TRUE(r0.get_weight() == .3);
+    EXPECT_TRUE(r0.num_vertices() == 2u);
     verify_ring_topology(r0);
 
     r0 = ring(3, .4);
-    BOOST_CHECK(r0.get_weight() == .4);
-    BOOST_CHECK(r0.num_vertices() == 3u);
+    EXPECT_TRUE(r0.get_weight() == .4);
+    EXPECT_TRUE(r0.num_vertices() == 3u);
     verify_ring_topology(r0);
 
     r0 = ring(4, .5);
-    BOOST_CHECK(r0.get_weight() == .5);
-    BOOST_CHECK(r0.num_vertices() == 4u);
+    EXPECT_TRUE(r0.get_weight() == .5);
+    EXPECT_TRUE(r0.num_vertices() == 4u);
     verify_ring_topology(r0);
 
     // Example of cout printing for ring.
@@ -198,11 +197,11 @@ BOOST_AUTO_TEST_CASE(basic_test)
     std::cout << r0.get_extra_info() << '\n';
 }
 
-BOOST_AUTO_TEST_CASE(to_bgl_test)
+TEST(ring, to_bgl_test)
 {
-    BOOST_CHECK(HasToBgl<ring>);
+    EXPECT_TRUE(HasToBgl<ring>);
 
     auto r0 = ring(4, .5);
-    BOOST_CHECK(boost::num_vertices(r0.to_bgl()) == 4);
-    BOOST_CHECK(boost::num_edges(r0.to_bgl()) == 8);
+    EXPECT_TRUE(boost::num_vertices(r0.to_bgl()) == 4);
+    EXPECT_TRUE(boost::num_edges(r0.to_bgl()) == 8);
 }

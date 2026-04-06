@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE sa_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/test/tools/floating_point_comparison.hpp>
@@ -46,26 +46,26 @@ see https://www.gnu.org/licenses/. */
 
 using namespace pagmo;
 
-BOOST_AUTO_TEST_CASE(simulated_annealing_construction)
+TEST(sa_test, simulated_annealing_construction)
 {
-    BOOST_CHECK_NO_THROW(simulated_annealing{});
+    EXPECT_NO_THROW(simulated_annealing{});
     simulated_annealing user_algo{10, 0.1, 10u, 10u, 10u, 1., 23u};
-    BOOST_CHECK(user_algo.get_verbosity() == 0u);
-    BOOST_CHECK(user_algo.get_seed() == 23u);
-    BOOST_CHECK((user_algo.get_log() == simulated_annealing::log_type{}));
+    EXPECT_TRUE(user_algo.get_verbosity() == 0u);
+    EXPECT_TRUE(user_algo.get_seed() == 23u);
+    EXPECT_TRUE((user_algo.get_log() == simulated_annealing::log_type{}));
 
-    BOOST_CHECK_THROW((simulated_annealing{-1., .1, 10u, 10u, 10u, 1., 23u}), std::invalid_argument);
-    BOOST_CHECK_THROW((simulated_annealing{std::nan(""), 0.1, 10u, 10u, 10u, 1., 23u}), std::invalid_argument);
-    BOOST_CHECK_THROW((simulated_annealing{10, -1., 10u, 10u, 10u, 1., 23u}), std::invalid_argument);
-    BOOST_CHECK_THROW((simulated_annealing{10, std::nan(""), 10u, 10u, 10u, 1., 23u}), std::invalid_argument);
-    BOOST_CHECK_THROW((simulated_annealing{10, .1, 10u, 10u, 10u, 1.1, 23u}), std::invalid_argument);
-    BOOST_CHECK_THROW((simulated_annealing{10, .1, 10u, 10u, 10u, -1.1, 23u}), std::invalid_argument);
-    BOOST_CHECK_THROW((simulated_annealing{10, .1, 0u, 10u, 10u, 1., 23u}), std::invalid_argument);
-    BOOST_CHECK_THROW((simulated_annealing{10, .1, 10u, 0u, 10u, 1., 23u}), std::invalid_argument);
-    BOOST_CHECK_THROW((simulated_annealing{.1, 10, 10u, 10u, 10u, 1., 23u}), std::invalid_argument);
+    EXPECT_THROW((simulated_annealing{-1., .1, 10u, 10u, 10u, 1., 23u}), std::invalid_argument);
+    EXPECT_THROW((simulated_annealing{std::nan(""), 0.1, 10u, 10u, 10u, 1., 23u}), std::invalid_argument);
+    EXPECT_THROW((simulated_annealing{10, -1., 10u, 10u, 10u, 1., 23u}), std::invalid_argument);
+    EXPECT_THROW((simulated_annealing{10, std::nan(""), 10u, 10u, 10u, 1., 23u}), std::invalid_argument);
+    EXPECT_THROW((simulated_annealing{10, .1, 10u, 10u, 10u, 1.1, 23u}), std::invalid_argument);
+    EXPECT_THROW((simulated_annealing{10, .1, 10u, 10u, 10u, -1.1, 23u}), std::invalid_argument);
+    EXPECT_THROW((simulated_annealing{10, .1, 0u, 10u, 10u, 1., 23u}), std::invalid_argument);
+    EXPECT_THROW((simulated_annealing{10, .1, 10u, 0u, 10u, 1., 23u}), std::invalid_argument);
+    EXPECT_THROW((simulated_annealing{.1, 10, 10u, 10u, 10u, 1., 23u}), std::invalid_argument);
 }
 
-BOOST_AUTO_TEST_CASE(simulated_annealing_evolve_test)
+TEST(sa_test, simulated_annealing_evolve_test)
 {
     // We check that evolution is deterministic if the
     // seed is controlled
@@ -79,34 +79,34 @@ BOOST_AUTO_TEST_CASE(simulated_annealing_evolve_test)
     simulated_annealing user_algo2{10., 1e-5, 100u, 10u, 10u, 1., 23u};
     user_algo2.set_verbosity(200u);
     pop2 = user_algo2.evolve(pop2);
-    BOOST_CHECK(user_algo1.get_log() == user_algo2.get_log());
+    EXPECT_TRUE(user_algo1.get_log() == user_algo2.get_log());
 
     population pop3{prob, 5u, 23u};
     user_algo2.set_seed(23u);
     pop3 = user_algo2.evolve(pop3);
-    BOOST_CHECK(user_algo1.get_log() == user_algo2.get_log());
+    EXPECT_TRUE(user_algo1.get_log() == user_algo2.get_log());
 
     // We check that the problem is checked to be suitable
-    BOOST_CHECK_THROW((simulated_annealing{}.evolve(population{zdt{}, 5u, 23u})), std::invalid_argument);
-    BOOST_CHECK_THROW((simulated_annealing{}.evolve(population{inventory{}, 5u, 23u})), std::invalid_argument);
-    BOOST_CHECK_THROW((simulated_annealing{}.evolve(population{hock_schittkowski_71{}, 5u, 23u})),
+    EXPECT_THROW((simulated_annealing{}.evolve(population{zdt{}, 5u, 23u})), std::invalid_argument);
+    EXPECT_THROW((simulated_annealing{}.evolve(population{inventory{}, 5u, 23u})), std::invalid_argument);
+    EXPECT_THROW((simulated_annealing{}.evolve(population{hock_schittkowski_71{}, 5u, 23u})),
                       std::invalid_argument);
-    BOOST_CHECK_THROW((simulated_annealing{}.evolve(population{rosenbrock{}})), std::invalid_argument);
+    EXPECT_THROW((simulated_annealing{}.evolve(population{rosenbrock{}})), std::invalid_argument);
 }
 
-BOOST_AUTO_TEST_CASE(sea_setters_getters_test)
+TEST(sa_test, sea_setters_getters_test)
 {
     simulated_annealing user_algo{10., 1e-5, 100u, 10u, 10u, 1., 123u};
     user_algo.set_verbosity(200u);
-    BOOST_CHECK(user_algo.get_verbosity() == 200u);
+    EXPECT_TRUE(user_algo.get_verbosity() == 200u);
     user_algo.set_seed(23u);
-    BOOST_CHECK(user_algo.get_seed() == 23u);
-    BOOST_CHECK(user_algo.get_name().find("Simulated Annealing (Corana's)") != std::string::npos);
-    BOOST_CHECK(user_algo.get_extra_info().find("Verbosity") != std::string::npos);
-    BOOST_CHECK_NO_THROW(user_algo.get_log());
+    EXPECT_TRUE(user_algo.get_seed() == 23u);
+    EXPECT_TRUE(user_algo.get_name().find("Simulated Annealing (Corana's)") != std::string::npos);
+    EXPECT_TRUE(user_algo.get_extra_info().find("Verbosity") != std::string::npos);
+    EXPECT_NO_THROW(user_algo.get_log());
 }
 
-BOOST_AUTO_TEST_CASE(simulated_annealing_serialization_test)
+TEST(sa_test, simulated_annealing_serialization_test)
 {
     // Make one evolution
     problem prob{rosenbrock{25u}};
@@ -132,14 +132,14 @@ BOOST_AUTO_TEST_CASE(simulated_annealing_serialization_test)
     }
     auto after_text = boost::lexical_cast<std::string>(algo);
     auto after_log = algo.extract<simulated_annealing>()->get_log();
-    BOOST_CHECK_EQUAL(before_text, after_text);
-    BOOST_CHECK(before_log == after_log);
+    EXPECT_EQ(before_text, after_text);
+    EXPECT_TRUE(before_log == after_log);
     // so we implement a close check
     for (auto i = 0u; i < before_log.size(); ++i) {
-        BOOST_CHECK_EQUAL(std::get<0>(before_log[i]), std::get<0>(after_log[i]));
-        BOOST_CHECK_CLOSE(std::get<1>(before_log[i]), std::get<1>(after_log[i]), 1e-8);
-        BOOST_CHECK_CLOSE(std::get<2>(before_log[i]), std::get<2>(after_log[i]), 1e-8);
-        BOOST_CHECK_CLOSE(std::get<3>(before_log[i]), std::get<3>(after_log[i]), 1e-8);
-        BOOST_CHECK_CLOSE(std::get<4>(before_log[i]), std::get<4>(after_log[i]), 1e-8);
+        EXPECT_EQ(std::get<0>(before_log[i]), std::get<0>(after_log[i]));
+        EXPECT_NEAR(std::get<1>(before_log[i]), std::get<1>(after_log[i]), 1e-8);
+        EXPECT_NEAR(std::get<2>(before_log[i]), std::get<2>(after_log[i]), 1e-8);
+        EXPECT_NEAR(std::get<3>(before_log[i]), std::get<3>(after_log[i]), 1e-8);
+        EXPECT_NEAR(std::get<4>(before_log[i]), std::get<4>(after_log[i]), 1e-8);
     }
 }

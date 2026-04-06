@@ -28,6 +28,7 @@ see https://www.gnu.org/licenses/. */
 
 #include <pagmo/config.hpp>
 
+#include <any>
 #include <cassert>
 #include <chrono>
 #include <exception>
@@ -51,8 +52,6 @@ see https://www.gnu.org/licenses/. */
 #include <pthread.h>
 
 #endif
-
-#include <boost/any.hpp>
 
 #include <tbb/concurrent_queue.h>
 
@@ -150,17 +149,17 @@ namespace detail
 namespace
 {
 
-boost::any default_wait_raii_getter()
+std::any default_wait_raii_getter()
 {
-    return boost::any{};
+    return std::any{};
 }
 
 } // namespace
 
-// NOTE: the default implementation just returns a defected boost::any, whose ctor and dtor
+// NOTE: the default implementation just returns a defected std::any, whose ctor and dtor
 // will have no effect.
 /// @cond
-std::function<boost::any()> wait_raii_getter = &default_wait_raii_getter;
+std::function<std::any()> wait_raii_getter = &default_wait_raii_getter;
 /// @endcond
 
 namespace

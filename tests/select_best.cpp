@@ -26,18 +26,18 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE select_best_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <initializer_list>
 #include <limits>
 #include <sstream>
 #include <stdexcept>
 #include <utility>
+#include <variant>
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/numeric/conversion/converter_policies.hpp>
-#include <boost/variant/get.hpp>
 
 #include <pagmo/s11n.hpp>
 #include <pagmo/s_policies/select_best.hpp>
@@ -46,19 +46,19 @@ see https://www.gnu.org/licenses/. */
 
 using namespace pagmo;
 
-BOOST_AUTO_TEST_CASE(select_best_basic)
+TEST(select_best_test, select_best_basic)
 {
     select_best f00;
-    BOOST_CHECK(f00.get_migr_rate().which() == 0);
-    BOOST_CHECK(boost::get<pop_size_t>(f00.get_migr_rate()) == 1u);
+    EXPECT_TRUE(f00.get_migr_rate().index() == 0);
+    EXPECT_TRUE(std::get<pop_size_t>(f00.get_migr_rate()) == 1u);
 
     select_best f01(.2);
-    BOOST_CHECK(f01.get_migr_rate().which() == 1);
-    BOOST_CHECK(boost::get<double>(f01.get_migr_rate()) == .2);
+    EXPECT_TRUE(f01.get_migr_rate().index() == 1);
+    EXPECT_TRUE(std::get<double>(f01.get_migr_rate()) == .2);
 
     select_best f02(2);
-    BOOST_CHECK(f02.get_migr_rate().which() == 0);
-    BOOST_CHECK(boost::get<pop_size_t>(f02.get_migr_rate()) == 2u);
+    EXPECT_TRUE(f02.get_migr_rate().index() == 0);
+    EXPECT_TRUE(std::get<pop_size_t>(f02.get_migr_rate()) == 2u);
 
     BOOST_CHECK_EXCEPTION(f02 = select_best(-1.), std::invalid_argument, [](const std::invalid_argument &ia) {
         return boost::contains(
@@ -77,27 +77,27 @@ BOOST_AUTO_TEST_CASE(select_best_basic)
                 ia.what(), "Invalid fractional migration rate specified in the constructor of a replacement/selection "
                            "policy: the rate must be in the [0., 1.] range, but it is ");
         });
-    BOOST_CHECK_THROW(f02 = select_best(-1), boost::numeric::negative_overflow);
+    EXPECT_THROW(f02 = select_best(-1), boost::numeric::negative_overflow);
 
     auto f03(f02);
-    BOOST_CHECK(f03.get_migr_rate().which() == 0);
-    BOOST_CHECK(boost::get<pop_size_t>(f03.get_migr_rate()) == 2u);
+    EXPECT_TRUE(f03.get_migr_rate().index() == 0);
+    EXPECT_TRUE(std::get<pop_size_t>(f03.get_migr_rate()) == 2u);
 
     auto f04(std::move(f01));
-    BOOST_CHECK(f04.get_migr_rate().which() == 1);
-    BOOST_CHECK(boost::get<double>(f04.get_migr_rate()) == .2);
+    EXPECT_TRUE(f04.get_migr_rate().index() == 1);
+    EXPECT_TRUE(std::get<double>(f04.get_migr_rate()) == .2);
 
     f03 = f04;
-    BOOST_CHECK(f03.get_migr_rate().which() == 1);
-    BOOST_CHECK(boost::get<double>(f03.get_migr_rate()) == .2);
+    EXPECT_TRUE(f03.get_migr_rate().index() == 1);
+    EXPECT_TRUE(std::get<double>(f03.get_migr_rate()) == .2);
 
     f04 = std::move(f02);
-    BOOST_CHECK(f04.get_migr_rate().which() == 0);
-    BOOST_CHECK(boost::get<pop_size_t>(f04.get_migr_rate()) == 2u);
+    EXPECT_TRUE(f04.get_migr_rate().index() == 0);
+    EXPECT_TRUE(std::get<pop_size_t>(f04.get_migr_rate()) == 2u);
 
-    BOOST_CHECK(f04.get_name() == "Select best");
-    BOOST_CHECK(boost::contains(f04.get_extra_info(), "Absolute migration rate:"));
-    BOOST_CHECK(boost::contains(f03.get_extra_info(), "Fractional migration rate:"));
+    EXPECT_TRUE(f04.get_name() == "Select best");
+    EXPECT_TRUE(boost::contains(f04.get_extra_info(), "Absolute migration rate:"));
+    EXPECT_TRUE(boost::contains(f03.get_extra_info(), "Fractional migration rate:"));
 
     // Minimal serialization test.
     {
@@ -113,13 +113,13 @@ BOOST_AUTO_TEST_CASE(select_best_basic)
             boost::archive::binary_iarchive iarchive(ss);
             iarchive >> r1;
         }
-        BOOST_CHECK(r1.is<select_best>());
-        BOOST_CHECK(r1.extract<select_best>()->get_migr_rate().which() == 0);
-        BOOST_CHECK(boost::get<pop_size_t>(r1.extract<select_best>()->get_migr_rate()) == 2u);
+        EXPECT_TRUE(r1.is<select_best>());
+        EXPECT_TRUE(r1.extract<select_best>()->get_migr_rate().index() == 0);
+        EXPECT_TRUE(std::get<pop_size_t>(r1.extract<select_best>()->get_migr_rate()) == 2u);
     }
 }
 
-BOOST_AUTO_TEST_CASE(select_best_select)
+TEST(select_best_test, select_best_select)
 {
     select_best f00;
 
@@ -146,32 +146,32 @@ BOOST_AUTO_TEST_CASE(select_best_select)
 
     // Too few individuals in inds for fractional migration, no migration will happen.
     auto new_inds = f00.select(inds, 1, 0, 1, 0, 0, {});
-    BOOST_CHECK(new_inds == individuals_group_t{});
+    EXPECT_TRUE(new_inds == individuals_group_t{});
 
     // Select top 1.
     f00 = select_best(0.5);
     new_inds = f00.select(inds, 1, 0, 1, 0, 0, {});
-    BOOST_CHECK((new_inds == individuals_group_t{{1}, {{0}}, {{1}}}));
+    EXPECT_TRUE((new_inds == individuals_group_t{{1}, {{0}}, {{1}}}));
 
     // All selected.
     f00 = select_best(1.);
     new_inds = f00.select(inds, 1, 0, 1, 0, 0, {});
-    BOOST_CHECK((new_inds == inds));
+    EXPECT_TRUE((new_inds == inds));
 
     // Absolute rate, no selection.
     f00 = select_best(0);
     new_inds = f00.select(inds, 1, 0, 1, 0, 0, {});
-    BOOST_CHECK(new_inds == individuals_group_t{});
+    EXPECT_TRUE(new_inds == individuals_group_t{});
 
     // Absolute rate, select 2.
     f00 = select_best(2);
     new_inds = f00.select(inds, 1, 0, 1, 0, 0, {});
-    BOOST_CHECK((new_inds == individuals_group_t{{1, 2}, {{0}, {0}}, {{1}, {2}}}));
+    EXPECT_TRUE((new_inds == individuals_group_t{{1, 2}, {{0}, {0}}, {{1}, {2}}}));
 
     // Absolute rate, select all.
     f00 = select_best(3);
     new_inds = f00.select(inds, 1, 0, 1, 0, 0, {});
-    BOOST_CHECK((new_inds == inds));
+    EXPECT_TRUE((new_inds == inds));
 
     // Single-objective, constrained.
     inds = individuals_group_t{{1, 2, 3}, {{0}, {0}, {0}}, {{1, 1, 1}, {2, 2, 2}, {3, 3, 3}}};
@@ -179,32 +179,32 @@ BOOST_AUTO_TEST_CASE(select_best_select)
 
     // Too few individuals in inds for fractional migration, no migration will happen.
     new_inds = f00.select(inds, 1, 0, 1, 1, 1, {0., 0.});
-    BOOST_CHECK(new_inds == individuals_group_t{});
+    EXPECT_TRUE(new_inds == individuals_group_t{});
 
     // Select top 1.
     f00 = select_best(0.5);
     new_inds = f00.select(inds, 1, 0, 1, 1, 1, {0., 0.});
-    BOOST_CHECK((new_inds == individuals_group_t{{1}, {{0}}, {{1, 1, 1}}}));
+    EXPECT_TRUE((new_inds == individuals_group_t{{1}, {{0}}, {{1, 1, 1}}}));
 
     // All selected.
     f00 = select_best(1.);
     new_inds = f00.select(inds, 1, 0, 1, 1, 1, {0., 0.});
-    BOOST_CHECK((new_inds == inds));
+    EXPECT_TRUE((new_inds == inds));
 
     // Absolute rate, no selection.
     f00 = select_best(0);
     new_inds = f00.select(inds, 1, 0, 1, 1, 1, {0., 0.});
-    BOOST_CHECK(new_inds == individuals_group_t{});
+    EXPECT_TRUE(new_inds == individuals_group_t{});
 
     // Absolute rate, select 2.
     f00 = select_best(2);
     new_inds = f00.select(inds, 1, 0, 1, 1, 1, {0., 0.});
-    BOOST_CHECK((new_inds == individuals_group_t{{1, 2}, {{0}, {0}}, {{1, 1, 1}, {2, 2, 2}}}));
+    EXPECT_TRUE((new_inds == individuals_group_t{{1, 2}, {{0}, {0}}, {{1, 1, 1}, {2, 2, 2}}}));
 
     // Absolute rate, select all.
     f00 = select_best(3);
     new_inds = f00.select(inds, 1, 0, 1, 1, 1, {0., 0.});
-    BOOST_CHECK((new_inds == inds));
+    EXPECT_TRUE((new_inds == inds));
 
     // Multi-objective, unconstrained.
     // NOTE: these values are taken from a test in multi_objective.cpp.
@@ -212,13 +212,13 @@ BOOST_AUTO_TEST_CASE(select_best_select)
     f00 = select_best(1.);
 
     new_inds = f00.select(inds, 1, 0, 2, 0, 0, {});
-    BOOST_CHECK((new_inds == inds));
+    EXPECT_TRUE((new_inds == inds));
 }
 
 // Check behaviour when, in unconstrained
 // single-objective optimisation problems,
 // the fitness is nan.
-BOOST_AUTO_TEST_CASE(select_best_nan_fitness)
+TEST(select_best_test, select_best_nan_fitness)
 {
     select_best f00(2);
 
@@ -227,5 +227,5 @@ BOOST_AUTO_TEST_CASE(select_best_nan_fitness)
     auto new_inds = f00.select(inds, 1, 0, 1, 0, 0, {});
 
     // Check that the individual with nan fitness was not selected.
-    BOOST_CHECK((new_inds == individuals_group_t{{1, 2}, {{0}, {0}}, {{1}, {2}}}));
+    EXPECT_TRUE((new_inds == individuals_group_t{{1, 2}, {{0}, {0}}, {{1}, {2}}}));
 }

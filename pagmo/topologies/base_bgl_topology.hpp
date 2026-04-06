@@ -43,8 +43,6 @@ see https://www.gnu.org/licenses/. */
 
 #endif
 
-#include <boost/graph/adj_list_serialize.hpp>
-
 #if defined(_MSC_VER)
 
 #pragma warning(pop)

@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE nsga2_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <algorithm>
 #include <boost/lexical_cast.hpp>
@@ -48,27 +48,27 @@ see https://www.gnu.org/licenses/. */
 
 using namespace pagmo;
 
-BOOST_AUTO_TEST_CASE(nsga2_algorithm_construction)
+TEST(nsga2_test, nsga2_algorithm_construction)
 {
     nsga2 user_algo{1u, 0.95, 10., 0.01, 50., 32u};
-    BOOST_CHECK_NO_THROW(nsga2{});
-    BOOST_CHECK(user_algo.get_verbosity() == 0u);
-    BOOST_CHECK(user_algo.get_seed() == 32u);
-    // BOOST_CHECK((user_algo.get_log() == moead::log_type{}));
+    EXPECT_NO_THROW(nsga2{});
+    EXPECT_TRUE(user_algo.get_verbosity() == 0u);
+    EXPECT_TRUE(user_algo.get_seed() == 32u);
+    // EXPECT_TRUE((user_algo.get_log() == moead::log_type{}));
 
     // Check the throws
     // Wrong cr
-    BOOST_CHECK_THROW((nsga2{1u, 1., 10., 0.01, 50., 32u}), std::invalid_argument);
-    BOOST_CHECK_THROW((nsga2{1u, -1., 10., 0.01, 50., 32u}), std::invalid_argument);
+    EXPECT_THROW((nsga2{1u, 1., 10., 0.01, 50., 32u}), std::invalid_argument);
+    EXPECT_THROW((nsga2{1u, -1., 10., 0.01, 50., 32u}), std::invalid_argument);
     // Wrong m
-    BOOST_CHECK_THROW((nsga2{1u, .95, 10., 1.1, 50., 32u}), std::invalid_argument);
-    BOOST_CHECK_THROW((nsga2{1u, .95, 10., -1.1, 50., 32u}), std::invalid_argument);
+    EXPECT_THROW((nsga2{1u, .95, 10., 1.1, 50., 32u}), std::invalid_argument);
+    EXPECT_THROW((nsga2{1u, .95, 10., -1.1, 50., 32u}), std::invalid_argument);
     // Wrong eta_m
-    BOOST_CHECK_THROW((nsga2{1u, .95, 100.1, 0.01, 50., 32u}), std::invalid_argument);
-    BOOST_CHECK_THROW((nsga2{1u, .95, .98, 0.01, 50., 32u}), std::invalid_argument);
+    EXPECT_THROW((nsga2{1u, .95, 100.1, 0.01, 50., 32u}), std::invalid_argument);
+    EXPECT_THROW((nsga2{1u, .95, .98, 0.01, 50., 32u}), std::invalid_argument);
     // Wrong eta_m
-    BOOST_CHECK_THROW((nsga2{1u, .95, 10., 0.01, 100.1, 32u}), std::invalid_argument);
-    BOOST_CHECK_THROW((nsga2{1u, .95, 10., 0.01, .98, 32u}), std::invalid_argument);
+    EXPECT_THROW((nsga2{1u, .95, 10., 0.01, 100.1, 32u}), std::invalid_argument);
+    EXPECT_THROW((nsga2{1u, .95, 10., 0.01, .98, 32u}), std::invalid_argument);
 }
 
 struct mo_equal_bounds {
@@ -88,20 +88,20 @@ struct mo_equal_bounds {
     }
 };
 
-BOOST_AUTO_TEST_CASE(nsga2_evolve_test)
+TEST(nsga2_test, nsga2_evolve_test)
 {
     // We check that the problem is checked to be suitable
     // Some bound is equal
-    BOOST_CHECK_THROW(nsga2{10u}.evolve(population{problem{mo_equal_bounds{}}, 0u}), std::invalid_argument);
+    EXPECT_THROW(nsga2{10u}.evolve(population{problem{mo_equal_bounds{}}, 0u}), std::invalid_argument);
     // stochastic
-    BOOST_CHECK_THROW((nsga2{}.evolve(population{inventory{}, 5u, 23u})), std::invalid_argument);
+    EXPECT_THROW((nsga2{}.evolve(population{inventory{}, 5u, 23u})), std::invalid_argument);
     // constrained prob
-    BOOST_CHECK_THROW((nsga2{}.evolve(population{hock_schittkowski_71{}, 5u, 23u})), std::invalid_argument);
+    EXPECT_THROW((nsga2{}.evolve(population{hock_schittkowski_71{}, 5u, 23u})), std::invalid_argument);
     // single objective prob
-    BOOST_CHECK_THROW((nsga2{}.evolve(population{rosenbrock{}, 5u, 23u})), std::invalid_argument);
+    EXPECT_THROW((nsga2{}.evolve(population{rosenbrock{}, 5u, 23u})), std::invalid_argument);
     // wrong population size
-    BOOST_CHECK_THROW((nsga2{}.evolve(population{zdt{}, 3u, 23u})), std::invalid_argument);
-    BOOST_CHECK_THROW((nsga2{}.evolve(population{zdt{}, 50u, 23u})), std::invalid_argument);
+    EXPECT_THROW((nsga2{}.evolve(population{zdt{}, 3u, 23u})), std::invalid_argument);
+    EXPECT_THROW((nsga2{}.evolve(population{zdt{}, 50u, 23u})), std::invalid_argument);
 
     // We check for deterministic behaviour if the seed is controlled
     // we treat the last three components of the decision vector as integers
@@ -116,18 +116,18 @@ BOOST_AUTO_TEST_CASE(nsga2_evolve_test)
     user_algo1.set_verbosity(1u);
     pop1 = user_algo1.evolve(pop1);
 
-    BOOST_CHECK(user_algo1.get_log().size() > 0u);
+    EXPECT_TRUE(user_algo1.get_log().size() > 0u);
 
     nsga2 user_algo2{10u, 0.95, 10., 0.01, 50., 32u};
     user_algo2.set_verbosity(1u);
     pop2 = user_algo2.evolve(pop2);
 
-    BOOST_CHECK(user_algo1.get_log() == user_algo2.get_log());
+    EXPECT_TRUE(user_algo1.get_log() == user_algo2.get_log());
 
     user_algo2.set_seed(32u);
     pop3 = user_algo2.evolve(pop3);
 
-    BOOST_CHECK(user_algo1.get_log() == user_algo2.get_log());
+    EXPECT_TRUE(user_algo1.get_log() == user_algo2.get_log());
 
     // We evolve for many-objectives and trigger the output with the ellipses
     udp = dtlz{1u, 12u, 7u};
@@ -135,19 +135,19 @@ BOOST_AUTO_TEST_CASE(nsga2_evolve_test)
     pop4 = user_algo2.evolve(pop4);
 }
 
-BOOST_AUTO_TEST_CASE(nsga2_setters_getters_test)
+TEST(nsga2_test, nsga2_setters_getters_test)
 {
     nsga2 user_algo{1u, 0.95, 10., 0.01, 50., 32u};
     user_algo.set_verbosity(200u);
-    BOOST_CHECK(user_algo.get_verbosity() == 200u);
+    EXPECT_TRUE(user_algo.get_verbosity() == 200u);
     user_algo.set_seed(23456u);
-    BOOST_CHECK(user_algo.get_seed() == 23456u);
-    BOOST_CHECK(user_algo.get_name().find("NSGA-II") != std::string::npos);
-    BOOST_CHECK(user_algo.get_extra_info().find("Verbosity") != std::string::npos);
-    // BOOST_CHECK_NO_THROW(user_algo.get_log());
+    EXPECT_TRUE(user_algo.get_seed() == 23456u);
+    EXPECT_TRUE(user_algo.get_name().find("NSGA-II") != std::string::npos);
+    EXPECT_TRUE(user_algo.get_extra_info().find("Verbosity") != std::string::npos);
+    // EXPECT_NO_THROW(user_algo.get_log());
 }
 
-BOOST_AUTO_TEST_CASE(nsga2_zdt5_test)
+TEST(nsga2_test, nsga2_zdt5_test)
 {
     algorithm algo{nsga2(100u, 0.95, 10., 0.01, 50., 32u)};
     algo.set_verbosity(10u);
@@ -156,11 +156,11 @@ BOOST_AUTO_TEST_CASE(nsga2_zdt5_test)
     pop = algo.evolve(pop);
     for (decltype(pop.size()) i = 0u; i < pop.size(); ++i) {
         auto x = pop.get_x()[i];
-        BOOST_CHECK(std::all_of(x.begin(), x.end(), [](double el) { return (el == std::floor(el)); }));
+        EXPECT_TRUE(std::all_of(x.begin(), x.end(), [](double el) { return (el == std::floor(el)); }));
     }
 }
 
-BOOST_AUTO_TEST_CASE(nsga2_serialization_test)
+TEST(nsga2_test, nsga2_serialization_test)
 {
     // Make one evolution
     problem prob{zdt{1u, 30u}};
@@ -187,20 +187,20 @@ BOOST_AUTO_TEST_CASE(nsga2_serialization_test)
     }
     auto after_text = boost::lexical_cast<std::string>(algo);
     auto after_log = algo.extract<nsga2>()->get_log();
-    BOOST_CHECK_EQUAL(before_text, after_text);
-    BOOST_CHECK(before_log == after_log);
+    EXPECT_EQ(before_text, after_text);
+    EXPECT_TRUE(before_log == after_log);
     // so we implement a close check
-    BOOST_CHECK(before_log.size() > 0u);
+    EXPECT_TRUE(before_log.size() > 0u);
     for (auto i = 0u; i < before_log.size(); ++i) {
-        BOOST_CHECK_EQUAL(std::get<0>(before_log[i]), std::get<0>(after_log[i]));
-        BOOST_CHECK_EQUAL(std::get<1>(before_log[i]), std::get<1>(after_log[i]));
+        EXPECT_EQ(std::get<0>(before_log[i]), std::get<0>(after_log[i]));
+        EXPECT_EQ(std::get<1>(before_log[i]), std::get<1>(after_log[i]));
         for (auto j = 0u; j < 2u; ++j) {
-            BOOST_CHECK_CLOSE(std::get<2>(before_log[i])[j], std::get<2>(after_log[i])[j], 1e-8);
+            EXPECT_NEAR(std::get<2>(before_log[i])[j], std::get<2>(after_log[i])[j], 1e-8);
         }
     }
 }
 
-BOOST_AUTO_TEST_CASE(bfe_usage_test)
+TEST(nsga2_test, bfe_usage_test)
 {
     // 1 - Algorithm with bfe disabled
     problem prob{dtlz(1, 10, 2)};
@@ -228,5 +228,5 @@ BOOST_AUTO_TEST_CASE(bfe_usage_test)
 
     // 7 - Evolve the population
     pop2 = algo2.evolve(pop);
-    BOOST_CHECK(algo1.extract<nsga2>()->get_log() == algo2.extract<nsga2>()->get_log());
+    EXPECT_TRUE(algo1.extract<nsga2>()->get_log() == algo2.extract<nsga2>()->get_log());
 }

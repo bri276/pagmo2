@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE archipelago_torture_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <sstream>
 
@@ -38,7 +38,7 @@ see https://www.gnu.org/licenses/. */
 using namespace pagmo;
 
 // A small test for poking at an archipelago while it is evolving.
-BOOST_AUTO_TEST_CASE(archipelago_torture_00)
+TEST(archipelago_torture_test, archipelago_torture_00)
 {
     archipelago archi{10, de{50}, rosenbrock{100}, 100u};
     for (auto i = 0; i < 50; ++i) {
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE(archipelago_torture_00)
         auto cx = archi.get_champions_x();
         std::ostringstream oss;
         oss << archi;
-        BOOST_CHECK(!oss.str().empty());
+        EXPECT_TRUE(!oss.str().empty());
     }
-    BOOST_CHECK_NO_THROW(archi.wait_check());
+    EXPECT_NO_THROW(archi.wait_check());
 }

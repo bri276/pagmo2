@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE cec2006_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <iostream>
 #include <stdexcept>
@@ -43,18 +43,18 @@ see https://www.gnu.org/licenses/. */
 
 using namespace pagmo;
 
-BOOST_AUTO_TEST_CASE(cec2006_construction_test)
+TEST(cec2006_test, cec2006_construction_test)
 {
     // We check that all problems can be constructed
     for (unsigned i = 1u; i <= 24u; ++i) {
         cec2006 udp{i};
     }
     // We check that wrong problem ids and dimensions cannot be constructed
-    BOOST_CHECK_THROW((cec2006{0u}), std::invalid_argument);
-    BOOST_CHECK_THROW((cec2006{29u}), std::invalid_argument);
+    EXPECT_THROW((cec2006{0u}), std::invalid_argument);
+    EXPECT_THROW((cec2006{29u}), std::invalid_argument);
 }
 
-BOOST_AUTO_TEST_CASE(cec2006_fitness_test)
+TEST(cec2006_test, cec2006_fitness_test)
 {
     std::mt19937 r_engine(32u);
 
@@ -63,20 +63,20 @@ BOOST_AUTO_TEST_CASE(cec2006_fitness_test)
         cec2006 udp{i};
         auto x = random_decision_vector(problem(udp), r_engine); // a random vector
         auto f = udp.fitness(x);
-        BOOST_CHECK((udp.get_name().find("CEC2006 - g")) != std::string::npos);
+        EXPECT_TRUE((udp.get_name().find("CEC2006 - g")) != std::string::npos);
     }
 }
 
-BOOST_AUTO_TEST_CASE(cec2006_getters_test)
+TEST(cec2006_test, cec2006_getters_test)
 {
     // We check that all problems return a fitness
     for (unsigned i = 1u; i <= 24u; ++i) {
         cec2006 udp{i};
-        BOOST_CHECK((udp.get_name().find("CEC2006 - g")) != std::string::npos);
+        EXPECT_TRUE((udp.get_name().find("CEC2006 - g")) != std::string::npos);
     }
 }
 
-BOOST_AUTO_TEST_CASE(cec2006_best_known_test)
+TEST(cec2006_test, cec2006_best_known_test)
 {
     // We check that all problems return a fitness
     for (unsigned i = 1u; i <= 24u; ++i) {
@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE(cec2006_best_known_test)
     }
 }
 
-BOOST_AUTO_TEST_CASE(cec2006_serialization_test)
+TEST(cec2006_test, cec2006_serialization_test)
 {
     problem p{cec2006{1u}};
     // Call objfun to increase the internal counters.
@@ -105,5 +105,5 @@ BOOST_AUTO_TEST_CASE(cec2006_serialization_test)
         iarchive >> p;
     }
     auto after = boost::lexical_cast<std::string>(p);
-    BOOST_CHECK_EQUAL(before, after);
+    EXPECT_EQ(before, after);
 }

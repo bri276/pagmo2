@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE default_bfe_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <initializer_list>
 #include <sstream>
@@ -100,34 +100,34 @@ struct bf2 {
     }
 };
 
-BOOST_AUTO_TEST_CASE(basic_tests)
+TEST(default_bfe_test, basic_tests)
 {
-    BOOST_CHECK(IsUdBfe<default_bfe>);
+    EXPECT_TRUE(IsUdBfe<default_bfe>);
 
     bfe bfe0{};
-    BOOST_CHECK(bfe0.is<default_bfe>());
-    BOOST_CHECK(bfe0.get_name() == "Default batch fitness evaluator");
-    BOOST_CHECK(bfe0.get_extra_info().empty());
-    BOOST_CHECK_EQUAL(bfe0.get_thread_safety(), thread_safety::basic);
+    EXPECT_TRUE(bfe0.is<default_bfe>());
+    EXPECT_TRUE(bfe0.get_name() == "Default batch fitness evaluator");
+    EXPECT_TRUE(bfe0.get_extra_info().empty());
+    EXPECT_EQ(bfe0.get_thread_safety(), thread_safety::basic);
 
     // Use UDP member function.
     problem p{bf0{}};
-    BOOST_CHECK(p.get_fevals() == 0u);
-    BOOST_CHECK(bfe0(p, {1., 2., 3.}) == vector_double(3, 1.));
+    EXPECT_TRUE(p.get_fevals() == 0u);
+    EXPECT_TRUE(bfe0(p, {1., 2., 3.}) == vector_double(3, 1.));
     // Check fevals counters.
-    BOOST_CHECK(p.get_fevals() == 3u);
-    BOOST_CHECK(bf0::s_counter == 1u);
+    EXPECT_TRUE(p.get_fevals() == 3u);
+    EXPECT_TRUE(bf0::s_counter == 1u);
 
     // UDP without batch_fitness() member function, but supporting thread_bfe.
     p = problem{bf1{}};
-    BOOST_CHECK(p.get_fevals() == 0u);
-    BOOST_CHECK(bfe0(p, {1., 2., 3.}) == vector_double(3, 0.));
+    EXPECT_TRUE(p.get_fevals() == 0u);
+    EXPECT_TRUE(bfe0(p, {1., 2., 3.}) == vector_double(3, 0.));
     // Check fevals counters.
-    BOOST_CHECK(p.get_fevals() == 3u);
+    EXPECT_TRUE(p.get_fevals() == 3u);
 
     // UDP without batch_fitness() member function, which is not thread-safe enough.
     p = problem{bf2{}};
-    BOOST_CHECK(p.get_thread_safety() == thread_safety::none);
+    EXPECT_TRUE(p.get_thread_safety() == thread_safety::none);
     BOOST_CHECK_EXCEPTION(bfe0(p, {1.}), std::invalid_argument, [](const std::invalid_argument &ia) {
         return boost::contains(ia.what(),
                                "Cannot execute fitness evaluations in batch mode for a problem of type 'baffo': the "
@@ -136,10 +136,10 @@ BOOST_AUTO_TEST_CASE(basic_tests)
     });
 }
 
-BOOST_AUTO_TEST_CASE(s11n)
+TEST(default_bfe_test, s11n)
 {
     bfe bfe0{default_bfe{}};
-    BOOST_CHECK(bfe0.is<default_bfe>());
+    EXPECT_TRUE(bfe0.is<default_bfe>());
     // Store the string representation.
     std::stringstream ss;
     auto before = boost::lexical_cast<std::string>(bfe0);
@@ -150,12 +150,12 @@ BOOST_AUTO_TEST_CASE(s11n)
     }
     // Change the content of p before deserializing.
     bfe0 = bfe{member_bfe{}};
-    BOOST_CHECK(!bfe0.is<default_bfe>());
+    EXPECT_TRUE(!bfe0.is<default_bfe>());
     {
         boost::archive::binary_iarchive iarchive(ss);
         iarchive >> bfe0;
     }
     auto after = boost::lexical_cast<std::string>(bfe0);
-    BOOST_CHECK_EQUAL(before, after);
-    BOOST_CHECK(bfe0.is<default_bfe>());
+    EXPECT_EQ(before, after);
+    EXPECT_TRUE(bfe0.is<default_bfe>());
 }

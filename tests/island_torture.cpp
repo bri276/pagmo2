@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE island_torture_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <sstream>
 
@@ -38,7 +38,7 @@ see https://www.gnu.org/licenses/. */
 using namespace pagmo;
 
 // A small test for poking at an island while it is evolving.
-BOOST_AUTO_TEST_CASE(island_torture_00)
+TEST(island_torture_test, island_torture_00)
 {
     island isl{de{50}, rosenbrock{100}, 100};
     for (auto i = 0; i < 100; ++i) {
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE(island_torture_00)
         auto einfo = isl.get_extra_info();
         std::ostringstream oss;
         oss << isl;
-        BOOST_CHECK(!oss.str().empty());
+        EXPECT_TRUE(!oss.str().empty());
     }
-    BOOST_CHECK_NO_THROW(isl.wait_check());
+    EXPECT_NO_THROW(isl.wait_check());
 }

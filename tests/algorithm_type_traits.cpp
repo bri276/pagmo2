@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE algorithm_type_traits
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <utility>
 
@@ -58,13 +58,13 @@ struct hsv_04 {
     double set_verbosity(unsigned);
 };
 
-BOOST_AUTO_TEST_CASE(has_set_verbose_test)
+TEST(algorithm_type_traits, has_set_verbose_test)
 {
-    BOOST_CHECK((!HasSetVerbosity<hsv_00>));
-    BOOST_CHECK((HasSetVerbosity<hsv_01>));
-    BOOST_CHECK((HasSetVerbosity<hsv_02>));
-    BOOST_CHECK((HasSetVerbosity<hsv_03>));
-    BOOST_CHECK((!HasSetVerbosity<hsv_04>));
+    EXPECT_TRUE((!HasSetVerbosity<hsv_00>));
+    EXPECT_TRUE((HasSetVerbosity<hsv_01>));
+    EXPECT_TRUE((HasSetVerbosity<hsv_02>));
+    EXPECT_TRUE((HasSetVerbosity<hsv_03>));
+    EXPECT_TRUE((!HasSetVerbosity<hsv_04>));
 }
 
 struct hev_00 {
@@ -91,12 +91,12 @@ struct hev_05 {
     population evolve(const double &) const;
 };
 
-BOOST_AUTO_TEST_CASE(has_evolve_test)
+TEST(algorithm_type_traits, has_evolve_test)
 {
-    BOOST_CHECK((!HasEvolve<hev_00>));
-    BOOST_CHECK((HasEvolve<hev_01>));
-    BOOST_CHECK((!HasEvolve<hev_02>));
-    BOOST_CHECK((!HasEvolve<hev_03>));
-    BOOST_CHECK((!HasEvolve<hev_04>));
-    BOOST_CHECK((!HasEvolve<hev_05>));
+    EXPECT_TRUE((!HasEvolve<hev_00>));
+    EXPECT_TRUE((HasEvolve<hev_01>));
+    EXPECT_TRUE((!HasEvolve<hev_02>));
+    EXPECT_TRUE((!HasEvolve<hev_03>));
+    EXPECT_TRUE((!HasEvolve<hev_04>));
+    EXPECT_TRUE((!HasEvolve<hev_05>));
 }

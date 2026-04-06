@@ -1,14 +1,8 @@
 # Find or build Boost using CPM with required components
-# Configures: boost_serialization, boost_unit_test_framework (if testing enabled)
+# Configures: boost_serialization and needed header-only libraries
 
-# Determine required Boost libraries
+# Determine required Boost libraries (removed test components - using Google Test now)
 set(_PAGMO_REQUIRED_BOOST_LIBS serialization)
-if(PAGMO_BUILD_TESTS)
-    list(APPEND _PAGMO_REQUIRED_BOOST_LIBS unit_test_framework)
-    # Internal variable that will be used to tell PagmoFindBoost to locate the
-    # Boost unit test framework, if tests are required.
-    set(_PAGMO_FIND_BOOST_UNIT_TEST_FRAMEWORK TRUE)
-endif()
 
 message(STATUS "Configuring Boost dependency...")
 
@@ -24,8 +18,8 @@ CPMAddPackage(
 message(STATUS "Using CPM for Boost to ensure reliable component availability")
 set(TRY_BOOST_VERSION "1.90.0")
 set(BOOST_MY_OPTIONS "CMAKE_POSITION_INDEPENDENT_CODE ON;BUILD_SHARED_LIBS OFF")
-set(BOOST_NOT_HEADER_ONLY_COMPONENTS_THAT_YOU_NEED "serialization;test")
-set(BOOST_HEADER_ONLY_COMPONENTS_THAT_YOU_NEED "any;system;math;safe_numerics;bimap;graph;lexical_cast;integer;variant;variant2;property_map;container;move;type_index;multi_index;type_traits;config;mpl;cat;preprocessor")
+set(BOOST_NOT_HEADER_ONLY_COMPONENTS_THAT_YOU_NEED "serialization")
+set(BOOST_HEADER_ONLY_COMPONENTS_THAT_YOU_NEED "any;system;math;safe_numerics;bimap;graph;lexical_cast;integer;variant;variant2;property_map;container;move;type_index;multi_index;type_traits;config;mpl")
 
 add_boost(
   TRY_BOOST_VERSION BOOST_HEADER_ONLY_COMPONENTS_THAT_YOU_NEED

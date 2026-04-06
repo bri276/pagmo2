@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE thread_island_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <initializer_list>
 #include <stdexcept>
@@ -72,7 +72,7 @@ struct tu_udp {
     }
 };
 
-BOOST_AUTO_TEST_CASE(thread_island_test)
+TEST(thread_island_test, thread_island_test)
 {
     {
         island isl(thread_island{}, tu_uda{}, problem(), 20u);

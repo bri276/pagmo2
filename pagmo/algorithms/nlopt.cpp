@@ -38,6 +38,7 @@ see https://www.gnu.org/licenses/. */
 #endif
 
 #include <algorithm>
+#include <any>
 #include <cassert>
 #include <cmath>
 #include <exception>
@@ -60,10 +61,7 @@ see https://www.gnu.org/licenses/. */
 
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
-#include <boost/any.hpp>
 #include <boost/bimap.hpp>
-#include <boost/numeric/conversion/cast.hpp>
-
 #include <pagmo/algorithm.hpp>
 #include <pagmo/algorithms/nlopt.hpp>
 #include <pagmo/algorithms/not_population_based.hpp>
@@ -75,6 +73,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/s11n.hpp>
 #include <pagmo/type_traits.hpp>
 #include <pagmo/types.hpp>
+#include <pagmo/utils/cast.hpp>
 #include <pagmo/utils/constrained.hpp>
 
 namespace pagmo
@@ -182,7 +181,7 @@ struct nlopt_obj {
         : m_algo(algo), m_prob(prob), m_value(nullptr, ::nlopt_destroy), m_verbosity(verbosity)
     {
         // Extract and set problem dimension.
-        const auto n = boost::numeric_cast<unsigned>(prob.get_nx());
+        const auto n = numeric_cast<unsigned>(prob.get_nx());
         // Try to init the nlopt_obj.
         m_value.reset(::nlopt_create(algo, n));
         if (!m_value) {
@@ -311,9 +310,9 @@ struct nlopt_obj {
     {
         if (m_prob.get_nic()) {
             const auto c_tol = m_prob.get_c_tol();
-            auto res = ::nlopt_add_inequality_mconstraint(
-                m_value.get(), boost::numeric_cast<unsigned>(m_prob.get_nic()), nlopt_ineq_c_wrapper,
-                static_cast<void *>(this), c_tol.data() + m_prob.get_nec());
+            auto res = ::nlopt_add_inequality_mconstraint(m_value.get(), numeric_cast<unsigned>(m_prob.get_nic()),
+                                                          nlopt_ineq_c_wrapper, static_cast<void *>(this),
+                                                          c_tol.data() + m_prob.get_nec());
             if (res != NLOPT_SUCCESS) {
                 pagmo_throw(std::invalid_argument,
                             "could not set the inequality constraints for the NLopt algorithm '"
@@ -328,7 +327,7 @@ struct nlopt_obj {
     {
         if (m_prob.get_nec()) {
             const auto c_tol = m_prob.get_c_tol();
-            auto res = ::nlopt_add_equality_mconstraint(m_value.get(), boost::numeric_cast<unsigned>(m_prob.get_nec()),
+            auto res = ::nlopt_add_equality_mconstraint(m_value.get(), numeric_cast<unsigned>(m_prob.get_nec()),
                                                         nlopt_eq_c_wrapper, static_cast<void *>(this), c_tol.data());
             if (res != NLOPT_SUCCESS) {
                 pagmo_throw(std::invalid_argument,
@@ -870,13 +869,13 @@ std::string nlopt::get_extra_info() const
                   + std::to_string(bugfix) + "\n\tSolver: '" + m_algo
                   + "'\n\tLast optimisation return code: " + detail::nlopt_res2string(m_last_opt_result)
                   + "\n\tVerbosity: " + std::to_string(m_verbosity) + "\n\tIndividual selection "
-                  + (boost::any_cast<population::size_type>(&m_select)
-                         ? "idx: " + std::to_string(boost::any_cast<population::size_type>(m_select))
-                         : "policy: " + boost::any_cast<std::string>(m_select))
+                  + (std::any_cast<population::size_type>(&m_select)
+                         ? "idx: " + std::to_string(std::any_cast<population::size_type>(m_select))
+                         : "policy: " + std::any_cast<std::string>(m_select))
                   + "\n\tIndividual replacement "
-                  + (boost::any_cast<population::size_type>(&m_replace)
-                         ? "idx: " + std::to_string(boost::any_cast<population::size_type>(m_replace))
-                         : "policy: " + boost::any_cast<std::string>(m_replace))
+                  + (std::any_cast<population::size_type>(&m_replace)
+                         ? "idx: " + std::to_string(std::any_cast<population::size_type>(m_replace))
+                         : "policy: " + std::any_cast<std::string>(m_replace))
                   + "\n\tStopping criteria:\n\t\tstopval:  "
                   + (m_sc_stopval == -HUGE_VAL ? "disabled" : detail::to_string(m_sc_stopval))
                   + "\n\t\tftol_rel: " + (m_sc_ftol_rel <= 0. ? "disabled" : detail::to_string(m_sc_ftol_rel))

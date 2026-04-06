@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE type_traits_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <type_traits>
 #include <utility>
@@ -56,13 +56,13 @@ struct s4 {
 template <typename T>
 using foo_t = decltype(std::declval<const T &>().foo());
 
-BOOST_AUTO_TEST_CASE(type_traits_test_00)
+TEST(type_traits_test, type_traits_test_00)
 {
-    BOOST_CHECK((!is_detected<foo_t, s1>::value));
-    BOOST_CHECK((is_detected<foo_t, s2>::value));
-    BOOST_CHECK((!is_detected<foo_t, s3>::value));
-    BOOST_CHECK((!is_detected<foo_t, s4>::value));
-    BOOST_CHECK((std::is_same<detected_t<foo_t, s4>, detail::nonesuch>::value));
+    EXPECT_TRUE((!is_detected<foo_t, s1>::value));
+    EXPECT_TRUE((is_detected<foo_t, s2>::value));
+    EXPECT_TRUE((!is_detected<foo_t, s3>::value));
+    EXPECT_TRUE((!is_detected<foo_t, s4>::value));
+    EXPECT_TRUE((std::is_same<detected_t<foo_t, s4>, detail::nonesuch>::value));
 }
 
 struct ngts1 {
@@ -77,12 +77,12 @@ struct ygts1 {
     thread_safety get_thread_safety() const;
 };
 
-BOOST_AUTO_TEST_CASE(type_traits_has_get_thread_safety_test)
+TEST(type_traits_test, type_traits_has_get_thread_safety_test)
 {
-    BOOST_CHECK((!HasGetThreadSafety<s1>));
-    BOOST_CHECK((!HasGetThreadSafety<s2>));
-    BOOST_CHECK((!HasGetThreadSafety<s3>));
-    BOOST_CHECK((!HasGetThreadSafety<ngts1>));
-    BOOST_CHECK((!HasGetThreadSafety<ngts2>));
-    BOOST_CHECK((HasGetThreadSafety<ygts1>));
+    EXPECT_TRUE((!HasGetThreadSafety<s1>));
+    EXPECT_TRUE((!HasGetThreadSafety<s2>));
+    EXPECT_TRUE((!HasGetThreadSafety<s3>));
+    EXPECT_TRUE((!HasGetThreadSafety<ngts1>));
+    EXPECT_TRUE((!HasGetThreadSafety<ngts2>));
+    EXPECT_TRUE((HasGetThreadSafety<ygts1>));
 }

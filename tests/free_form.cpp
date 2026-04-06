@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE free_form
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <algorithm>
 #include <iostream>
@@ -38,7 +38,6 @@ see https://www.gnu.org/licenses/. */
 #include <utility>
 
 #include <boost/algorithm/string/predicate.hpp>
-#include <boost/graph/adjacency_list.hpp>
 
 #include <pagmo/s11n.hpp>
 #include <pagmo/topologies/free_form.hpp>
@@ -47,70 +46,70 @@ see https://www.gnu.org/licenses/. */
 
 using namespace pagmo;
 
-BOOST_AUTO_TEST_CASE(basic_test)
+TEST(free_form, basic_test)
 {
-    BOOST_CHECK(IsUdTopology<free_form>);
+    EXPECT_TRUE(IsUdTopology<free_form>);
 
     free_form f0;
-    BOOST_CHECK(f0.num_vertices() == 0u);
+    EXPECT_TRUE(f0.num_vertices() == 0u);
 
     f0.push_back();
     f0.push_back();
     f0.push_back();
 
-    BOOST_CHECK(f0.num_vertices() == 3u);
+    EXPECT_TRUE(f0.num_vertices() == 3u);
 
-    BOOST_CHECK(f0.get_connections(0).first.empty());
-    BOOST_CHECK(f0.get_connections(0).second.empty());
+    EXPECT_TRUE(f0.get_connections(0).first.empty());
+    EXPECT_TRUE(f0.get_connections(0).second.empty());
 
-    BOOST_CHECK(f0.get_connections(1).first.empty());
-    BOOST_CHECK(f0.get_connections(1).second.empty());
+    EXPECT_TRUE(f0.get_connections(1).first.empty());
+    EXPECT_TRUE(f0.get_connections(1).second.empty());
 
-    BOOST_CHECK(f0.get_connections(2).first.empty());
-    BOOST_CHECK(f0.get_connections(2).second.empty());
+    EXPECT_TRUE(f0.get_connections(2).first.empty());
+    EXPECT_TRUE(f0.get_connections(2).second.empty());
 
-    BOOST_CHECK(!f0.are_adjacent(0, 1));
-    BOOST_CHECK(!f0.are_adjacent(0, 2));
-    BOOST_CHECK(!f0.are_adjacent(1, 2));
+    EXPECT_TRUE(!f0.are_adjacent(0, 1));
+    EXPECT_TRUE(!f0.are_adjacent(0, 2));
+    EXPECT_TRUE(!f0.are_adjacent(1, 2));
 
     // Copy ctor.
     auto f1(f0);
 
-    BOOST_CHECK(f1.num_vertices() == 3u);
+    EXPECT_TRUE(f1.num_vertices() == 3u);
 
-    BOOST_CHECK(f1.get_connections(0).first.empty());
-    BOOST_CHECK(f1.get_connections(0).second.empty());
+    EXPECT_TRUE(f1.get_connections(0).first.empty());
+    EXPECT_TRUE(f1.get_connections(0).second.empty());
 
-    BOOST_CHECK(f1.get_connections(1).first.empty());
-    BOOST_CHECK(f1.get_connections(1).second.empty());
+    EXPECT_TRUE(f1.get_connections(1).first.empty());
+    EXPECT_TRUE(f1.get_connections(1).second.empty());
 
-    BOOST_CHECK(f1.get_connections(2).first.empty());
-    BOOST_CHECK(f1.get_connections(2).second.empty());
+    EXPECT_TRUE(f1.get_connections(2).first.empty());
+    EXPECT_TRUE(f1.get_connections(2).second.empty());
 
-    BOOST_CHECK(!f1.are_adjacent(0, 1));
-    BOOST_CHECK(!f1.are_adjacent(0, 2));
-    BOOST_CHECK(!f1.are_adjacent(1, 2));
+    EXPECT_TRUE(!f1.are_adjacent(0, 1));
+    EXPECT_TRUE(!f1.are_adjacent(0, 2));
+    EXPECT_TRUE(!f1.are_adjacent(1, 2));
 
     // Move ctor.
     auto f2(std::move(f1));
 
-    BOOST_CHECK(f2.num_vertices() == 3u);
+    EXPECT_TRUE(f2.num_vertices() == 3u);
 
-    BOOST_CHECK(f2.get_connections(0).first.empty());
-    BOOST_CHECK(f2.get_connections(0).second.empty());
+    EXPECT_TRUE(f2.get_connections(0).first.empty());
+    EXPECT_TRUE(f2.get_connections(0).second.empty());
 
-    BOOST_CHECK(f2.get_connections(1).first.empty());
-    BOOST_CHECK(f2.get_connections(1).second.empty());
+    EXPECT_TRUE(f2.get_connections(1).first.empty());
+    EXPECT_TRUE(f2.get_connections(1).second.empty());
 
-    BOOST_CHECK(f2.get_connections(2).first.empty());
-    BOOST_CHECK(f2.get_connections(2).second.empty());
+    EXPECT_TRUE(f2.get_connections(2).first.empty());
+    EXPECT_TRUE(f2.get_connections(2).second.empty());
 
-    BOOST_CHECK(!f2.are_adjacent(0, 1));
-    BOOST_CHECK(!f2.are_adjacent(0, 2));
-    BOOST_CHECK(!f2.are_adjacent(1, 2));
+    EXPECT_TRUE(!f2.are_adjacent(0, 1));
+    EXPECT_TRUE(!f2.are_adjacent(0, 2));
+    EXPECT_TRUE(!f2.are_adjacent(1, 2));
 
-    BOOST_CHECK(f0.get_name() == "Free form");
-    BOOST_CHECK(topology{f0}.get_name() == "Free form");
+    EXPECT_TRUE(f0.get_name() == "Free form");
+    EXPECT_TRUE(topology{f0}.get_name() == "Free form");
 
     // Minimal serialization test.
     {
@@ -121,22 +120,22 @@ BOOST_AUTO_TEST_CASE(basic_test)
             oarchive << t0;
         }
         topology t1;
-        BOOST_CHECK(!t1.is<free_form>());
+        EXPECT_TRUE(!t1.is<free_form>());
         {
             boost::archive::binary_iarchive iarchive(ss);
             iarchive >> t1;
         }
-        BOOST_CHECK(t1.is<free_form>());
-        BOOST_CHECK(t1.extract<free_form>()->num_vertices() == 3u);
+        EXPECT_TRUE(t1.is<free_form>());
+        EXPECT_TRUE(t1.extract<free_form>()->num_vertices() == 3u);
 
-        BOOST_CHECK(t1.extract<free_form>()->get_connections(0).first.empty());
-        BOOST_CHECK(t1.extract<free_form>()->get_connections(0).second.empty());
+        EXPECT_TRUE(t1.extract<free_form>()->get_connections(0).first.empty());
+        EXPECT_TRUE(t1.extract<free_form>()->get_connections(0).second.empty());
 
-        BOOST_CHECK(t1.extract<free_form>()->get_connections(1).first.empty());
-        BOOST_CHECK(t1.extract<free_form>()->get_connections(1).second.empty());
+        EXPECT_TRUE(t1.extract<free_form>()->get_connections(1).first.empty());
+        EXPECT_TRUE(t1.extract<free_form>()->get_connections(1).second.empty());
 
-        BOOST_CHECK(t1.extract<free_form>()->get_connections(2).first.empty());
-        BOOST_CHECK(t1.extract<free_form>()->get_connections(2).second.empty());
+        EXPECT_TRUE(t1.extract<free_form>()->get_connections(2).first.empty());
+        EXPECT_TRUE(t1.extract<free_form>()->get_connections(2).second.empty());
     }
 
     // Example of cout printing for free_form.
@@ -146,36 +145,36 @@ BOOST_AUTO_TEST_CASE(basic_test)
     f0.add_edge(0, 1, .5);
     f0.add_edge(2, 0);
 
-    BOOST_CHECK(f0.are_adjacent(0, 1));
-    BOOST_CHECK(f0.get_connections(1).second[0] == .5);
-    BOOST_CHECK(!f0.are_adjacent(1, 0));
-    BOOST_CHECK(!f0.are_adjacent(0, 2));
-    BOOST_CHECK(f0.are_adjacent(2, 0));
-    BOOST_CHECK(f0.get_connections(0).second[0] == 1);
-    BOOST_CHECK(!f0.are_adjacent(1, 2));
+    EXPECT_TRUE(f0.are_adjacent(0, 1));
+    EXPECT_TRUE(f0.get_connections(1).second[0] == .5);
+    EXPECT_TRUE(!f0.are_adjacent(1, 0));
+    EXPECT_TRUE(!f0.are_adjacent(0, 2));
+    EXPECT_TRUE(f0.are_adjacent(2, 0));
+    EXPECT_TRUE(f0.get_connections(0).second[0] == 1);
+    EXPECT_TRUE(!f0.are_adjacent(1, 2));
 
     std::cout << topology{f0}.get_extra_info() << '\n';
 }
 
-BOOST_AUTO_TEST_CASE(bgl_ctor)
+TEST(free_form, bgl_ctor)
 {
     ring r0{100, .25};
     free_form f0{r0.to_bgl()};
 
-    BOOST_CHECK(f0.num_vertices() == 100u);
-    BOOST_CHECK(f0.are_adjacent(0, 1));
-    BOOST_CHECK(f0.are_adjacent(1, 0));
-    BOOST_CHECK(f0.are_adjacent(0, 99));
-    BOOST_CHECK(f0.are_adjacent(99, 0));
-    BOOST_CHECK(!f0.are_adjacent(0, 2));
-    BOOST_CHECK(!f0.are_adjacent(2, 0));
+    EXPECT_TRUE(f0.num_vertices() == 100u);
+    EXPECT_TRUE(f0.are_adjacent(0, 1));
+    EXPECT_TRUE(f0.are_adjacent(1, 0));
+    EXPECT_TRUE(f0.are_adjacent(0, 99));
+    EXPECT_TRUE(f0.are_adjacent(99, 0));
+    EXPECT_TRUE(!f0.are_adjacent(0, 2));
+    EXPECT_TRUE(!f0.are_adjacent(2, 0));
 
     for (auto i = 0u; i < 100u; ++i) {
         auto c = f0.get_connections(i);
 
-        BOOST_CHECK(c.first.size() == 2u);
-        BOOST_CHECK(c.second.size() == 2u);
-        BOOST_CHECK(std::all_of(c.second.begin(), c.second.end(), [](double w) { return w == .25; }));
+        EXPECT_TRUE(c.first.size() == 2u);
+        EXPECT_TRUE(c.second.size() == 2u);
+        EXPECT_TRUE(std::all_of(c.second.begin(), c.second.end(), [](double w) { return w == .25; }));
     }
 
     // Test error throwing with invalid weights.
@@ -216,46 +215,46 @@ BOOST_AUTO_TEST_CASE(bgl_ctor)
     });
 }
 
-BOOST_AUTO_TEST_CASE(udt_ctor)
+TEST(free_form, udt_ctor)
 {
     ring r0{100, .25};
     free_form f0{r0};
 
-    BOOST_CHECK(f0.num_vertices() == 100u);
-    BOOST_CHECK(f0.are_adjacent(0, 1));
-    BOOST_CHECK(f0.are_adjacent(1, 0));
-    BOOST_CHECK(f0.are_adjacent(0, 99));
-    BOOST_CHECK(f0.are_adjacent(99, 0));
-    BOOST_CHECK(!f0.are_adjacent(0, 2));
-    BOOST_CHECK(!f0.are_adjacent(2, 0));
+    EXPECT_TRUE(f0.num_vertices() == 100u);
+    EXPECT_TRUE(f0.are_adjacent(0, 1));
+    EXPECT_TRUE(f0.are_adjacent(1, 0));
+    EXPECT_TRUE(f0.are_adjacent(0, 99));
+    EXPECT_TRUE(f0.are_adjacent(99, 0));
+    EXPECT_TRUE(!f0.are_adjacent(0, 2));
+    EXPECT_TRUE(!f0.are_adjacent(2, 0));
 
     for (auto i = 0u; i < 100u; ++i) {
         auto c = f0.get_connections(i);
 
-        BOOST_CHECK(c.first.size() == 2u);
-        BOOST_CHECK(c.second.size() == 2u);
-        BOOST_CHECK(std::all_of(c.second.begin(), c.second.end(), [](double w) { return w == .25; }));
+        EXPECT_TRUE(c.first.size() == 2u);
+        EXPECT_TRUE(c.second.size() == 2u);
+        EXPECT_TRUE(std::all_of(c.second.begin(), c.second.end(), [](double w) { return w == .25; }));
     }
 }
 
-BOOST_AUTO_TEST_CASE(topology_ctor)
+TEST(free_form, topology_ctor)
 {
     ring r0{100, .25};
     free_form f0{topology{r0}};
 
-    BOOST_CHECK(f0.num_vertices() == 100u);
-    BOOST_CHECK(f0.are_adjacent(0, 1));
-    BOOST_CHECK(f0.are_adjacent(1, 0));
-    BOOST_CHECK(f0.are_adjacent(0, 99));
-    BOOST_CHECK(f0.are_adjacent(99, 0));
-    BOOST_CHECK(!f0.are_adjacent(0, 2));
-    BOOST_CHECK(!f0.are_adjacent(2, 0));
+    EXPECT_TRUE(f0.num_vertices() == 100u);
+    EXPECT_TRUE(f0.are_adjacent(0, 1));
+    EXPECT_TRUE(f0.are_adjacent(1, 0));
+    EXPECT_TRUE(f0.are_adjacent(0, 99));
+    EXPECT_TRUE(f0.are_adjacent(99, 0));
+    EXPECT_TRUE(!f0.are_adjacent(0, 2));
+    EXPECT_TRUE(!f0.are_adjacent(2, 0));
 
     for (auto i = 0u; i < 100u; ++i) {
         auto c = f0.get_connections(i);
 
-        BOOST_CHECK(c.first.size() == 2u);
-        BOOST_CHECK(c.second.size() == 2u);
-        BOOST_CHECK(std::all_of(c.second.begin(), c.second.end(), [](double w) { return w == .25; }));
+        EXPECT_TRUE(c.first.size() == 2u);
+        EXPECT_TRUE(c.second.size() == 2u);
+        EXPECT_TRUE(std::all_of(c.second.begin(), c.second.end(), [](double w) { return w == .25; }));
     }
 }

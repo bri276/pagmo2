@@ -43,14 +43,13 @@ see https://www.gnu.org/licenses/. */
 #include <utility>
 #include <vector>
 
-#include <boost/numeric/conversion/cast.hpp>
-
 #include <pagmo/archipelago.hpp>
 #include <pagmo/exceptions.hpp>
 #include <pagmo/io.hpp>
 #include <pagmo/island.hpp>
 #include <pagmo/topology.hpp>
 #include <pagmo/types.hpp>
+#include <pagmo/utils/cast.hpp>
 
 // MINGW-specific warnings.
 #if defined(__GNUC__) && defined(__MINGW32__)
@@ -767,10 +766,10 @@ std::pair<std::vector<archipelago::size_type>, vector_double> get_island_connect
     auto tmp = topo.get_connections(i);
 
     std::pair<std::vector<archipelago::size_type>, vector_double> retval;
-    retval.first.reserve(boost::numeric_cast<decltype(retval.first.size())>(tmp.first.size()));
+    retval.first.reserve(numeric_cast<decltype(retval.first.size())>(tmp.first.size()));
 
     std::transform(tmp.first.begin(), tmp.first.end(), std::back_inserter(retval.first),
-                   [](const std::size_t &n) { return boost::numeric_cast<archipelago::size_type>(n); });
+                   [](const std::size_t &n) { return numeric_cast<archipelago::size_type>(n); });
     retval.second = std::move(tmp.second);
 
     return retval;
@@ -794,7 +793,7 @@ std::pair<std::vector<archipelago::size_type>, vector_double> archipelago::get_i
     // need to go through a conversion. We do a bit of TMP to avoid
     // the conversion in the likely case that std::size_t and size_type
     // are the same type.
-    return detail::get_island_connections_impl(m_topology, boost::numeric_cast<std::size_t>(i),
+    return detail::get_island_connections_impl(m_topology, numeric_cast<std::size_t>(i),
                                                std::is_same<std::size_t, size_type>{});
 }
 

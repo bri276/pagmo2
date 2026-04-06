@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE minlp_rastrigin_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <boost/lexical_cast.hpp>
 #include <iostream>
@@ -44,45 +44,45 @@ see https://www.gnu.org/licenses/. */
 
 using namespace pagmo;
 
-BOOST_AUTO_TEST_CASE(min_lp_rastrigin_test)
+TEST(minlp_rastrigin_test, min_lp_rastrigin_test)
 {
     // Problem construction
-    BOOST_CHECK_THROW((minlp_rastrigin{0u, 0u}), std::invalid_argument);
-    BOOST_CHECK_NO_THROW((problem{minlp_rastrigin{1u, 1u}}));
-    BOOST_CHECK_NO_THROW((problem{minlp_rastrigin{0u, 1u}}));
-    BOOST_CHECK_NO_THROW((problem{minlp_rastrigin{1u, 0u}}));
-    BOOST_CHECK_NO_THROW((problem{minlp_rastrigin{2u, 3u}}));
+    EXPECT_THROW((minlp_rastrigin{0u, 0u}), std::invalid_argument);
+    EXPECT_NO_THROW((problem{minlp_rastrigin{1u, 1u}}));
+    EXPECT_NO_THROW((problem{minlp_rastrigin{0u, 1u}}));
+    EXPECT_NO_THROW((problem{minlp_rastrigin{1u, 0u}}));
+    EXPECT_NO_THROW((problem{minlp_rastrigin{2u, 3u}}));
 
     // Fitness test
     detail::random_engine_type r_engine(pagmo::random_device::next());
     for (auto i = 0u; i < 100; ++i) {
         auto x = random_decision_vector(problem(minlp_rastrigin{2u, 0u}), r_engine);
-        BOOST_CHECK((minlp_rastrigin{2u, 0u}.fitness(x)) == rastrigin{2u}.fitness(x));
-        BOOST_CHECK((minlp_rastrigin{2u, 0u}.gradient(x)) == rastrigin{2u}.gradient(x));
-        BOOST_CHECK((minlp_rastrigin{2u, 0u}.hessians(x)) == rastrigin{2u}.hessians(x));
+        EXPECT_TRUE((minlp_rastrigin{2u, 0u}.fitness(x)) == rastrigin{2u}.fitness(x));
+        EXPECT_TRUE((minlp_rastrigin{2u, 0u}.gradient(x)) == rastrigin{2u}.gradient(x));
+        EXPECT_TRUE((minlp_rastrigin{2u, 0u}.hessians(x)) == rastrigin{2u}.hessians(x));
         x = random_decision_vector(problem(minlp_rastrigin{1u, 1u}), r_engine);
-        BOOST_CHECK((minlp_rastrigin{1u, 1u}.fitness(x)) == rastrigin{2u}.fitness(x));
-        BOOST_CHECK((minlp_rastrigin{1u, 1u}.gradient(x)) == rastrigin{2u}.gradient(x));
-        // BOOST_CHECK((minlp_rastrigin{1u, 1u}.hessians(x)) == rastrigin{2u}.hessians(x));
+        EXPECT_TRUE((minlp_rastrigin{1u, 1u}.fitness(x)) == rastrigin{2u}.fitness(x));
+        EXPECT_TRUE((minlp_rastrigin{1u, 1u}.gradient(x)) == rastrigin{2u}.gradient(x));
+        // EXPECT_TRUE((minlp_rastrigin{1u, 1u}.hessians(x)) == rastrigin{2u}.hessians(x));
         x = random_decision_vector(problem(minlp_rastrigin{0u, 2u}), r_engine);
-        BOOST_CHECK((minlp_rastrigin{0u, 2u}.fitness(x)) == rastrigin{2u}.fitness(x));
-        BOOST_CHECK((minlp_rastrigin{0u, 2u}.gradient(x)) == rastrigin{2u}.gradient(x));
-        BOOST_CHECK((minlp_rastrigin{0u, 2u}.hessians(x)) == rastrigin{2u}.hessians(x));
+        EXPECT_TRUE((minlp_rastrigin{0u, 2u}.fitness(x)) == rastrigin{2u}.fitness(x));
+        EXPECT_TRUE((minlp_rastrigin{0u, 2u}.gradient(x)) == rastrigin{2u}.gradient(x));
+        EXPECT_TRUE((minlp_rastrigin{0u, 2u}.hessians(x)) == rastrigin{2u}.hessians(x));
     }
 
     // Bounds Test
-    BOOST_CHECK((minlp_rastrigin{1u, 0u}.get_bounds() == std::pair<vector_double, vector_double>{{-5.12}, {5.12}}));
-    BOOST_CHECK((minlp_rastrigin{0u, 1u}.get_bounds() == std::pair<vector_double, vector_double>{{-10}, {-5}}));
+    EXPECT_TRUE((minlp_rastrigin{1u, 0u}.get_bounds() == std::pair<vector_double, vector_double>{{-5.12}, {5.12}}));
+    EXPECT_TRUE((minlp_rastrigin{0u, 1u}.get_bounds() == std::pair<vector_double, vector_double>{{-10}, {-5}}));
     BOOST_CHECK(
         (minlp_rastrigin{1u, 1u}.get_bounds() == std::pair<vector_double, vector_double>{{-5.12, -10}, {5.12, -5}}));
 
     // Name and extra info tests
-    BOOST_CHECK((minlp_rastrigin{0u, 1u}.get_name().find("MINLP Rastrigin Function") != std::string::npos));
+    EXPECT_TRUE((minlp_rastrigin{0u, 1u}.get_name().find("MINLP Rastrigin Function") != std::string::npos));
     BOOST_CHECK(
         (problem{minlp_rastrigin{1u, 1u}}.get_extra_info().find("MINLP continuous dimension") != std::string::npos));
 }
 
-BOOST_AUTO_TEST_CASE(rastrigin_serialization_test)
+TEST(minlp_rastrigin_test, rastrigin_serialization_test)
 {
     problem p{minlp_rastrigin{2u, 2u}};
     // Call objfun to increase the internal counters.
@@ -104,5 +104,5 @@ BOOST_AUTO_TEST_CASE(rastrigin_serialization_test)
         iarchive >> p;
     }
     auto after = boost::lexical_cast<std::string>(p);
-    BOOST_CHECK_EQUAL(before, after);
+    EXPECT_EQ(before, after);
 }

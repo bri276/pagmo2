@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE discrepancy_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <stdexcept>
 #include <tuple>
@@ -41,34 +41,34 @@ see https://www.gnu.org/licenses/. */
 
 using namespace pagmo;
 
-BOOST_AUTO_TEST_CASE(sample_from_simplex_test)
+TEST(discrepancy_test, sample_from_simplex_test)
 {
     auto case1 = sample_from_simplex({0.3, 0.1, 0.6, 0.9, 1.});
     auto result1 = std::vector<double>{0.1, 0.2, 0.3, 0.3, 0.1, 0.};
     for (auto i = 0u; i < case1.size(); ++i) {
-        BOOST_CHECK_CLOSE(case1[i], result1[i], 1e-13);
+        EXPECT_NEAR(case1[i], result1[i], 1e-13);
     }
 
     auto case2 = sample_from_simplex({0., 0.9, 0.3, 1., 1., 0.2, 0.});
     auto result2 = std::vector<double>{0., 0., 0.2, 0.1, 0.6, 0.1, 0., 0.};
     for (auto i = 0u; i < case2.size(); ++i) {
-        BOOST_CHECK_CLOSE(case2[i], result2[i], 1e-13);
+        EXPECT_NEAR(case2[i], result2[i], 1e-13);
     }
 
     auto case3 = sample_from_simplex({0.2});
     auto result3 = std::vector<double>{0.2, 0.8};
     for (auto i = 0u; i < case3.size(); ++i) {
-        BOOST_CHECK_CLOSE(case3[i], result3[i], 1e-13);
+        EXPECT_NEAR(case3[i], result3[i], 1e-13);
     }
 
     // Check that throws if point is not in [0,1]
-    BOOST_CHECK_THROW(sample_from_simplex({0.2, 2.3}), std::invalid_argument);
-    BOOST_CHECK_THROW(sample_from_simplex({0.3, 0.1, 0.6, 0.9, -0.1, 1.}), std::invalid_argument);
+    EXPECT_THROW(sample_from_simplex({0.2, 2.3}), std::invalid_argument);
+    EXPECT_THROW(sample_from_simplex({0.3, 0.1, 0.6, 0.9, -0.1, 1.}), std::invalid_argument);
     // Checks that input cannot be empty
-    BOOST_CHECK_THROW(sample_from_simplex({}), std::invalid_argument);
+    EXPECT_THROW(sample_from_simplex({}), std::invalid_argument);
 }
 
-BOOST_AUTO_TEST_CASE(van_der_corput_test)
+TEST(discrepancy_test, van_der_corput_test)
 {
     // We test explicitly the first ten elements of the Van der Corput
     // sequences corresponding to base 2 and base 10.
@@ -86,15 +86,15 @@ BOOST_AUTO_TEST_CASE(van_der_corput_test)
                 == computed2); // in base 2 no need for approximate comparison as all members are represented correctly
     for (auto i = 0u; i < 10;
          ++i) { // in base 10 we need to check with a tolerance as per floating point representation problems
-        BOOST_CHECK_CLOSE(real10[i], computed10[i], 1e-13);
+        EXPECT_NEAR(real10[i], computed10[i], 1e-13);
     }
     // We check the construction throws
-    BOOST_CHECK_THROW(van_der_corput{1u}, std::invalid_argument);
+    EXPECT_THROW(van_der_corput{1u}, std::invalid_argument);
     // We check here the prime number utility of PaGMO (TODO: move somewhere else?)
-    BOOST_CHECK_THROW(detail::prime(1700u), std::invalid_argument);
+    EXPECT_THROW(detail::prime(1700u), std::invalid_argument);
 }
 
-BOOST_AUTO_TEST_CASE(halton_test)
+TEST(discrepancy_test, halton_test)
 {
     std::vector<std::vector<double>> computed2dim;
     halton ld_rng(2);
@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE(halton_test)
     for (auto i = 0u; i < 6u;
          ++i) { // in base 10 we need to check with a tolerance as per floating point representation problems
         for (auto j = 0u; j < 2u; ++j) {
-            BOOST_CHECK_CLOSE(real2dim[i][j], computed2dim[i][j], 1e-13);
+            EXPECT_NEAR(real2dim[i][j], computed2dim[i][j], 1e-13);
         }
     }
 }

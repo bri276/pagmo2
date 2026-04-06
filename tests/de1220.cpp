@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE de1220_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <iostream>
 #include <numeric>
@@ -49,22 +49,22 @@ see https://www.gnu.org/licenses/. */
 
 using namespace pagmo;
 
-BOOST_AUTO_TEST_CASE(construction_test)
+TEST(de1220_test, construction_test)
 {
     std::vector<unsigned> mutation_variants(18);
     std::iota(mutation_variants.begin(), mutation_variants.end(), 1u);
     de1220 user_algo(53u, mutation_variants, 1u, 1e-6, 1e-6, false, 23u);
-    BOOST_CHECK(user_algo.get_verbosity() == 0u);
-    BOOST_CHECK(user_algo.get_seed() == 23u);
-    BOOST_CHECK((user_algo.get_log() == de1220::log_type{}));
+    EXPECT_TRUE(user_algo.get_verbosity() == 0u);
+    EXPECT_TRUE(user_algo.get_seed() == 23u);
+    EXPECT_TRUE((user_algo.get_log() == de1220::log_type{}));
 
-    BOOST_CHECK_THROW((de1220{53u, {3u, 5u, 0u, 14u}, 1u, 1e-6, 1e-6, false, 23u}), std::invalid_argument);
-    BOOST_CHECK_THROW((de1220{53u, {4u, 5u, 15u, 22u, 7u}, 1u, 1e-6, 1e-6, false, 23u}), std::invalid_argument);
-    BOOST_CHECK_THROW((de1220{53u, mutation_variants, 0u, 1e-6, 1e-6, false, 23u}), std::invalid_argument);
-    BOOST_CHECK_THROW((de1220{53u, mutation_variants, 3u, 1e-6, 1e-6, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((de1220{53u, {3u, 5u, 0u, 14u}, 1u, 1e-6, 1e-6, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((de1220{53u, {4u, 5u, 15u, 22u, 7u}, 1u, 1e-6, 1e-6, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((de1220{53u, mutation_variants, 0u, 1e-6, 1e-6, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((de1220{53u, mutation_variants, 3u, 1e-6, 1e-6, false, 23u}), std::invalid_argument);
 }
 
-BOOST_AUTO_TEST_CASE(evolve_test)
+TEST(de1220_test, evolve_test)
 {
     // We consider all variants
     std::vector<unsigned> mutation_variants(18);
@@ -82,18 +82,18 @@ BOOST_AUTO_TEST_CASE(evolve_test)
             user_algo1.set_verbosity(1u);
             pop1 = user_algo1.evolve(pop1);
 
-            BOOST_CHECK(user_algo1.get_log().size() > 0u);
+            EXPECT_TRUE(user_algo1.get_log().size() > 0u);
 
             de1220 user_algo2{10u, mutation_variants, i, 1e-6, 1e-6, false, 41u};
             user_algo2.set_verbosity(1u);
             pop2 = user_algo2.evolve(pop2);
 
-            BOOST_CHECK(user_algo1.get_log() == user_algo2.get_log());
+            EXPECT_TRUE(user_algo1.get_log() == user_algo2.get_log());
 
             user_algo2.set_seed(41u);
             pop3 = user_algo2.evolve(pop3);
 
-            BOOST_CHECK(user_algo1.get_log() == user_algo2.get_log());
+            EXPECT_TRUE(user_algo1.get_log() == user_algo2.get_log());
         }
     }
 
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE(evolve_test)
         problem prob{rosenbrock{2u}};
         population pop{prob, 20u, 23u};
         pop = user_algo.evolve(pop);
-        BOOST_CHECK(user_algo.get_log().size() < 300u);
+        EXPECT_TRUE(user_algo.get_log().size() < 300u);
     }
     { // ftol
         de1220 user_algo(300u, mutation_variants, 1, 1e-45, 1e-3, false, 41u);
@@ -113,35 +113,35 @@ BOOST_AUTO_TEST_CASE(evolve_test)
         problem prob{rosenbrock{2u}};
         population pop{prob, 20u, 23u};
         pop = user_algo.evolve(pop);
-        BOOST_CHECK(user_algo.get_log().size() < 300u);
+        EXPECT_TRUE(user_algo.get_log().size() < 300u);
     }
 
     // We then check that the evolve throws if called on unsuitable problems
-    BOOST_CHECK_THROW(de1220{10u}.evolve(population{problem{rosenbrock{}}, 6u}), std::invalid_argument);
-    BOOST_CHECK_THROW(de1220{10u}.evolve(population{problem{zdt{}}, 15u}), std::invalid_argument);
-    BOOST_CHECK_THROW(de1220{10u}.evolve(population{problem{hock_schittkowski_71{}}, 15u}), std::invalid_argument);
-    BOOST_CHECK_THROW(de1220{10u}.evolve(population{problem{inventory{}}, 15u}), std::invalid_argument);
+    EXPECT_THROW(de1220{10u}.evolve(population{problem{rosenbrock{}}, 6u}), std::invalid_argument);
+    EXPECT_THROW(de1220{10u}.evolve(population{problem{zdt{}}, 15u}), std::invalid_argument);
+    EXPECT_THROW(de1220{10u}.evolve(population{problem{hock_schittkowski_71{}}, 15u}), std::invalid_argument);
+    EXPECT_THROW(de1220{10u}.evolve(population{problem{inventory{}}, 15u}), std::invalid_argument);
     // And a clean exit for 0 generations
     population pop{rosenbrock{25u}, 10u};
-    BOOST_CHECK(de1220{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);
+    EXPECT_TRUE(de1220{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);
 }
 
-BOOST_AUTO_TEST_CASE(setters_getters_test)
+TEST(de1220_test, setters_getters_test)
 {
     // We consider all variants
     std::vector<unsigned> mutation_variants(18);
     std::iota(mutation_variants.begin(), mutation_variants.end(), 1u);
     de1220 user_algo(10000u, mutation_variants, 1, 1e-6, 1e-6, false, 41u);
     user_algo.set_verbosity(23u);
-    BOOST_CHECK(user_algo.get_verbosity() == 23u);
+    EXPECT_TRUE(user_algo.get_verbosity() == 23u);
     user_algo.set_seed(23u);
-    BOOST_CHECK(user_algo.get_seed() == 23u);
-    BOOST_CHECK(user_algo.get_name().find("1220") != std::string::npos);
-    BOOST_CHECK(user_algo.get_extra_info().find("Allowed variants") != std::string::npos);
-    BOOST_CHECK_NO_THROW(user_algo.get_log());
+    EXPECT_TRUE(user_algo.get_seed() == 23u);
+    EXPECT_TRUE(user_algo.get_name().find("1220") != std::string::npos);
+    EXPECT_TRUE(user_algo.get_extra_info().find("Allowed variants") != std::string::npos);
+    EXPECT_NO_THROW(user_algo.get_log());
 }
 
-BOOST_AUTO_TEST_CASE(serialization_test)
+TEST(de1220_test, serialization_test)
 {
     // Make one evolution
     problem prob{rosenbrock{2u}};
@@ -169,18 +169,18 @@ BOOST_AUTO_TEST_CASE(serialization_test)
     }
     auto after_text = boost::lexical_cast<std::string>(algo);
     auto after_log = algo.extract<de1220>()->get_log();
-    BOOST_CHECK_EQUAL(before_text, after_text);
-    BOOST_CHECK(before_log == after_log);
+    EXPECT_EQ(before_text, after_text);
+    EXPECT_TRUE(before_log == after_log);
     // so we implement a close check
-    BOOST_CHECK(before_log.size() > 0u);
+    EXPECT_TRUE(before_log.size() > 0u);
     for (auto i = 0u; i < before_log.size(); ++i) {
-        BOOST_CHECK_EQUAL(std::get<0>(before_log[i]), std::get<0>(after_log[i]));
-        BOOST_CHECK_EQUAL(std::get<1>(before_log[i]), std::get<1>(after_log[i]));
-        BOOST_CHECK_CLOSE(std::get<2>(before_log[i]), std::get<2>(after_log[i]), 1e-8);
-        BOOST_CHECK_CLOSE(std::get<3>(before_log[i]), std::get<3>(after_log[i]), 1e-8);
-        BOOST_CHECK_CLOSE(std::get<4>(before_log[i]), std::get<4>(after_log[i]), 1e-8);
-        BOOST_CHECK_EQUAL(std::get<5>(before_log[i]), std::get<5>(after_log[i]));
-        BOOST_CHECK_CLOSE(std::get<6>(before_log[i]), std::get<6>(after_log[i]), 1e-8);
-        BOOST_CHECK_CLOSE(std::get<7>(before_log[i]), std::get<7>(after_log[i]), 1e-8);
+        EXPECT_EQ(std::get<0>(before_log[i]), std::get<0>(after_log[i]));
+        EXPECT_EQ(std::get<1>(before_log[i]), std::get<1>(after_log[i]));
+        EXPECT_NEAR(std::get<2>(before_log[i]), std::get<2>(after_log[i]), 1e-8);
+        EXPECT_NEAR(std::get<3>(before_log[i]), std::get<3>(after_log[i]), 1e-8);
+        EXPECT_NEAR(std::get<4>(before_log[i]), std::get<4>(after_log[i]), 1e-8);
+        EXPECT_EQ(std::get<5>(before_log[i]), std::get<5>(after_log[i]));
+        EXPECT_NEAR(std::get<6>(before_log[i]), std::get<6>(after_log[i]), 1e-8);
+        EXPECT_NEAR(std::get<7>(before_log[i]), std::get<7>(after_log[i]), 1e-8);
     }
 }

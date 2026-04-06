@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE threading_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <iostream>
 #include <sstream>
@@ -36,35 +36,35 @@ see https://www.gnu.org/licenses/. */
 
 using namespace pagmo;
 
-BOOST_AUTO_TEST_CASE(threading_test)
+TEST(threading_test, threading_test)
 {
     // Check the ordering of the safety levels.
-    BOOST_CHECK(thread_safety::none < thread_safety::basic);
-    BOOST_CHECK(thread_safety::basic < thread_safety::constant);
-    BOOST_CHECK(thread_safety::none <= thread_safety::basic);
-    BOOST_CHECK(thread_safety::basic <= thread_safety::constant);
-    BOOST_CHECK(thread_safety::none <= thread_safety::none);
-    BOOST_CHECK(thread_safety::basic <= thread_safety::basic);
-    BOOST_CHECK(thread_safety::constant <= thread_safety::constant);
-    BOOST_CHECK(thread_safety::basic > thread_safety::none);
-    BOOST_CHECK(thread_safety::constant > thread_safety::basic);
-    BOOST_CHECK(thread_safety::basic >= thread_safety::none);
-    BOOST_CHECK(thread_safety::constant >= thread_safety::basic);
-    BOOST_CHECK(thread_safety::none >= thread_safety::none);
-    BOOST_CHECK(thread_safety::basic >= thread_safety::basic);
-    BOOST_CHECK(thread_safety::constant >= thread_safety::constant);
+    EXPECT_TRUE(thread_safety::none < thread_safety::basic);
+    EXPECT_TRUE(thread_safety::basic < thread_safety::constant);
+    EXPECT_TRUE(thread_safety::none <= thread_safety::basic);
+    EXPECT_TRUE(thread_safety::basic <= thread_safety::constant);
+    EXPECT_TRUE(thread_safety::none <= thread_safety::none);
+    EXPECT_TRUE(thread_safety::basic <= thread_safety::basic);
+    EXPECT_TRUE(thread_safety::constant <= thread_safety::constant);
+    EXPECT_TRUE(thread_safety::basic > thread_safety::none);
+    EXPECT_TRUE(thread_safety::constant > thread_safety::basic);
+    EXPECT_TRUE(thread_safety::basic >= thread_safety::none);
+    EXPECT_TRUE(thread_safety::constant >= thread_safety::basic);
+    EXPECT_TRUE(thread_safety::none >= thread_safety::none);
+    EXPECT_TRUE(thread_safety::basic >= thread_safety::basic);
+    EXPECT_TRUE(thread_safety::constant >= thread_safety::constant);
 
     // Test the streaming operator.
     std::ostringstream oss;
     oss << thread_safety::none;
-    BOOST_CHECK_EQUAL("none", oss.str());
+    EXPECT_EQ("none", oss.str());
     oss.str("");
     oss << thread_safety::basic;
-    BOOST_CHECK_EQUAL("basic", oss.str());
+    EXPECT_EQ("basic", oss.str());
     oss.str("");
     oss << thread_safety::constant;
-    BOOST_CHECK_EQUAL("constant", oss.str());
+    EXPECT_EQ("constant", oss.str());
     oss.str("");
     oss << static_cast<thread_safety>(100);
-    BOOST_CHECK_EQUAL("unknown value", oss.str());
+    EXPECT_EQ("unknown value", oss.str());
 }

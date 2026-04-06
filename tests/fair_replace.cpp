@@ -26,18 +26,18 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE fair_replace_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <initializer_list>
 #include <limits>
 #include <sstream>
 #include <stdexcept>
 #include <utility>
+#include <variant>
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/numeric/conversion/converter_policies.hpp>
-#include <boost/variant/get.hpp>
 
 #include <pagmo/r_policies/fair_replace.hpp>
 #include <pagmo/r_policy.hpp>
@@ -46,19 +46,19 @@ see https://www.gnu.org/licenses/. */
 
 using namespace pagmo;
 
-BOOST_AUTO_TEST_CASE(fair_replace_basic)
+TEST(fair_replace_test, fair_replace_basic)
 {
     fair_replace f00;
-    BOOST_CHECK(f00.get_migr_rate().which() == 0);
-    BOOST_CHECK(boost::get<pop_size_t>(f00.get_migr_rate()) == 1u);
+    EXPECT_TRUE(f00.get_migr_rate().index() == 0);
+    EXPECT_TRUE(std::get<pop_size_t>(f00.get_migr_rate()) == 1u);
 
     fair_replace f01(.2);
-    BOOST_CHECK(f01.get_migr_rate().which() == 1);
-    BOOST_CHECK(boost::get<double>(f01.get_migr_rate()) == .2);
+    EXPECT_TRUE(f01.get_migr_rate().index() == 1);
+    EXPECT_TRUE(std::get<double>(f01.get_migr_rate()) == .2);
 
     fair_replace f02(2);
-    BOOST_CHECK(f02.get_migr_rate().which() == 0);
-    BOOST_CHECK(boost::get<pop_size_t>(f02.get_migr_rate()) == 2u);
+    EXPECT_TRUE(f02.get_migr_rate().index() == 0);
+    EXPECT_TRUE(std::get<pop_size_t>(f02.get_migr_rate()) == 2u);
 
     BOOST_CHECK_EXCEPTION(f02 = fair_replace(-1.), std::invalid_argument, [](const std::invalid_argument &ia) {
         return boost::contains(
@@ -77,27 +77,27 @@ BOOST_AUTO_TEST_CASE(fair_replace_basic)
                 ia.what(), "Invalid fractional migration rate specified in the constructor of a replacement/selection "
                            "policy: the rate must be in the [0., 1.] range, but it is ");
         });
-    BOOST_CHECK_THROW(f02 = fair_replace(-1), boost::numeric::negative_overflow);
+    EXPECT_THROW(f02 = fair_replace(-1), boost::numeric::negative_overflow);
 
     auto f03(f02);
-    BOOST_CHECK(f03.get_migr_rate().which() == 0);
-    BOOST_CHECK(boost::get<pop_size_t>(f03.get_migr_rate()) == 2u);
+    EXPECT_TRUE(f03.get_migr_rate().index() == 0);
+    EXPECT_TRUE(std::get<pop_size_t>(f03.get_migr_rate()) == 2u);
 
     auto f04(std::move(f01));
-    BOOST_CHECK(f04.get_migr_rate().which() == 1);
-    BOOST_CHECK(boost::get<double>(f04.get_migr_rate()) == .2);
+    EXPECT_TRUE(f04.get_migr_rate().index() == 1);
+    EXPECT_TRUE(std::get<double>(f04.get_migr_rate()) == .2);
 
     f03 = f04;
-    BOOST_CHECK(f03.get_migr_rate().which() == 1);
-    BOOST_CHECK(boost::get<double>(f03.get_migr_rate()) == .2);
+    EXPECT_TRUE(f03.get_migr_rate().index() == 1);
+    EXPECT_TRUE(std::get<double>(f03.get_migr_rate()) == .2);
 
     f04 = std::move(f02);
-    BOOST_CHECK(f04.get_migr_rate().which() == 0);
-    BOOST_CHECK(boost::get<pop_size_t>(f04.get_migr_rate()) == 2u);
+    EXPECT_TRUE(f04.get_migr_rate().index() == 0);
+    EXPECT_TRUE(std::get<pop_size_t>(f04.get_migr_rate()) == 2u);
 
-    BOOST_CHECK(f04.get_name() == "Fair replace");
-    BOOST_CHECK(boost::contains(f04.get_extra_info(), "Absolute migration rate:"));
-    BOOST_CHECK(boost::contains(f03.get_extra_info(), "Fractional migration rate:"));
+    EXPECT_TRUE(f04.get_name() == "Fair replace");
+    EXPECT_TRUE(boost::contains(f04.get_extra_info(), "Absolute migration rate:"));
+    EXPECT_TRUE(boost::contains(f03.get_extra_info(), "Fractional migration rate:"));
 
     // Minimal serialization test.
     {
@@ -113,13 +113,13 @@ BOOST_AUTO_TEST_CASE(fair_replace_basic)
             boost::archive::binary_iarchive iarchive(ss);
             iarchive >> r1;
         }
-        BOOST_CHECK(r1.is<fair_replace>());
-        BOOST_CHECK(r1.extract<fair_replace>()->get_migr_rate().which() == 0);
-        BOOST_CHECK(boost::get<pop_size_t>(r1.extract<fair_replace>()->get_migr_rate()) == 2u);
+        EXPECT_TRUE(r1.is<fair_replace>());
+        EXPECT_TRUE(r1.extract<fair_replace>()->get_migr_rate().index() == 0);
+        EXPECT_TRUE(std::get<pop_size_t>(r1.extract<fair_replace>()->get_migr_rate()) == 2u);
     }
 }
 
-BOOST_AUTO_TEST_CASE(fair_replace_replace)
+TEST(fair_replace_test, fair_replace_replace)
 {
     fair_replace f00;
 
@@ -147,32 +147,32 @@ BOOST_AUTO_TEST_CASE(fair_replace_replace)
 
     // Too few individuals in inds for fractional migration, no migration will happen.
     auto new_inds = f00.replace(inds, 1, 0, 1, 0, 0, {}, mig);
-    BOOST_CHECK(new_inds == inds);
+    EXPECT_TRUE(new_inds == inds);
 
     // Top mig replaces the worst in inds.
     f00 = fair_replace(0.5);
     new_inds = f00.replace(inds, 1, 0, 1, 0, 0, {}, mig);
-    BOOST_CHECK((new_inds == individuals_group_t{{4, 1, 2}, {{0}, {0}, {0}}, {{0.1}, {1}, {2}}}));
+    EXPECT_TRUE((new_inds == individuals_group_t{{4, 1, 2}, {{0}, {0}, {0}}, {{0.1}, {1}, {2}}}));
 
     // All replaced.
     f00 = fair_replace(1.);
     new_inds = f00.replace(inds, 1, 0, 1, 0, 0, {}, mig);
-    BOOST_CHECK((new_inds == individuals_group_t{{4, 5, 6}, {{0}, {0}, {0}}, {{0.1}, {0.2}, {0.3}}}));
+    EXPECT_TRUE((new_inds == individuals_group_t{{4, 5, 6}, {{0}, {0}, {0}}, {{0.1}, {0.2}, {0.3}}}));
 
     // Absolute rate, no replacement.
     f00 = fair_replace(0);
     new_inds = f00.replace(inds, 1, 0, 1, 0, 0, {}, mig);
-    BOOST_CHECK(new_inds == inds);
+    EXPECT_TRUE(new_inds == inds);
 
     // Absolute rate, replace 2.
     f00 = fair_replace(2);
     new_inds = f00.replace(inds, 1, 0, 1, 0, 0, {}, mig);
-    BOOST_CHECK((new_inds == individuals_group_t{{4, 5, 1}, {{0}, {0}, {0}}, {{0.1}, {0.2}, {1}}}));
+    EXPECT_TRUE((new_inds == individuals_group_t{{4, 5, 1}, {{0}, {0}, {0}}, {{0.1}, {0.2}, {1}}}));
 
     // Absolute rate, replace all.
     f00 = fair_replace(3);
     new_inds = f00.replace(inds, 1, 0, 1, 0, 0, {}, mig);
-    BOOST_CHECK((new_inds == individuals_group_t{{4, 5, 6}, {{0}, {0}, {0}}, {{0.1}, {0.2}, {0.3}}}));
+    EXPECT_TRUE((new_inds == individuals_group_t{{4, 5, 6}, {{0}, {0}, {0}}, {{0.1}, {0.2}, {0.3}}}));
 
     // Single-objective, constrained.
     inds = individuals_group_t{{1, 2, 3}, {{0}, {0}, {0}}, {{1, 1, 1}, {2, 2, 2}, {3, 3, 3}}};
@@ -181,12 +181,12 @@ BOOST_AUTO_TEST_CASE(fair_replace_replace)
 
     // Too few individuals in inds for fractional migration, no migration will happen.
     new_inds = f00.replace(inds, 1, 0, 1, 1, 1, {0., 0.}, mig);
-    BOOST_CHECK(new_inds == inds);
+    EXPECT_TRUE(new_inds == inds);
 
     // Top mig replaces the worst in inds.
     f00 = fair_replace(0.5);
     new_inds = f00.replace(inds, 1, 0, 1, 1, 1, {0., 0.}, mig);
-    BOOST_CHECK((new_inds == individuals_group_t{{4, 1, 2}, {{0}, {0}, {0}}, {{0.1, 0.1, 0.1}, {1, 1, 1}, {2, 2, 2}}}));
+    EXPECT_TRUE((new_inds == individuals_group_t{{4, 1, 2}, {{0}, {0}, {0}}, {{0.1, 0.1, 0.1}, {1, 1, 1}, {2, 2, 2}}}));
 
     // All replaced.
     f00 = fair_replace(1.);
@@ -198,7 +198,7 @@ BOOST_AUTO_TEST_CASE(fair_replace_replace)
     // Absolute rate, no replacement.
     f00 = fair_replace(0);
     new_inds = f00.replace(inds, 1, 0, 1, 1, 1, {0., 0.}, mig);
-    BOOST_CHECK(new_inds == inds);
+    EXPECT_TRUE(new_inds == inds);
 
     // Absolute rate, replace 2.
     f00 = fair_replace(2);
@@ -229,7 +229,7 @@ BOOST_AUTO_TEST_CASE(fair_replace_replace)
 // Check behaviour when, in unconstrained
 // single-objective optimisation problems,
 // the fitness is nan.
-BOOST_AUTO_TEST_CASE(fair_replace_nan_fitness)
+TEST(fair_replace_test, fair_replace_nan_fitness)
 {
     fair_replace f00(1);
 
@@ -240,5 +240,5 @@ BOOST_AUTO_TEST_CASE(fair_replace_nan_fitness)
     auto new_inds = f00.replace(inds, 1, 0, 1, 0, 0, {}, mig);
 
     // No individual was replaced, because the migrant has nan fitness.
-    BOOST_CHECK(inds == new_inds);
+    EXPECT_TRUE(inds == new_inds);
 }

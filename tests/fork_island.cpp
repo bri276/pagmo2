@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE fork_island_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <chrono>
 #include <csignal>
@@ -80,18 +80,18 @@ struct godot1 {
 
 PAGMO_S11N_PROBLEM_EXPORT(godot1)
 
-BOOST_AUTO_TEST_CASE(fork_island_basic)
+TEST(fork_island_test, fork_island_basic)
 {
     {
         fork_island fi_0;
-        BOOST_CHECK(fi_0.get_child_pid() == pid_t(0));
+        EXPECT_TRUE(fi_0.get_child_pid() == pid_t(0));
         fork_island fi_1(fi_0), fi_2(std::move(fi_0));
-        BOOST_CHECK(fi_1.get_child_pid() == pid_t(0));
-        BOOST_CHECK(fi_2.get_child_pid() == pid_t(0));
-        BOOST_CHECK(boost::contains(fi_0.get_extra_info(), "No active child"));
-        BOOST_CHECK(boost::contains(fi_1.get_extra_info(), "No active child"));
-        BOOST_CHECK(boost::contains(fi_2.get_extra_info(), "No active child"));
-        BOOST_CHECK_EQUAL(fi_0.get_name(), "Fork island");
+        EXPECT_TRUE(fi_1.get_child_pid() == pid_t(0));
+        EXPECT_TRUE(fi_2.get_child_pid() == pid_t(0));
+        EXPECT_TRUE(boost::contains(fi_0.get_extra_info(), "No active child"));
+        EXPECT_TRUE(boost::contains(fi_1.get_extra_info(), "No active child"));
+        EXPECT_TRUE(boost::contains(fi_2.get_extra_info(), "No active child"));
+        EXPECT_EQ(fi_0.get_name(), "Fork island");
     }
     // NOTE: on recent OSX versions, the fork() behaviour changed and trying
     // to do error handling via exceptions in the forked() process now does
@@ -101,28 +101,28 @@ BOOST_AUTO_TEST_CASE(fork_island_basic)
     {
         // Test: try to kill a running island.
         island fi_0(fork_island{}, de{200}, godot1{20}, 20);
-        BOOST_CHECK(fi_0.extract<fork_island>() != nullptr);
-        BOOST_CHECK(boost::contains(fi_0.get_extra_info(), "No active child"));
+        EXPECT_TRUE(fi_0.extract<fork_island>() != nullptr);
+        EXPECT_TRUE(boost::contains(fi_0.get_extra_info(), "No active child"));
         fi_0.evolve();
         // Busy wait until the child is running.
         pid_t child_pid;
         while (!(child_pid = fi_0.extract<fork_island>()->get_child_pid())) {
         }
-        BOOST_CHECK(boost::contains(fi_0.get_extra_info(), "Child PID:"));
+        EXPECT_TRUE(boost::contains(fi_0.get_extra_info(), "Child PID:"));
         // """
         // Kill the boy and let the man be born.
         // """
         kill(child_pid, SIGTERM);
         // Check that killing the child raised an error in the parent process.
-        BOOST_CHECK_THROW(fi_0.wait_check(), std::exception);
-        BOOST_CHECK(boost::contains(fi_0.get_extra_info(), "No active child"));
+        EXPECT_THROW(fi_0.wait_check(), std::exception);
+        EXPECT_TRUE(boost::contains(fi_0.get_extra_info(), "No active child"));
     }
     {
         // Test: try to generate an error in the evolution.
         // NOTE: de wants more than 1 individual in the pop.
         island fi_0(fork_island{}, de{1}, rosenbrock{}, 1);
-        BOOST_CHECK(fi_0.extract<fork_island>() != nullptr);
-        BOOST_CHECK(boost::contains(fi_0.get_extra_info(), "No active child"));
+        EXPECT_TRUE(fi_0.extract<fork_island>() != nullptr);
+        EXPECT_TRUE(boost::contains(fi_0.get_extra_info(), "No active child"));
         fi_0.evolve();
         BOOST_CHECK_EXCEPTION(fi_0.wait_check(), std::runtime_error, [](const std::runtime_error &re) {
             return boost::contains(re.what(), "needs at least 5 individuals in the population");
@@ -132,14 +132,14 @@ BOOST_AUTO_TEST_CASE(fork_island_basic)
 }
 
 // Check that the population actually evolves.
-BOOST_AUTO_TEST_CASE(fork_island_evolve)
+TEST(fork_island_test, fork_island_evolve)
 {
     island fi_0(fork_island{}, compass_search{100}, rosenbrock{}, 1, 0);
     const auto old_cf = fi_0.get_population().champion_f();
     fi_0.evolve();
     fi_0.wait_check();
     const auto new_cf = fi_0.get_population().champion_f();
-    BOOST_CHECK(new_cf[0] < old_cf[0]);
+    EXPECT_TRUE(new_cf[0] < old_cf[0]);
 }
 
 // An algorithm that changes its state at every evolve() call.
@@ -160,13 +160,13 @@ struct stateful_algo {
 PAGMO_S11N_ALGORITHM_EXPORT(stateful_algo)
 
 // Check that the state of the algorithm is preserved.
-BOOST_AUTO_TEST_CASE(fork_island_stateful_algo)
+TEST(fork_island_test, fork_island_stateful_algo)
 {
     island fi_0(fork_island{}, stateful_algo{}, rosenbrock{}, 1, 0);
-    BOOST_CHECK(fi_0.get_algorithm().extract<stateful_algo>()->n_evolve == 0);
+    EXPECT_TRUE(fi_0.get_algorithm().extract<stateful_algo>()->n_evolve == 0);
     fi_0.evolve();
     fi_0.wait_check();
-    BOOST_CHECK(fi_0.get_algorithm().extract<stateful_algo>()->n_evolve == 1);
+    EXPECT_TRUE(fi_0.get_algorithm().extract<stateful_algo>()->n_evolve == 1);
 }
 
 struct recursive_algo1 {
@@ -201,7 +201,7 @@ PAGMO_S11N_ALGORITHM_EXPORT(recursive_algo1)
 PAGMO_S11N_ALGORITHM_EXPORT(recursive_algo2)
 
 // Try to call fork() inside fork().
-BOOST_AUTO_TEST_CASE(fork_island_recurse)
+TEST(fork_island_test, fork_island_recurse)
 {
     {
         island fi_0(fork_island{}, recursive_algo1{}, rosenbrock{}, 1, 0);
@@ -209,7 +209,7 @@ BOOST_AUTO_TEST_CASE(fork_island_recurse)
         fi_0.evolve();
         fi_0.wait_check();
         const auto new_cf = fi_0.get_population().champion_f();
-        BOOST_CHECK(new_cf[0] < old_cf[0]);
+        EXPECT_TRUE(new_cf[0] < old_cf[0]);
     }
 #if !defined(__APPLE__)
     {
@@ -224,13 +224,13 @@ BOOST_AUTO_TEST_CASE(fork_island_recurse)
 }
 
 // Run a moderate amount of fork islands in parallel.
-BOOST_AUTO_TEST_CASE(fork_island_torture)
+TEST(fork_island_test, fork_island_torture)
 {
     std::vector<island> visl(100u, island(fork_island{}, compass_search{100}, rosenbrock{100}, 50, 0));
     for (auto &isl : visl) {
         isl.evolve();
     }
     for (auto &isl : visl) {
-        BOOST_CHECK_NO_THROW(isl.wait_check());
+        EXPECT_NO_THROW(isl.wait_check());
     }
 }

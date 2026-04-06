@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE problem_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <initializer_list>
 #include <limits>
@@ -281,7 +281,7 @@ struct empty {
     }
 };
 
-BOOST_AUTO_TEST_CASE(problem_construction_test)
+TEST(problem_test, problem_construction_test)
 {
     // We check that problems with inconsistent dimensions throw
     // std::invalid argument
@@ -307,39 +307,39 @@ BOOST_AUTO_TEST_CASE(problem_construction_test)
     std::vector<sparsity_pattern> hesss_22_correct{{{0, 0}, {1, 0}}, {{0, 0}, {1, 0}}};
 
     // 0 - lb size is zero
-    BOOST_CHECK_THROW(problem{base_p(1, 0, 0, fit_1, {}, {})}, std::invalid_argument);
+    EXPECT_THROW(problem{base_p(1, 0, 0, fit_1, {}, {})}, std::invalid_argument);
     // 1 - lb > ub
-    BOOST_CHECK_THROW(problem{base_p(1, 0, 0, fit_1, ub_2, lb_2)}, std::invalid_argument);
+    EXPECT_THROW(problem{base_p(1, 0, 0, fit_1, ub_2, lb_2)}, std::invalid_argument);
     // 2 - lb length is wrong
-    BOOST_CHECK_THROW(problem{base_p(1, 0, 0, fit_1, lb_3, ub_2)}, std::invalid_argument);
+    EXPECT_THROW(problem{base_p(1, 0, 0, fit_1, lb_3, ub_2)}, std::invalid_argument);
     // 3 - ub length is wrong
-    BOOST_CHECK_THROW(problem{base_p(1, 0, 0, fit_1, lb_2, ub_3)}, std::invalid_argument);
+    EXPECT_THROW(problem{base_p(1, 0, 0, fit_1, lb_2, ub_3)}, std::invalid_argument);
     // 4 - gradient sparsity has index out of bounds
-    BOOST_CHECK_THROW(problem{grad_p(1, 0, 0, fit_1, lb_2, ub_2, grad_2, grads_2_outofbounds)}, std::invalid_argument);
+    EXPECT_THROW(problem{grad_p(1, 0, 0, fit_1, lb_2, ub_2, grad_2, grads_2_outofbounds)}, std::invalid_argument);
     // 5 - gradient sparsity has a repeating pair
-    BOOST_CHECK_THROW(problem{grad_p(1, 0, 0, fit_1, lb_2, ub_2, grad_2, grads_2_repeats)}, std::invalid_argument);
+    EXPECT_THROW(problem{grad_p(1, 0, 0, fit_1, lb_2, ub_2, grad_2, grads_2_repeats)}, std::invalid_argument);
     // 6 - hessian sparsity has index out of bounds
-    BOOST_CHECK_THROW(problem{hess_p(1, 1, 0, fit_2, lb_2, ub_2, hess_22, hesss_22_outofbounds)},
+    EXPECT_THROW(problem{hess_p(1, 1, 0, fit_2, lb_2, ub_2, hess_22, hesss_22_outofbounds)},
                       std::invalid_argument);
     // 7 - hessian sparsity is not lower triangular
-    BOOST_CHECK_THROW(problem{hess_p(1, 1, 0, fit_2, lb_2, ub_2, hess_22, hesss_22_notlowertriangular)},
+    EXPECT_THROW(problem{hess_p(1, 1, 0, fit_2, lb_2, ub_2, hess_22, hesss_22_notlowertriangular)},
                       std::invalid_argument);
     // 8 - hessian sparsity has repeated indexes
-    BOOST_CHECK_THROW(problem{hess_p(1, 1, 0, fit_2, lb_2, ub_2, hess_22, hesss_22_repeated)}, std::invalid_argument);
+    EXPECT_THROW(problem{hess_p(1, 1, 0, fit_2, lb_2, ub_2, hess_22, hesss_22_repeated)}, std::invalid_argument);
     // 9 - hessian sparsity has the wrong length
     BOOST_CHECK_THROW(
         problem{hess_p(1, 1, 0, fit_2, lb_2, ub_2, hess_22, {{{0, 0}, {1, 0}}, {{0, 0}, {1, 0}}, {{0, 0}}})},
         std::invalid_argument);
     // 10 - 0 objectives
-    BOOST_CHECK_THROW(problem{base_p(0, 0, 0, fit_1, {1}, {2})}, std::invalid_argument);
+    EXPECT_THROW(problem{base_p(0, 0, 0, fit_1, {1}, {2})}, std::invalid_argument);
     // 11 - many objectives
-    BOOST_CHECK_THROW(problem{base_p(std::numeric_limits<vector_double::size_type>::max(), 0, 0, fit_2, {1}, {2})},
+    EXPECT_THROW(problem{base_p(std::numeric_limits<vector_double::size_type>::max(), 0, 0, fit_2, {1}, {2})},
                       std::invalid_argument);
     // 12 - too many equalities
-    BOOST_CHECK_THROW(problem{base_p(1, std::numeric_limits<vector_double::size_type>::max(), 0, fit_2, {1}, {2})},
+    EXPECT_THROW(problem{base_p(1, std::numeric_limits<vector_double::size_type>::max(), 0, fit_2, {1}, {2})},
                       std::invalid_argument);
     // 13 - too many inequalities
-    BOOST_CHECK_THROW(problem{base_p(1, 0, std::numeric_limits<vector_double::size_type>::max(), fit_2, {1}, {2})},
+    EXPECT_THROW(problem{base_p(1, 0, std::numeric_limits<vector_double::size_type>::max(), fit_2, {1}, {2})},
                       std::invalid_argument);
     // We check that the data members are initialized correctly (i.e. counters to zero
     // and gradient / hessian dimensions to the right values
@@ -348,10 +348,10 @@ BOOST_AUTO_TEST_CASE(problem_construction_test)
         problem p2{base_p(3, 4, 5, fit_12, lb_11, ub_11)};
         problem p3{grad_p(1, 0, 0, fit_2, lb_2, ub_2, grad_2, grads_2_correct)};
         problem p4{hess_p(1, 1, 0, fit_2, lb_2, ub_2, hess_22, hesss_22_correct)};
-        BOOST_CHECK(p1.get_fevals() == 0u);
-        BOOST_CHECK(p1.get_gevals() == 0u);
-        BOOST_CHECK(p1.get_hevals() == 0u);
-        BOOST_CHECK(p1.get_hevals() == 0u);
+        EXPECT_TRUE(p1.get_fevals() == 0u);
+        EXPECT_TRUE(p1.get_gevals() == 0u);
+        EXPECT_TRUE(p1.get_hevals() == 0u);
+        EXPECT_TRUE(p1.get_hevals() == 0u);
     }
 
     // We check the move constructor
@@ -372,9 +372,9 @@ BOOST_AUTO_TEST_CASE(problem_construction_test)
         auto p2_string = boost::lexical_cast<std::string>(p2);
 
         // 1 - We check the resource pointed by m_ptr has been moved from p1 to p2
-        BOOST_CHECK(a1 == a2);
+        EXPECT_TRUE(a1 == a2);
         // 2 - We check that the two outputs of human_readable are identical
-        BOOST_CHECK(p1_string == p2_string);
+        EXPECT_TRUE(p1_string == p2_string);
     }
 
     // We check the copy constructor
@@ -393,61 +393,61 @@ BOOST_AUTO_TEST_CASE(problem_construction_test)
         auto a2 = p2.extract<full_p>();
 
         // 1 - We check the resource pointed by m_ptr has a different address
-        BOOST_CHECK(a1 != 0);
-        BOOST_CHECK(a2 != 0);
-        BOOST_CHECK(a1 != a2);
+        EXPECT_TRUE(a1 != 0);
+        EXPECT_TRUE(a2 != 0);
+        EXPECT_TRUE(a1 != a2);
         // 2 - We check that the counters are maintained by the copy operation
-        BOOST_CHECK(p2.get_fevals() == 1u);
-        BOOST_CHECK(p2.get_gevals() == 1u);
-        BOOST_CHECK(p2.get_hevals() == 1u);
+        EXPECT_TRUE(p2.get_fevals() == 1u);
+        EXPECT_TRUE(p2.get_gevals() == 1u);
+        EXPECT_TRUE(p2.get_hevals() == 1u);
         // 3 - We check that the decision vector dimension is copied
-        BOOST_CHECK(p2.get_nx() == p1.get_nx());
+        EXPECT_TRUE(p2.get_nx() == p1.get_nx());
     }
 
     // Default constructor.
     problem p0;
-    BOOST_CHECK((p0.extract<null_problem>() != nullptr));
+    EXPECT_TRUE((p0.extract<null_problem>() != nullptr));
     // Check copy semantics.
     problem p1{p0};
-    BOOST_CHECK((p0.extract<null_problem>() != nullptr));
-    BOOST_CHECK((p1.extract<null_problem>() != nullptr));
+    EXPECT_TRUE((p0.extract<null_problem>() != nullptr));
+    EXPECT_TRUE((p1.extract<null_problem>() != nullptr));
     problem p2{full_p{}};
     p2 = p1;
-    BOOST_CHECK((p2.extract<null_problem>() != nullptr));
-    BOOST_CHECK((p1.extract<null_problem>() != nullptr));
+    EXPECT_TRUE((p2.extract<null_problem>() != nullptr));
+    EXPECT_TRUE((p1.extract<null_problem>() != nullptr));
     // Move semantics.
     problem p3{std::move(p0)};
-    BOOST_CHECK((p3.extract<null_problem>() != nullptr));
+    EXPECT_TRUE((p3.extract<null_problem>() != nullptr));
     problem p4{full_p{}};
     p4 = std::move(p2);
-    BOOST_CHECK((p4.extract<null_problem>() != nullptr));
+    EXPECT_TRUE((p4.extract<null_problem>() != nullptr));
     // Check we can revive moved-from objects.
     p0 = p4;
-    BOOST_CHECK((p0.extract<null_problem>() != nullptr));
+    EXPECT_TRUE((p0.extract<null_problem>() != nullptr));
     p2 = std::move(p4);
-    BOOST_CHECK((p2.extract<null_problem>() != nullptr));
+    EXPECT_TRUE((p2.extract<null_problem>() != nullptr));
 
     // Check the IsUdProblem type trait.
-    BOOST_CHECK(IsUdProblem<base_p>);
-    BOOST_CHECK(IsUdProblem<grad_p>);
-    BOOST_CHECK(IsUdProblem<hess_p>);
-    BOOST_CHECK(!IsUdProblem<hess_p &>);
-    BOOST_CHECK(!IsUdProblem<const hess_p &>);
-    BOOST_CHECK(!IsUdProblem<const hess_p>);
-    BOOST_CHECK(!IsUdProblem<int>);
-    BOOST_CHECK(!IsUdProblem<void>);
-    BOOST_CHECK(!IsUdProblem<std::string>);
-    BOOST_CHECK((std::is_constructible<problem, base_p>::value));
-    BOOST_CHECK((std::is_constructible<problem, grad_p>::value));
-    BOOST_CHECK((std::is_constructible<problem, hess_p>::value));
-    BOOST_CHECK((std::is_constructible<problem, hess_p &>::value));
-    BOOST_CHECK((std::is_constructible<problem, const hess_p &>::value));
-    BOOST_CHECK((std::is_constructible<problem, hess_p &&>::value));
-    BOOST_CHECK((!std::is_constructible<problem, int>::value));
-    BOOST_CHECK((!std::is_constructible<problem, std::string>::value));
+    EXPECT_TRUE(IsUdProblem<base_p>);
+    EXPECT_TRUE(IsUdProblem<grad_p>);
+    EXPECT_TRUE(IsUdProblem<hess_p>);
+    EXPECT_TRUE(!IsUdProblem<hess_p &>);
+    EXPECT_TRUE(!IsUdProblem<const hess_p &>);
+    EXPECT_TRUE(!IsUdProblem<const hess_p>);
+    EXPECT_TRUE(!IsUdProblem<int>);
+    EXPECT_TRUE(!IsUdProblem<void>);
+    EXPECT_TRUE(!IsUdProblem<std::string>);
+    EXPECT_TRUE((std::is_constructible<problem, base_p>::value));
+    EXPECT_TRUE((std::is_constructible<problem, grad_p>::value));
+    EXPECT_TRUE((std::is_constructible<problem, hess_p>::value));
+    EXPECT_TRUE((std::is_constructible<problem, hess_p &>::value));
+    EXPECT_TRUE((std::is_constructible<problem, const hess_p &>::value));
+    EXPECT_TRUE((std::is_constructible<problem, hess_p &&>::value));
+    EXPECT_TRUE((!std::is_constructible<problem, int>::value));
+    EXPECT_TRUE((!std::is_constructible<problem, std::string>::value));
 }
 
-BOOST_AUTO_TEST_CASE(problem_assignment_test)
+TEST(problem_test, problem_assignment_test)
 {
     vector_double lb_2(2, 0);
     vector_double ub_2(2, 1);
@@ -476,9 +476,9 @@ BOOST_AUTO_TEST_CASE(problem_assignment_test)
         auto p2_string = boost::lexical_cast<std::string>(p2);
 
         // 1 - We check the resource pointed by m_ptr has been moved from p1 to p2
-        BOOST_CHECK(a1 == a2);
+        EXPECT_TRUE(a1 == a2);
         // 2 - We check that the two outputs of human_readable are identical
-        BOOST_CHECK(p1_string == p2_string);
+        EXPECT_TRUE(p1_string == p2_string);
     }
 
     // We check the copy assignment
@@ -498,77 +498,77 @@ BOOST_AUTO_TEST_CASE(problem_assignment_test)
         auto a2 = p2.extract<full_p>();
 
         // 1 - We check the resource pointed by m_ptr has a different address
-        BOOST_CHECK(a1 != 0);
-        BOOST_CHECK(a2 != 0);
-        BOOST_CHECK(a1 != a2);
+        EXPECT_TRUE(a1 != 0);
+        EXPECT_TRUE(a2 != 0);
+        EXPECT_TRUE(a1 != a2);
         // 2 - We check that the counters are reset by the copy operation
-        BOOST_CHECK(p2.get_fevals() == 1u);
-        BOOST_CHECK(p2.get_gevals() == 1u);
-        BOOST_CHECK(p2.get_hevals() == 1u);
+        EXPECT_TRUE(p2.get_fevals() == 1u);
+        EXPECT_TRUE(p2.get_gevals() == 1u);
+        EXPECT_TRUE(p2.get_hevals() == 1u);
         // 3 - We check that the decision vector dimension is copied
-        BOOST_CHECK(p2.get_nx() == p1.get_nx());
+        EXPECT_TRUE(p2.get_nx() == p1.get_nx());
     }
 }
 
-BOOST_AUTO_TEST_CASE(problem_extract_is_test)
+TEST(problem_test, problem_extract_is_test)
 {
     problem p1{base_p{2, 2, 2, {1, 1}, {5, 5}, {10, 10}}};
     auto user_problem = p1.extract<base_p>();
 
     // We check we have access to public data members
-    BOOST_CHECK(user_problem->m_nobj == 2);
-    BOOST_CHECK(user_problem->m_nec == 2);
-    BOOST_CHECK(user_problem->m_nic == 2);
-    BOOST_CHECK((user_problem->m_ret_fit == vector_double{1, 1}));
-    BOOST_CHECK((user_problem->m_lb == vector_double{5, 5}));
-    BOOST_CHECK((user_problem->m_ub == vector_double{10, 10}));
+    EXPECT_TRUE(user_problem->m_nobj == 2);
+    EXPECT_TRUE(user_problem->m_nec == 2);
+    EXPECT_TRUE(user_problem->m_nic == 2);
+    EXPECT_TRUE((user_problem->m_ret_fit == vector_double{1, 1}));
+    EXPECT_TRUE((user_problem->m_lb == vector_double{5, 5}));
+    EXPECT_TRUE((user_problem->m_ub == vector_double{10, 10}));
 
     // We check that a non successful cast returns a null pointer
-    BOOST_CHECK(!p1.extract<full_p>());
+    EXPECT_TRUE(!p1.extract<full_p>());
 
     // We check the is method
-    BOOST_CHECK(p1.is<base_p>());
-    BOOST_CHECK(!p1.is<full_p>());
+    EXPECT_TRUE(p1.is<base_p>());
+    EXPECT_TRUE(!p1.is<full_p>());
 }
 
-BOOST_AUTO_TEST_CASE(problem_fitness_test)
+TEST(problem_test, problem_fitness_test)
 {
     problem p1{base_p{2, 2, 2, {12, 13, 14, 15, 16, 17}, {5, 5}, {10, 10}}};
     problem p1_wrong_retval{base_p{2, 2, 2, {1, 1, 1}, {5, 5}, {10, 10}}};
 
     // We check the fitness checks
-    BOOST_CHECK_THROW(p1.fitness({3, 3, 3, 3}), std::invalid_argument);
-    BOOST_CHECK_THROW(p1_wrong_retval.fitness({3, 3}), std::invalid_argument);
+    EXPECT_THROW(p1.fitness({3, 3, 3, 3}), std::invalid_argument);
+    EXPECT_THROW(p1_wrong_retval.fitness({3, 3}), std::invalid_argument);
     // We check the fitness returns the correct value
-    BOOST_CHECK((p1.fitness({3, 3}) == vector_double{12, 13, 14, 15, 16, 17}));
+    EXPECT_TRUE((p1.fitness({3, 3}) == vector_double{12, 13, 14, 15, 16, 17}));
 }
 
-BOOST_AUTO_TEST_CASE(problem_gradient_test)
+TEST(problem_test, problem_gradient_test)
 {
     problem p1{grad_p{1, 0, 0, {12}, {5, 5}, {10, 10}, {12, 13}, {{0, 0}, {0, 1}}}};
     problem p1_wrong_retval{grad_p{1, 0, 0, {12}, {5, 5}, {10, 10}, {1, 2, 3, 4}}};
     // We check the gradient checks
-    BOOST_CHECK_THROW(p1.gradient({3, 3, 3}), std::invalid_argument);
-    BOOST_CHECK_THROW(p1_wrong_retval.gradient({3, 3}), std::invalid_argument);
+    EXPECT_THROW(p1.gradient({3, 3, 3}), std::invalid_argument);
+    EXPECT_THROW(p1_wrong_retval.gradient({3, 3}), std::invalid_argument);
     // We check the fitness returns the correct value
-    BOOST_CHECK((p1.gradient({3, 3}) == vector_double{12, 13}));
+    EXPECT_TRUE((p1.gradient({3, 3}) == vector_double{12, 13}));
 
     {
         problem p2{base_p{2, 2, 2, {12, 13, 14, 15, 16, 17}, {5, 5}, {10, 10}}};
-        BOOST_CHECK_THROW(p2.gradient({3, 3}), not_implemented_error);
-        BOOST_CHECK_THROW(p2.hessians({3, 3}), not_implemented_error);
+        EXPECT_THROW(p2.gradient({3, 3}), not_implemented_error);
+        EXPECT_THROW(p2.hessians({3, 3}), not_implemented_error);
     }
 }
 
-BOOST_AUTO_TEST_CASE(problem_hessians_test)
+TEST(problem_test, problem_hessians_test)
 {
     problem p1{hess_p{1, 0, 0, {12}, {5, 5}, {10, 10}, {{12, 13}}, {{{0, 0}, {1, 0}}}}};
     problem p1_wrong_retval{hess_p{1, 0, 0, {12}, {5, 5}, {10, 10}, {{12, 13, 14}}, {{{0, 0}, {1, 0}}}}};
     // We check the gradient checks
-    BOOST_CHECK_THROW(p1.hessians({3, 3, 3}), std::invalid_argument);
-    BOOST_CHECK_THROW(p1_wrong_retval.hessians({3, 3}), std::invalid_argument);
+    EXPECT_THROW(p1.hessians({3, 3, 3}), std::invalid_argument);
+    EXPECT_THROW(p1_wrong_retval.hessians({3, 3}), std::invalid_argument);
     // We check the fitness returns the correct value
-    BOOST_CHECK((p1.hessians({3, 3}) == std::vector<vector_double>{{12, 13}}));
+    EXPECT_TRUE((p1.hessians({3, 3}) == std::vector<vector_double>{{12, 13}}));
 }
 
 // We add a problem signalling gradient_sparsity() as present, but not implementing it
@@ -631,7 +631,7 @@ struct ss_not_impl {
     }
 };
 
-BOOST_AUTO_TEST_CASE(problem_has_test)
+TEST(problem_test, problem_has_test)
 {
     problem p1{base_p{}};
     problem p2{grad_p{}};
@@ -639,44 +639,44 @@ BOOST_AUTO_TEST_CASE(problem_has_test)
     problem p4{grad_p_override{}};
     problem p5{hess_p_override{}};
 
-    BOOST_CHECK(!p1.has_gradient());
-    BOOST_CHECK(!p1.has_gradient_sparsity());
-    BOOST_CHECK(!p1.has_hessians());
-    BOOST_CHECK(!p1.has_hessians_sparsity());
+    EXPECT_TRUE(!p1.has_gradient());
+    EXPECT_TRUE(!p1.has_gradient_sparsity());
+    EXPECT_TRUE(!p1.has_hessians());
+    EXPECT_TRUE(!p1.has_hessians_sparsity());
 
-    BOOST_CHECK(p2.has_gradient());
-    BOOST_CHECK(p2.has_gradient_sparsity());
-    BOOST_CHECK(!p2.has_hessians());
-    BOOST_CHECK(!p2.has_hessians_sparsity());
+    EXPECT_TRUE(p2.has_gradient());
+    EXPECT_TRUE(p2.has_gradient_sparsity());
+    EXPECT_TRUE(!p2.has_hessians());
+    EXPECT_TRUE(!p2.has_hessians_sparsity());
 
-    BOOST_CHECK(!p3.has_gradient());
-    BOOST_CHECK(!p3.has_gradient_sparsity());
-    BOOST_CHECK(p3.has_hessians());
-    BOOST_CHECK(p3.has_hessians_sparsity());
+    EXPECT_TRUE(!p3.has_gradient());
+    EXPECT_TRUE(!p3.has_gradient_sparsity());
+    EXPECT_TRUE(p3.has_hessians());
+    EXPECT_TRUE(p3.has_hessians_sparsity());
 
-    BOOST_CHECK(!p4.has_gradient());
-    BOOST_CHECK(!p4.has_gradient_sparsity());
-    BOOST_CHECK(!p4.has_hessians());
-    BOOST_CHECK(!p4.has_hessians_sparsity());
+    EXPECT_TRUE(!p4.has_gradient());
+    EXPECT_TRUE(!p4.has_gradient_sparsity());
+    EXPECT_TRUE(!p4.has_hessians());
+    EXPECT_TRUE(!p4.has_hessians_sparsity());
 
     problem p6{ss_not_impl{}};
-    BOOST_CHECK_THROW(p6.set_seed(32u), not_implemented_error);
+    EXPECT_THROW(p6.set_seed(32u), not_implemented_error);
 
     problem p7{base_p{}};
-    BOOST_CHECK_THROW(p7.set_seed(32u), not_implemented_error);
+    EXPECT_THROW(p7.set_seed(32u), not_implemented_error);
 
     // These two implement the has_sparsity() methods without the sparsity() methods.
     // They will not error out because the lack of the sparsity() methods makes the has_sparsity()
     // methods return always false.
-    BOOST_CHECK_NO_THROW(problem{hgs_not_impl{}});
-    BOOST_CHECK(!problem{hgs_not_impl{}}.has_gradient_sparsity());
-    BOOST_CHECK_NO_THROW(problem{hgs_not_impl{}}.gradient_sparsity());
-    BOOST_CHECK_NO_THROW(problem{hhs_not_impl{}});
-    BOOST_CHECK(!problem{hhs_not_impl{}}.has_hessians_sparsity());
-    BOOST_CHECK_NO_THROW(problem{hhs_not_impl{}}.hessians_sparsity());
+    EXPECT_NO_THROW(problem{hgs_not_impl{}});
+    EXPECT_TRUE(!problem{hgs_not_impl{}}.has_gradient_sparsity());
+    EXPECT_NO_THROW(problem{hgs_not_impl{}}.gradient_sparsity());
+    EXPECT_NO_THROW(problem{hhs_not_impl{}});
+    EXPECT_TRUE(!problem{hhs_not_impl{}}.has_hessians_sparsity());
+    EXPECT_NO_THROW(problem{hhs_not_impl{}}.hessians_sparsity());
 }
 
-BOOST_AUTO_TEST_CASE(problem_getters_test)
+TEST(problem_test, problem_getters_test)
 {
     vector_double lb_2(2, 13);
     vector_double ub_2(2, 17);
@@ -690,16 +690,16 @@ BOOST_AUTO_TEST_CASE(problem_getters_test)
     problem p2{full_p(2, 0, 0, fit_2, lb_2, ub_2, grad_2, grads_2_correct, hess_22, hesss_22_correct)};
     problem p3{empty{}};
 
-    BOOST_CHECK(p1.get_nobj() == 2);
-    BOOST_CHECK(p1.get_nx() == 2);
-    BOOST_CHECK(p1.get_nec() == 3);
-    BOOST_CHECK(p1.get_nic() == 4);
-    BOOST_CHECK(p1.get_nc() == 4 + 3);
-    BOOST_CHECK((p1.get_c_tol() == vector_double{0., 0., 0., 0., 0., 0., 0.}));
-    BOOST_CHECK(p1.get_nf() == 2 + 3 + 4);
-    BOOST_CHECK((p1.get_bounds() == std::pair<vector_double, vector_double>{{13, 13}, {17, 17}}));
-    BOOST_CHECK((p1.get_lb() == vector_double{13, 13}));
-    BOOST_CHECK((p1.get_ub() == vector_double{17, 17}));
+    EXPECT_TRUE(p1.get_nobj() == 2);
+    EXPECT_TRUE(p1.get_nx() == 2);
+    EXPECT_TRUE(p1.get_nec() == 3);
+    EXPECT_TRUE(p1.get_nic() == 4);
+    EXPECT_TRUE(p1.get_nc() == 4 + 3);
+    EXPECT_TRUE((p1.get_c_tol() == vector_double{0., 0., 0., 0., 0., 0., 0.}));
+    EXPECT_TRUE(p1.get_nf() == 2 + 3 + 4);
+    EXPECT_TRUE((p1.get_bounds() == std::pair<vector_double, vector_double>{{13, 13}, {17, 17}}));
+    EXPECT_TRUE((p1.get_lb() == vector_double{13, 13}));
+    EXPECT_TRUE((p1.get_ub() == vector_double{17, 17}));
 
     // Making some evaluations
     auto N = 1235u;
@@ -708,19 +708,19 @@ BOOST_AUTO_TEST_CASE(problem_getters_test)
         p2.gradient({0, 0});
         p2.hessians({0, 0});
     }
-    BOOST_CHECK(p2.get_fevals() == N);
-    BOOST_CHECK(p2.get_gevals() == N);
-    BOOST_CHECK(p2.get_hevals() == N);
+    EXPECT_TRUE(p2.get_fevals() == N);
+    EXPECT_TRUE(p2.get_gevals() == N);
+    EXPECT_TRUE(p2.get_hevals() == N);
 
     // User implemented
-    BOOST_CHECK(p1.get_name() == "A base toy problem");
-    BOOST_CHECK(p1.get_extra_info() == "Nothing to report");
+    EXPECT_TRUE(p1.get_name() == "A base toy problem");
+    EXPECT_TRUE(p1.get_extra_info() == "Nothing to report");
     // Default
-    BOOST_CHECK(p3.get_name() == detail::demangle_from_typeid(typeid(*p3.extract<empty>()).name()));
-    BOOST_CHECK(p3.get_extra_info() == "");
+    EXPECT_TRUE(p3.get_name() == detail::demangle_from_typeid(typeid(*p3.extract<empty>()).name()));
+    EXPECT_TRUE(p3.get_extra_info() == "");
 }
 
-BOOST_AUTO_TEST_CASE(problem_serialization_test)
+TEST(problem_test, problem_serialization_test)
 {
     // Do the checking with the full problem.
     problem p{full_p{}}, p2{p};
@@ -743,14 +743,14 @@ BOOST_AUTO_TEST_CASE(problem_serialization_test)
         iarchive >> p;
     }
     auto after = boost::lexical_cast<std::string>(p);
-    BOOST_CHECK_EQUAL(before, after);
+    EXPECT_EQ(before, after);
     // Check that the properties of base_p where restored as well.
-    BOOST_CHECK_EQUAL(p.extract<full_p>()->m_nobj, p2.extract<full_p>()->m_nobj);
-    BOOST_CHECK_EQUAL(p.extract<full_p>()->m_nec, p2.extract<full_p>()->m_nec);
-    BOOST_CHECK_EQUAL(p.extract<full_p>()->m_nic, p2.extract<full_p>()->m_nic);
-    BOOST_CHECK(p.extract<full_p>()->m_ret_fit == p2.extract<full_p>()->m_ret_fit);
-    BOOST_CHECK(p.extract<full_p>()->m_lb == p2.extract<full_p>()->m_lb);
-    BOOST_CHECK(p.extract<full_p>()->m_ub == p2.extract<full_p>()->m_ub);
+    EXPECT_EQ(p.extract<full_p>()->m_nobj, p2.extract<full_p>()->m_nobj);
+    EXPECT_EQ(p.extract<full_p>()->m_nec, p2.extract<full_p>()->m_nec);
+    EXPECT_EQ(p.extract<full_p>()->m_nic, p2.extract<full_p>()->m_nic);
+    EXPECT_TRUE(p.extract<full_p>()->m_ret_fit == p2.extract<full_p>()->m_ret_fit);
+    EXPECT_TRUE(p.extract<full_p>()->m_lb == p2.extract<full_p>()->m_lb);
+    EXPECT_TRUE(p.extract<full_p>()->m_ub == p2.extract<full_p>()->m_ub);
 }
 
 // Full minimal problems to test constraints number
@@ -805,17 +805,17 @@ struct c_03 {
         return {{0}, {1}};
     }
 };
-BOOST_AUTO_TEST_CASE(problem_constraint_dimension_test)
+TEST(problem_test, problem_constraint_dimension_test)
 {
-    BOOST_CHECK(problem{c_01{}}.get_nec() == 1u);
-    BOOST_CHECK(problem{c_01{}}.get_nic() == 0u);
-    BOOST_CHECK(problem{c_01{}}.get_nc() == 1u);
-    BOOST_CHECK(problem{c_02{}}.get_nec() == 0u);
-    BOOST_CHECK(problem{c_02{}}.get_nic() == 1u);
-    BOOST_CHECK(problem{c_02{}}.get_nc() == 1u);
-    BOOST_CHECK(problem{c_03{}}.get_nec() == 1u);
-    BOOST_CHECK(problem{c_03{}}.get_nic() == 1u);
-    BOOST_CHECK(problem{c_03{}}.get_nc() == 2u);
+    EXPECT_TRUE(problem{c_01{}}.get_nec() == 1u);
+    EXPECT_TRUE(problem{c_01{}}.get_nic() == 0u);
+    EXPECT_TRUE(problem{c_01{}}.get_nc() == 1u);
+    EXPECT_TRUE(problem{c_02{}}.get_nec() == 0u);
+    EXPECT_TRUE(problem{c_02{}}.get_nic() == 1u);
+    EXPECT_TRUE(problem{c_02{}}.get_nc() == 1u);
+    EXPECT_TRUE(problem{c_03{}}.get_nec() == 1u);
+    EXPECT_TRUE(problem{c_03{}}.get_nic() == 1u);
+    EXPECT_TRUE(problem{c_03{}}.get_nc() == 2u);
 }
 
 struct s_02 {
@@ -870,15 +870,15 @@ struct s_03 {
     unsigned m_seed = 0u;
 };
 
-BOOST_AUTO_TEST_CASE(problem_stochastic_test)
+TEST(problem_test, problem_stochastic_test)
 {
     problem prob{s_02{}};
-    BOOST_CHECK(prob.is_stochastic() == true);
-    BOOST_CHECK(prob.has_set_seed() == true);
+    EXPECT_TRUE(prob.is_stochastic() == true);
+    EXPECT_TRUE(prob.has_set_seed() == true);
     prob.set_seed(32u);
-    BOOST_CHECK(prob.extract<s_02>()->m_seed == 32u);
-    BOOST_CHECK(problem{s_03{}}.is_stochastic() == false);
-    BOOST_CHECK(problem{s_03{}}.has_set_seed() == false);
+    EXPECT_TRUE(prob.extract<s_02>()->m_seed == 32u);
+    EXPECT_TRUE(problem{s_03{}}.is_stochastic() == false);
+    EXPECT_TRUE(problem{s_03{}}.has_set_seed() == false);
 }
 
 struct extra_info_case {
@@ -913,13 +913,13 @@ struct extra_info_case {
     unsigned m_seed = 0u;
 };
 
-BOOST_AUTO_TEST_CASE(problem_extra_info_test)
+TEST(problem_test, problem_extra_info_test)
 {
     problem prob{extra_info_case{}};
     problem prob2(prob);
-    BOOST_CHECK(prob.get_extra_info() == prob2.get_extra_info());
+    EXPECT_TRUE(prob.get_extra_info() == prob2.get_extra_info());
     prob.set_seed(32u);
-    BOOST_CHECK(prob.get_extra_info() == "32");
+    EXPECT_TRUE(prob.get_extra_info() == "32");
 }
 
 struct with_get_nobj {
@@ -948,97 +948,97 @@ struct without_get_nobj {
     }
 };
 
-BOOST_AUTO_TEST_CASE(problem_get_nobj_detection)
+TEST(problem_test, problem_get_nobj_detection)
 {
-    BOOST_CHECK(problem{with_get_nobj{}}.get_nobj() == 3u);
-    BOOST_CHECK(problem{without_get_nobj{}}.get_nobj() == 1u);
-    BOOST_CHECK_NO_THROW(problem{with_get_nobj{}}.fitness({1.}));
+    EXPECT_TRUE(problem{with_get_nobj{}}.get_nobj() == 3u);
+    EXPECT_TRUE(problem{without_get_nobj{}}.get_nobj() == 1u);
+    EXPECT_NO_THROW(problem{with_get_nobj{}}.fitness({1.}));
     BOOST_CHECK_THROW(problem{without_get_nobj{}}.fitness({1.}),
                       std::invalid_argument); // detects a returned size of 3 but has the default
 }
 
-BOOST_AUTO_TEST_CASE(problem_auto_sparsity_test)
+TEST(problem_test, problem_auto_sparsity_test)
 {
     problem p{base_p(2u, 2u, 2u, {1., 1., 1., 1., 1., 1.}, {0., 0.}, {1., 1.})};
-    BOOST_CHECK(p.gradient_sparsity() == detail::dense_gradient(6u, 2u));
-    BOOST_CHECK(p.hessians_sparsity() == detail::dense_hessians(6u, 2u));
+    EXPECT_TRUE(p.gradient_sparsity() == detail::dense_gradient(6u, 2u));
+    EXPECT_TRUE(p.hessians_sparsity() == detail::dense_hessians(6u, 2u));
 }
 
-BOOST_AUTO_TEST_CASE(problem_get_set_c_tol_test)
+TEST(problem_test, problem_get_set_c_tol_test)
 {
     problem prob{base_p(2u, 1u, 1u, {1., 1., 1., 1.}, {0., 0.}, {1., 1.})};
-    BOOST_CHECK((prob.get_c_tol() == vector_double{0., 0.}));
+    EXPECT_TRUE((prob.get_c_tol() == vector_double{0., 0.}));
     prob.set_c_tol({1., 2.});
-    BOOST_CHECK((prob.get_c_tol() == vector_double{1., 2.}));
+    EXPECT_TRUE((prob.get_c_tol() == vector_double{1., 2.}));
     prob.set_c_tol({12., 22.});
-    BOOST_CHECK((prob.get_c_tol() == vector_double{12., 22.}));
+    EXPECT_TRUE((prob.get_c_tol() == vector_double{12., 22.}));
     if (std::numeric_limits<double>::has_quiet_NaN) {
-        BOOST_CHECK_THROW(prob.set_c_tol({std::numeric_limits<double>::quiet_NaN(), 22.}), std::invalid_argument);
-        BOOST_CHECK((prob.get_c_tol() == vector_double{12., 22.}));
+        EXPECT_THROW(prob.set_c_tol({std::numeric_limits<double>::quiet_NaN(), 22.}), std::invalid_argument);
+        EXPECT_TRUE((prob.get_c_tol() == vector_double{12., 22.}));
     }
-    BOOST_CHECK_THROW(prob.set_c_tol({-12., 22.}), std::invalid_argument);
-    BOOST_CHECK((prob.get_c_tol() == vector_double{12., 22.}));
-    BOOST_CHECK_THROW(prob.set_c_tol({12., 22., 33.});, std::invalid_argument);
-    BOOST_CHECK((prob.get_c_tol() == vector_double{12., 22.}));
+    EXPECT_THROW(prob.set_c_tol({-12., 22.}), std::invalid_argument);
+    EXPECT_TRUE((prob.get_c_tol() == vector_double{12., 22.}));
+    EXPECT_THROW(prob.set_c_tol({12., 22., 33.});, std::invalid_argument);
+    EXPECT_TRUE((prob.get_c_tol() == vector_double{12., 22.}));
 
     // checking the overload method
-    BOOST_CHECK_THROW(prob.set_c_tol(-12.), std::invalid_argument);
+    EXPECT_THROW(prob.set_c_tol(-12.), std::invalid_argument);
     if (std::numeric_limits<double>::has_quiet_NaN) {
-        BOOST_CHECK_THROW(prob.set_c_tol(std::numeric_limits<double>::quiet_NaN()), std::invalid_argument);
+        EXPECT_THROW(prob.set_c_tol(std::numeric_limits<double>::quiet_NaN()), std::invalid_argument);
     }
     prob.set_c_tol(22);
-    BOOST_CHECK((prob.get_c_tol() == vector_double{22., 22.}));
+    EXPECT_TRUE((prob.get_c_tol() == vector_double{22., 22.}));
 }
 
-BOOST_AUTO_TEST_CASE(problem_feasibility_methods_test)
+TEST(problem_test, problem_feasibility_methods_test)
 {
     problem test01{base_p(2u, 1u, 1u, {1., 1., 1., 1.}, {0., 0.}, {1., 1.})};
     problem test02{base_p(2u, 1u, 1u, {1., 1., 1e-9, -1.}, {0., 0.}, {1., 1.})};
 
-    BOOST_CHECK(test01.feasibility_x({1., 1.}) == false);
-    BOOST_CHECK(test01.feasibility_f({2., 3., 1e-10, 3.}) == false);
+    EXPECT_TRUE(test01.feasibility_x({1., 1.}) == false);
+    EXPECT_TRUE(test01.feasibility_f({2., 3., 1e-10, 3.}) == false);
     test01.set_c_tol({2., 2.});
-    BOOST_CHECK(test01.feasibility_x({1., 1.}) == true);
-    BOOST_CHECK(test01.feasibility_f({2., 3., 1e-10, 1.}) == true);
+    EXPECT_TRUE(test01.feasibility_x({1., 1.}) == true);
+    EXPECT_TRUE(test01.feasibility_f({2., 3., 1e-10, 1.}) == true);
 
-    BOOST_CHECK(test02.feasibility_x({1., 1.}) == false);
-    BOOST_CHECK(test02.feasibility_f({2., 3., 1e-10, 3.}) == false);
+    EXPECT_TRUE(test02.feasibility_x({1., 1.}) == false);
+    EXPECT_TRUE(test02.feasibility_f({2., 3., 1e-10, 3.}) == false);
     test02.set_c_tol({2., 2.});
-    BOOST_CHECK(test02.feasibility_x({1., 1.}) == true);
-    BOOST_CHECK(test02.feasibility_f({2., 3., 1e-10, 1.5}) == true);
+    EXPECT_TRUE(test02.feasibility_x({1., 1.}) == true);
+    EXPECT_TRUE(test02.feasibility_f({2., 3., 1e-10, 1.5}) == true);
 
-    BOOST_CHECK_THROW(test02.feasibility_f({1., -23, 1e-10, 2., 34.}), std::invalid_argument);
+    EXPECT_THROW(test02.feasibility_f({1., -23, 1e-10, 2., 34.}), std::invalid_argument);
 }
 
-BOOST_AUTO_TEST_CASE(null_problem_test)
+TEST(problem_test, null_problem_test)
 {
     // Problem instantiation
     problem p;
-    BOOST_CHECK_EQUAL(p.get_name(), "Null problem");
+    EXPECT_EQ(p.get_name(), "Null problem");
     // Pick a few reference points
     vector_double x1 = {1};
     vector_double x2 = {2};
     // Fitness test
-    BOOST_CHECK((p.fitness(x1) == vector_double{0}));
-    BOOST_CHECK((p.fitness(x2) == vector_double{0}));
+    EXPECT_TRUE((p.fitness(x1) == vector_double{0}));
+    EXPECT_TRUE((p.fitness(x2) == vector_double{0}));
     p = problem{null_problem{2}};
-    BOOST_CHECK(null_problem{2}.get_nobj() == 2u);
-    BOOST_CHECK(null_problem{2}.get_nec() == 0u);
-    BOOST_CHECK(null_problem{2}.get_nic() == 0u);
-    BOOST_CHECK(null_problem{2}.get_nix() == 0u);
-    BOOST_CHECK((null_problem{2, 3, 4, 1}.get_nobj() == 2u));
-    BOOST_CHECK((null_problem{2, 3, 4, 1}.get_nec() == 3u));
-    BOOST_CHECK((null_problem{2, 3, 4, 1}.get_nic() == 4u));
-    BOOST_CHECK((null_problem{2, 3, 4, 1}.get_nix() == 1u));
-    BOOST_CHECK((null_problem{2, 3, 4, 0}.get_nix() == 0u));
-    BOOST_CHECK(p.get_nobj() == 2u);
-    BOOST_CHECK((p.fitness(x1) == vector_double{0, 0}));
-    BOOST_CHECK((p.fitness(x2) == vector_double{0, 0}));
-    BOOST_CHECK_THROW(p = problem{null_problem{0}}, std::invalid_argument);
-    BOOST_CHECK_THROW((p = problem{null_problem{2, 3, 4, 2}}), std::invalid_argument);
+    EXPECT_TRUE(null_problem{2}.get_nobj() == 2u);
+    EXPECT_TRUE(null_problem{2}.get_nec() == 0u);
+    EXPECT_TRUE(null_problem{2}.get_nic() == 0u);
+    EXPECT_TRUE(null_problem{2}.get_nix() == 0u);
+    EXPECT_TRUE((null_problem{2, 3, 4, 1}.get_nobj() == 2u));
+    EXPECT_TRUE((null_problem{2, 3, 4, 1}.get_nec() == 3u));
+    EXPECT_TRUE((null_problem{2, 3, 4, 1}.get_nic() == 4u));
+    EXPECT_TRUE((null_problem{2, 3, 4, 1}.get_nix() == 1u));
+    EXPECT_TRUE((null_problem{2, 3, 4, 0}.get_nix() == 0u));
+    EXPECT_TRUE(p.get_nobj() == 2u);
+    EXPECT_TRUE((p.fitness(x1) == vector_double{0, 0}));
+    EXPECT_TRUE((p.fitness(x2) == vector_double{0, 0}));
+    EXPECT_THROW(p = problem{null_problem{0}}, std::invalid_argument);
+    EXPECT_THROW((p = problem{null_problem{2, 3, 4, 2}}), std::invalid_argument);
 }
 
-BOOST_AUTO_TEST_CASE(null_problem_serialization_test)
+TEST(problem_test, null_problem_serialization_test)
 {
     problem p{null_problem{2, 3, 4}};
     // Call objfun to increase the internal counter.
@@ -1053,31 +1053,31 @@ BOOST_AUTO_TEST_CASE(null_problem_serialization_test)
     }
     // Change the content of p before deserializing.
     p = problem{};
-    BOOST_CHECK_EQUAL(p.get_nobj(), 1u);
+    EXPECT_EQ(p.get_nobj(), 1u);
     {
         boost::archive::binary_iarchive iarchive(ss);
         iarchive >> p;
     }
     auto after = boost::lexical_cast<std::string>(p);
-    BOOST_CHECK_EQUAL(before, after);
-    BOOST_CHECK_EQUAL(p.get_nobj(), 2u);
-    BOOST_CHECK_EQUAL(p.get_nec(), 3u);
-    BOOST_CHECK_EQUAL(p.get_nic(), 4u);
-    BOOST_CHECK_EQUAL(p.fitness({1.}).size(), 9u);
+    EXPECT_EQ(before, after);
+    EXPECT_EQ(p.get_nobj(), 2u);
+    EXPECT_EQ(p.get_nec(), 3u);
+    EXPECT_EQ(p.get_nic(), 4u);
+    EXPECT_EQ(p.fitness({1.}).size(), 9u);
 }
 
-BOOST_AUTO_TEST_CASE(extract_test)
+TEST(problem_test, extract_test)
 {
     problem p;
-    BOOST_CHECK(p.is<null_problem>());
-    BOOST_CHECK(!p.is<base_p>());
-    BOOST_CHECK((std::is_same<null_problem *, decltype(p.extract<null_problem>())>::value));
+    EXPECT_TRUE(p.is<null_problem>());
+    EXPECT_TRUE(!p.is<base_p>());
+    EXPECT_TRUE((std::is_same<null_problem *, decltype(p.extract<null_problem>())>::value));
     BOOST_CHECK(
         (std::is_same<null_problem const *, decltype(static_cast<const problem &>(p).extract<null_problem>())>::value));
-    BOOST_CHECK(p.extract<null_problem>() != nullptr);
-    BOOST_CHECK(static_cast<const problem &>(p).extract<null_problem>() != nullptr);
-    BOOST_CHECK(p.extract<base_p>() == nullptr);
-    BOOST_CHECK(static_cast<const problem &>(p).extract<base_p>() == nullptr);
+    EXPECT_TRUE(p.extract<null_problem>() != nullptr);
+    EXPECT_TRUE(static_cast<const problem &>(p).extract<null_problem>() != nullptr);
+    EXPECT_TRUE(p.extract<base_p>() == nullptr);
+    EXPECT_TRUE(static_cast<const problem &>(p).extract<base_p>() == nullptr);
 }
 
 struct ts1 {
@@ -1121,12 +1121,12 @@ struct ts3 {
     }
 };
 
-BOOST_AUTO_TEST_CASE(thread_safety_test)
+TEST(problem_test, thread_safety_test)
 {
-    BOOST_CHECK(problem{}.get_thread_safety() == thread_safety::basic);
-    BOOST_CHECK(problem{ts1{}}.get_thread_safety() == thread_safety::basic);
-    BOOST_CHECK(problem{ts2{}}.get_thread_safety() == thread_safety::none);
-    BOOST_CHECK(problem{ts3{}}.get_thread_safety() == thread_safety::basic);
+    EXPECT_TRUE(problem{}.get_thread_safety() == thread_safety::basic);
+    EXPECT_TRUE(problem{ts1{}}.get_thread_safety() == thread_safety::basic);
+    EXPECT_TRUE(problem{ts2{}}.get_thread_safety() == thread_safety::none);
+    EXPECT_TRUE(problem{ts3{}}.get_thread_safety() == thread_safety::basic);
 }
 
 struct gs1 {
@@ -1181,15 +1181,15 @@ struct gs3 {
     }
 };
 
-BOOST_AUTO_TEST_CASE(custom_gs)
+TEST(problem_test, custom_gs)
 {
     // Test a gradient sparsity that changes after the first invocation of gradient_sparsity().
     problem p{gs1{}};
-    BOOST_CHECK_THROW(p.gradient_sparsity(), std::invalid_argument);
+    EXPECT_THROW(p.gradient_sparsity(), std::invalid_argument);
     p = problem{gs2{}};
-    BOOST_CHECK_NO_THROW(p.gradient_sparsity());
+    EXPECT_NO_THROW(p.gradient_sparsity());
     // Gradient sparsity not sorted.
-    BOOST_CHECK_THROW(p = problem{gs3{}}, std::invalid_argument);
+    EXPECT_THROW(p = problem{gs3{}}, std::invalid_argument);
 }
 
 struct hs1 {
@@ -1256,14 +1256,14 @@ struct hs3 {
     }
 };
 
-BOOST_AUTO_TEST_CASE(custom_hs)
+TEST(problem_test, custom_hs)
 {
     // Test a hessians sparsity that changes after the first invocation of hessians_sparsity().
     problem p{hs1{}};
-    BOOST_CHECK_THROW(p.hessians_sparsity(), std::invalid_argument);
+    EXPECT_THROW(p.hessians_sparsity(), std::invalid_argument);
     p = problem{hs2{}};
-    BOOST_CHECK_NO_THROW(p.hessians_sparsity());
-    BOOST_CHECK_THROW(p = problem{hs3{}}, std::invalid_argument);
+    EXPECT_NO_THROW(p.hessians_sparsity());
+    EXPECT_THROW(p = problem{hs3{}}, std::invalid_argument);
 }
 
 struct hess1 {
@@ -1285,11 +1285,11 @@ struct hess1 {
     }
 };
 
-BOOST_AUTO_TEST_CASE(broken_hessian)
+TEST(problem_test, broken_hessian)
 {
     // Test a hessians method that returns a number of vectors different from get_nf().
     problem p{hess1{}};
-    BOOST_CHECK_THROW(p.hessians({1, 1, 1, 1, 1, 1}), std::invalid_argument);
+    EXPECT_THROW(p.hessians({1, 1, 1, 1, 1, 1}), std::invalid_argument);
 }
 
 struct minlp {
@@ -1328,30 +1328,30 @@ struct minlp {
     vector_double::size_type m_nix;
 };
 
-BOOST_AUTO_TEST_CASE(minlp_test)
+TEST(problem_test, minlp_test)
 {
-    BOOST_CHECK((problem{minlp{1u}}.get_nix() == 1u));
-    BOOST_CHECK((problem{minlp{1u}}.get_ncx() == 2u));
-    BOOST_CHECK((problem{minlp{1u}}.get_nx() == 3u));
-    BOOST_CHECK((problem{minlp{2u}}.get_nix() == 2u));
-    BOOST_CHECK((problem{minlp{2u}}.get_ncx() == 1u));
-    BOOST_CHECK((problem{minlp{2u}}.get_nx() == 3u));
-    BOOST_CHECK((problem{minlp{3u}}.get_nix() == 3u));
-    BOOST_CHECK((problem{minlp{3u}}.get_ncx() == 0u));
-    BOOST_CHECK((problem{minlp{3u}}.get_nx() == 3u));
-    BOOST_CHECK_THROW(problem{minlp{5u}}, std::invalid_argument);
+    EXPECT_TRUE((problem{minlp{1u}}.get_nix() == 1u));
+    EXPECT_TRUE((problem{minlp{1u}}.get_ncx() == 2u));
+    EXPECT_TRUE((problem{minlp{1u}}.get_nx() == 3u));
+    EXPECT_TRUE((problem{minlp{2u}}.get_nix() == 2u));
+    EXPECT_TRUE((problem{minlp{2u}}.get_ncx() == 1u));
+    EXPECT_TRUE((problem{minlp{2u}}.get_nx() == 3u));
+    EXPECT_TRUE((problem{minlp{3u}}.get_nix() == 3u));
+    EXPECT_TRUE((problem{minlp{3u}}.get_ncx() == 0u));
+    EXPECT_TRUE((problem{minlp{3u}}.get_nx() == 3u));
+    EXPECT_THROW(problem{minlp{5u}}, std::invalid_argument);
 }
 
-BOOST_AUTO_TEST_CASE(increase_counter)
+TEST(problem_test, increase_counter)
 {
     problem p;
-    BOOST_CHECK(p.get_fevals() == 0u);
+    EXPECT_TRUE(p.get_fevals() == 0u);
     p.increment_fevals(100u);
-    BOOST_CHECK(p.get_fevals() == 100u);
+    EXPECT_TRUE(p.get_fevals() == 100u);
     p.increment_fevals(10u);
-    BOOST_CHECK(p.get_fevals() == 110u);
+    EXPECT_TRUE(p.get_fevals() == 110u);
     p.increment_fevals(0u);
-    BOOST_CHECK(p.get_fevals() == 110u);
+    EXPECT_TRUE(p.get_fevals() == 110u);
 }
 
 struct bf_s11n {
@@ -1375,13 +1375,13 @@ struct bf_s11n {
 
 PAGMO_S11N_PROBLEM_EXPORT(bf_s11n)
 
-BOOST_AUTO_TEST_CASE(batch_fitness)
+TEST(problem_test, batch_fitness)
 {
     // Test a problem with no batch fitness.
     problem p;
-    BOOST_CHECK(!HasBatchFitness<null_problem>);
-    BOOST_CHECK(!OverrideHasBatchFitness<null_problem>);
-    BOOST_CHECK(!p.has_batch_fitness());
+    EXPECT_TRUE(!HasBatchFitness<null_problem>);
+    EXPECT_TRUE(!OverrideHasBatchFitness<null_problem>);
+    EXPECT_TRUE(!p.has_batch_fitness());
     BOOST_CHECK_EXCEPTION(p.batch_fitness(vector_double{1.}), not_implemented_error,
                           [](const not_implemented_error &nie) {
                               return boost::contains(nie.what(), "The batch_fitness() method has been invoked, but it "
@@ -1404,10 +1404,10 @@ BOOST_AUTO_TEST_CASE(batch_fitness)
         }
     };
     p = problem{bf0{}};
-    BOOST_CHECK(HasBatchFitness<bf0>);
-    BOOST_CHECK(!OverrideHasBatchFitness<bf0>);
-    BOOST_CHECK(p.has_batch_fitness());
-    BOOST_CHECK(p.batch_fitness({1., 2., 3.}) == vector_double(3, 1.));
+    EXPECT_TRUE(HasBatchFitness<bf0>);
+    EXPECT_TRUE(!OverrideHasBatchFitness<bf0>);
+    EXPECT_TRUE(p.has_batch_fitness());
+    EXPECT_TRUE(p.batch_fitness({1., 2., 3.}) == vector_double(3, 1.));
 
     // A UDP which provides batch_fitness(), 2-dimensional.
     struct bf1 {
@@ -1426,10 +1426,10 @@ BOOST_AUTO_TEST_CASE(batch_fitness)
     };
 
     p = problem{bf1{}};
-    BOOST_CHECK(HasBatchFitness<bf1>);
-    BOOST_CHECK(!OverrideHasBatchFitness<bf1>);
-    BOOST_CHECK(p.has_batch_fitness());
-    BOOST_CHECK(p.batch_fitness({1., 2., 3., 4.}) == vector_double(2, 1.));
+    EXPECT_TRUE(HasBatchFitness<bf1>);
+    EXPECT_TRUE(!OverrideHasBatchFitness<bf1>);
+    EXPECT_TRUE(p.has_batch_fitness());
+    EXPECT_TRUE(p.batch_fitness({1., 2., 3., 4.}) == vector_double(2, 1.));
     // Check throw on wrong input vector.
     BOOST_CHECK_EXCEPTION(
         p.batch_fitness(vector_double{1.}), std::invalid_argument, [](const std::invalid_argument &ia) {
@@ -1459,9 +1459,9 @@ BOOST_AUTO_TEST_CASE(batch_fitness)
         }
     };
     p = problem{bf2{}};
-    BOOST_CHECK(HasBatchFitness<bf2>);
-    BOOST_CHECK(!OverrideHasBatchFitness<bf2>);
-    BOOST_CHECK(p.has_batch_fitness());
+    EXPECT_TRUE(HasBatchFitness<bf2>);
+    EXPECT_TRUE(!OverrideHasBatchFitness<bf2>);
+    EXPECT_TRUE(p.has_batch_fitness());
     BOOST_CHECK_EXCEPTION(
         p.batch_fitness(vector_double{1.}), std::invalid_argument, [](const std::invalid_argument &ia) {
             return boost::contains(ia.what(),
@@ -1486,9 +1486,9 @@ BOOST_AUTO_TEST_CASE(batch_fitness)
         }
     };
     p = problem{bf3{}};
-    BOOST_CHECK(HasBatchFitness<bf3>);
-    BOOST_CHECK(!OverrideHasBatchFitness<bf3>);
-    BOOST_CHECK(p.has_batch_fitness());
+    EXPECT_TRUE(HasBatchFitness<bf3>);
+    EXPECT_TRUE(!OverrideHasBatchFitness<bf3>);
+    EXPECT_TRUE(p.has_batch_fitness());
     BOOST_CHECK_EXCEPTION(
         p.batch_fitness(vector_double{1.}), std::invalid_argument, [](const std::invalid_argument &ia) {
             return boost::contains(ia.what(),
@@ -1512,8 +1512,8 @@ BOOST_AUTO_TEST_CASE(batch_fitness)
         }
     };
     p = problem{bf4{}};
-    BOOST_CHECK(!HasBatchFitness<bf4>);
-    BOOST_CHECK(OverrideHasBatchFitness<bf4>);
+    EXPECT_TRUE(!HasBatchFitness<bf4>);
+    EXPECT_TRUE(OverrideHasBatchFitness<bf4>);
     BOOST_CHECK_EXCEPTION(p.batch_fitness(vector_double{1.}), not_implemented_error,
                           [](const not_implemented_error &nie) {
                               return boost::contains(nie.what(), "The batch_fitness() method has been invoked, but it "
@@ -1540,16 +1540,16 @@ BOOST_AUTO_TEST_CASE(batch_fitness)
         }
     };
     p = problem{bf5{}};
-    BOOST_CHECK(HasBatchFitness<bf5>);
-    BOOST_CHECK(OverrideHasBatchFitness<bf5>);
-    BOOST_CHECK(!p.has_batch_fitness());
-    BOOST_CHECK(p.batch_fitness({1., 2., 3.}) == vector_double(3, 1.));
+    EXPECT_TRUE(HasBatchFitness<bf5>);
+    EXPECT_TRUE(OverrideHasBatchFitness<bf5>);
+    EXPECT_TRUE(!p.has_batch_fitness());
+    EXPECT_TRUE(p.batch_fitness({1., 2., 3.}) == vector_double(3, 1.));
     // Check the counter as well.
-    BOOST_CHECK(p.get_fevals() == 3u);
+    EXPECT_TRUE(p.get_fevals() == 3u);
 
     // Serialization check.
     p = problem{bf_s11n{}};
-    BOOST_CHECK(p.has_batch_fitness());
+    EXPECT_TRUE(p.has_batch_fitness());
     std::stringstream ss;
     auto before = boost::lexical_cast<std::string>(p);
     // Now serialize, deserialize and compare the result.
@@ -1559,58 +1559,58 @@ BOOST_AUTO_TEST_CASE(batch_fitness)
     }
     // Change the content of p before deserializing.
     p = problem{};
-    BOOST_CHECK(!p.has_batch_fitness());
+    EXPECT_TRUE(!p.has_batch_fitness());
     {
         boost::archive::binary_iarchive iarchive(ss);
         iarchive >> p;
     }
     auto after = boost::lexical_cast<std::string>(p);
-    BOOST_CHECK_EQUAL(before, after);
-    BOOST_CHECK(p.has_batch_fitness());
+    EXPECT_EQ(before, after);
+    EXPECT_TRUE(p.has_batch_fitness());
 }
 
-BOOST_AUTO_TEST_CASE(is_valid)
+TEST(problem_test, is_valid)
 {
     problem p0;
-    BOOST_CHECK(p0.is_valid());
+    EXPECT_TRUE(p0.is_valid());
     problem p1(std::move(p0));
-    BOOST_CHECK(!p0.is_valid());
+    EXPECT_TRUE(!p0.is_valid());
     p0 = problem{full_p{}};
-    BOOST_CHECK(p0.is_valid());
+    EXPECT_TRUE(p0.is_valid());
     p1 = std::move(p0);
-    BOOST_CHECK(!p0.is_valid());
+    EXPECT_TRUE(!p0.is_valid());
     p0 = problem{full_p{}};
-    BOOST_CHECK(p0.is_valid());
+    EXPECT_TRUE(p0.is_valid());
 }
 
-BOOST_AUTO_TEST_CASE(generic_assignment)
+TEST(problem_test, generic_assignment)
 {
     problem p0;
-    BOOST_CHECK(p0.is<null_problem>());
-    BOOST_CHECK(&(p0 = full_p{}) == &p0);
-    BOOST_CHECK(p0.is_valid());
-    BOOST_CHECK(p0.is<full_p>());
-    BOOST_CHECK((!std::is_assignable<problem, void>::value));
-    BOOST_CHECK((!std::is_assignable<problem, int &>::value));
-    BOOST_CHECK((!std::is_assignable<problem, const int &>::value));
-    BOOST_CHECK((!std::is_assignable<problem, int &&>::value));
+    EXPECT_TRUE(p0.is<null_problem>());
+    EXPECT_TRUE(&(p0 = full_p{}) == &p0);
+    EXPECT_TRUE(p0.is_valid());
+    EXPECT_TRUE(p0.is<full_p>());
+    EXPECT_TRUE((!std::is_assignable<problem, void>::value));
+    EXPECT_TRUE((!std::is_assignable<problem, int &>::value));
+    EXPECT_TRUE((!std::is_assignable<problem, const int &>::value));
+    EXPECT_TRUE((!std::is_assignable<problem, int &&>::value));
 }
 
-BOOST_AUTO_TEST_CASE(type_index)
+TEST(problem_test, type_index)
 {
     problem p0;
-    BOOST_CHECK(p0.get_type_index() == std::type_index(typeid(null_problem)));
+    EXPECT_TRUE(p0.get_type_index() == std::type_index(typeid(null_problem)));
     p0 = problem{grad_p_override{}};
-    BOOST_CHECK(p0.get_type_index() == std::type_index(typeid(grad_p_override)));
+    EXPECT_TRUE(p0.get_type_index() == std::type_index(typeid(grad_p_override)));
 }
 
-BOOST_AUTO_TEST_CASE(get_ptr)
+TEST(problem_test, get_ptr)
 {
     problem p0;
-    BOOST_CHECK(p0.get_ptr() == p0.extract<null_problem>());
-    BOOST_CHECK(static_cast<const problem &>(p0).get_ptr() == static_cast<const problem &>(p0).extract<null_problem>());
+    EXPECT_TRUE(p0.get_ptr() == p0.extract<null_problem>());
+    EXPECT_TRUE(static_cast<const problem &>(p0).get_ptr() == static_cast<const problem &>(p0).extract<null_problem>());
     p0 = problem{grad_p_override{}};
-    BOOST_CHECK(p0.get_ptr() == p0.extract<grad_p_override>());
-    BOOST_CHECK(static_cast<const problem &>(p0).get_ptr()
+    EXPECT_TRUE(p0.get_ptr() == p0.extract<grad_p_override>());
+    EXPECT_TRUE(static_cast<const problem &>(p0).get_ptr()
                 == static_cast<const problem &>(p0).extract<grad_p_override>());
 }

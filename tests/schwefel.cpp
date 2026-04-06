@@ -26,8 +26,8 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-#define BOOST_TEST_MODULE schwefel_test
-#include <boost/test/unit_test.hpp>
+
+#include <gtest/gtest.h>
 
 #include <boost/lexical_cast.hpp>
 #include <iostream>
@@ -40,29 +40,29 @@ see https://www.gnu.org/licenses/. */
 
 using namespace pagmo;
 
-BOOST_AUTO_TEST_CASE(schwefel_test)
+TEST(schwefel_test, schwefel_test)
 {
     // Problem construction
     schwefel sch1{1u};
     schwefel sch3{3u};
-    BOOST_CHECK_THROW(schwefel{0u}, std::invalid_argument);
-    BOOST_CHECK_NO_THROW(problem{sch3});
+    EXPECT_THROW(schwefel{0u}, std::invalid_argument);
+    EXPECT_NO_THROW(problem{sch3});
     // Pick a few reference points
     vector_double x1 = {1.12};
     vector_double x3 = {-23.45, 12.34, 111.12};
     // Fitness test
-    BOOST_CHECK_CLOSE(sch1.fitness(x1)[0], 418.0067810680098, 1e-13);
-    BOOST_CHECK_CLOSE(sch1.fitness(x3)[0], 1338.0260195323838, 1e-13);
+    EXPECT_NEAR(sch1.fitness(x1)[0], 418.0067810680098, 1e-13);
+    EXPECT_NEAR(sch1.fitness(x3)[0], 1338.0260195323838, 1e-13);
     // Bounds Test
-    BOOST_CHECK((sch3.get_bounds() == std::pair<vector_double, vector_double>{{-500, -500, -500}, {500, 500, 500}}));
+    EXPECT_TRUE((sch3.get_bounds() == std::pair<vector_double, vector_double>{{-500, -500, -500}, {500, 500, 500}}));
     // Name and extra info tests
-    BOOST_CHECK(sch3.get_name().find("Schwefel") != std::string::npos);
+    EXPECT_TRUE(sch3.get_name().find("Schwefel") != std::string::npos);
     // Best known test
     auto x_best = sch3.best_known();
-    BOOST_CHECK((x_best == vector_double{420.9687, 420.9687, 420.9687}));
+    EXPECT_TRUE((x_best == vector_double{420.9687, 420.9687, 420.9687}));
 }
 
-BOOST_AUTO_TEST_CASE(schwefel_serialization_test)
+TEST(schwefel_test, schwefel_serialization_test)
 {
     problem p{schwefel{4u}};
     // Call objfun to increase the internal counters.
@@ -82,5 +82,5 @@ BOOST_AUTO_TEST_CASE(schwefel_serialization_test)
         iarchive >> p;
     }
     auto after = boost::lexical_cast<std::string>(p);
-    BOOST_CHECK_EQUAL(before, after);
+    EXPECT_EQ(before, after);
 }
