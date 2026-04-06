@@ -91,6 +91,12 @@ $(BUILD_DIR)/Makefile: CMakeLists.txt
 	@mkdir -p $(BUILD_DIR)
 	@cd $(BUILD_DIR) && $(CMAKE) .. $(CMAKE_FLAGS)
 
+.PHONY: reconfigure
+reconfigure:
+	@echo "==> Forcing reconfiguration..."
+	@mkdir -p $(BUILD_DIR)
+	@cd $(BUILD_DIR) && $(CMAKE) .. $(CMAKE_FLAGS)
+
 .PHONY: build
 build: configure
 	@echo "==> Building pagmo2..."
@@ -241,17 +247,23 @@ release-test:
 	@$(MAKE) build BUILD_TYPE=Release PAGMO_BUILD_TESTS=ON
 	@$(MAKE) test
 
+.PHONY: full-test
+full-test: full-build
+	@echo "==> Full test build with all features..."
+	@$(MAKE) test
+
 .PHONY: full-build
 full-build:
 	@echo "==> Full build with all features..."
-	@$(MAKE) build \
+	@$(MAKE) reconfigure \
 		PAGMO_BUILD_TESTS=ON \
 		PAGMO_BUILD_BENCHMARKS=ON \
 		PAGMO_BUILD_TUTORIALS=ON \
 		PAGMO_WITH_EIGEN3=ON \
 		PAGMO_WITH_NLOPT=ON \
 		PAGMO_WITH_IPOPT=ON \
-		PAGMO_ENABLE_IPO=ON 
+		PAGMO_ENABLE_IPO=ON
+	@$(MAKE) -C $(BUILD_DIR) -j$(NUM_JOBS) --no-print-directory 
 
 # Status and info targets
 .PHONY: status

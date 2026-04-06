@@ -25,7 +25,7 @@ message(STATUS "Using CPM for Boost to ensure reliable component availability")
 set(TRY_BOOST_VERSION "1.90.0")
 set(BOOST_MY_OPTIONS "CMAKE_POSITION_INDEPENDENT_CODE ON;BUILD_SHARED_LIBS OFF")
 set(BOOST_NOT_HEADER_ONLY_COMPONENTS_THAT_YOU_NEED "serialization;test")
-set(BOOST_HEADER_ONLY_COMPONENTS_THAT_YOU_NEED "any;system")
+set(BOOST_HEADER_ONLY_COMPONENTS_THAT_YOU_NEED "any;system;math;safe_numerics;bimap;graph;lexical_cast;integer;variant;variant2;property_map;container;move;type_index;multi_index;type_traits;config;mpl;cat;preprocessor")
 
 add_boost(
   TRY_BOOST_VERSION BOOST_HEADER_ONLY_COMPONENTS_THAT_YOU_NEED

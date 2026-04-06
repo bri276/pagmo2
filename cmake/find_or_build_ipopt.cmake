@@ -13,24 +13,31 @@ if(PAGMO_WITH_IPOPT)
     file(MAKE_DIRECTORY ${IPOPT_INSTALL_DIR}/include/coin-or)
     file(MAKE_DIRECTORY ${IPOPT_INSTALL_DIR}/lib)
     
-    # Build IPOPT from source using ExternalProject
+    # Build IPOPT from source using ExternalProject with minimal dependencies
     ExternalProject_Add(
         ipopt_external
-        GIT_REPOSITORY https://github.com/coin-or/Ipopt.git
-        GIT_TAG releases/3.14.12
+        URL https://github.com/coin-or/Ipopt/archive/releases/3.14.12.tar.gz
         PREFIX ${CMAKE_CURRENT_BINARY_DIR}/ipopt
         CONFIGURE_COMMAND <SOURCE_DIR>/configure 
             --prefix=${IPOPT_INSTALL_DIR}
             --disable-shared
             --enable-static
             --with-pic
-            --with-lapack=-llapack
-            --with-blas=-lblas
+            --with-lapack-lflags=-llapack\ -lblas
+            --without-hsl
+            --without-mumps
+            --without-asl  
+            --disable-linear-solver-loader
+            CXX=${CMAKE_CXX_COMPILER}
+            CC=${CMAKE_C_COMPILER}
+            F77=gfortran
+            FC=gfortran
         BUILD_COMMAND make
         INSTALL_COMMAND make install
         LOG_CONFIGURE ON
         LOG_BUILD ON
         LOG_INSTALL ON
+        DOWNLOAD_EXTRACT_TIMESTAMP ON
     )
     
     # Create an interface target for IPOPT (using namespaced name to avoid conflicts)
@@ -43,7 +50,8 @@ if(PAGMO_WITH_IPOPT)
         ${IPOPT_INSTALL_DIR}/lib/libipopt.a
         lapack
         blas
+        gfortran
     )
     
-    message(STATUS "IPOPT will be built from source with system LAPACK/BLAS")
+    message(STATUS "IPOPT will be built from source with linear solver disabled")
 endif()

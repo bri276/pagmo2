@@ -173,6 +173,9 @@ endif ()
 # TBB dependency
 include(cmake/find_or_build_tbb.cmake)
 
+# Boost dependency
+include(cmake/find_or_build_boost.cmake)
+
 # Eigen3 dependency
 include(cmake/find_or_build_eigen.cmake)
 
@@ -181,9 +184,6 @@ include(cmake/find_or_build_nlopt.cmake)
 
 # IPOPT dependency
 include(cmake/find_or_build_ipopt.cmake)
-
-# Boost dependency
-include(cmake/find_or_build_boost.cmake)
 
 # List of source files.
 set(PAGMO_SRC_FILES
@@ -381,6 +381,18 @@ if(TARGET boost_boost)
     endif()
     message(STATUS "Linked with boost_boost (private)")
 endif()
+
+# Link additional header-only boost libraries needed by pagmo
+foreach(boost_lib IN ITEMS boost_any boost_math boost_safe_numerics boost_bimap boost_system boost_graph boost_lexical_cast boost_integer boost_variant boost_variant2 boost_property_map boost_container boost_move boost_type_index boost_multi_index boost_type_traits boost_config boost_mpl boost_cat boost_preprocessor)
+    if(TARGET ${boost_lib})
+        target_link_libraries(pagmo PRIVATE ${boost_lib})
+        get_target_property(BOOST_LIB_INCLUDE_DIRS ${boost_lib} INTERFACE_INCLUDE_DIRECTORIES)
+        if(BOOST_LIB_INCLUDE_DIRS)
+            target_include_directories(pagmo PUBLIC ${BOOST_LIB_INCLUDE_DIRS})
+        endif()
+        message(STATUS "Linked with ${boost_lib} (private)")
+    endif()
+endforeach()
 
 target_link_libraries(pagmo PRIVATE boost_serialization)
 # Expose serialization headers publicly since pagmo's API uses them
