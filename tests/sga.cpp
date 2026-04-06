@@ -91,12 +91,12 @@ TEST(sga_test, sga_evolve_test)
     EXPECT_THROW((sga{}.evolve(population{zdt{}, 5u, 23u})), std::invalid_argument);
     EXPECT_THROW((sga{}.evolve(population{hock_schittkowski_71{}, 5u, 23u})), std::invalid_argument);
     EXPECT_THROW((sga{}.evolve(population{schwefel{20u}, 1u, 23u})), std::invalid_argument);
-    BOOST_CHECK_THROW((sga{1u, .95, 10., .02, .5, 21u, "exponential", "gaussian", "tournament", 32u}.evolve(
-                          population{schwefel{20u}, 20u, 23u})),
-                      std::invalid_argument);
-    BOOST_CHECK_THROW((sga{1u, .95, 10., .02, .5, 2u, "sbx", "gaussian", "tournament", 32u}.evolve(
-                          population{schwefel{20u}, 25u, 23u})),
-                      std::invalid_argument);
+    EXPECT_THROW((sga{1u, .95, 10., .02, .5, 21u, "exponential", "gaussian", "tournament", 32u}.evolve(
+                     population{schwefel{20u}, 20u, 23u})),
+                 std::invalid_argument);
+    EXPECT_THROW((sga{1u, .95, 10., .02, .5, 2u, "sbx", "gaussian", "tournament", 32u}.evolve(
+                     population{schwefel{20u}, 25u, 23u})),
+                 std::invalid_argument);
     // And a clean exit for 0 generations
     population pop{schwefel{25u}, 10u};
     EXPECT_TRUE(sga{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);

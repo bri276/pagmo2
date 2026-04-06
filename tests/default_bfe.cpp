@@ -125,11 +125,11 @@ TEST(default_bfe_test, basic_tests)
     // UDP without batch_fitness() member function, which is not thread-safe enough.
     p = problem{bf2{}};
     EXPECT_TRUE(p.get_thread_safety() == thread_safety::none);
-    BOOST_CHECK_EXCEPTION(bfe0(p, {1.}), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return boost::contains(ia.what(),
-                               "Cannot execute fitness evaluations in batch mode for a problem of type 'baffo': the "
-                               "problem does not implement the batch_fitness() member function, and its thread safety "
-                               "level is not sufficient to run a thread-based batch fitness evaluation implementation");
+    EXPECT_THROW(bfe0(p, {1.}), std::invalid_argument, [](const std::invalid_argument &ia) {
+        return std::string(ia.what()).contains(
+            "Cannot execute fitness evaluations in batch mode for a problem of type 'baffo': the "
+            "problem does not implement the batch_fitness() member function, and its thread safety "
+            "level is not sufficient to run a thread-based batch fitness evaluation implementation");
     });
 }
 

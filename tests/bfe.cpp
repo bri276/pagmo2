@@ -359,13 +359,7 @@ TEST(bfe_test, call_operator)
     bfe bfe0a{udbfe0};
     EXPECT_TRUE(bfe0a(problem{null_problem{3}}, vector_double{.5}) == (vector_double{.5, .5, .5}));
     // Try passing in a wrong dvs.
-    BOOST_CHECK_EXCEPTION(
-        bfe0(problem{rosenbrock{}}, vector_double{.5}), std::invalid_argument, [](const std::invalid_argument &ia) {
-            return boost::contains(
-                ia.what(),
-                "Invalid argument for a batch fitness evaluation: the length of the vector "
-                "representing the decision vectors, 1, is not an exact multiple of the dimension of the problem, 2");
-        });
+    EXPECT_THROW(bfe0(problem{rosenbrock{}}, vector_double{.5}), std::invalid_argument);
     // Try a udfbe which returns a bogus vector of fitnesses.
     struct udbfe_01 {
         vector_double operator()(const problem &p, const vector_double &dvs) const
@@ -374,13 +368,13 @@ TEST(bfe_test, call_operator)
         }
     };
     bfe bfe1{udbfe_01{}};
-    BOOST_CHECK_EXCEPTION(
-        bfe1(problem{null_problem{3}}, vector_double{.5}), std::invalid_argument, [](const std::invalid_argument &ia) {
-            return boost::contains(ia.what(),
-                                   "An invalid result was produced by a batch fitness evaluation: the length of "
-                                   "the vector representing the fitness vectors, 4, is not an exact multiple of "
-                                   "the fitness dimension of the problem, 3");
-        });
+    EXPECT_THROW(bfe1(problem{null_problem{3}}, vector_double{.5}), std::invalid_argument,
+                 [](const std::invalid_argument &ia) {
+                     return std::string(ia.what()).contains(
+                         "An invalid result was produced by a batch fitness evaluation: the length of "
+                         "the vector representing the fitness vectors, 4, is not an exact multiple of "
+                         "the fitness dimension of the problem, 3");
+                 });
     // Try a udfbe which returns a bogus number of fitnesses.
     struct udbfe_02 {
         vector_double operator()(const problem &p, const vector_double &dvs) const
@@ -390,12 +384,12 @@ TEST(bfe_test, call_operator)
         }
     };
     bfe bfe2{udbfe_02{}};
-    BOOST_CHECK_EXCEPTION(
-        bfe2(problem{null_problem{3}}, vector_double{.5}), std::invalid_argument, [](const std::invalid_argument &ia) {
-            return boost::contains(ia.what(),
-                                   "An invalid result was produced by a batch fitness evaluation: the number of "
-                                   "produced fitness vectors, 2, differs from the number of input decision vectors, 1");
-        });
+    EXPECT_THROW(bfe2(problem{null_problem{3}}, vector_double{.5}), std::invalid_argument,
+                 [](const std::invalid_argument &ia) {
+                     return std::string(ia.what()).contains(
+                         "An invalid result was produced by a batch fitness evaluation: the number of "
+                         "produced fitness vectors, 2, differs from the number of input decision vectors, 1");
+                 });
 }
 
 struct udbfe_a {

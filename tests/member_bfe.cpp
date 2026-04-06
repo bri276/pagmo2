@@ -56,7 +56,7 @@ TEST(member_bfe_test, basic_tests)
 
     // Verify a problem which does not have batch_fitness.
     problem p;
-    BOOST_CHECK_EXCEPTION(bfe0(p, {1.}), not_implemented_error, [](const not_implemented_error &nie) {
+    EXPECT_THROW(bfe0(p, {1.}), not_implemented_error, [](const not_implemented_error &nie) {
         return nie.what().contains("The batch_fitness() method has been invoked, but it "
                                    "is not implemented in a UDP of type 'Null problem'");
     });
@@ -103,11 +103,11 @@ TEST(member_bfe_test, basic_tests)
         }
     };
     p = problem{bf2{}};
-    BOOST_CHECK_EXCEPTION(bfe0(p, vector_double{1.}), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return boost::contains(ia.what(),
-                               "An invalid result was produced by a batch fitness evaluation: the length of "
-                               "the vector representing the fitness vectors, 1, is not an exact multiple of the "
-                               "fitness dimension of the problem, 2");
+    EXPECT_THROW(bfe0(p, vector_double{1.}), std::invalid_argument, [](const std::invalid_argument &ia) {
+        return std::string(ia.what()).contains(
+            "An invalid result was produced by a batch fitness evaluation: the length of "
+            "the vector representing the fitness vectors, 1, is not an exact multiple of the "
+            "fitness dimension of the problem, 2");
     });
 }
 

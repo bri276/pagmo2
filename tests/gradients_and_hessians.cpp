@@ -26,7 +26,6 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-
 #include <gtest/gtest.h>
 
 #include <limits>
@@ -92,7 +91,7 @@ TEST(gradients_and_hessians_test, estimate_sparsity_test)
         auto sp
             = estimate_sparsity([udp](const vector_double &x) { return udp.fitness(x); }, {0.1, 0.2, 0.3, 0.4}, 1e-8);
         EXPECT_TRUE((sp == sparsity_pattern{{0, 0}, {0, 1}, {0, 2}, {0, 3}, {1, 1}, {1, 2}, {1, 3}, {2, 2}}));
-        BOOST_CHECK_THROW(
+        EXPECT_THROW(
             estimate_sparsity([udp2](const vector_double &x) { return udp2.fitness(x); }, {0.1, 0.2, 0.3, 0.4}, 1e-8),
             std::invalid_argument);
     }
@@ -102,7 +101,7 @@ TEST(gradients_and_hessians_test, estimate_sparsity_test)
         auto sp
             = estimate_sparsity([prob](const vector_double &x) { return prob.fitness(x); }, {0.1, 0.2, 0.3, 0.4}, 1e-8);
         EXPECT_TRUE((sp == sparsity_pattern{{0, 0}, {0, 1}, {0, 2}, {0, 3}, {1, 1}, {1, 2}, {1, 3}, {2, 2}}));
-        BOOST_CHECK_THROW(
+        EXPECT_THROW(
             estimate_sparsity([prob2](const vector_double &x) { return prob2.fitness(x); }, {0.1, 0.2, 0.3, 0.4}, 1e-8),
             std::invalid_argument);
     }
@@ -134,10 +133,10 @@ TEST(gradients_and_hessians_test, estimate_gradient_test)
 
     dummy_problem_easy_grad udp{};
     dummy_problem_malformed udp2{};
-    BOOST_CHECK_THROW(
+    EXPECT_THROW(
         estimate_gradient([udp2](const vector_double &x) { return udp2.fitness(x); }, {0.1, 0.2, 0.3, 0.4}, 1e-8),
         std::invalid_argument);
-    BOOST_CHECK_THROW(
+    EXPECT_THROW(
         estimate_gradient_h([udp2](const vector_double &x) { return udp2.fitness(x); }, {0.1, 0.2, 0.3, 0.4}, 1e-8),
         std::invalid_argument);
     auto g = estimate_gradient([udp](const vector_double &x) { return udp.fitness(x); }, {0.1, 0.2, 0.3, 0.4}, 1e-8);

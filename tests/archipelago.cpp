@@ -180,29 +180,29 @@ TEST(archipelago_test, archipelago_construction)
     std::sort(seeds2.begin(), seeds2.end());
     EXPECT_TRUE(std::unique(seeds2.begin(), seeds2.end()) == seeds2.end());
     EXPECT_TRUE(std::equal(seeds.begin(), seeds.end(), seeds2.begin()));
-    BOOST_CHECK(
+    EXPECT_TRUE(
         std::equal(archi3a.begin(), archi3a.end(), archi3b.begin(), [](const island &isl_a, const island &isl_b) {
             return isl_a.get_population().get_x() == isl_b.get_population().get_x();
         }));
-    BOOST_CHECK(
+    EXPECT_TRUE(
         std::equal(archi3a.begin(), archi3a.end(), archi3b.begin(), [](const island &isl_a, const island &isl_b) {
             return isl_a.get_population().get_f() == isl_b.get_population().get_f();
         }));
-    BOOST_CHECK(
+    EXPECT_TRUE(
         std::equal(archi3a.begin(), archi3a.end(), archi3b.begin(), [](const island &isl_a, const island &isl_b) {
             return isl_a.get_population().get_ID() == isl_b.get_population().get_ID();
         }));
     archi3a = archipelago{5u, thread_island{}, de{}, rosenbrock{}, 10u};
     archi3b = archipelago{5u, thread_island{}, de{}, rosenbrock{}, 10u};
-    BOOST_CHECK(
+    EXPECT_TRUE(
         !std::equal(archi3a.begin(), archi3a.end(), archi3b.begin(), [](const island &isl_a, const island &isl_b) {
             return isl_a.get_population().get_x() == isl_b.get_population().get_x();
         }));
-    BOOST_CHECK(
+    EXPECT_TRUE(
         !std::equal(archi3a.begin(), archi3a.end(), archi3b.begin(), [](const island &isl_a, const island &isl_b) {
             return isl_a.get_population().get_f() == isl_b.get_population().get_f();
         }));
-    BOOST_CHECK(
+    EXPECT_TRUE(
         !std::equal(archi3a.begin(), archi3a.end(), archi3b.begin(), [](const island &isl_a, const island &isl_b) {
             return isl_a.get_population().get_ID() == isl_b.get_population().get_ID();
         }));
@@ -681,10 +681,10 @@ TEST(archipelago_test, archipelago_iterator_tests)
     EXPECT_TRUE(static_cast<const archipelago &>(archi).begin() == static_cast<const archipelago &>(archi).end());
     EXPECT_EQ(std::distance(archi.begin(), archi.end()), 0);
     EXPECT_EQ(std::distance(std::begin(archi), std::end(archi)), 0);
-    BOOST_CHECK_EQUAL(
+    EXPECT_TRUE_EQUAL(
         std::distance(static_cast<const archipelago &>(archi).begin(), static_cast<const archipelago &>(archi).end()),
         0);
-    BOOST_CHECK_EQUAL(std::distance(std::begin(static_cast<const archipelago &>(archi)),
+    EXPECT_TRUE_EQUAL(std::distance(std::begin(static_cast<const archipelago &>(archi)),
                                     std::end(static_cast<const archipelago &>(archi))),
                       0);
     archi.push_back(de{}, rosenbrock{}, 10u);
@@ -692,7 +692,7 @@ TEST(archipelago_test, archipelago_iterator_tests)
     archi.push_back(de{}, rosenbrock{}, 10u);
     archi.push_back(de{}, rosenbrock{}, 10u);
     EXPECT_EQ(std::distance(std::begin(archi), std::end(archi)), 4);
-    BOOST_CHECK_EQUAL(std::distance(std::begin(static_cast<const archipelago &>(archi)),
+    EXPECT_TRUE_EQUAL(std::distance(std::begin(static_cast<const archipelago &>(archi)),
                                     std::end(static_cast<const archipelago &>(archi))),
                       4);
     for (auto &isl : archi) {

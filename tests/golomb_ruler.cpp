@@ -30,7 +30,8 @@ see https://www.gnu.org/licenses/. */
 
 #include <iostream>
 #include <limits>
-#include <pagmo/utils/cast.hpp>#include <stdexcept>
+#include <pagmo/utils/cast.hpp>
+#include <stdexcept>
 #include <string>
 
 #include <pagmo/algorithm.hpp>

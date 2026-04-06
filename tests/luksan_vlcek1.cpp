@@ -29,7 +29,8 @@ see https://www.gnu.org/licenses/. */
 #include <gtest/gtest.h>
 
 #include <iostream>
-#include <pagmo/utils/cast.hpp>#include <stdexcept>
+#include <pagmo/utils/cast.hpp>
+#include <stdexcept>
 #include <string>
 
 #include <pagmo/problem.hpp>

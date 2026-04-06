@@ -30,9 +30,9 @@ see https://www.gnu.org/licenses/. */
 #define PAGMO_CAST_HPP
 
 #include <limits>
+#include <sstream>
 #include <stdexcept>
 #include <string>
-#include <sstream>
 
 namespace pagmo
 {
@@ -84,12 +84,20 @@ inline U numeric_cast(T value)
     return static_cast<U>(value);
 }
 
-template <typename T>
-std::string lexical_cast(const T &value)
+template <typename Target, typename Source>
+Target lexical_cast(const Source &value)
 {
-    std::ostringstream oss;
-    oss << value;
-    return oss.str();
+    if constexpr (std::is_same_v<Target, std::string>) {
+        if constexpr (std::is_same_v<Source, std::string>) {
+            return value;
+        } else {
+            std::ostringstream oss;
+            oss << value;
+            return oss.str();
+        }
+    } else {
+        static_assert(std::is_same_v<Target, std::string>, "Only string conversion is supported");
+    }
 }
 
 } // namespace pagmo

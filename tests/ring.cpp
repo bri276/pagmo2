@@ -147,14 +147,12 @@ TEST(ring, basic_test)
     }
 
     // Ctor from edge weight.
-    BOOST_CHECK_EXCEPTION(r0 = ring(-2), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return ia.what(), " is not in the [0..contains( 1.] range");
-    });
+    EXPECT_THROW(r0 = ring(-2), std::invalid_argument,
+                 [](const std::invalid_argument &ia) { return ia.what(), " is not in the [0..contains( 1.] range"); });
 
     // Ctor from number of vertices and edge weight.
-    BOOST_CHECK_EXCEPTION(r0 = ring(0, -2), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return ia.what(), " is not in the [0..contains( 1.] range");
-    });
+    EXPECT_THROW(r0 = ring(0, -2), std::invalid_argument,
+                 [](const std::invalid_argument &ia) { return ia.what(), " is not in the [0..contains( 1.] range"); });
 
     r0 = ring(0, 0);
 

@@ -29,7 +29,8 @@ see https://www.gnu.org/licenses/. */
 #include <gtest/gtest.h>
 
 #include <iostream>
-#include <pagmo/utils/cast.hpp>#include <stdexcept>
+#include <pagmo/utils/cast.hpp>
+#include <stdexcept>
 #include <string>
 
 #include <pagmo/detail/constants.hpp>
@@ -71,12 +72,12 @@ TEST(minlp_rastrigin_test, min_lp_rastrigin_test)
     // Bounds Test
     EXPECT_TRUE((minlp_rastrigin{1u, 0u}.get_bounds() == std::pair<vector_double, vector_double>{{-5.12}, {5.12}}));
     EXPECT_TRUE((minlp_rastrigin{0u, 1u}.get_bounds() == std::pair<vector_double, vector_double>{{-10}, {-5}}));
-    BOOST_CHECK(
+    EXPECT_TRUE(
         (minlp_rastrigin{1u, 1u}.get_bounds() == std::pair<vector_double, vector_double>{{-5.12, -10}, {5.12, -5}}));
 
     // Name and extra info tests
     EXPECT_TRUE((minlp_rastrigin{0u, 1u}.get_name().find("MINLP Rastrigin Function") != std::string::npos));
-    BOOST_CHECK(
+    EXPECT_TRUE(
         (problem{minlp_rastrigin{1u, 1u}}.get_extra_info().find("MINLP continuous dimension") != std::string::npos));
 }
 

@@ -46,6 +46,7 @@ see https://www.gnu.org/licenses/. */
 #include <cereal/types/string.hpp>
 #include <cereal/types/tuple.hpp>
 #include <cereal/types/utility.hpp>
+#include <cereal/types/variant.hpp>
 #include <cereal/types/vector.hpp>
 
 #include <pagmo/detail/s11n_wrappers.hpp>

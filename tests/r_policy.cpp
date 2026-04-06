@@ -323,121 +323,114 @@ TEST(r_policy_test, replace)
 {
     r_policy r0;
 
-    BOOST_CHECK_EXCEPTION(r0.replace(individuals_group_t{{0}, {}, {}}, 0, 0, 0, 0, 0, {}, individuals_group_t{}),
-                          std::invalid_argument, [](const std::invalid_argument &ia) {
-                              return boost::contains(
-                                  ia.what(),
-                                  "an invalid group of individuals was passed to a replacement policy of type 'Fair "
-                                  "replace': the sets of individuals IDs, decision vectors and fitness vectors "
-                                  "must all have the same sizes, but instead their sizes are 1, 0 and 0");
-                          });
+    EXPECT_THROW(r0.replace(individuals_group_t{{0}, {}, {}}, 0, 0, 0, 0, 0, {}, individuals_group_t{}),
+                 std::invalid_argument, [](const std::invalid_argument &ia) {
+                     return std::string(ia.what()).contains(
+                         "an invalid group of individuals was passed to a replacement policy of type 'Fair "
+                         "replace': the sets of individuals IDs, decision vectors and fitness vectors "
+                         "must all have the same sizes, but instead their sizes are 1, 0 and 0");
+                 });
 
-    BOOST_CHECK_EXCEPTION(r0.replace(individuals_group_t{{0}, {{1.}}, {{1.}}}, 0, 0, 0, 0, 0, {},
-                                     individuals_group_t{{0}, {{1.}, {1.}}, {{1.}}}),
-                          std::invalid_argument, [](const std::invalid_argument &ia) {
-                              return boost::contains(
-                                  ia.what(),
-                                  "an invalid group of migrants was passed to a replacement policy of type 'Fair "
-                                  "replace': the sets of migrants IDs, decision vectors and fitness vectors "
-                                  "must all have the same sizes, but instead their sizes are 1, 2 and 1");
-                          });
+    EXPECT_THROW(r0.replace(individuals_group_t{{0}, {{1.}}, {{1.}}}, 0, 0, 0, 0, 0, {},
+                            individuals_group_t{{0}, {{1.}, {1.}}, {{1.}}}),
+                 std::invalid_argument, [](const std::invalid_argument &ia) {
+                     return std::string(ia.what()).contains(
+                         "an invalid group of migrants was passed to a replacement policy of type 'Fair "
+                         "replace': the sets of migrants IDs, decision vectors and fitness vectors "
+                         "must all have the same sizes, but instead their sizes are 1, 2 and 1");
+                 });
 
-    BOOST_CHECK_EXCEPTION(
-        r0.replace(individuals_group_t{{0}, {{1.}}, {{1.}}}, 0, 0, 0, 0, 0, {},
-                   individuals_group_t{{0}, {{1.}}, {{1.}}}),
-        std::invalid_argument, [](const std::invalid_argument &ia) {
-            return boost::contains(
-                ia.what(), "a problem dimension of zero was passed to a replacement policy of type 'Fair replace'");
-        });
+    EXPECT_THROW(r0.replace(individuals_group_t{{0}, {{1.}}, {{1.}}}, 0, 0, 0, 0, 0, {},
+                            individuals_group_t{{0}, {{1.}}, {{1.}}}),
+                 std::invalid_argument, [](const std::invalid_argument &ia) {
+                     return std::string(ia.what()).contains(
+                         "a problem dimension of zero was passed to a replacement policy of type 'Fair replace'");
+                 });
 
-    BOOST_CHECK_EXCEPTION(r0.replace(individuals_group_t{{0}, {{1.}}, {{1.}}}, 1, 2, 0, 0, 0, {},
-                                     individuals_group_t{{0}, {{1.}}, {{1.}}}),
-                          std::invalid_argument, [](const std::invalid_argument &ia) {
-                              return boost::contains(
-                                  ia.what(), "the integer dimension (2) passed to a replacement policy of type "
-                                             "'Fair replace' is larger than the supplied problem dimension (1)");
-                          });
+    EXPECT_THROW(r0.replace(individuals_group_t{{0}, {{1.}}, {{1.}}}, 1, 2, 0, 0, 0, {},
+                            individuals_group_t{{0}, {{1.}}, {{1.}}}),
+                 std::invalid_argument, [](const std::invalid_argument &ia) {
+                     return std::string(ia.what()).contains(
+                         "the integer dimension (2) passed to a replacement policy of type "
+                         "'Fair replace' is larger than the supplied problem dimension (1)");
+                 });
 
-    BOOST_CHECK_EXCEPTION(
+    EXPECT_THROW(
         r0.replace(individuals_group_t{{0}, {{1.}}, {{1.}}}, 1, 0, 0, 0, 0, {},
                    individuals_group_t{{0}, {{1.}}, {{1.}}}),
         std::invalid_argument, [](const std::invalid_argument &ia) {
-            return boost::contains(
-                ia.what(),
+            return std::string(ia.what()).contains(
                 "an invalid number of objectives (0) was passed to a replacement policy of type 'Fair replace'");
         });
 
-    BOOST_CHECK_EXCEPTION(
+    EXPECT_THROW(
         r0.replace(individuals_group_t{{0}, {{1.}}, {{1.}}}, 1, 0, std::numeric_limits<vector_double::size_type>::max(),
                    0, 0, {}, individuals_group_t{{0}, {{1.}}, {{1.}}}),
         std::invalid_argument, [](const std::invalid_argument &ia) {
-            return boost::contains(ia.what(),
-                                   "the number of objectives ("
-                                       + std::to_string(std::numeric_limits<vector_double::size_type>::max())
-                                       + ") passed to a replacement policy of type 'Fair replace' is too large");
+            return std::string(ia.what()).contains(
+                "the number of objectives (" + std::to_string(std::numeric_limits<vector_double::size_type>::max())
+                + ") passed to a replacement policy of type 'Fair replace' is too large");
         });
 
-    BOOST_CHECK_EXCEPTION(r0.replace(individuals_group_t{{0}, {{1.}}, {{1.}}}, 1, 0, 1,
-                                     std::numeric_limits<vector_double::size_type>::max(), 0, {},
-                                     individuals_group_t{{0}, {{1.}}, {{1.}}}),
-                          std::invalid_argument, [](const std::invalid_argument &ia) {
-                              return boost::contains(
-                                  ia.what(),
-                                  "the number of equality constraints ("
-                                      + std::to_string(std::numeric_limits<vector_double::size_type>::max())
-                                      + ") passed to a replacement policy of type 'Fair replace' is too large");
-                          });
+    EXPECT_THROW(r0.replace(individuals_group_t{{0}, {{1.}}, {{1.}}}, 1, 0, 1,
+                            std::numeric_limits<vector_double::size_type>::max(), 0, {},
+                            individuals_group_t{{0}, {{1.}}, {{1.}}}),
+                 std::invalid_argument, [](const std::invalid_argument &ia) {
+                     return std::string(ia.what()).contains(
+                         "the number of equality constraints ("
+                         + std::to_string(std::numeric_limits<vector_double::size_type>::max())
+                         + ") passed to a replacement policy of type 'Fair replace' is too large");
+                 });
 
-    BOOST_CHECK_EXCEPTION(
-        r0.replace(individuals_group_t{{0}, {{1.}}, {{1.}}}, 1, 0, 1, 0,
-                   std::numeric_limits<vector_double::size_type>::max(), {}, individuals_group_t{{0}, {{1.}}, {{1.}}}),
-        std::invalid_argument, [](const std::invalid_argument &ia) {
-            return boost::contains(ia.what(),
-                                   "the number of inequality constraints ("
-                                       + std::to_string(std::numeric_limits<vector_double::size_type>::max())
-                                       + ") passed to a replacement policy of type 'Fair replace' is too large");
-        });
+    EXPECT_THROW(r0.replace(individuals_group_t{{0}, {{1.}}, {{1.}}}, 1, 0, 1, 0,
+                            std::numeric_limits<vector_double::size_type>::max(), {},
+                            individuals_group_t{{0}, {{1.}}, {{1.}}}),
+                 std::invalid_argument, [](const std::invalid_argument &ia) {
+                     return std::string(ia.what()).contains(
+                         "the number of inequality constraints ("
+                         + std::to_string(std::numeric_limits<vector_double::size_type>::max())
+                         + ") passed to a replacement policy of type 'Fair replace' is too large");
+                 });
 
-    BOOST_CHECK_EXCEPTION(r0.replace(individuals_group_t{{0}, {{1.}}, {{1.}}}, 1, 0, 1, 1, 1, {},
-                                     individuals_group_t{{0}, {{1.}}, {{1.}}}),
-                          std::invalid_argument, [](const std::invalid_argument &ia) {
-                              return boost::contains(
-                                  ia.what(),
-                                  "the vector of tolerances passed to a replacement policy of type 'Fair replace' has "
-                                  "a dimension (0) which is inconsistent with the total number of constraints (2)");
-                          });
+    EXPECT_THROW(r0.replace(individuals_group_t{{0}, {{1.}}, {{1.}}}, 1, 0, 1, 1, 1, {},
+                            individuals_group_t{{0}, {{1.}}, {{1.}}}),
+                 std::invalid_argument, [](const std::invalid_argument &ia) {
+                     return std::string(ia.what()).contains(
+                         "the vector of tolerances passed to a replacement policy of type 'Fair replace' has "
+                         "a dimension (0) which is inconsistent with the total number of constraints (2)");
+                 });
 
-    BOOST_CHECK_EXCEPTION(r0.replace(individuals_group_t{{0, 1}, {{1.}, {}}, {{1.}, {1.}}}, 1, 0, 1, 0, 0, {},
-                                     individuals_group_t{{0}, {{1.}}, {{1.}}}),
-                          std::invalid_argument, [](const std::invalid_argument &ia) {
-                              return boost::contains(
-                                  ia.what(), "not all the individuals passed to a replacement policy of type 'Fair "
-                                             "replace' have the expected dimension (1)");
-                          });
+    EXPECT_THROW(r0.replace(individuals_group_t{{0, 1}, {{1.}, {}}, {{1.}, {1.}}}, 1, 0, 1, 0, 0, {},
+                            individuals_group_t{{0}, {{1.}}, {{1.}}}),
+                 std::invalid_argument, [](const std::invalid_argument &ia) {
+                     return std::string(ia.what()).contains(
+                         "not all the individuals passed to a replacement policy of type 'Fair "
+                         "replace' have the expected dimension (1)");
+                 });
 
-    BOOST_CHECK_EXCEPTION(r0.replace(individuals_group_t{{0, 1}, {{1.}, {1.}}, {{1.}, {}}}, 1, 0, 1, 0, 0, {},
-                                     individuals_group_t{{0}, {{1.}}, {{1.}}}),
-                          std::invalid_argument, [](const std::invalid_argument &ia) {
-                              return boost::contains(
-                                  ia.what(), "not all the individuals passed to a replacement policy of type 'Fair "
-                                             "replace' have the expected fitness dimension (1)");
-                          });
+    EXPECT_THROW(r0.replace(individuals_group_t{{0, 1}, {{1.}, {1.}}, {{1.}, {}}}, 1, 0, 1, 0, 0, {},
+                            individuals_group_t{{0}, {{1.}}, {{1.}}}),
+                 std::invalid_argument, [](const std::invalid_argument &ia) {
+                     return std::string(ia.what()).contains(
+                         "not all the individuals passed to a replacement policy of type 'Fair "
+                         "replace' have the expected fitness dimension (1)");
+                 });
 
-    BOOST_CHECK_EXCEPTION(r0.replace(individuals_group_t{{0, 1}, {{1.}, {1.}}, {{1.}, {1.}}}, 1, 0, 1, 0, 0, {},
-                                     individuals_group_t{{0, 1}, {{1.}, {}}, {{1.}, {1.}}}),
-                          std::invalid_argument, [](const std::invalid_argument &ia) {
-                              return boost::contains(ia.what(),
-                                                     "not all the migrants passed to a replacement policy of type "
-                                                     "'Fair replace' have the expected dimension (1)");
-                          });
+    EXPECT_THROW(r0.replace(individuals_group_t{{0, 1}, {{1.}, {1.}}, {{1.}, {1.}}}, 1, 0, 1, 0, 0, {},
+                            individuals_group_t{{0, 1}, {{1.}, {}}, {{1.}, {1.}}}),
+                 std::invalid_argument, [](const std::invalid_argument &ia) {
+                     return std::string(ia.what()).contains(
+                         "not all the migrants passed to a replacement policy of type "
+                         "'Fair replace' have the expected dimension (1)");
+                 });
 
-    BOOST_CHECK_EXCEPTION(r0.replace(individuals_group_t{{0, 1}, {{1.}, {1.}}, {{1.}, {1.}}}, 1, 0, 1, 0, 0, {},
-                                     individuals_group_t{{0, 1}, {{1.}, {1.}}, {{1.}, {}}}),
-                          std::invalid_argument, [](const std::invalid_argument &ia) {
-                              return boost::contains(ia.what(),
-                                                     "not all the migrants passed to a replacement policy of type "
-                                                     "'Fair replace' have the expected fitness dimension (1)");
-                          });
+    EXPECT_THROW(r0.replace(individuals_group_t{{0, 1}, {{1.}, {1.}}, {{1.}, {1.}}}, 1, 0, 1, 0, 0, {},
+                            individuals_group_t{{0, 1}, {{1.}, {1.}}, {{1.}, {}}}),
+                 std::invalid_argument, [](const std::invalid_argument &ia) {
+                     return std::string(ia.what()).contains(
+                         "not all the migrants passed to a replacement policy of type "
+                         "'Fair replace' have the expected fitness dimension (1)");
+                 });
 
     struct fail_0 {
         individuals_group_t replace(const individuals_group_t &, const vector_double::size_type &,
@@ -453,15 +446,14 @@ TEST(r_policy_test, replace)
         }
     };
 
-    BOOST_CHECK_EXCEPTION(r_policy{fail_0{}}.replace(individuals_group_t{{0, 1}, {{1.}, {1.}}, {{1.}, {1.}}}, 1, 0, 1,
-                                                     0, 0, {}, individuals_group_t{{0, 1}, {{1.}, {1.}}, {{1.}, {1.}}}),
-                          std::invalid_argument, [](const std::invalid_argument &ia) {
-                              return boost::contains(
-                                  ia.what(),
-                                  "an invalid group of individuals was returned by a replacement policy of type "
-                                  "'fail_0': the sets of individuals IDs, decision vectors and fitness vectors "
-                                  "must all have the same sizes, but instead their sizes are 1, 0 and 0");
-                          });
+    EXPECT_THROW(r_policy{fail_0{}}.replace(individuals_group_t{{0, 1}, {{1.}, {1.}}, {{1.}, {1.}}}, 1, 0, 1, 0, 0, {},
+                                            individuals_group_t{{0, 1}, {{1.}, {1.}}, {{1.}, {1.}}}),
+                 std::invalid_argument, [](const std::invalid_argument &ia) {
+                     return std::string(ia.what()).contains(
+                         "an invalid group of individuals was returned by a replacement policy of type "
+                         "'fail_0': the sets of individuals IDs, decision vectors and fitness vectors "
+                         "must all have the same sizes, but instead their sizes are 1, 0 and 0");
+                 });
 
     struct fail_1 {
         individuals_group_t replace(const individuals_group_t &, const vector_double::size_type &,
@@ -477,13 +469,12 @@ TEST(r_policy_test, replace)
         }
     };
 
-    BOOST_CHECK_EXCEPTION(r_policy{fail_1{}}.replace(individuals_group_t{{0, 1}, {{1.}, {1.}}, {{1.}, {1.}}}, 1, 0, 1,
-                                                     0, 0, {}, individuals_group_t{{0, 1}, {{1.}, {1.}}, {{1.}, {1.}}}),
-                          std::invalid_argument, [](const std::invalid_argument &ia) {
-                              return boost::contains(ia.what(),
-                                                     "not all the individuals returned by a replacement "
-                                                     "policy of type 'fail_1' have the expected dimension (1)");
-                          });
+    EXPECT_THROW(r_policy{fail_1{}}.replace(individuals_group_t{{0, 1}, {{1.}, {1.}}, {{1.}, {1.}}}, 1, 0, 1, 0, 0, {},
+                                            individuals_group_t{{0, 1}, {{1.}, {1.}}, {{1.}, {1.}}}),
+                 std::invalid_argument, [](const std::invalid_argument &ia) {
+                     return std::string(ia.what()).contains("not all the individuals returned by a replacement "
+                                                            "policy of type 'fail_1' have the expected dimension (1)");
+                 });
 
     struct fail_2 {
         individuals_group_t replace(const individuals_group_t &, const vector_double::size_type &,
@@ -499,13 +490,13 @@ TEST(r_policy_test, replace)
         }
     };
 
-    BOOST_CHECK_EXCEPTION(r_policy{fail_2{}}.replace(individuals_group_t{{0, 1}, {{1.}, {1.}}, {{1.}, {1.}}}, 1, 0, 1,
-                                                     0, 0, {}, individuals_group_t{{0, 1}, {{1.}, {1.}}, {{1.}, {1.}}}),
-                          std::invalid_argument, [](const std::invalid_argument &ia) {
-                              return boost::contains(ia.what(),
-                                                     "not all the individuals returned by a replacement policy of type "
-                                                     "'fail_2' have the expected fitness dimension (1)");
-                          });
+    EXPECT_THROW(r_policy{fail_2{}}.replace(individuals_group_t{{0, 1}, {{1.}, {1.}}, {{1.}, {1.}}}, 1, 0, 1, 0, 0, {},
+                                            individuals_group_t{{0, 1}, {{1.}, {1.}}, {{1.}, {1.}}}),
+                 std::invalid_argument, [](const std::invalid_argument &ia) {
+                     return std::string(ia.what()).contains(
+                         "not all the individuals returned by a replacement policy of type "
+                         "'fail_2' have the expected fitness dimension (1)");
+                 });
 }
 
 struct udrp_a {

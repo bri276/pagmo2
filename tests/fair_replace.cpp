@@ -35,8 +35,6 @@ see https://www.gnu.org/licenses/. */
 #include <utility>
 #include <variant>
 
-#include <boost/numeric/conversion/converter_policies.hpp>
-
 #include <pagmo/r_policies/fair_replace.hpp>
 #include <pagmo/r_policy.hpp>
 #include <pagmo/s11n.hpp>
@@ -58,24 +56,23 @@ TEST(fair_replace_test, fair_replace_basic)
     EXPECT_TRUE(f02.get_migr_rate().index() == 0);
     EXPECT_TRUE(std::get<pop_size_t>(f02.get_migr_rate()) == 2u);
 
-    BOOST_CHECK_EXCEPTION(f02 = fair_replace(-1.), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return boost::contains(
-            ia.what(), "Invalid fractional migration rate specified in the constructor of a replacement/selection "
-                       "policy: the rate must be in the [0., 1.] range, but it is ");
+    EXPECT_THROW(f02 = fair_replace(-1.), std::invalid_argument, [](const std::invalid_argument &ia) {
+        return std::string(ia.what()).contains(
+            "Invalid fractional migration rate specified in the constructor of a replacement/selection "
+            "policy: the rate must be in the [0., 1.] range, but it is ");
     });
-    BOOST_CHECK_EXCEPTION(f02 = fair_replace(2.), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return boost::contains(
-            ia.what(), "Invalid fractional migration rate specified in the constructor of a replacement/selection "
-                       "policy: the rate must be in the [0., 1.] range, but it is ");
+    EXPECT_THROW(f02 = fair_replace(2.), std::invalid_argument, [](const std::invalid_argument &ia) {
+        return std::string(ia.what()).contains(
+            "Invalid fractional migration rate specified in the constructor of a replacement/selection "
+            "policy: the rate must be in the [0., 1.] range, but it is ");
     });
-    BOOST_CHECK_EXCEPTION(
-        f02 = fair_replace(std::numeric_limits<double>::infinity()), std::invalid_argument,
-        [](const std::invalid_argument &ia) {
-            return boost::contains(
-                ia.what(), "Invalid fractional migration rate specified in the constructor of a replacement/selection "
-                           "policy: the rate must be in the [0., 1.] range, but it is ");
-        });
-    EXPECT_THROW(f02 = fair_replace(-1), boost::numeric::negative_overflow);
+    EXPECT_THROW(f02 = fair_replace(std::numeric_limits<double>::infinity()), std::invalid_argument,
+                 [](const std::invalid_argument &ia) {
+                     return std::string(ia.what()).contains(
+                         "Invalid fractional migration rate specified in the constructor of a replacement/selection "
+                         "policy: the rate must be in the [0., 1.] range, but it is ");
+                 });
+    EXPECT_THROW(f02 = fair_replace(-1), std::runtime_error);
 
     auto f03(f02);
     EXPECT_TRUE(f03.get_migr_rate().index() == 0);
@@ -121,21 +118,21 @@ TEST(fair_replace_test, fair_replace_replace)
 {
     fair_replace f00;
 
-    BOOST_CHECK_EXCEPTION(f00.replace(individuals_group_t{}, 0, 0, 2, 1, 0, vector_double{}, individuals_group_t{}),
-                          std::invalid_argument, [](const std::invalid_argument &ia) {
-                              return boost::contains(ia.what(),
-                                                     "The 'fair_replace' replacement policy is unable to deal with "
-                                                     "multiobjective constrained optimisation problems");
-                          });
+    EXPECT_THROW(f00.replace(individuals_group_t{}, 0, 0, 2, 1, 0, vector_double{}, individuals_group_t{}),
+                 std::invalid_argument, [](const std::invalid_argument &ia) {
+                     return std::string(ia.what()).contains(
+                         "The 'fair_replace' replacement policy is unable to deal with "
+                         "multiobjective constrained optimisation problems");
+                 });
 
     f00 = fair_replace(100);
 
-    BOOST_CHECK_EXCEPTION(f00.replace(individuals_group_t{}, 0, 0, 1, 0, 0, vector_double{}, individuals_group_t{}),
-                          std::invalid_argument, [](const std::invalid_argument &ia) {
-                              return boost::contains(
-                                  ia.what(), "The absolute migration rate (100) in a 'fair_replace' replacement policy "
-                                             "is larger than the number of input individuals (0)");
-                          });
+    EXPECT_THROW(f00.replace(individuals_group_t{}, 0, 0, 1, 0, 0, vector_double{}, individuals_group_t{}),
+                 std::invalid_argument, [](const std::invalid_argument &ia) {
+                     return std::string(ia.what()).contains(
+                         "The absolute migration rate (100) in a 'fair_replace' replacement policy "
+                         "is larger than the number of input individuals (0)");
+                 });
 
     // Single-objective, unconstrained.
     f00 = fair_replace(.1);
@@ -189,7 +186,7 @@ TEST(fair_replace_test, fair_replace_replace)
     // All replaced.
     f00 = fair_replace(1.);
     new_inds = f00.replace(inds, 1, 0, 1, 1, 1, {0., 0.}, mig);
-    BOOST_CHECK(
+    EXPECT_TRUE(
         (new_inds
          == individuals_group_t{{4, 5, 6}, {{0}, {0}, {0}}, {{0.1, 0.1, 0.1}, {0.2, 0.2, 0.2}, {0.3, 0.3, 0.3}}}));
 
@@ -201,13 +198,13 @@ TEST(fair_replace_test, fair_replace_replace)
     // Absolute rate, replace 2.
     f00 = fair_replace(2);
     new_inds = f00.replace(inds, 1, 0, 1, 1, 1, {0., 0.}, mig);
-    BOOST_CHECK(
+    EXPECT_TRUE(
         (new_inds == individuals_group_t{{4, 5, 1}, {{0}, {0}, {0}}, {{0.1, 0.1, 0.1}, {0.2, 0.2, 0.2}, {1, 1, 1}}}));
 
     // Absolute rate, replace all.
     f00 = fair_replace(3);
     new_inds = f00.replace(inds, 1, 0, 1, 1, 1, {0., 0.}, mig);
-    BOOST_CHECK(
+    EXPECT_TRUE(
         (new_inds
          == individuals_group_t{{4, 5, 6}, {{0}, {0}, {0}}, {{0.1, 0.1, 0.1}, {0.2, 0.2, 0.2}, {0.3, 0.3, 0.3}}}));
 
@@ -219,7 +216,7 @@ TEST(fair_replace_test, fair_replace_replace)
     f00 = fair_replace(1.);
 
     new_inds = f00.replace(inds, 1, 0, 2, 0, 0, {}, mig);
-    BOOST_CHECK((
+    EXPECT_TRUE((
         new_inds
         == individuals_group_t{{1, 6, 5, 4, 2}, {{0}, {0}, {0}, {0}, {0}}, {{0, 7}, {10, 0}, {7, 1}, {4, 2}, {1, 5}}}));
 }

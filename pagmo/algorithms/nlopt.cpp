@@ -57,11 +57,9 @@ see https://www.gnu.org/licenses/. */
 #include <utility>
 #include <vector>
 
+#include <boost/bimap.hpp>
 #include <nlopt.h>
 
-#include <boost/algorithm/string/classification.hpp>
-#include <boost/algorithm/string/split.hpp>
-#include <boost/bimap.hpp>
 #include <pagmo/algorithm.hpp>
 #include <pagmo/algorithms/nlopt.hpp>
 #include <pagmo/algorithms/not_population_based.hpp>
@@ -73,7 +71,8 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/s11n.hpp>
 #include <pagmo/type_traits.hpp>
 #include <pagmo/types.hpp>
-#include <pagmo/utils/cast.hpp>#include <pagmo/utils/constrained.hpp>
+#include <pagmo/utils/cast.hpp>
+#include <pagmo/utils/constrained.hpp>
 
 namespace pagmo
 {
@@ -855,6 +854,23 @@ std::string nlopt::get_name() const
     return "NLopt - " + m_algo + ":";
 }
 
+auto split_by_delim(std::string_view input, char delim) -> std::vector<std::string>
+{
+    std::vector<std::string> v;
+
+    std::string accum;
+    for (auto f = begin(input), l = end(input); f != l;) {
+        while (f != l && *f == delim) {
+            ++f;
+            std::swap(accum, v.emplace_back());
+        }
+        while (f != l && *f != delim)
+            accum += *f++;
+    }
+    v.push_back(std::move(accum));
+    return v;
+}
+
 /// Get extra information about the algorithm.
 /**
  * @return a human-readable string containing useful information about the algorithm's properties
@@ -888,9 +904,7 @@ std::string nlopt::get_extra_info() const
         // and append the result.
         retval += "\tLocal optimizer:\n";
         const auto loc_info = m_loc_opt->get_extra_info();
-        std::vector<std::string> split_v;
-        boost::algorithm::split(split_v, loc_info, boost::algorithm::is_any_of("\n"),
-                                boost::algorithm::token_compress_on);
+        std::vector<std::string> split_v = split_by_delim(loc_info, '\n');
         for (const auto &s : split_v) {
             retval += "\t" + s + "\n";
         }

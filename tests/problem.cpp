@@ -323,9 +323,8 @@ TEST(problem_test, problem_construction_test)
     // 8 - hessian sparsity has repeated indexes
     EXPECT_THROW(problem{hess_p(1, 1, 0, fit_2, lb_2, ub_2, hess_22, hesss_22_repeated)}, std::invalid_argument);
     // 9 - hessian sparsity has the wrong length
-    BOOST_CHECK_THROW(
-        problem{hess_p(1, 1, 0, fit_2, lb_2, ub_2, hess_22, {{{0, 0}, {1, 0}}, {{0, 0}, {1, 0}}, {{0, 0}}})},
-        std::invalid_argument);
+    EXPECT_THROW(problem{hess_p(1, 1, 0, fit_2, lb_2, ub_2, hess_22, {{{0, 0}, {1, 0}}, {{0, 0}, {1, 0}}, {{0, 0}}})},
+                 std::invalid_argument);
     // 10 - 0 objectives
     EXPECT_THROW(problem{base_p(0, 0, 0, fit_1, {1}, {2})}, std::invalid_argument);
     // 11 - many objectives
@@ -949,8 +948,8 @@ TEST(problem_test, problem_get_nobj_detection)
     EXPECT_TRUE(problem{with_get_nobj{}}.get_nobj() == 3u);
     EXPECT_TRUE(problem{without_get_nobj{}}.get_nobj() == 1u);
     EXPECT_NO_THROW(problem{with_get_nobj{}}.fitness({1.}));
-    BOOST_CHECK_THROW(problem{without_get_nobj{}}.fitness({1.}),
-                      std::invalid_argument); // detects a returned size of 3 but has the default
+    EXPECT_THROW(problem{without_get_nobj{}}.fitness({1.}),
+                 std::invalid_argument); // detects a returned size of 3 but has the default
 }
 
 TEST(problem_test, problem_auto_sparsity_test)
@@ -1068,7 +1067,7 @@ TEST(problem_test, extract_test)
     EXPECT_TRUE(p.is<null_problem>());
     EXPECT_TRUE(!p.is<base_p>());
     EXPECT_TRUE((std::is_same<null_problem *, decltype(p.extract<null_problem>())>::value));
-    BOOST_CHECK(
+    EXPECT_TRUE(
         (std::is_same<null_problem const *, decltype(static_cast<const problem &>(p).extract<null_problem>())>::value));
     EXPECT_TRUE(p.extract<null_problem>() != nullptr);
     EXPECT_TRUE(static_cast<const problem &>(p).extract<null_problem>() != nullptr);
@@ -1378,11 +1377,10 @@ TEST(problem_test, batch_fitness)
     EXPECT_TRUE(!HasBatchFitness<null_problem>);
     EXPECT_TRUE(!OverrideHasBatchFitness<null_problem>);
     EXPECT_TRUE(!p.has_batch_fitness());
-    BOOST_CHECK_EXCEPTION(p.batch_fitness(vector_double{1.}), not_implemented_error,
-                          [](const not_implemented_error &nie) {
-                              return nie.what().contains("The batch_fitness() method has been invoked, but it "
-                                                         "is not implemented in a UDP of type 'Null problem'");
-                          });
+    EXPECT_THROW(p.batch_fitness(vector_double{1.}), not_implemented_error, [](const not_implemented_error &nie) {
+        return nie.what().contains("The batch_fitness() method has been invoked, but it "
+                                   "is not implemented in a UDP of type 'Null problem'");
+    });
 
     // A UDP which provides batch_fitness().
     struct bf0 {
@@ -1427,13 +1425,11 @@ TEST(problem_test, batch_fitness)
     EXPECT_TRUE(p.has_batch_fitness());
     EXPECT_TRUE(p.batch_fitness({1., 2., 3., 4.}) == vector_double(2, 1.));
     // Check throw on wrong input vector.
-    BOOST_CHECK_EXCEPTION(
-        p.batch_fitness(vector_double{1.}), std::invalid_argument, [](const std::invalid_argument &ia) {
-            return boost::contains(
-                ia.what(),
-                "Invalid argument for a batch fitness evaluation: the length of the vector "
-                "representing the decision vectors, 1, is not an exact multiple of the dimension of the problem, 2");
-        });
+    EXPECT_THROW(p.batch_fitness(vector_double{1.}), std::invalid_argument, [](const std::invalid_argument &ia) {
+        return std::string(ia.what()).contains(
+            "Invalid argument for a batch fitness evaluation: the length of the vector "
+            "representing the decision vectors, 1, is not an exact multiple of the dimension of the problem, 2");
+    });
 
     // A UDP which provides batch_fitness(), but with wrong retval.
     struct bf2 {
@@ -1458,13 +1454,12 @@ TEST(problem_test, batch_fitness)
     EXPECT_TRUE(HasBatchFitness<bf2>);
     EXPECT_TRUE(!OverrideHasBatchFitness<bf2>);
     EXPECT_TRUE(p.has_batch_fitness());
-    BOOST_CHECK_EXCEPTION(
-        p.batch_fitness(vector_double{1.}), std::invalid_argument, [](const std::invalid_argument &ia) {
-            return boost::contains(ia.what(),
-                                   "An invalid result was produced by a batch fitness evaluation: the length of "
-                                   "the vector representing the fitness vectors, 1, is not an exact multiple of the "
-                                   "fitness dimension of the problem, 2");
-        });
+    EXPECT_THROW(p.batch_fitness(vector_double{1.}), std::invalid_argument, [](const std::invalid_argument &ia) {
+        return std::string(ia.what()).contains(
+            "An invalid result was produced by a batch fitness evaluation: the length of "
+            "the vector representing the fitness vectors, 1, is not an exact multiple of the "
+            "fitness dimension of the problem, 2");
+    });
 
     // A UDP which provides batch_fitness(), but with wrong number of fvs.
     struct bf3 {
@@ -1485,12 +1480,11 @@ TEST(problem_test, batch_fitness)
     EXPECT_TRUE(HasBatchFitness<bf3>);
     EXPECT_TRUE(!OverrideHasBatchFitness<bf3>);
     EXPECT_TRUE(p.has_batch_fitness());
-    BOOST_CHECK_EXCEPTION(
-        p.batch_fitness(vector_double{1.}), std::invalid_argument, [](const std::invalid_argument &ia) {
-            return boost::contains(ia.what(),
-                                   "An invalid result was produced by a batch fitness evaluation: the number of "
-                                   "produced fitness vectors, 0, differs from the number of input decision vectors, 1");
-        });
+    EXPECT_THROW(p.batch_fitness(vector_double{1.}), std::invalid_argument, [](const std::invalid_argument &ia) {
+        return std::string(ia.what()).contains(
+            "An invalid result was produced by a batch fitness evaluation: the number of "
+            "produced fitness vectors, 0, differs from the number of input decision vectors, 1");
+    });
 
     // A UDP which provides has_batch_fitness(), but no batch_fitness().
     struct bf4 {
@@ -1510,11 +1504,10 @@ TEST(problem_test, batch_fitness)
     p = problem{bf4{}};
     EXPECT_TRUE(!HasBatchFitness<bf4>);
     EXPECT_TRUE(OverrideHasBatchFitness<bf4>);
-    BOOST_CHECK_EXCEPTION(p.batch_fitness(vector_double{1.}), not_implemented_error,
-                          [](const not_implemented_error &nie) {
-                              return nie.what().contains("The batch_fitness() method has been invoked, but it "
-                                                         "is not implemented in a UDP of type");
-                          });
+    EXPECT_THROW(p.batch_fitness(vector_double{1.}), not_implemented_error, [](const not_implemented_error &nie) {
+        return nie.what().contains("The batch_fitness() method has been invoked, but it "
+                                   "is not implemented in a UDP of type");
+    });
 
     // A UDP which provides has_batch_fitness() and batch_fitness().
     struct bf5 {

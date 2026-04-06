@@ -26,7 +26,6 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-
 #include <gtest/gtest.h>
 
 #include <iterator>
@@ -73,7 +72,7 @@ TEST(rng_serialization_test, rng_serialization_test)
         rng_load(str, r);
         std::vector<r_type::result_type> v2;
         std::generate_n(std::back_inserter(v2), 100, r);
-        BOOST_CHECK_EQUAL_COLLECTIONS(v1.begin(), v1.end(), v2.begin(), v2.end());
+        EXPECT_TRUE_EQUAL_COLLECTIONS(v1.begin(), v1.end(), v2.begin(), v2.end());
         EXPECT_TRUE(r_copy == r);
     }
 }

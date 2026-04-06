@@ -112,8 +112,8 @@ TEST(thread_bfe_test, basic_tests)
     };
     p0 = problem{unsafe_prob{}};
     EXPECT_EQ(p0.get_thread_safety(), thread_safety::none);
-    BOOST_CHECK_EXCEPTION(bfe0(p0, dvs), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return boost::contains(ia.what(), "Cannot use a thread_bfe on the problem 'unsafe_prob', which does not "
+    EXPECT_THROW(bfe0(p0, dvs), std::invalid_argument, [](const std::invalid_argument &ia) {
+        return ia.what(), "Cannot use a thread_bfe on the problem 'unsafe_prob'.contains( which does not "
                                           "provide the required level of thread safety");
     });
 }

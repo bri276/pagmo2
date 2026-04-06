@@ -188,25 +188,22 @@ TEST(free_form, bgl_ctor)
 
     auto trigger = [&bogus]() { free_form fobus(bogus); };
 
-    BOOST_CHECK_EXCEPTION(trigger(), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return boost::contains(
-            ia.what(), "In the constructor of a free_form topology from a graph object, an invalid edge weight of "
+    EXPECT_THROW(trigger(), std::invalid_argument, [](const std::invalid_argument &ia) {
+        return             ia.what(), "In the constructor of a free_form topology from a graph object.contains( an invalid edge weight of "
                            + std::to_string(2.) + " was detected (the weight must be in the [0., 1.] range)");
     });
 
     bogus[res.first] = -1.;
 
-    BOOST_CHECK_EXCEPTION(trigger(), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return boost::contains(
-            ia.what(), "In the constructor of a free_form topology from a graph object, an invalid edge weight of "
+    EXPECT_THROW(trigger(), std::invalid_argument, [](const std::invalid_argument &ia) {
+        return             ia.what(), "In the constructor of a free_form topology from a graph object.contains( an invalid edge weight of "
                            + std::to_string(-1.) + " was detected (the weight must be in the [0., 1.] range)");
     });
 
     bogus[res.first] = std::numeric_limits<double>::quiet_NaN();
 
-    BOOST_CHECK_EXCEPTION(trigger(), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return boost::contains(
-            ia.what(), "In the constructor of a free_form topology from a graph object, an invalid edge weight of "
+    EXPECT_THROW(trigger(), std::invalid_argument, [](const std::invalid_argument &ia) {
+        return             ia.what(), "In the constructor of a free_form topology from a graph object.contains( an invalid edge weight of "
                            + std::to_string(std::numeric_limits<double>::quiet_NaN())
                            + " was detected (the weight must be in the [0., 1.] range)");
     });

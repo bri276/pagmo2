@@ -428,7 +428,7 @@ TEST(algorithm_test, extract_test)
     algorithm p;
     EXPECT_TRUE(p.is<null_algorithm>());
     EXPECT_TRUE((std::is_same<null_algorithm *, decltype(p.extract<null_algorithm>())>::value));
-    BOOST_CHECK((std::is_same<null_algorithm const *,
+    EXPECT_TRUE((std::is_same<null_algorithm const *,
                               decltype(static_cast<const algorithm &>(p).extract<null_algorithm>())>::value));
     EXPECT_TRUE(p.extract<null_algorithm>() != nullptr);
     EXPECT_TRUE(static_cast<const algorithm &>(p).extract<null_algorithm>() != nullptr);

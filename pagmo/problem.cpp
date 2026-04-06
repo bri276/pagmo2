@@ -46,7 +46,8 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/problem.hpp>
 #include <pagmo/problems/null_problem.hpp>
 #include <pagmo/types.hpp>
-#include <pagmo/utils/cast.hpp>#include <pagmo/utils/constrained.hpp>
+#include <pagmo/utils/cast.hpp>
+#include <pagmo/utils/constrained.hpp>
 
 // MINGW-specific warnings.
 #if defined(__GNUC__) && defined(__MINGW32__)

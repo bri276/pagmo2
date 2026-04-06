@@ -42,6 +42,7 @@ see https://www.gnu.org/licenses/. */
 #include <vector>
 
 #include <boost/iterator/indirect_iterator.hpp>
+
 #include <pagmo/algorithm.hpp>
 #include <pagmo/bfe.hpp>
 #include <pagmo/concepts.hpp>

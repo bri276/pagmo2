@@ -72,10 +72,8 @@ TEST(unconnected, to_bgl_test)
 {
     EXPECT_TRUE(!HasToBgl<unconnected>);
 
-    BOOST_CHECK_EXCEPTION(
-        topology{unconnected{}}.to_bgl(), not_implemented_error, [](const not_implemented_error &nie) {
-            return boost::contains(
-                nie.what(),
-                "The to_bgl() method has been invoked, but it is not implemented in a UDT of type 'Unconnected'");
-        });
+    EXPECT_THROW(topology{unconnected{}}.to_bgl(), not_implemented_error, [](const not_implemented_error &nie) {
+        return nie.what().contains(
+            "The to_bgl() method has been invoked, but it is not implemented in a UDT of type 'Unconnected'");
+    });
 }

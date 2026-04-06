@@ -42,7 +42,8 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/r_policy.hpp>
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
-#include <pagmo/utils/cast.hpp>#include <pagmo/utils/constrained.hpp>
+#include <pagmo/utils/cast.hpp>
+#include <pagmo/utils/constrained.hpp>
 #include <pagmo/utils/multi_objective.hpp>
 
 // MINGW-specific warnings.

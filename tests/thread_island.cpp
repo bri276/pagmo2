@@ -74,19 +74,19 @@ TEST(thread_island_test, thread_island_test)
     {
         island isl(thread_island{}, tu_uda{}, problem(), 20u);
         isl.evolve();
-        BOOST_CHECK_EXCEPTION(isl.wait_check(), std::invalid_argument, [](const std::invalid_argument &ia) {
-            return boost::contains(ia.what(),
-                                   "the 'thread_island' UDI requires an algorithm providing at least the 'basic' "
-                                   "thread safety guarantee");
+        EXPECT_THROW(isl.wait_check(), std::invalid_argument, [](const std::invalid_argument &ia) {
+            return std::string(ia.what()).contains(
+                "the 'thread_island' UDI requires an algorithm providing at least the 'basic' "
+                "thread safety guarantee");
         });
     }
     {
         island isl(thread_island{}, algorithm(), tu_udp{}, 20u);
         isl.evolve();
-        BOOST_CHECK_EXCEPTION(isl.wait_check(), std::invalid_argument, [](const std::invalid_argument &ia) {
-            return boost::contains(ia.what(),
-                                   "the 'thread_island' UDI requires a problem providing at least the 'basic' "
-                                   "thread safety guarantee");
+        EXPECT_THROW(isl.wait_check(), std::invalid_argument, [](const std::invalid_argument &ia) {
+            return std::string(ia.what()).contains(
+                "the 'thread_island' UDI requires a problem providing at least the 'basic' "
+                "thread safety guarantee");
         });
     }
 }

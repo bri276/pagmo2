@@ -79,7 +79,7 @@ TEST(discrepancy_test, van_der_corput_test)
     }
     std::vector<double> real2{0., 0.5, 0.25, 0.75, 0.125, 0.625, 0.375, 0.875, 0.0625, 0.5625};
     std::vector<double> real10{0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9};
-    BOOST_CHECK(real2
+    EXPECT_TRUE(real2
                 == computed2); // in base 2 no need for approximate comparison as all members are represented correctly
     for (auto i = 0u; i < 10;
          ++i) { // in base 10 we need to check with a tolerance as per floating point representation problems

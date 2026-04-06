@@ -252,31 +252,29 @@ TEST(topology_test, topology_get_connections_test)
 
     t0 = bc00{};
 
-    BOOST_CHECK_EXCEPTION(t0.get_connections(0), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return boost::contains(ia.what(),
-                               "An invalid pair of vectors was returned by the 'get_connections()' method "
-                               "of the 'udt00' topology: the vector of connecting islands has a size of 2, while the "
-                               "vector of migration probabilities has a size of 3 (the two sizes must be equal)");
+    EXPECT_THROW(t0.get_connections(0), std::invalid_argument, [](const std::invalid_argument &ia) {
+        return std::string(ia.what()).contains(
+            "An invalid pair of vectors was returned by the 'get_connections()' method "
+            "of the 'udt00' topology: the vector of connecting islands has a size of 2, while the "
+            "vector of migration probabilities has a size of 3 (the two sizes must be equal)");
     });
 
     t0 = bc01{};
 
-    BOOST_CHECK_EXCEPTION(t0.get_connections(0), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return boost::contains(
-            ia.what(),
+    EXPECT_THROW(t0.get_connections(0), std::invalid_argument, [](const std::invalid_argument &ia) {
+        return std::string(ia.what()).contains(
             "An invalid non-finite migration probability of " + std::to_string(std::numeric_limits<double>::infinity())
-                + " was detected in the vector of migration probabilities returned by the 'get_connections()' "
-                  "method of the 'udt00' topology");
+            + " was detected in the vector of migration probabilities returned by the 'get_connections()' "
+              "method of the 'udt00' topology");
     });
 
     t0 = bc02{};
 
-    BOOST_CHECK_EXCEPTION(t0.get_connections(0), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return boost::contains(
-            ia.what(),
+    EXPECT_THROW(t0.get_connections(0), std::invalid_argument, [](const std::invalid_argument &ia) {
+        return std::string(ia.what()).contains(
             "An invalid migration probability of " + std::to_string(2.)
-                + " was detected in the vector of migration probabilities returned by the 'get_connections()' "
-                  "method of the 'udt00' topology: the value must be in the [0., 1.] range");
+            + " was detected in the vector of migration probabilities returned by the 'get_connections()' "
+              "method of the 'udt00' topology: the value must be in the [0., 1.] range");
     });
 }
 
@@ -359,9 +357,8 @@ TEST(topology_test, topology_to_bgl_test)
     EXPECT_TRUE(!HasToBgl<gc00>);
     EXPECT_TRUE(HasToBgl<with_to_bgl>);
 
-    BOOST_CHECK_EXCEPTION(topology{udt00{}}.to_bgl(), not_implemented_error, [](const not_implemented_error &nie) {
-        return boost::contains(
-            nie.what(), "The to_bgl() method has been invoked, but it is not implemented in a UDT of type 'udt00'");
+    EXPECT_THROW(topology{udt00{}}.to_bgl(), not_implemented_error, [](const not_implemented_error &nie) {
+        return             nie.what(), "The to_bgl() method has been invoked.contains( but it is not implemented in a UDT of type 'udt00'");
     });
 
     EXPECT_TRUE(boost::num_vertices(topology{udt01{}}.to_bgl()) == 0);

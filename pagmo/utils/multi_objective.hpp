@@ -41,7 +41,8 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/detail/visibility.hpp>
 #include <pagmo/exceptions.hpp>
 #include <pagmo/types.hpp>
-#include <pagmo/utils/cast.hpp>#include <pagmo/utils/discrepancy.hpp>
+#include <pagmo/utils/cast.hpp>
+#include <pagmo/utils/discrepancy.hpp>
 #include <pagmo/utils/generic.hpp>
 
 namespace pagmo

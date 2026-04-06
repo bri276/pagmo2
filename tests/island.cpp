@@ -525,7 +525,7 @@ TEST(island_test, island_extract)
     EXPECT_TRUE(isl.extract<thread_island>() != nullptr);
     EXPECT_TRUE(static_cast<const island &>(isl).extract<thread_island>() != nullptr);
     EXPECT_TRUE((std::is_same<thread_island *, decltype(isl.extract<thread_island>())>::value));
-    BOOST_CHECK((std::is_same<thread_island const *,
+    EXPECT_TRUE((std::is_same<thread_island const *,
                               decltype(static_cast<const island &>(isl).extract<thread_island>())>::value));
     EXPECT_TRUE(isl.is<thread_island>());
 #if !defined(_MSC_VER) || defined(__clang__)

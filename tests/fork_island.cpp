@@ -121,7 +121,7 @@ TEST(fork_island_test, fork_island_basic)
         EXPECT_TRUE(fi_0.extract<fork_island>() != nullptr);
         EXPECT_TRUE(fi_0.get_extra_info().contains("No active child"));
         fi_0.evolve();
-        BOOST_CHECK_EXCEPTION(fi_0.wait_check(), std::runtime_error, [](const std::runtime_error &re) {
+        EXPECT_THROW(fi_0.wait_check(), std::runtime_error, [](const std::runtime_error &re) {
             return re.what().contains("needs at least 5 individuals in the population");
         });
     }
@@ -213,7 +213,7 @@ TEST(fork_island_test, fork_island_recurse)
         // Try also error transport.
         island fi_0(fork_island{}, recursive_algo2{}, rosenbrock{}, 1, 0);
         fi_0.evolve();
-        BOOST_CHECK_EXCEPTION(fi_0.wait_check(), std::runtime_error, [](const std::runtime_error &re) {
+        EXPECT_THROW(fi_0.wait_check(), std::runtime_error, [](const std::runtime_error &re) {
             return re.what().contains("needs at least 5 individuals in the population");
         });
     }

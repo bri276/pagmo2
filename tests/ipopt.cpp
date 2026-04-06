@@ -312,7 +312,7 @@ TEST(ipopt_test, ipopt_options)
     // String.
     ip.set_string_option("bart", "simpson");
     ip.set_string_options({{"homer", "simpson"}, {"marge", "simpson"}});
-    BOOST_CHECK(
+    EXPECT_TRUE(
         (ip.get_string_options()
          == std::map<std::string, std::string>{{"bart", "simpson"}, {"homer", "simpson"}, {"marge", "simpson"}}));
     ip.reset_string_options();
@@ -320,7 +320,7 @@ TEST(ipopt_test, ipopt_options)
     // Integer.
     ip.set_integer_option("bart", 1);
     ip.set_integer_options({{"homer", 2}, {"marge", 3}});
-    BOOST_CHECK(
+    EXPECT_TRUE(
         (ip.get_integer_options() == std::map<std::string, Ipopt::Index>{{"bart", 1}, {"homer", 2}, {"marge", 3}}));
     ip.reset_integer_options();
     EXPECT_TRUE(ip.get_integer_options().empty());

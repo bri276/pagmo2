@@ -35,8 +35,6 @@ see https://www.gnu.org/licenses/. */
 #include <utility>
 #include <variant>
 
-#include <boost/numeric/conversion/converter_policies.hpp>
-
 #include <pagmo/s11n.hpp>
 #include <pagmo/s_policies/select_best.hpp>
 #include <pagmo/s_policy.hpp>
@@ -58,24 +56,23 @@ TEST(select_best_test, select_best_basic)
     EXPECT_TRUE(f02.get_migr_rate().index() == 0);
     EXPECT_TRUE(std::get<pop_size_t>(f02.get_migr_rate()) == 2u);
 
-    BOOST_CHECK_EXCEPTION(f02 = select_best(-1.), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return boost::contains(
-            ia.what(), "Invalid fractional migration rate specified in the constructor of a replacement/selection "
-                       "policy: the rate must be in the [0., 1.] range, but it is ");
+    EXPECT_THROW(f02 = select_best(-1.), std::invalid_argument, [](const std::invalid_argument &ia) {
+        return std::string(ia.what()).contains(
+            "Invalid fractional migration rate specified in the constructor of a replacement/selection "
+            "policy: the rate must be in the [0., 1.] range, but it is ");
     });
-    BOOST_CHECK_EXCEPTION(f02 = select_best(2.), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return boost::contains(
-            ia.what(), "Invalid fractional migration rate specified in the constructor of a replacement/selection "
-                       "policy: the rate must be in the [0., 1.] range, but it is ");
+    EXPECT_THROW(f02 = select_best(2.), std::invalid_argument, [](const std::invalid_argument &ia) {
+        return std::string(ia.what()).contains(
+            "Invalid fractional migration rate specified in the constructor of a replacement/selection "
+            "policy: the rate must be in the [0., 1.] range, but it is ");
     });
-    BOOST_CHECK_EXCEPTION(
-        f02 = select_best(std::numeric_limits<double>::infinity()), std::invalid_argument,
-        [](const std::invalid_argument &ia) {
-            return boost::contains(
-                ia.what(), "Invalid fractional migration rate specified in the constructor of a replacement/selection "
-                           "policy: the rate must be in the [0., 1.] range, but it is ");
-        });
-    EXPECT_THROW(f02 = select_best(-1), boost::numeric::negative_overflow);
+    EXPECT_THROW(f02 = select_best(std::numeric_limits<double>::infinity()), std::invalid_argument,
+                 [](const std::invalid_argument &ia) {
+                     return std::string(ia.what()).contains(
+                         "Invalid fractional migration rate specified in the constructor of a replacement/selection "
+                         "policy: the rate must be in the [0., 1.] range, but it is ");
+                 });
+    EXPECT_THROW(f02 = select_best(-1), std::runtime_error);
 
     auto f03(f02);
     EXPECT_TRUE(f03.get_migr_rate().index() == 0);
@@ -121,21 +118,20 @@ TEST(select_best_test, select_best_select)
 {
     select_best f00;
 
-    BOOST_CHECK_EXCEPTION(f00.select(individuals_group_t{}, 0, 0, 2, 1, 0, vector_double{}), std::invalid_argument,
-                          [](const std::invalid_argument &ia) {
-                              return boost::contains(ia.what(),
-                                                     "The 'Select best' selection policy is unable to deal with "
-                                                     "multiobjective constrained optimisation problems");
-                          });
+    EXPECT_THROW(f00.select(individuals_group_t{}, 0, 0, 2, 1, 0, vector_double{}), std::invalid_argument,
+                 [](const std::invalid_argument &ia) {
+                     return std::string(ia.what()).contains("The 'Select best' selection policy is unable to deal with "
+                                                            "multiobjective constrained optimisation problems");
+                 });
 
     f00 = select_best(100);
 
-    BOOST_CHECK_EXCEPTION(f00.select(individuals_group_t{}, 0, 0, 1, 0, 0, vector_double{}), std::invalid_argument,
-                          [](const std::invalid_argument &ia) {
-                              return boost::contains(
-                                  ia.what(), "The absolute migration rate (100) in a 'Select best' selection policy "
-                                             "is larger than the number of input individuals (0)");
-                          });
+    EXPECT_THROW(f00.select(individuals_group_t{}, 0, 0, 1, 0, 0, vector_double{}), std::invalid_argument,
+                 [](const std::invalid_argument &ia) {
+                     return std::string(ia.what()).contains(
+                         "The absolute migration rate (100) in a 'Select best' selection policy "
+                         "is larger than the number of input individuals (0)");
+                 });
 
     // Single-objective, unconstrained.
     f00 = select_best(.1);
