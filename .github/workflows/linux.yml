@@ -17,12 +17,11 @@ jobs:
       - name: Install base dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake gcc-13 g++-13 gfortran-13 libblas-dev liblapack-dev libboost-all-dev
+          sudo apt-get install -y cmake gcc-13 g++-13 libblas-dev liblapack-dev libboost-all-dev
       - name: Configure CMake
         env:
           CC: gcc-13
           CXX: g++-13
-          FC: gfortran-13
         run: |
           mkdir build
           cd build
@@ -43,17 +42,17 @@ jobs:
   linux-eigen3:
     name: Linux - With Eigen3
     runs-on: ubuntu-latest
+    needs: linux-no-deps
     steps:
       - uses: actions/checkout@v4
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake gcc-13 g++-13 gfortran-13 libblas-dev liblapack-dev libeigen3-dev libboost-all-dev
+          sudo apt-get install -y cmake gcc-13 g++-13 libblas-dev liblapack-dev libeigen3-dev libboost-all-dev
       - name: Configure CMake
         env:
           CC: gcc-13
           CXX: g++-13
-          FC: gfortran-13
         run: |
           mkdir build
           cd build
@@ -74,17 +73,17 @@ jobs:
   linux-nlopt:
     name: Linux - With NLopt
     runs-on: ubuntu-latest
+    needs: linux-no-deps
     steps:
       - uses: actions/checkout@v4
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake gcc-13 g++-13 gfortran-13 libblas-dev liblapack-dev libnlopt-dev libboost-all-dev
+          sudo apt-get install -y cmake gcc-13 g++-13 libblas-dev liblapack-dev libnlopt-dev libboost-all-dev
       - name: Configure CMake
         env:
           CC: gcc-13
           CXX: g++-13
-          FC: gfortran-13
         run: |
           mkdir build
           cd build
@@ -105,17 +104,17 @@ jobs:
   linux-ipopt:
     name: Linux - With Ipopt
     runs-on: ubuntu-latest
+    needs: linux-no-deps
     steps:
       - uses: actions/checkout@v4
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake gcc-13 g++-13 gfortran-13 libblas-dev liblapack-dev coinor-libipopt-dev libboost-all-dev
+          sudo apt-get install -y cmake gcc-13 g++-13 libblas-dev liblapack-dev coinor-libipopt-dev libboost-all-dev
       - name: Configure CMake
         env:
           CC: gcc-13
           CXX: g++-13
-          FC: gfortran-13
         run: |
           mkdir build
           cd build
@@ -136,18 +135,18 @@ jobs:
   linux-all-deps:
     name: Linux - All Dependencies
     runs-on: ubuntu-latest
+    needs: [linux-eigen3, linux-nlopt, linux-ipopt]
     steps:
       - uses: actions/checkout@v4
       - name: Install all dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake gcc-13 g++-13 gfortran-13 libblas-dev liblapack-dev \
+          sudo apt-get install -y cmake gcc-13 g++-13 libblas-dev liblapack-dev \
                                   libeigen3-dev libnlopt-dev coinor-libipopt-dev libboost-all-dev
       - name: Configure CMake
         env:
           CC: gcc-13
           CXX: g++-13
-          FC: gfortran-13
         run: |
           mkdir build
           cd build
@@ -171,18 +170,18 @@ jobs:
   linux-debug:
     name: Linux - Debug Build with All Dependencies
     runs-on: ubuntu-latest
+    needs: linux-all-deps
     steps:
       - uses: actions/checkout@v4
       - name: Install all dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake gcc-13 g++-13 gfortran-13 libblas-dev liblapack-dev \
+          sudo apt-get install -y cmake gcc-13 g++-13 libblas-dev liblapack-dev \
                                   libeigen3-dev libnlopt-dev coinor-libipopt-dev libboost-all-dev
       - name: Configure CMake
         env:
           CC: gcc-13
           CXX: g++-13
-          FC: gfortran-13
         run: |
           mkdir build
           cd build
