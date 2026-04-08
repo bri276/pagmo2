@@ -42,6 +42,9 @@ option(PAGMO_WITH_NLOPT "Enable wrappers for the NLopt algorithms." OFF)
 # Build option: enable Ipopt.
 option(PAGMO_WITH_IPOPT "Enable wrappers for the Ipopt solver." OFF)
 
+# Build option: enable MPI.
+option(PAGMO_WITH_MPI "Enable MPI island for massively parallel optimization." OFF)
+
 # Build option: enable IPO.
 option(PAGMO_ENABLE_IPO "Enable IPO (requires compiler support)." OFF)
 mark_as_advanced(PAGMO_ENABLE_IPO)
@@ -185,6 +188,25 @@ include(cmake/find_or_build_nlopt.cmake)
 # IPOPT dependency
 include(cmake/find_or_build_ipopt.cmake)
 
+# MPI
+if(PAGMO_WITH_MPI)
+    find_package(MPI REQUIRED COMPONENTS CXX)
+    message(STATUS "MPI found. MPI island will be available.")
+    message(STATUS "  MPI C++ compiler: ${MPI_CXX_COMPILER}")
+    message(STATUS "  MPI C++ compile flags: ${MPI_CXX_COMPILE_FLAGS}")
+    message(STATUS "  MPI C++ include dirs: ${MPI_CXX_INCLUDE_DIRS}")
+    message(STATUS "  MPI C++ libraries: ${MPI_CXX_LIBRARIES}")
+endif()
+
+if(PAGMO_BUILD_TESTS)
+    # Internal variable that will be used to tell PagmoFindBoost to locate the
+    # Boost unit test framework, if tests are required.
+    set(_PAGMO_FIND_BOOST_UNIT_TEST_FRAMEWORK TRUE)
+endif()
+
+# Boost setup.
+include(cmake/find_or_build_boost.cmake)
+
 # List of source files.
 set(PAGMO_SRC_FILES
     # Core classes.
@@ -290,6 +312,13 @@ set(PAGMO_SRC_FILES
 if(PAGMO_WITH_FORK_ISLAND)
     set(PAGMO_SRC_FILES
         "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/islands/fork_island.cpp"
+        "${PAGMO_SRC_FILES}"
+    )
+endif()
+
+if(PAGMO_WITH_MPI)
+    set(PAGMO_SRC_FILES
+        "${CMAKE_CURRENT_SOURCE_DIR}/pagmo/islands/mpi_island.cpp"
         "${PAGMO_SRC_FILES}"
     )
 endif()
@@ -451,6 +480,16 @@ if(PAGMO_WITH_IPOPT)
     set(PAGMO_ENABLE_IPOPT "#define PAGMO_WITH_IPOPT")
 endif()
 
+if(PAGMO_WITH_MPI)
+    # Link pagmo to MPI.
+    # NOTE: MPI is used in the mpi_island implementation.
+    # We make this a public dependency since users may need
+    # MPI types in the public interface.
+    target_link_libraries(pagmo PUBLIC MPI::MPI_CXX)
+    target_include_directories(pagmo PUBLIC ${MPI_CXX_INCLUDE_DIRS})
+    set(PAGMO_ENABLE_MPI "#define PAGMO_WITH_MPI")
+endif()
+
 # Configure config.hpp.
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/config.hpp.in" "${CMAKE_CURRENT_BINARY_DIR}/include/pagmo/config.hpp" @ONLY)
 
@@ -507,6 +546,9 @@ if(PAGMO_WITH_NLOPT)
 endif()
 if(PAGMO_WITH_IPOPT)
     set(_PAGMO_CONFIG_OPTIONAL_DEPS "${_PAGMO_CONFIG_OPTIONAL_DEPS}find_package(IPOPT QUIET REQUIRED)\n")
+endif()
+if(PAGMO_WITH_MPI)
+    set(_PAGMO_CONFIG_OPTIONAL_DEPS "${_PAGMO_CONFIG_OPTIONAL_DEPS}find_package(MPI QUIET REQUIRED COMPONENTS CXX)\n")
 endif()
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/pagmo-config.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/pagmo-config.cmake" @ONLY)
