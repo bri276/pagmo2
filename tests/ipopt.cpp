@@ -55,8 +55,8 @@ see https://www.gnu.org/licenses/. */
 #if defined(PAGMO_WITH_FORK_ISLAND)
 #include <pagmo/islands/fork_island.hpp>
 #else
-#include <pagmo/islands/thread_island.hpp>
 #include <pagmo/exceptions.hpp>
+#include <pagmo/islands/thread_island.hpp>
 #endif
 
 using namespace pagmo;
@@ -109,7 +109,7 @@ TEST(ipopt_test, ipopt_evolve_test_02)
 struct throw_hs71_0 : hock_schittkowski_71 {
     vector_double fitness(const vector_double &dv) const
     {
-        if (counter == 5u) {
+        if (counter == 1u) {
             throw std::invalid_argument("");
         }
         ++counter;
@@ -121,7 +121,7 @@ struct throw_hs71_0 : hock_schittkowski_71 {
 struct throw_hs71_1 : hock_schittkowski_71 {
     vector_double gradient(const vector_double &dv) const
     {
-        if (counter == 5u) {
+        if (counter == 1u) {
             throw std::invalid_argument("");
         }
         ++counter;
@@ -133,7 +133,7 @@ struct throw_hs71_1 : hock_schittkowski_71 {
 struct throw_hs71_2 : hock_schittkowski_71 {
     vector_double gradient(const vector_double &dv) const
     {
-        if (counter == 6u) {
+        if (counter == 1u) {
             throw std::invalid_argument("");
         }
         ++counter;
@@ -161,7 +161,7 @@ TEST(ipopt_test, ipopt_failure_modes)
         // Problem's objfun throws.
         algorithm algo(ipopt{});
         population pop(throw_hs71_0{}, 1);
-        EXPECT_THROW(algo.evolve(pop), pagmo_exception);
+        EXPECT_THROW(algo.evolve(pop), std::invalid_argument);
     }
     {
         // Problem's gradient throws.

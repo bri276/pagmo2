@@ -104,7 +104,7 @@ TEST(sga_test, sga_evolve_test)
                  insufficient_population_error);
     EXPECT_THROW((sga{1u, .95, 10., .02, .5, 2u, "sbx", "gaussian", "tournament", 32u}.evolve(
                      population{schwefel{20u}, 25u, 23u})),
-                 insufficient_population_error);
+                 invalid_parameter_error);
     // And a clean exit for 0 generations
     population pop{schwefel{25u}, 10u};
     EXPECT_TRUE(sga{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);
