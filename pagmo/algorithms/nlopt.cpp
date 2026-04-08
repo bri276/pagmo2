@@ -57,7 +57,7 @@ see https://www.gnu.org/licenses/. */
 #include <utility>
 #include <vector>
 
-#include <boost/bimap.hpp>
+#include <bimap.hpp>
 #include <nlopt.h>
 
 #include <pagmo/algorithm.hpp>
@@ -87,32 +87,31 @@ namespace
 // and the enums used in the NLopt C API to refer to the algos (e.g., NLOPT_LN_COBYLA).
 // We use a bidirectional map so that we can map both string -> enum and enum -> string,
 // depending on what is needed.
-using nlopt_names_map_t = boost::bimap<std::string, ::nlopt_algorithm>;
+using nlopt_names_map_t = stde::bimap<std::string, ::nlopt_algorithm>;
 
 // Initialise the mapping between algo names and enums for the supported algorithms.
 nlopt_names_map_t nlopt_names_map_init()
 {
     nlopt_names_map_t retval;
-    using value_type = nlopt_names_map_t::value_type;
-    retval.insert(value_type("cobyla", NLOPT_LN_COBYLA));
-    retval.insert(value_type("bobyqa", NLOPT_LN_BOBYQA));
-    retval.insert(value_type("newuoa", NLOPT_LN_NEWUOA));
-    retval.insert(value_type("newuoa_bound", NLOPT_LN_NEWUOA_BOUND));
-    retval.insert(value_type("praxis", NLOPT_LN_PRAXIS));
-    retval.insert(value_type("neldermead", NLOPT_LN_NELDERMEAD));
-    retval.insert(value_type("sbplx", NLOPT_LN_SBPLX));
-    retval.insert(value_type("mma", NLOPT_LD_MMA));
-    retval.insert(value_type("ccsaq", NLOPT_LD_CCSAQ));
-    retval.insert(value_type("slsqp", NLOPT_LD_SLSQP));
-    retval.insert(value_type("lbfgs", NLOPT_LD_LBFGS));
-    retval.insert(value_type("tnewton_precond_restart", NLOPT_LD_TNEWTON_PRECOND_RESTART));
-    retval.insert(value_type("tnewton_precond", NLOPT_LD_TNEWTON_PRECOND));
-    retval.insert(value_type("tnewton_restart", NLOPT_LD_TNEWTON_RESTART));
-    retval.insert(value_type("tnewton", NLOPT_LD_TNEWTON));
-    retval.insert(value_type("var2", NLOPT_LD_VAR2));
-    retval.insert(value_type("var1", NLOPT_LD_VAR1));
-    retval.insert(value_type("auglag", NLOPT_AUGLAG));
-    retval.insert(value_type("auglag_eq", NLOPT_AUGLAG_EQ));
+    retval.insert("cobyla", NLOPT_LN_COBYLA);
+    retval.insert("bobyqa", NLOPT_LN_BOBYQA);
+    retval.insert("newuoa", NLOPT_LN_NEWUOA);
+    retval.insert("newuoa_bound", NLOPT_LN_NEWUOA_BOUND);
+    retval.insert("praxis", NLOPT_LN_PRAXIS);
+    retval.insert("neldermead", NLOPT_LN_NELDERMEAD);
+    retval.insert("sbplx", NLOPT_LN_SBPLX);
+    retval.insert("mma", NLOPT_LD_MMA);
+    retval.insert("ccsaq", NLOPT_LD_CCSAQ);
+    retval.insert("slsqp", NLOPT_LD_SLSQP);
+    retval.insert("lbfgs", NLOPT_LD_LBFGS);
+    retval.insert("tnewton_precond_restart", NLOPT_LD_TNEWTON_PRECOND_RESTART);
+    retval.insert("tnewton_precond", NLOPT_LD_TNEWTON_PRECOND);
+    retval.insert("tnewton_restart", NLOPT_LD_TNEWTON_RESTART);
+    retval.insert("tnewton", NLOPT_LD_TNEWTON);
+    retval.insert("var2", NLOPT_LD_VAR2);
+    retval.insert("var1", NLOPT_LD_VAR1);
+    retval.insert("auglag", NLOPT_AUGLAG);
+    retval.insert("auglag_eq", NLOPT_AUGLAG_EQ);
     return retval;
 }
 
@@ -200,63 +199,63 @@ struct nlopt_obj {
         if (res != NLOPT_SUCCESS) {
             // LCOV_EXCL_START
             pagmo_throw(invalid_parameter_error, "could not set the 'stopval' stopping criterion to "
-                                                   + std::to_string(stopval) + " for the NLopt algorithm '"
-                                                   + nlopt_names.right.at(algo)
-                                                   + "', the error is: " + nlopt_res2string(res));
+                                                     + std::to_string(stopval) + " for the NLopt algorithm '"
+                                                     + nlopt_names.get_key(algo)
+                                                     + "', the error is: " + nlopt_res2string(res));
             // LCOV_EXCL_STOP
         }
         res = ::nlopt_set_ftol_rel(m_value.get(), ftol_rel);
         if (res != NLOPT_SUCCESS) {
             // LCOV_EXCL_START
             pagmo_throw(invalid_parameter_error, "could not set the 'ftol_rel' stopping criterion to "
-                                                   + std::to_string(ftol_rel) + " for the NLopt algorithm '"
-                                                   + nlopt_names.right.at(algo)
-                                                   + "', the error is: " + nlopt_res2string(res));
+                                                     + std::to_string(ftol_rel) + " for the NLopt algorithm '"
+                                                     + nlopt_names.get_key(algo)
+                                                     + "', the error is: " + nlopt_res2string(res));
             // LCOV_EXCL_STOP
         }
         res = ::nlopt_set_ftol_abs(m_value.get(), ftol_abs);
         if (res != NLOPT_SUCCESS) {
             // LCOV_EXCL_START
             pagmo_throw(invalid_parameter_error, "could not set the 'ftol_abs' stopping criterion to "
-                                                   + std::to_string(ftol_abs) + " for the NLopt algorithm '"
-                                                   + nlopt_names.right.at(algo)
-                                                   + "', the error is: " + nlopt_res2string(res));
+                                                     + std::to_string(ftol_abs) + " for the NLopt algorithm '"
+                                                     + nlopt_names.get_key(algo)
+                                                     + "', the error is: " + nlopt_res2string(res));
             // LCOV_EXCL_STOP
         }
         res = ::nlopt_set_xtol_rel(m_value.get(), xtol_rel);
         if (res != NLOPT_SUCCESS) {
             // LCOV_EXCL_START
             pagmo_throw(invalid_parameter_error, "could not set the 'xtol_rel' stopping criterion to "
-                                                   + std::to_string(xtol_rel) + " for the NLopt algorithm '"
-                                                   + nlopt_names.right.at(algo)
-                                                   + "', the error is: " + nlopt_res2string(res));
+                                                     + std::to_string(xtol_rel) + " for the NLopt algorithm '"
+                                                     + nlopt_names.get_key(algo)
+                                                     + "', the error is: " + nlopt_res2string(res));
             // LCOV_EXCL_STOP
         }
         res = ::nlopt_set_xtol_abs1(m_value.get(), xtol_abs);
         if (res != NLOPT_SUCCESS) {
             // LCOV_EXCL_START
             pagmo_throw(invalid_parameter_error, "could not set the 'xtol_abs' stopping criterion to "
-                                                   + std::to_string(xtol_abs) + " for the NLopt algorithm '"
-                                                   + nlopt_names.right.at(algo)
-                                                   + "', the error is: " + nlopt_res2string(res));
+                                                     + std::to_string(xtol_abs) + " for the NLopt algorithm '"
+                                                     + nlopt_names.get_key(algo)
+                                                     + "', the error is: " + nlopt_res2string(res));
             // LCOV_EXCL_STOP
         }
         res = ::nlopt_set_maxeval(m_value.get(), maxeval);
         if (res != NLOPT_SUCCESS) {
             // LCOV_EXCL_START
             pagmo_throw(invalid_parameter_error, "could not set the 'maxeval' stopping criterion to "
-                                                   + std::to_string(maxeval) + " for the NLopt algorithm '"
-                                                   + nlopt_names.right.at(algo)
-                                                   + "', the error is: " + nlopt_res2string(res));
+                                                     + std::to_string(maxeval) + " for the NLopt algorithm '"
+                                                     + nlopt_names.get_key(algo)
+                                                     + "', the error is: " + nlopt_res2string(res));
             // LCOV_EXCL_STOP
         }
         res = ::nlopt_set_maxtime(m_value.get(), maxtime);
         if (res != NLOPT_SUCCESS) {
             // LCOV_EXCL_START
             pagmo_throw(invalid_parameter_error, "could not set the 'maxtime' stopping criterion to "
-                                                   + std::to_string(maxtime) + " for the NLopt algorithm '"
-                                                   + nlopt_names.right.at(algo)
-                                                   + "', the error is: " + nlopt_res2string(res));
+                                                     + std::to_string(maxtime) + " for the NLopt algorithm '"
+                                                     + nlopt_names.get_key(algo)
+                                                     + "', the error is: " + nlopt_res2string(res));
             // LCOV_EXCL_STOP
         }
     }
@@ -269,16 +268,16 @@ struct nlopt_obj {
         if (res != NLOPT_SUCCESS) {
             // LCOV_EXCL_START
             pagmo_throw(invalid_parameter_error, "could not set the lower bounds for the NLopt algorithm '"
-                                                   + nlopt_names.right.at(m_algo)
-                                                   + "', the error is: " + nlopt_res2string(res));
+                                                     + nlopt_names.get_key(m_algo)
+                                                     + "', the error is: " + nlopt_res2string(res));
             // LCOV_EXCL_STOP
         }
         res = ::nlopt_set_upper_bounds(m_value.get(), bounds.second.data());
         if (res != NLOPT_SUCCESS) {
             // LCOV_EXCL_START
             pagmo_throw(invalid_parameter_error, "could not set the upper bounds for the NLopt algorithm '"
-                                                   + nlopt_names.right.at(m_algo)
-                                                   + "', the error is: " + nlopt_res2string(res));
+                                                     + nlopt_names.get_key(m_algo)
+                                                     + "', the error is: " + nlopt_res2string(res));
             // LCOV_EXCL_STOP
         }
     }
@@ -297,8 +296,8 @@ struct nlopt_obj {
         if (res != NLOPT_SUCCESS) {
             // LCOV_EXCL_START
             pagmo_throw(invalid_parameter_error, "could not set the objective function for the NLopt algorithm '"
-                                                   + nlopt_names.right.at(m_algo)
-                                                   + "', the error is: " + nlopt_res2string(res));
+                                                     + nlopt_names.get_key(m_algo)
+                                                     + "', the error is: " + nlopt_res2string(res));
             // LCOV_EXCL_STOP
         }
     }
@@ -314,7 +313,7 @@ struct nlopt_obj {
             if (res != NLOPT_SUCCESS) {
                 pagmo_throw(invalid_parameter_error,
                             "could not set the inequality constraints for the NLopt algorithm '"
-                                + nlopt_names.right.at(m_algo) + "', the error is: " + nlopt_res2string(res)
+                                + nlopt_names.get_key(m_algo) + "', the error is: " + nlopt_res2string(res)
                                 + "\nThis usually means that the algorithm does not support inequality constraints");
             }
         }
@@ -330,7 +329,7 @@ struct nlopt_obj {
             if (res != NLOPT_SUCCESS) {
                 pagmo_throw(invalid_parameter_error,
                             "could not set the equality constraints for the NLopt algorithm '"
-                                + nlopt_names.right.at(m_algo) + "', the error is: " + nlopt_res2string(res)
+                                + nlopt_names.get_key(m_algo) + "', the error is: " + nlopt_res2string(res)
                                 + "\nThis usually means that the algorithm does not support equality constraints");
             }
         }
@@ -386,7 +385,7 @@ double nlopt_objfun_wrapper(unsigned dim, const double *x, double *grad, void *f
             // we error out.
             pagmo_throw(invalid_parameter_error,
                         "during an optimization with the NLopt algorithm '"
-                            + nlopt_names.right.at(::nlopt_get_algorithm(nlo.m_value.get()))
+                            + nlopt_names.get_key(::nlopt_get_algorithm(nlo.m_value.get()))
                             + "' an objective function gradient was requested, but the optimisation problem '"
                             + p.get_name() + "' does not provide it");
         }
@@ -492,10 +491,10 @@ void nlopt_ineq_c_wrapper(unsigned m, double *result, unsigned dim, const double
             // that needs the gradient. If the problem does not support it,
             // we error out.
             pagmo_throw(invalid_parameter_error, "during an optimization with the NLopt algorithm '"
-                                                   + nlopt_names.right.at(::nlopt_get_algorithm(nlo.m_value.get()))
-                                                   + "' an inequality constraints gradient was requested, but the "
-                                                     "optimisation problem '"
-                                                   + p.get_name() + "' does not provide it");
+                                                     + nlopt_names.get_key(::nlopt_get_algorithm(nlo.m_value.get()))
+                                                     + "' an inequality constraints gradient was requested, but the "
+                                                       "optimisation problem '"
+                                                     + p.get_name() + "' does not provide it");
         }
 
         // Copy the decision vector in our temporary dv vector_double,
@@ -579,7 +578,7 @@ void nlopt_eq_c_wrapper(unsigned m, double *result, unsigned dim, const double *
             // we error out.
             pagmo_throw(invalid_parameter_error,
                         "during an optimization with the NLopt algorithm '"
-                            + nlopt_names.right.at(::nlopt_get_algorithm(nlo.m_value.get()))
+                            + nlopt_names.get_key(::nlopt_get_algorithm(nlo.m_value.get()))
                             + "' an equality constraints gradient was requested, but the optimisation problem '"
                             + p.get_name() + "' does not provide it");
         }
@@ -718,13 +717,11 @@ nlopt::nlopt(const std::string &algo) : m_algo(algo)
     }
 
     // Check the algorithm.
-    if (detail::nlopt_names.left.find(m_algo) == detail::nlopt_names.left.end()) {
+    if (!detail::nlopt_names.has_key(m_algo)) {
         // The selected algorithm is unknown or not among the supported ones.
         std::ostringstream oss;
-        std::transform(
-            detail::nlopt_names.left.begin(), detail::nlopt_names.left.end(),
-            std::ostream_iterator<std::string>(oss, "\n"),
-            [](const RemoveConstVolatileRef<decltype(*detail::nlopt_names.left.begin())> &v) { return v.first; });
+        std::transform(detail::nlopt_names.begin(), detail::nlopt_names.end(),
+                       std::ostream_iterator<std::string>(oss, "\n"), [](const auto &p) { return *p.first; });
         pagmo_throw(invalid_parameter_error,
                     "unknown/unsupported NLopt algorithm '" + algo + "'. The supported algorithms are:\n" + oss.str());
     }
@@ -783,7 +780,7 @@ population nlopt::evolve(population pop) const
 
     // Create the nlopt obj.
     // NOTE: this will check also the problem's properties.
-    detail::nlopt_obj no(detail::nlopt_names.left.at(m_algo), prob, m_sc_stopval, m_sc_ftol_rel, m_sc_ftol_abs,
+    detail::nlopt_obj no(detail::nlopt_names.get_value(m_algo), prob, m_sc_stopval, m_sc_ftol_rel, m_sc_ftol_abs,
                          m_sc_xtol_rel, m_sc_xtol_abs, m_sc_maxeval, m_sc_maxtime, m_verbosity);
     no.set_bounds();
     no.set_objfun();
@@ -792,7 +789,7 @@ population nlopt::evolve(population pop) const
 
     // Set the local optimiser, if appropriate.
     if (m_loc_opt) {
-        detail::nlopt_obj no_loc(detail::nlopt_names.left.at(m_loc_opt->m_algo), prob, m_loc_opt->m_sc_stopval,
+        detail::nlopt_obj no_loc(detail::nlopt_names.get_value(m_loc_opt->m_algo), prob, m_loc_opt->m_sc_stopval,
                                  m_loc_opt->m_sc_ftol_rel, m_loc_opt->m_sc_ftol_abs, m_loc_opt->m_sc_xtol_rel,
                                  m_loc_opt->m_sc_xtol_abs, m_loc_opt->m_sc_maxeval, m_loc_opt->m_sc_maxtime, 0);
         ::nlopt_set_local_optimizer(no.m_value.get(), no_loc.m_value.get());
@@ -814,7 +811,7 @@ population nlopt::evolve(population pop) const
         }
         if (initial_guess[i] < bounds.first[i] || initial_guess[i] > bounds.second[i]) {
             pagmo_throw(invalid_parameter_error, "the value of the initial guess at index " + std::to_string(i)
-                                                   + " is outside the problem's bounds");
+                                                     + " is outside the problem's bounds");
         }
     }
 

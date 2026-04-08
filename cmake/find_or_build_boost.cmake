@@ -30,7 +30,7 @@ else()
     set(TRY_BOOST_VERSION "1.90.0")
     set(BOOST_MY_OPTIONS "CMAKE_POSITION_INDEPENDENT_CODE ON;BUILD_SHARED_LIBS OFF")
     set(BOOST_NOT_HEADER_ONLY_COMPONENTS_THAT_YOU_NEED "")
-    set(BOOST_HEADER_ONLY_COMPONENTS_THAT_YOU_NEED "system;bimap;container;type_index;multi_index;type_traits;config;mpl;iterator;algorithm;core;unordered")
+    set(BOOST_HEADER_ONLY_COMPONENTS_THAT_YOU_NEED "system;container;type_index;multi_index;type_traits;config;mpl;iterator;algorithm;core;unordered")
 
     add_boost(
       TRY_BOOST_VERSION
