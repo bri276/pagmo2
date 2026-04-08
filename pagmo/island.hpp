@@ -64,7 +64,9 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/type_traits.hpp>
 #include <pagmo/types.hpp>
 
-#define PAGMO_S11N_ISLAND_EXPORT_KEY(isl)
+#define PAGMO_S11N_ISLAND_EXPORT_KEY(isl)                                                                              \
+    CEREAL_REGISTER_TYPE(pagmo::detail::isl_inner<isl>)                                                                \
+    CEREAL_REGISTER_POLYMORPHIC_RELATION(pagmo::detail::isl_inner_base, pagmo::detail::isl_inner<isl>)
 
 #define PAGMO_S11N_ISLAND_IMPLEMENT(isl)
 

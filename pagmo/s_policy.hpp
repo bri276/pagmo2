@@ -50,7 +50,9 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/type_traits.hpp>
 #include <pagmo/types.hpp>
 
-#define PAGMO_S11N_S_POLICY_EXPORT_KEY(s)
+#define PAGMO_S11N_S_POLICY_EXPORT_KEY(s)                                                                              \
+    CEREAL_REGISTER_TYPE(pagmo::detail::s_pol_inner<s>)                                                                \
+    CEREAL_REGISTER_POLYMORPHIC_RELATION(pagmo::detail::s_pol_inner_base, pagmo::detail::s_pol_inner<s>)
 
 #define PAGMO_S11N_S_POLICY_IMPLEMENT(s)
 

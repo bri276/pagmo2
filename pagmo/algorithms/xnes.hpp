@@ -38,7 +38,7 @@ see https://www.gnu.org/licenses/. */
 #include <vector>
 
 #include <pagmo/algorithm.hpp>
-#include <pagmo/detail/eigen.hpp>
+#include <pagmo/detail/eigen_s11n.hpp>
 #include <pagmo/detail/visibility.hpp>
 #include <pagmo/population.hpp>
 #include <pagmo/rng.hpp>

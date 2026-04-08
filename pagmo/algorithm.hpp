@@ -51,7 +51,9 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/threading.hpp>
 #include <pagmo/type_traits.hpp>
 
-#define PAGMO_S11N_ALGORITHM_EXPORT_KEY(algo)
+#define PAGMO_S11N_ALGORITHM_EXPORT_KEY(algo)                                                                          \
+    CEREAL_REGISTER_TYPE(pagmo::detail::algo_inner<algo>)                                                              \
+    CEREAL_REGISTER_POLYMORPHIC_RELATION(pagmo::detail::algo_inner_base, pagmo::detail::algo_inner<algo>)
 
 #define PAGMO_S11N_ALGORITHM_IMPLEMENT(algo)
 

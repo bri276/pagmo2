@@ -52,7 +52,9 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/type_traits.hpp>
 #include <pagmo/types.hpp>
 
-#define PAGMO_S11N_BFE_EXPORT_KEY(b)
+#define PAGMO_S11N_BFE_EXPORT_KEY(b)                                                                                   \
+    CEREAL_REGISTER_TYPE(pagmo::detail::bfe_inner<b>)                                                                  \
+    CEREAL_REGISTER_POLYMORPHIC_RELATION(pagmo::detail::bfe_inner_base, pagmo::detail::bfe_inner<b>)
 
 #define PAGMO_S11N_BFE_IMPLEMENT(b)
 

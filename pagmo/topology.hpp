@@ -54,7 +54,9 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/type_traits.hpp>
 #include <pagmo/types.hpp>
 
-#define PAGMO_S11N_TOPOLOGY_EXPORT_KEY(topo)
+#define PAGMO_S11N_TOPOLOGY_EXPORT_KEY(topo)                                                                           \
+    CEREAL_REGISTER_TYPE(pagmo::detail::topo_inner<topo>)                                                              \
+    CEREAL_REGISTER_POLYMORPHIC_RELATION(pagmo::detail::topo_inner_base, pagmo::detail::topo_inner<topo>)
 
 #define PAGMO_S11N_TOPOLOGY_IMPLEMENT(topo)
 
