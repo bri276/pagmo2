@@ -54,6 +54,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/archipelago.hpp>
 #include <pagmo/batch_evaluators/thread_bfe.hpp>
 #include <pagmo/bfe.hpp>
+#include <pagmo/exceptions.hpp>
 #include <pagmo/island.hpp>
 #include <pagmo/islands/thread_island.hpp>
 #include <pagmo/population.hpp>
@@ -71,7 +72,6 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/topology.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
-#include <pagmo/exceptions.hpp>
 using namespace pagmo;
 
 TEST(archipelago_test, archipelago_construction)
@@ -682,20 +682,20 @@ TEST(archipelago_test, archipelago_iterator_tests)
     EXPECT_TRUE(static_cast<const archipelago &>(archi).begin() == static_cast<const archipelago &>(archi).end());
     EXPECT_EQ(std::distance(archi.begin(), archi.end()), 0);
     EXPECT_EQ(std::distance(std::begin(archi), std::end(archi)), 0);
-    EXPECT_TRUE_EQUAL(
+    EXPECT_EQ(
         std::distance(static_cast<const archipelago &>(archi).begin(), static_cast<const archipelago &>(archi).end()),
         0);
-    EXPECT_TRUE_EQUAL(std::distance(std::begin(static_cast<const archipelago &>(archi)),
-                                    std::end(static_cast<const archipelago &>(archi))),
-                      0);
+    EXPECT_EQ(std::distance(std::begin(static_cast<const archipelago &>(archi)),
+                            std::end(static_cast<const archipelago &>(archi))),
+              0);
     archi.push_back(de{}, rosenbrock{}, 10u);
     archi.push_back(de{}, rosenbrock{}, 10u);
     archi.push_back(de{}, rosenbrock{}, 10u);
     archi.push_back(de{}, rosenbrock{}, 10u);
     EXPECT_EQ(std::distance(std::begin(archi), std::end(archi)), 4);
-    EXPECT_TRUE_EQUAL(std::distance(std::begin(static_cast<const archipelago &>(archi)),
-                                    std::end(static_cast<const archipelago &>(archi))),
-                      4);
+    EXPECT_EQ(std::distance(std::begin(static_cast<const archipelago &>(archi)),
+                            std::end(static_cast<const archipelago &>(archi))),
+              4);
     for (auto &isl : archi) {
         EXPECT_EQ(isl.get_population().size(), 10u);
     }

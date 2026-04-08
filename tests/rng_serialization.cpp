@@ -72,7 +72,7 @@ TEST(rng_serialization_test, rng_serialization_test)
         rng_load(str, r);
         std::vector<r_type::result_type> v2;
         std::generate_n(std::back_inserter(v2), 100, r);
-        EXPECT_TRUE_EQUAL_COLLECTIONS(v1.begin(), v1.end(), v2.begin(), v2.end());
+        EXPECT_EQ(v1, v2);
         EXPECT_TRUE(r_copy == r);
     }
 }

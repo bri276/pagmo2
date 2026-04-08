@@ -41,7 +41,7 @@ see https://www.gnu.org/licenses/. */
 #include <utility>
 #include <vector>
 
-#include <boost/iterator/indirect_iterator.hpp>
+#include <iterator>
 
 #include <pagmo/algorithm.hpp>
 #include <pagmo/bfe.hpp>
@@ -58,6 +58,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/type_traits.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
+#include <pagmo/utils/indirect_iterator.hpp>
 namespace pagmo
 {
 
@@ -168,8 +169,8 @@ class PAGMO_DLL_PUBLIC archipelago
 
     using container_t = std::vector<std::unique_ptr<island>>;
     using size_type_implementation = container_t::size_type;
-    using iterator_implementation = boost::indirect_iterator<container_t::iterator>;
-    using const_iterator_implementation = boost::indirect_iterator<container_t::const_iterator>;
+    using iterator_implementation = detail::indirect_iterator<container_t::iterator>;
+    using const_iterator_implementation = detail::indirect_iterator<container_t::const_iterator>;
 
     // NOTE: same utility method as in pagmo::island, see there.
     void wait_check_ignore();

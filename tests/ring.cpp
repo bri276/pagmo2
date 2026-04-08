@@ -149,13 +149,11 @@ TEST(ring, basic_test)
 
     // Ctor from edge weight.
     EXPECT_THROW(r0 = ring(-2), index_error);
-});
 
-// Ctor from number of vertices and edge weight.
-EXPECT_THROW(r0 = ring(0, -2), index_error);
-});
+    // Ctor from number of vertices and edge weight.
+    EXPECT_THROW(r0 = ring(0, -2), index_error);
 
-r0 = ring(0, 0);
+    r0 = ring(0, 0);
 
 EXPECT_TRUE(r0.get_weight() == 0.);
 EXPECT_TRUE(r0.num_vertices() == 0u);

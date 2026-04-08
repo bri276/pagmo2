@@ -13,6 +13,12 @@ CPMFindPackage(
     "SKIP_BENCHMARKS ON"
 )
 
+# Graaf does not define its own CMake targets, so we create one manually.
+if(NOT TARGET Graaf::Graaf)
+    add_library(Graaf::Graaf INTERFACE IMPORTED GLOBAL)
+    target_include_directories(Graaf::Graaf INTERFACE "${graaflib_SOURCE_DIR}/include")
+endif()
+
 if(TARGET Graaf::Graaf)
     message(STATUS "Graaf dependency successfully configured (Graaf::Graaf).")
 else()

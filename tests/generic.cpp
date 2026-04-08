@@ -35,12 +35,12 @@ see https://www.gnu.org/licenses/. */
 #include <tuple>
 #include <utility>
 
+#include <pagmo/exceptions.hpp>
 #include <pagmo/io.hpp>
 #include <pagmo/problem.hpp>
 #include <pagmo/rng.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/generic.hpp>
-#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -156,41 +156,40 @@ TEST(generic_test, batch_random_decision_vector_test)
         EXPECT_THROW(batch_random_decision_vector(problem{udp00{{0, 0}, {1, big}, 1}}, 10, r_engine), utility_error);
         EXPECT_THROW(batch_random_decision_vector(problem{udp00{{0, -big}, {1, 0}, 1}}, 10, r_engine), utility_error);
     }
-}
 
-// Test the results
-EXPECT_TRUE(batch_random_decision_vector(problem{udp00{{3, 4}, {3, 4}}}, 0, r_engine).empty());
-EXPECT_TRUE((batch_random_decision_vector(problem{udp00{{3, 4}, {3, 4}}}, 3, r_engine)
-             == vector_double{3, 4, 3, 4, 3, 4}));
-EXPECT_TRUE((batch_random_decision_vector(problem{udp00{{3, 4}, {3, 4}, 1}}, 3, r_engine)
-             == vector_double{3, 4, 3, 4, 3, 4}));
-auto tmp = batch_random_decision_vector(problem{udp00{{0, 0}, {1, 1}}}, 3, r_engine);
-EXPECT_TRUE(tmp.size() == 6u);
-EXPECT_TRUE(tmp[0] >= 0.);
-EXPECT_TRUE(tmp[2] >= 0.);
-EXPECT_TRUE(tmp[4] >= 0.);
-EXPECT_TRUE(tmp[1] < 1.);
-EXPECT_TRUE(tmp[3] < 1.);
-EXPECT_TRUE(tmp[5] < 1.);
-tmp = batch_random_decision_vector(problem{udp00{{0, 0}, {1, 0}}}, 3, r_engine);
-EXPECT_TRUE(tmp.size() == 6u);
-EXPECT_TRUE(tmp[1] == 0.);
-EXPECT_TRUE(tmp[3] == 0.);
-EXPECT_TRUE(tmp[5] == 0.);
-for (auto i = 0; i < 100; ++i) {
-    tmp = batch_random_decision_vector(problem{udp00{{0}, {2}, 1}}, 3, r_engine);
-    EXPECT_TRUE(tmp.size() == 3u);
-    EXPECT_TRUE(tmp[0] == 0. || tmp[0] == 1. || tmp[0] == 2.);
-    EXPECT_TRUE(tmp[1] == 0. || tmp[1] == 1. || tmp[1] == 2.);
-    EXPECT_TRUE(tmp[2] == 0. || tmp[2] == 1. || tmp[2] == 2.);
-}
-for (auto i = 0; i < 100; ++i) {
-    tmp = batch_random_decision_vector(problem{udp00{{0, -20}, {1, 20}, 1}}, 3, r_engine);
+    // Test the results
+    EXPECT_TRUE(batch_random_decision_vector(problem{udp00{{3, 4}, {3, 4}}}, 0, r_engine).empty());
+    EXPECT_TRUE(
+        (batch_random_decision_vector(problem{udp00{{3, 4}, {3, 4}}}, 3, r_engine) == vector_double{3, 4, 3, 4, 3, 4}));
+    EXPECT_TRUE((batch_random_decision_vector(problem{udp00{{3, 4}, {3, 4}, 1}}, 3, r_engine)
+                 == vector_double{3, 4, 3, 4, 3, 4}));
+    auto tmp = batch_random_decision_vector(problem{udp00{{0, 0}, {1, 1}}}, 3, r_engine);
     EXPECT_TRUE(tmp.size() == 6u);
-    EXPECT_TRUE(std::trunc(tmp[1]) == tmp[1]);
-    EXPECT_TRUE(std::trunc(tmp[3]) == tmp[3]);
-    EXPECT_TRUE(std::trunc(tmp[5]) == tmp[5]);
-}
+    EXPECT_TRUE(tmp[0] >= 0.);
+    EXPECT_TRUE(tmp[2] >= 0.);
+    EXPECT_TRUE(tmp[4] >= 0.);
+    EXPECT_TRUE(tmp[1] < 1.);
+    EXPECT_TRUE(tmp[3] < 1.);
+    EXPECT_TRUE(tmp[5] < 1.);
+    tmp = batch_random_decision_vector(problem{udp00{{0, 0}, {1, 0}}}, 3, r_engine);
+    EXPECT_TRUE(tmp.size() == 6u);
+    EXPECT_TRUE(tmp[1] == 0.);
+    EXPECT_TRUE(tmp[3] == 0.);
+    EXPECT_TRUE(tmp[5] == 0.);
+    for (auto i = 0; i < 100; ++i) {
+        tmp = batch_random_decision_vector(problem{udp00{{0}, {2}, 1}}, 3, r_engine);
+        EXPECT_TRUE(tmp.size() == 3u);
+        EXPECT_TRUE(tmp[0] == 0. || tmp[0] == 1. || tmp[0] == 2.);
+        EXPECT_TRUE(tmp[1] == 0. || tmp[1] == 1. || tmp[1] == 2.);
+        EXPECT_TRUE(tmp[2] == 0. || tmp[2] == 1. || tmp[2] == 2.);
+    }
+    for (auto i = 0; i < 100; ++i) {
+        tmp = batch_random_decision_vector(problem{udp00{{0, -20}, {1, 20}, 1}}, 3, r_engine);
+        EXPECT_TRUE(tmp.size() == 6u);
+        EXPECT_TRUE(std::trunc(tmp[1]) == tmp[1]);
+        EXPECT_TRUE(std::trunc(tmp[3]) == tmp[3]);
+        EXPECT_TRUE(std::trunc(tmp[5]) == tmp[5]);
+    }
 }
 
 TEST(generic_test, force_bounds_test)

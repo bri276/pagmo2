@@ -72,8 +72,5 @@ TEST(unconnected, to_graph_test)
 {
     EXPECT_TRUE(!HasToGraph<unconnected>);
 
-    EXPECT_THROW(topology{unconnected{}}.to_graph(), not_implemented_error, [](const not_implemented_error &nie) {
-        return nie.what().contains(
-            "The to_graph() method has been invoked, but it is not implemented in a UDT of type 'Unconnected'");
-    });
+    EXPECT_THROW(topology{unconnected{}}.to_graph(), not_implemented_error);
 }

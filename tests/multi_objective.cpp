@@ -391,7 +391,7 @@ TEST(multi_objective_test, decompose_objectives_test)
     auto fb = decompose_objectives(f, weight, ref_point, "bi")[0];
 
     EXPECT_NEAR(f[0] * weight[0] + f[1] * weight[1], fw, 1e-8);
-    EXPECT_TRUE_CLOSE(std::max(weight[0] * std::abs(f[0] - ref_point[0]), weight[1] * std::abs(f[1] - ref_point[1])),
+    EXPECT_NEAR(std::max(weight[0] * std::abs(f[0] - ref_point[0]), weight[1] * std::abs(f[1] - ref_point[1])),
                       ft, 1e-8);
     double lnorm = std::sqrt(weight[0] * weight[0] + weight[1] * weight[1]);
     vector_double ilambda{weight[0] / lnorm, weight[1] / lnorm};

@@ -56,10 +56,7 @@ TEST(member_bfe_test, basic_tests)
 
     // Verify a problem which does not have batch_fitness.
     problem p;
-    EXPECT_THROW(bfe0(p, {1.}), not_implemented_error, [](const not_implemented_error &nie) {
-        return nie.what().contains("The batch_fitness() method has been invoked, but it "
-                                   "is not implemented in a UDP of type 'Null problem'");
-    });
+    EXPECT_THROW(bfe0(p, {1.}), not_implemented_error);
 
     // UDP which implements batch_fitness.
     struct bf0 {

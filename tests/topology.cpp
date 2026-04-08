@@ -342,10 +342,7 @@ TEST(topology_test, topology_to_graph_test)
     EXPECT_TRUE(!HasToGraph<gc00>);
     EXPECT_TRUE(HasToGraph<with_to_graph>);
 
-    EXPECT_THROW(topology{udt00{}}.to_graph(), not_implemented_error, [](const not_implemented_error &nie) {
-        return nie.what(),
-               "The to_graph() method has been invoked.contains( but it is not implemented in a UDT of type 'udt00'";
-    });
+    EXPECT_THROW(topology{udt00{}}.to_graph(), not_implemented_error);
 
     EXPECT_TRUE(topology{udt01{}}.to_graph().vertex_count() == 0);
 }

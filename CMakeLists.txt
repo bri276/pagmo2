@@ -182,9 +182,6 @@ include(cmake/find_or_build_nlopt.cmake)
 # IPOPT dependency
 include(cmake/find_or_build_ipopt.cmake)
 
-# Boost dependency (for header-only libraries, serialization now handled by Cereal)
-include(cmake/find_or_build_boost.cmake)
-
 # Cereal dependency (for serialization)
 include(cmake/find_or_build_cereal.cmake)
 
@@ -398,39 +395,12 @@ elseif(TARGET cereal)
     message(STATUS "Linked with cereal (private)")
 endif()
 
-# Link additional header-only boost libraries needed by pagmo
-foreach(boost_lib IN ITEMS boost_any boost_math boost_safe_numerics boost_system boost_lexical_cast boost_integer boost_variant boost_variant2 boost_container boost_move boost_type_index boost_multi_index boost_type_traits boost_config boost_mpl boost_iterator boost_core boost_unordered)
-    if(TARGET ${boost_lib})
-        target_link_libraries(pagmo PRIVATE ${boost_lib})
-        get_target_property(BOOST_LIB_INCLUDE_DIRS ${boost_lib} INTERFACE_INCLUDE_DIRECTORIES)
-        if(BOOST_LIB_INCLUDE_DIRS)
-            target_include_directories(pagmo PUBLIC ${BOOST_LIB_INCLUDE_DIRS})
-        endif()
-        message(STATUS "Linked with ${boost_lib} (private)")
-    endif()
-endforeach()
-
-# Link additional header-only boost libraries needed by pagmo
-foreach(boost_lib IN ITEMS boost_any boost_math boost_safe_numerics boost_system boost_lexical_cast boost_integer boost_variant boost_variant2 boost_container boost_move boost_type_index boost_multi_index boost_type_traits boost_config boost_mpl boost_core boost_unordered)
-    if(TARGET ${boost_lib})
-        target_link_libraries(pagmo PRIVATE ${boost_lib})
-        get_target_property(BOOST_LIB_INCLUDE_DIRS ${boost_lib} INTERFACE_INCLUDE_DIRECTORIES)
-        if(BOOST_LIB_INCLUDE_DIRS)
-            target_include_directories(pagmo PUBLIC ${BOOST_LIB_INCLUDE_DIRS})
-        endif()
-        message(STATUS "Linked with ${boost_lib} (private)")
-    endif()
-endforeach()
-
 # Link Graaf graph library (header-only, replaces Boost Graph Library).
 # Must be PUBLIC since graph_t is exposed in pagmo's public headers.
 target_link_libraries(pagmo PUBLIC Graaf::Graaf)
 
 # Link LarsHagemann/bimap (header-only, replaces boost::bimap).
 target_link_libraries(pagmo PRIVATE bimap::bimap)
-
-# NOTE: quench warnings from Boost when building the library.
-target_compile_definitions(pagmo PRIVATE BOOST_ALLOW_DEPRECATED_HEADERS)
 
 if(PAGMO_WITH_EIGEN3)
     # Link pagmo to eigen3 privately and expose headers publicly
