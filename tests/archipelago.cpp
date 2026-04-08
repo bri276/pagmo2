@@ -792,7 +792,7 @@ int pthrower_00::counter = 0;
 // Small test about proper cleanup when throwing from the ctor.
 TEST(archipelago_test, archipelago_throw_on_ctor)
 {
-    EXPECT_THROW((archipelago{100u, de{}, pthrower_00{}, 1u}), pagmo_exception);
+    EXPECT_THROW((archipelago{100u, de{}, pthrower_00{}, 1u}), std::invalid_argument);
 }
 
 TEST(archipelago_test, archipelago_bfe_ctors)

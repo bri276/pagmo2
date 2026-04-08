@@ -36,9 +36,9 @@ see https://www.gnu.org/licenses/. */
 #include <variant>
 
 #include <pagmo/detail/base_sr_policy.hpp>
+#include <pagmo/exceptions.hpp>
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
-#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -88,5 +88,5 @@ TEST(base_sr_policy, basic_test)
     EXPECT_THROW(b0 = bsrp(-1.), policy_config_error);
     EXPECT_THROW(b0 = bsrp(2.), policy_config_error);
     EXPECT_THROW(b0 = bsrp(std::numeric_limits<double>::infinity()), policy_config_error);
-    EXPECT_THROW(b0 = bsrp(-1), policy_config_error);
+    EXPECT_THROW(b0 = bsrp(-1), std::overflow_error);
 }

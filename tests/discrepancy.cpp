@@ -32,10 +32,10 @@ see https://www.gnu.org/licenses/. */
 #include <tuple>
 
 #include <pagmo/detail/prime_numbers.hpp>
+#include <pagmo/exceptions.hpp>
 #include <pagmo/io.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/discrepancy.hpp>
-#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -89,7 +89,7 @@ TEST(discrepancy_test, van_der_corput_test)
     // We check the construction throws
     EXPECT_THROW(van_der_corput{1u}, utility_error);
     // We check here the prime number utility of PaGMO (TODO: move somewhere else?)
-    EXPECT_THROW(detail::prime(1700u), utility_error);
+    EXPECT_THROW(detail::prime(1700u), index_error);
 }
 
 TEST(discrepancy_test, halton_test)

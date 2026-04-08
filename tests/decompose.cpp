@@ -85,17 +85,17 @@ TEST(decompose_test, decompose_construction_test)
     // constrained problem
     EXPECT_THROW(decompose(mc_01{}, {0.5, 0.5}, {0., 0.}, "weighted", false), incompatible_problem_error);
     // random decomposition method
-    EXPECT_THROW(decompose(zdt{1u, 2u}, {0.5, 0.5}, {0., 0.}, "my_method", false), incompatible_problem_error);
+    EXPECT_THROW(decompose(zdt{1u, 2u}, {0.5, 0.5}, {0., 0.}, "my_method", false), decomposition_error);
     // wrong length for the weights
-    EXPECT_THROW(decompose(zdt{1u, 2u}, {0.5, 0.2, 0.3}, {0., 0.}, "weighted", false), incompatible_problem_error);
-    EXPECT_THROW(decompose(zdt{1u, 2u}, {0.5, inf}, {0., 0.}, "weighted", false), incompatible_problem_error);
+    EXPECT_THROW(decompose(zdt{1u, 2u}, {0.5, 0.2, 0.3}, {0., 0.}, "weighted", false), dimension_mismatch_error);
+    EXPECT_THROW(decompose(zdt{1u, 2u}, {0.5, inf}, {0., 0.}, "weighted", false), invalid_value_error);
     // wrong length for the reference point
-    EXPECT_THROW(decompose(zdt{1u, 2u}, {0.5, 0.5}, {1.}, "weighted", false), incompatible_problem_error);
+    EXPECT_THROW(decompose(zdt{1u, 2u}, {0.5, 0.5}, {1.}, "weighted", false), dimension_mismatch_error);
     EXPECT_THROW(decompose(zdt{1u, 2u}, {0.5, 0.5}, {0., nan}, "weighted", false), invalid_value_error);
     // weight sum != 1
-    EXPECT_THROW(decompose(zdt{1u, 2u}, {0.9, 0.5}, {0., 0.}, "weighted", false), incompatible_problem_error);
+    EXPECT_THROW(decompose(zdt{1u, 2u}, {0.9, 0.5}, {0., 0.}, "weighted", false), decomposition_error);
     // weight contains negative component
-    EXPECT_THROW(decompose(zdt{1u, 2u}, {1.5, -0.5}, {0., 0.}, "weighted", false), incompatible_problem_error);
+    EXPECT_THROW(decompose(zdt{1u, 2u}, {1.5, -0.5}, {0., 0.}, "weighted", false), decomposition_error);
 
     print(p1);
 }

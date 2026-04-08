@@ -26,7 +26,6 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-
 #include <gtest/gtest.h>
 
 #include <pagmo/io.hpp>
@@ -134,5 +133,5 @@ TEST(io_test, stream_print_test_01)
 TEST(io_test, stream_table_test)
 {
     detail::table t({"a", "b", "c"});
-    EXPECT_THROW(t.add_row(), std::invalid_argument);
+    EXPECT_THROW(t.add_row(), dimension_mismatch_error);
 }

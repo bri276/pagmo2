@@ -39,6 +39,7 @@ see https://www.gnu.org/licenses/. */
 
 #include <pagmo/batch_evaluators/thread_bfe.hpp>
 #include <pagmo/bfe.hpp>
+#include <pagmo/exceptions.hpp>
 #include <pagmo/population.hpp>
 #include <pagmo/problem.hpp>
 #include <pagmo/problems/hock_schittkowski_71.hpp>
@@ -49,7 +50,6 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
-#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -206,8 +206,8 @@ TEST(population_test, population_best_worst_test)
     {
         population pop{problem{zdt{}}, 2};
         population pop2{problem{}, 0u};
-        EXPECT_THROW(pop.best_idx(), empty_collection_error);
-        EXPECT_THROW(pop.worst_idx(), empty_collection_error);
+        EXPECT_THROW(pop.best_idx(), incompatible_problem_error);
+        EXPECT_THROW(pop.worst_idx(), incompatible_problem_error);
         EXPECT_THROW(pop2.best_idx(), empty_collection_error);
         EXPECT_THROW(pop2.worst_idx(), empty_collection_error);
     }
@@ -233,9 +233,9 @@ TEST(population_test, population_setters_test)
 {
     population pop{problem{}, 2};
     // Test throw
-    EXPECT_THROW(pop.set_xf(2, {3}, {1, 2, 3}), index_error); // index invalid
-    EXPECT_THROW(pop.set_xf(1, {3, 2}, {1}), index_error);    // chromosome invalid
-    EXPECT_THROW(pop.set_xf(1, {3}, {1, 2}), index_error);    // fitness invalid
+    EXPECT_THROW(pop.set_xf(2, {3}, {1, 2, 3}), index_error);           // index invalid
+    EXPECT_THROW(pop.set_xf(1, {3, 2}, {1}), dimension_mismatch_error); // chromosome invalid
+    EXPECT_THROW(pop.set_xf(1, {3}, {1, 2}), dimension_mismatch_error); // fitness invalid
     // Test set_xf
     pop.set_xf(0, {3}, {1});
     EXPECT_TRUE((pop.get_x()[0] == vector_double{3}));

@@ -26,7 +26,6 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
-
 #include <gtest/gtest.h>
 
 #include <cmath>
@@ -36,6 +35,7 @@ see https://www.gnu.org/licenses/. */
 #include <string>
 #include <tuple>
 
+#include <pagmo/exceptions.hpp>
 #include <pagmo/io.hpp>
 #include <pagmo/population.hpp>
 #include <pagmo/problem.hpp>
@@ -50,7 +50,6 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/utils/hv_algos/hv_hv3d.hpp>
 #include <pagmo/utils/hv_algos/hv_hvwfg.hpp>
 #include <pagmo/utils/hypervolume.hpp>
-#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -222,7 +221,7 @@ TEST(hypervolume_utils_test, hypervolume_compute_test)
     // Checks the hypervolume cannot be constructed if points have no dimension
     std::vector<double> empty;
     std::vector<std::vector<double>> emptyempty;
-    EXPECT_THROW(hypervolume({empty, empty}), empty_collection_error);
+    EXPECT_THROW(hypervolume({empty, empty}), dimension_mismatch_error);
     // Checks the hypervolume cannot be constructed if points are empty
     EXPECT_THROW(hypervolume{emptyempty}, empty_collection_error);
 
@@ -265,11 +264,11 @@ TEST(hypervolume_utils_test, hypervolume_compute_test)
     // tests for invalid reference points
     hv = hypervolume({{1, 3}, {2, 2}, {3, 1}});
     // equal to some other point
-    EXPECT_THROW(hv.compute({3, 1}), dimension_mismatch_error);
+    EXPECT_THROW(hv.compute({3, 1}), multi_objective_error);
     // refpoint dominating some points
-    EXPECT_THROW(hv.compute({1.5, 1.5}), dimension_mismatch_error);
+    EXPECT_THROW(hv.compute({1.5, 1.5}), multi_objective_error);
     // refpoint dominating all points
-    EXPECT_THROW(hv.compute({0, 0}), dimension_mismatch_error);
+    EXPECT_THROW(hv.compute({0, 0}), multi_objective_error);
 
     // invalid dimensions of points.
     EXPECT_THROW(hv = hypervolume({{2.3, 3.4, 5.6}, {1.0, 2.0, 3.0, 4.0}}), dimension_mismatch_error);
@@ -517,7 +516,7 @@ TEST(hypervolume_utils_test, hypervolume_least_contribution_test)
     EXPECT_TRUE((hv.least_contributor(ref) == 2));
 
     hv = hypervolume({{3, 1}, {2, 2}, {1, 3.5}});
-    EXPECT_THROW(hv.least_contributor({4, 4, 4}), index_error);
+    EXPECT_THROW(hv.least_contributor({4, 4, 4}), dimension_mismatch_error);
 }
 
 TEST(hypervolume_utils_test, hypervolume_exclusive_test)
@@ -553,7 +552,7 @@ TEST(hypervolume_utils_test, hypervolume_exclusive_test)
     // picking the wrong algorithm
     hv3d hv_algo_3d;
     hv = hypervolume({{3, 1}, {2, 2}, {1, 3}}, true);
-    EXPECT_THROW(hv.exclusive(0, ref, hv_algo_3d), dimension_mismatch_error);
+    EXPECT_THROW(hv.exclusive(0, ref, hv_algo_3d), problem_config_error);
 }
 
 TEST(hypervolume_utils_test, hypervolume_refpoint_test)
@@ -735,7 +734,7 @@ TEST(hypervolume_utils_test, hypervolume_construction_test)
     population pop_ok(zdt(1u, 10u), 10u);
     population pop_wrong1(hock_schittkowski_71{}, 10u);
     population pop_wrong2(rosenbrock{10u}, 10u);
-    EXPECT_THROW((hypervolume{pop_empty, true}), incompatible_problem_error);
+    EXPECT_THROW((hypervolume{pop_empty, true}), empty_collection_error);
     EXPECT_THROW((hypervolume{pop_wrong1, true}), incompatible_problem_error);
     EXPECT_THROW((hypervolume{pop_wrong2, true}), incompatible_problem_error);
     EXPECT_NO_THROW((hypervolume{pop_ok, true}));
@@ -797,7 +796,7 @@ TEST(hypervolume_utils_test, hypervolume_bf_approx_test)
     bf_approx al;
     std::vector<vector_double> points;
     vector_double ref;
-    EXPECT_THROW(al.compute(points, ref), multi_objective_error);
+    EXPECT_THROW(al.compute(points, ref), invalid_parameter_error);
     auto al_clone = al.clone();
     EXPECT_TRUE(al_clone->get_name().find("Bringmann-Friedrich") != std::string::npos);
 }
@@ -807,10 +806,10 @@ TEST(hypervolume_utils_test, hypervolume_bf_pras_test)
     bf_fpras al;
     std::vector<vector_double> points;
     vector_double ref;
-    EXPECT_THROW(al.exclusive(0u, points, ref), multi_objective_error);
-    EXPECT_THROW(al.least_contributor(points, ref), index_error);
-    EXPECT_THROW(al.greatest_contributor(points, ref), multi_objective_error);
-    EXPECT_THROW(al.contributions(points, ref), multi_objective_error);
+    EXPECT_THROW(al.exclusive(0u, points, ref), invalid_parameter_error);
+    EXPECT_THROW(al.least_contributor(points, ref), invalid_parameter_error);
+    EXPECT_THROW(al.greatest_contributor(points, ref), invalid_parameter_error);
+    EXPECT_THROW(al.contributions(points, ref), invalid_parameter_error);
     auto al_clone = al.clone();
     EXPECT_TRUE(al_clone->get_name().find("bf_fpras") != std::string::npos);
 }

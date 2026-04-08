@@ -33,10 +33,10 @@ see https://www.gnu.org/licenses/. */
 #include <stdexcept>
 #include <tuple>
 
+#include <pagmo/exceptions.hpp>
 #include <pagmo/io.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/multi_objective.hpp>
-#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -132,11 +132,11 @@ TEST(multi_objective_test, fast_non_dominated_sorting_test)
 
     // Test 4
     example = {{0, 0, 0}};
-    EXPECT_THROW(fast_non_dominated_sorting(example), dimension_mismatch_error);
+    EXPECT_THROW(fast_non_dominated_sorting(example), multi_objective_error);
     example = {{}};
-    EXPECT_THROW(fast_non_dominated_sorting(example), dimension_mismatch_error);
+    EXPECT_THROW(fast_non_dominated_sorting(example), multi_objective_error);
     example = {};
-    EXPECT_THROW(fast_non_dominated_sorting(example), dimension_mismatch_error);
+    EXPECT_THROW(fast_non_dominated_sorting(example), multi_objective_error);
     example = {{1, 3}, {3, 42, 3}, {}};
     EXPECT_THROW(fast_non_dominated_sorting(example), dimension_mismatch_error);
     example = {{3, 4, 5}, {}};
@@ -168,13 +168,13 @@ TEST(multi_objective_test, crowding_distance_test)
     EXPECT_TRUE(crowding_distance(example) == result);
     // Test 4
     example = {};
-    EXPECT_THROW(crowding_distance(example), dimension_mismatch_error);
+    EXPECT_THROW(crowding_distance(example), multi_objective_error);
     example = {{}, {}};
-    EXPECT_THROW(crowding_distance(example), dimension_mismatch_error);
+    EXPECT_THROW(crowding_distance(example), multi_objective_error);
     example = {{1, 2}};
-    EXPECT_THROW(crowding_distance(example), dimension_mismatch_error);
+    EXPECT_THROW(crowding_distance(example), multi_objective_error);
     example = {{1}, {2}};
-    EXPECT_THROW(crowding_distance(example), dimension_mismatch_error);
+    EXPECT_THROW(crowding_distance(example), multi_objective_error);
     example = {{2, 3}, {3, 4}, {2, 4, 5}};
     EXPECT_THROW(crowding_distance(example), dimension_mismatch_error);
 }
@@ -204,7 +204,7 @@ TEST(multi_objective_test, sort_population_mo_test)
     example = {{0}, {1, 2}};
     EXPECT_THROW(sort_population_mo(example), dimension_mismatch_error);
     example = {{}, {}};
-    EXPECT_THROW(sort_population_mo(example), dimension_mismatch_error);
+    EXPECT_THROW(sort_population_mo(example), multi_objective_error);
 }
 
 TEST(multi_objective_test, select_best_N_mo_test)
@@ -255,7 +255,7 @@ TEST(multi_objective_test, select_best_N_mo_test)
     example = {{0}, {1, 2}, {2}, {0, 0}, {6}};
     EXPECT_THROW(select_best_N_mo(example, 2u), dimension_mismatch_error);
     example = {{}, {}, {}, {}, {}, {}};
-    EXPECT_THROW(select_best_N_mo(example, 2u), dimension_mismatch_error);
+    EXPECT_THROW(select_best_N_mo(example, 2u), multi_objective_error);
     example = {{1, 2}, {3, 4}, {0, 1}, {1, 0}, {2, 2}, {2, 4}};
     EXPECT_TRUE(select_best_N_mo(example, 0u).empty());
 }
@@ -330,13 +330,13 @@ TEST(multi_objective_test, decomposition_weights_test)
     std::mt19937 r_engine(23u);
     // We test some throws
     // At least 2 objectives are needed
-    EXPECT_THROW(decomposition_weights(1u, 5u, "grid", r_engine), dimension_mismatch_error);
+    EXPECT_THROW(decomposition_weights(1u, 5u, "grid", r_engine), decomposition_error);
     // The weight generation method must be one of 'grid', 'random', 'low discrepancy'
-    EXPECT_THROW(decomposition_weights(2u, 5u, "grod", r_engine), dimension_mismatch_error);
+    EXPECT_THROW(decomposition_weights(2u, 5u, "grod", r_engine), decomposition_error);
     // The number of weights are smaller than the number of objectives
-    EXPECT_THROW(decomposition_weights(10u, 5u, "grid", r_engine), dimension_mismatch_error);
+    EXPECT_THROW(decomposition_weights(10u, 5u, "grid", r_engine), decomposition_error);
     // The number of weights is not compatible with 'grid'
-    EXPECT_THROW(decomposition_weights(4u, 31u, "grid", r_engine), dimension_mismatch_error);
+    EXPECT_THROW(decomposition_weights(4u, 31u, "grid", r_engine), decomposition_error);
 
     // We test some known cases
     {
@@ -391,8 +391,8 @@ TEST(multi_objective_test, decompose_objectives_test)
     auto fb = decompose_objectives(f, weight, ref_point, "bi")[0];
 
     EXPECT_NEAR(f[0] * weight[0] + f[1] * weight[1], fw, 1e-8);
-    EXPECT_NEAR(std::max(weight[0] * std::abs(f[0] - ref_point[0]), weight[1] * std::abs(f[1] - ref_point[1])),
-                      ft, 1e-8);
+    EXPECT_NEAR(std::max(weight[0] * std::abs(f[0] - ref_point[0]), weight[1] * std::abs(f[1] - ref_point[1])), ft,
+                1e-8);
     double lnorm = std::sqrt(weight[0] * weight[0] + weight[1] * weight[1]);
     vector_double ilambda{weight[0] / lnorm, weight[1] / lnorm};
     double d1 = (f[0] - ref_point[0]) * ilambda[0] + (f[1] - ref_point[1]) * ilambda[1];
@@ -406,6 +406,6 @@ TEST(multi_objective_test, decompose_objectives_test)
     // We check the throws
     EXPECT_THROW(decompose_objectives(f, {1., 2., 3., 4.}, ref_point, "weighted"), dimension_mismatch_error);
     EXPECT_THROW(decompose_objectives(f, weight, {1.}, "weighted"), dimension_mismatch_error);
-    EXPECT_THROW(decompose_objectives(f, weight, ref_point, "pippo"), dimension_mismatch_error);
-    EXPECT_THROW(decompose_objectives({}, {}, {}, "weighted"), dimension_mismatch_error);
+    EXPECT_THROW(decompose_objectives(f, weight, ref_point, "pippo"), decomposition_error);
+    EXPECT_THROW(decompose_objectives({}, {}, {}, "weighted"), multi_objective_error);
 }

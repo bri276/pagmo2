@@ -34,6 +34,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/algorithm.hpp>
 #include <pagmo/algorithms/cstrs_self_adaptive.hpp>
 #include <pagmo/algorithms/maco.hpp>
+#include <pagmo/exceptions.hpp>
 #include <pagmo/io.hpp>
 #include <pagmo/population.hpp>
 #include <pagmo/problems/dtlz.hpp>
@@ -46,7 +47,6 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
-#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -69,15 +69,15 @@ TEST(maco_test, maco_evolve_test)
 {
     // We check that the problem is checked to be suitable
     // stochastic
-    EXPECT_THROW((maco{}.evolve(population{inventory{}, 63u, 23u})), incompatible_problem_error);
+    EXPECT_THROW((maco{}.evolve(population{inventory{}, 63u, 23u})), invalid_parameter_error);
     // Empty population.
-    EXPECT_THROW(maco{10u}.evolve(population{problem{rosenbrock{}}, 0u}), incompatible_problem_error);
+    EXPECT_THROW(maco{10u}.evolve(population{problem{rosenbrock{}}, 0u}), insufficient_population_error);
     // constrained prob
     EXPECT_THROW((maco{}.evolve(population{hock_schittkowski_71{}, 63u, 23u})), incompatible_problem_error);
     // single objective prob
     EXPECT_THROW((maco{}.evolve(population{rosenbrock{}, 63u, 23u})), incompatible_problem_error);
     // population size smaller than ker size
-    EXPECT_THROW((maco{}.evolve(population{zdt{}, 3u, 23u})), incompatible_problem_error);
+    EXPECT_THROW((maco{}.evolve(population{zdt{}, 3u, 23u})), invalid_parameter_error);
     // and a clean exit for 0 generation
     population pop{zdt{}, 63u};
     EXPECT_TRUE(maco{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);

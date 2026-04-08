@@ -34,6 +34,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/algorithm.hpp>
 #include <pagmo/algorithms/cstrs_self_adaptive.hpp>
 #include <pagmo/algorithms/gaco.hpp>
+#include <pagmo/exceptions.hpp>
 #include <pagmo/io.hpp>
 #include <pagmo/population.hpp>
 #include <pagmo/problems/cec2006.hpp>
@@ -47,7 +48,6 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
-#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -119,7 +119,7 @@ TEST(gaco_test, evolve_test)
     // Multi-objective problem
     EXPECT_THROW(gaco{2u}.evolve(population{problem{zdt{}}, 64u}), incompatible_problem_error);
     // Population size smaller than ker size
-    EXPECT_THROW(gaco{2u}.evolve(population{problem{rosenbrock{}}, 60u}), insufficient_population_error);
+    EXPECT_THROW(gaco{2u}.evolve(population{problem{rosenbrock{}}, 60u}), invalid_parameter_error);
     // Population size smaller than 2
     EXPECT_THROW(gaco{1u}.evolve(population{problem{rosenbrock{}}, 1}), insufficient_population_error);
     // Stochastic problem

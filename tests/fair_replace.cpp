@@ -35,11 +35,11 @@ see https://www.gnu.org/licenses/. */
 #include <utility>
 #include <variant>
 
+#include <pagmo/exceptions.hpp>
 #include <pagmo/r_policies/fair_replace.hpp>
 #include <pagmo/r_policy.hpp>
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
-#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -60,7 +60,7 @@ TEST(fair_replace_test, fair_replace_basic)
     EXPECT_THROW(f02 = fair_replace(-1.), policy_config_error);
     EXPECT_THROW(f02 = fair_replace(2.), policy_config_error);
     EXPECT_THROW(f02 = fair_replace(std::numeric_limits<double>::infinity()), policy_config_error);
-    EXPECT_THROW(f02 = fair_replace(-1), policy_config_error);
+    EXPECT_THROW(f02 = fair_replace(-1), std::overflow_error);
 
     auto f03(f02);
     EXPECT_TRUE(f03.get_migr_rate().index() == 0);
@@ -106,11 +106,13 @@ TEST(fair_replace_test, fair_replace_replace)
 {
     fair_replace f00;
 
-    EXPECT_THROW(f00.replace(individuals_group_t{}, 0, 0, 2, 1, 0, vector_double{}, individuals_group_t{}), policy_config_error);
+    EXPECT_THROW(f00.replace(individuals_group_t{}, 0, 0, 2, 1, 0, vector_double{}, individuals_group_t{}),
+                 policy_config_error);
 
     f00 = fair_replace(100);
 
-    EXPECT_THROW(f00.replace(individuals_group_t{}, 0, 0, 1, 0, 0, vector_double{}, individuals_group_t{}), policy_config_error);
+    EXPECT_THROW(f00.replace(individuals_group_t{}, 0, 0, 1, 0, 0, vector_double{}, individuals_group_t{}),
+                 std::invalid_argument);
 
     // Single-objective, unconstrained.
     f00 = fair_replace(.1);

@@ -30,6 +30,7 @@ see https://www.gnu.org/licenses/. */
 
 #include <pagmo/algorithm.hpp>
 #include <pagmo/algorithms/ihs.hpp>
+#include <pagmo/exceptions.hpp>
 #include <pagmo/io.hpp>
 #include <pagmo/population.hpp>
 #include <pagmo/problems/hock_schittkowski_71.hpp>
@@ -39,7 +40,6 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/problems/rosenbrock.hpp>
 #include <pagmo/problems/zdt.hpp>
 #include <pagmo/utils/cast.hpp>
-#include <pagmo/exceptions.hpp>
 using namespace pagmo;
 using namespace std;
 
@@ -89,9 +89,9 @@ TEST(ihs_test, ihs_evolve_test)
         population pop{rosenbrock{25u}};
         EXPECT_THROW(ihs{15u}.evolve(pop), insufficient_population_error);
         population pop2{null_problem{2u, 3u, 4u}, 20u};
-        EXPECT_THROW(ihs{15u}.evolve(pop2), insufficient_population_error);
+        EXPECT_THROW(ihs{15u}.evolve(pop2), incompatible_problem_error);
         population pop3{inventory{}, 20u};
-        EXPECT_THROW(ihs{15u}.evolve(pop3), insufficient_population_error);
+        EXPECT_THROW(ihs{15u}.evolve(pop3), invalid_parameter_error);
     }
     // And a clean exit for 0 generations
     {

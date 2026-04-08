@@ -35,6 +35,7 @@ see https://www.gnu.org/licenses/. */
 
 #include <pagmo/algorithm.hpp>
 #include <pagmo/algorithms/bee_colony.hpp>
+#include <pagmo/exceptions.hpp>
 #include <pagmo/io.hpp>
 #include <pagmo/population.hpp>
 #include <pagmo/problems/ackley.hpp>
@@ -48,7 +49,6 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
-#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -92,7 +92,7 @@ TEST(bee_colony_test, bee_colony_evolve_test)
     EXPECT_THROW(bee_colony{10u}.evolve(population{problem{rosenbrock{}}, 1u}), insufficient_population_error);
     EXPECT_THROW(bee_colony{10u}.evolve(population{problem{zdt{}}, 15u}), incompatible_problem_error);
     EXPECT_THROW(bee_colony{10u}.evolve(population{problem{hock_schittkowski_71{}}, 15u}), incompatible_problem_error);
-    EXPECT_THROW(bee_colony{10u}.evolve(population{problem{inventory{}}, 15u}), incompatible_problem_error);
+    EXPECT_THROW(bee_colony{10u}.evolve(population{problem{inventory{}}, 15u}), invalid_parameter_error);
     // And a clean exit for 0 generations
     population pop{rosenbrock{25u}, 10u};
     EXPECT_TRUE(bee_colony{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);

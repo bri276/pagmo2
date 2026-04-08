@@ -34,6 +34,7 @@ see https://www.gnu.org/licenses/. */
 
 #include <pagmo/algorithm.hpp>
 #include <pagmo/algorithms/nspso.hpp>
+#include <pagmo/exceptions.hpp>
 #include <pagmo/io.hpp>
 #include <pagmo/problems/dtlz.hpp>
 #include <pagmo/problems/hock_schittkowski_71.hpp>
@@ -44,7 +45,6 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
-#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -66,7 +66,8 @@ TEST(nspso_test, nspso_algorithm_construction)
     EXPECT_THROW((nspso{1u, 0.95, 0.01, 0.5, 0.5, -0.5, 2u, "crowding distance", false, 24u}), invalid_parameter_error);
     EXPECT_THROW((nspso{1u, 0.95, 0.01, 0.5, 0.5, 1.5, 2u, "crowding distance", false, 24u}), invalid_parameter_error);
     // Wrong leader_selection_range
-    EXPECT_THROW((nspso{1u, 0.95, 0.01, 0.5, 0.5, 0.5, 101u, "crowding distance", false, 24u}), invalid_parameter_error);
+    EXPECT_THROW((nspso{1u, 0.95, 0.01, 0.5, 0.5, 0.5, 101u, "crowding distance", false, 24u}),
+                 invalid_parameter_error);
     // Wrong eta_m
     EXPECT_THROW((nspso{1u, 0.95, 0.01, 0.5, 0.5, 0.5, 2u, "something else", false, 24u}), invalid_parameter_error);
 }
@@ -75,13 +76,13 @@ TEST(nspso_test, nspso_evolve_test)
 {
     // We check that the problem is checked to be suitable
     // stochastic
-    EXPECT_THROW((nspso{}.evolve(population{inventory{}, 5u, 23u})), incompatible_problem_error);
+    EXPECT_THROW((nspso{}.evolve(population{inventory{}, 5u, 23u})), invalid_parameter_error);
     // constrained prob
     EXPECT_THROW((nspso{}.evolve(population{hock_schittkowski_71{}, 5u, 23u})), incompatible_problem_error);
     // single objective prob
-    EXPECT_THROW((nspso{}.evolve(population{rosenbrock{}, 5u, 23u})), incompatible_problem_error);
+    EXPECT_THROW((nspso{}.evolve(population{rosenbrock{}, 5u, 23u})), invalid_parameter_error);
     // wrong pop size
-    EXPECT_THROW((nspso{}.evolve(population{zdt{}, 1u, 23u})), incompatible_problem_error);
+    EXPECT_THROW((nspso{}.evolve(population{zdt{}, 1u, 23u})), insufficient_population_error);
     // and a clean exit for 0 generation
     population pop{zdt{2u}, 10u};
     EXPECT_TRUE(nspso{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);

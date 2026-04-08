@@ -35,6 +35,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/algorithm.hpp>
 #include <pagmo/algorithms/compass_search.hpp>
 #include <pagmo/algorithms/mbh.hpp>
+#include <pagmo/exceptions.hpp>
 #include <pagmo/io.hpp>
 #include <pagmo/population.hpp>
 #include <pagmo/problems/hock_schittkowski_71.hpp>
@@ -45,7 +46,6 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/threading.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
-#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -114,7 +114,7 @@ TEST(mbh_test, mbh_evolve_test)
     // And that it throws if called with a wrong dimension of the perturbation vector
     {
         mbh user_algo{compass_search{100u, 0.1, 0.001, 0.7}, 5u, {1e-3, 1e-2}, 23u};
-        EXPECT_THROW(user_algo.evolve(population{problem{hock_schittkowski_71{}}, 15u}), incompatible_problem_error);
+        EXPECT_THROW(user_algo.evolve(population{problem{hock_schittkowski_71{}}, 15u}), dimension_mismatch_error);
     }
     // Here we test that the algo can be called twice with problems of different dimensions (Issue #505)
     {

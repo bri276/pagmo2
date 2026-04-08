@@ -36,6 +36,7 @@
 #include <pagmo/algorithms/compass_search.hpp>
 #include <pagmo/algorithms/cstrs_self_adaptive.hpp>
 #include <pagmo/algorithms/de.hpp>
+#include <pagmo/exceptions.hpp>
 #include <pagmo/io.hpp>
 #include <pagmo/population.hpp>
 #include <pagmo/problems/cec2006.hpp>
@@ -47,7 +48,6 @@
 #include <pagmo/threading.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
-#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -144,11 +144,11 @@ TEST(cstrs_test, cstrs_self_adaptive_construction)
     }
     {
         cstrs_self_adaptive user_algo{150u, de{10u, 0.8, 0.9, 2u, 1e-6, 1e-6, 32u}, 32u};
-        EXPECT_THROW(user_algo.evolve(population{rosenbrock{}, 15u}), insufficient_population_error);
+        EXPECT_THROW(user_algo.evolve(population{rosenbrock{}, 15u}), incompatible_problem_error);
     }
     {
         cstrs_self_adaptive user_algo{150u, de{10u, 0.8, 0.9, 2u, 1e-6, 1e-6, 32u}, 32u};
-        EXPECT_THROW(user_algo.evolve(population{hock_schittkowski_71{}, 3u}), incompatible_problem_error);
+        EXPECT_THROW(user_algo.evolve(population{hock_schittkowski_71{}, 3u}), insufficient_population_error);
     }
     // And a clean exit for 0 iterations
     problem prob{hock_schittkowski_71{}};

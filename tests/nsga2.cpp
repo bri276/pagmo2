@@ -34,6 +34,7 @@ see https://www.gnu.org/licenses/. */
 
 #include <pagmo/algorithm.hpp>
 #include <pagmo/algorithms/nsga2.hpp>
+#include <pagmo/exceptions.hpp>
 #include <pagmo/io.hpp>
 #include <pagmo/problems/dtlz.hpp>
 #include <pagmo/problems/hock_schittkowski_71.hpp>
@@ -43,7 +44,6 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
-#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -99,8 +99,8 @@ TEST(nsga2_test, nsga2_evolve_test)
     // single objective prob
     EXPECT_THROW((nsga2{}.evolve(population{rosenbrock{}, 5u, 23u})), incompatible_problem_error);
     // wrong population size
-    EXPECT_THROW((nsga2{}.evolve(population{zdt{}, 3u, 23u})), incompatible_problem_error);
-    EXPECT_THROW((nsga2{}.evolve(population{zdt{}, 50u, 23u})), incompatible_problem_error);
+    EXPECT_THROW((nsga2{}.evolve(population{zdt{}, 3u, 23u})), insufficient_population_error);
+    EXPECT_THROW((nsga2{}.evolve(population{zdt{}, 50u, 23u})), insufficient_population_error);
 
     // We check for deterministic behaviour if the seed is controlled
     // we treat the last three components of the decision vector as integers

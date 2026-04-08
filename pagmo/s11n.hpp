@@ -36,6 +36,11 @@ see https://www.gnu.org/licenses/. */
 #include <string>
 #include <tuple>
 
+// Ensure cereal's static registry objects (StaticObject<PolymorphicCasters>)
+// have default visibility so they are shared between the shared library and
+// any executable that links against it. Without this, -fvisibility-inlines-hidden
+// would give each DSO its own copy of the registry, breaking polymorphic serialization.
+#pragma GCC visibility push(default)
 #include <cereal/archives/binary.hpp>
 #include <cereal/archives/json.hpp>
 #include <cereal/archives/xml.hpp>
@@ -50,6 +55,7 @@ see https://www.gnu.org/licenses/. */
 #include <cereal/types/utility.hpp>
 #include <cereal/types/variant.hpp>
 #include <cereal/types/vector.hpp>
+#pragma GCC visibility pop
 
 #include <graaflib/graph.h>
 

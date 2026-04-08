@@ -33,6 +33,7 @@ see https://www.gnu.org/licenses/. */
 
 #include <pagmo/algorithm.hpp>
 #include <pagmo/algorithms/compass_search.hpp>
+#include <pagmo/exceptions.hpp>
 #include <pagmo/io.hpp>
 #include <pagmo/population.hpp>
 #include <pagmo/problems/hock_schittkowski_71.hpp>
@@ -42,7 +43,6 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
-#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -96,7 +96,7 @@ TEST(compass_search_test, compass_search_evolve_test)
     // We then check that the evolve throws if called on unsuitable problems
     EXPECT_THROW(compass_search{10u}.evolve(population{problem{rosenbrock{}}, 0u}), insufficient_population_error);
     EXPECT_THROW(compass_search{10u}.evolve(population{problem{zdt{}}, 15u}), incompatible_problem_error);
-    EXPECT_THROW(compass_search{10u}.evolve(population{problem{inventory{}}, 15u}), incompatible_problem_error);
+    EXPECT_THROW(compass_search{10u}.evolve(population{problem{inventory{}}, 15u}), invalid_parameter_error);
     // And a clean exit for 0 generations
     population pop{rosenbrock{25u}, 10u};
     EXPECT_TRUE(compass_search{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);

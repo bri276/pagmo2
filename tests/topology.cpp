@@ -256,11 +256,11 @@ TEST(topology_test, topology_get_connections_test)
 
     t0 = bc01{};
 
-    EXPECT_THROW(t0.get_connections(0), dimension_mismatch_error);
+    EXPECT_THROW(t0.get_connections(0), invalid_value_error);
 
     t0 = bc02{};
 
-    EXPECT_THROW(t0.get_connections(0), dimension_mismatch_error);
+    EXPECT_THROW(t0.get_connections(0), invalid_value_error);
 }
 
 TEST(topology_test, topology_s11n_test)

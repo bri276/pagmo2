@@ -45,38 +45,38 @@ TEST(generic_test, sbx_crossover_test)
     EXPECT_THROW(sbx_crossover({0.1, 0.2}, {0.2, 2.2, -1}, {{-2, -2, -2}, {3, 3, 3}}, 1u, 0.9, 10, random_engine),
                  dimension_mismatch_error);
     EXPECT_THROW(sbx_crossover({0.1, 0.2, 0.3}, {0.2, 2.2, -1}, {{}, {}}, 1u, 0.9, 10, random_engine),
-                 dimension_mismatch_error);
+                 bounds_constraint_error);
     EXPECT_THROW(sbx_crossover({0.1, 0.2, 0.3}, {0.2, 2.2, -1}, {{-2, -2}, {3, 3, 3}}, 1u, 0.9, 10, random_engine),
                  dimension_mismatch_error);
     EXPECT_THROW(sbx_crossover({0.1, 0.2, 0.3}, {0.2, 2.2, -1}, {{-2, -2}, {3, 3}}, 1u, 0.9, 10, random_engine),
                  dimension_mismatch_error);
     EXPECT_THROW(sbx_crossover({0.1, 0.2, 0.3}, {0.2, 2.2, -1}, {{nan, -2, -2}, {3, 3, 3}}, 1u, 0.9, 10, random_engine),
-                 dimension_mismatch_error);
+                 invalid_value_error);
     EXPECT_THROW(
         sbx_crossover({0.1, 0.2, 0.3}, {0.2, 2.2, -1}, {{-2, -2, -2}, {3, inf, 3}}, 1u, 0.9, 10, random_engine),
-        dimension_mismatch_error);
+        invalid_value_error);
     EXPECT_THROW(
         sbx_crossover({0.1, 0.2, 0.3}, {0.2, 2.2, -1}, {{-2, -2, -2}, {3, nan, 3}}, 1u, 0.9, 10, random_engine),
-        dimension_mismatch_error);
+        invalid_value_error);
     EXPECT_THROW(
         sbx_crossover({0.1, 0.2, 0.3}, {0.2, 2.2, -1}, {{-2, -2, -inf}, {3, 3, 3}}, 1u, 0.9, 10, random_engine),
-        dimension_mismatch_error);
+        invalid_value_error);
     EXPECT_THROW(sbx_crossover({0.1, 0.2, 0.3}, {0.2, 2.2, -1}, {{-2, -2, -2}, {3, -5, 3}}, 1u, 0.9, 10, random_engine),
-                 dimension_mismatch_error);
+                 invalid_value_error);
     EXPECT_THROW(sbx_crossover({0.1, 0.2, 0.3}, {0.2, 2.2, -1}, {{-2, 8, -2}, {3, 3, 3}}, 1u, 0.9, 10, random_engine),
-                 dimension_mismatch_error);
+                 invalid_value_error);
     EXPECT_THROW(sbx_crossover({0.1, 0.2, 0.3}, {0.2, 2.2, -1}, {{-2, -2, -2}, {3, 3, 3}}, 32u, 0.9, 10, random_engine),
-                 dimension_mismatch_error);
+                 bounds_constraint_error);
     EXPECT_THROW(
         sbx_crossover({0.1, 0.2, 0.3}, {0.2, 2.2, -1}, {{-2, -2, -2.6}, {3, 3, 3}}, 1u, 0.9, 10, random_engine),
-        dimension_mismatch_error);
+        invalid_value_error);
     EXPECT_THROW(
         sbx_crossover({0.1, 0.2, 0.3}, {0.2, 2.2, -1}, {{-2, -2, -2}, {3, 3, 3.43}}, 1u, 0.9, 10, random_engine),
-        dimension_mismatch_error);
+        invalid_value_error);
     EXPECT_THROW(sbx_crossover({0.1, 0.2, 0.3}, {0.2, 2.2, -1}, {{-2, -2, -2}, {3, 3, 3}}, 1u, nan, 10, random_engine),
-                 dimension_mismatch_error);
+                 invalid_value_error);
     EXPECT_THROW(sbx_crossover({0.1, 0.2, 0.3}, {0.2, 2.2, -1}, {{-2, -2, -2}, {3, 3, 3}}, 1u, 0.4, nan, random_engine),
-                 dimension_mismatch_error);
+                 invalid_value_error);
 }
 
 TEST(generic_test, polynomial_mutation_test)
@@ -86,29 +86,20 @@ TEST(generic_test, polynomial_mutation_test)
     auto inf = std::numeric_limits<double>::infinity();
     vector_double dv = {-0.3, 2.4, 5};
     EXPECT_NO_THROW(polynomial_mutation(dv, {{-2, -2, -2}, {3, 3, 3}}, 1u, 0.9, 10, random_engine));
-    EXPECT_THROW(polynomial_mutation(dv, {{}, {}}, 1u, 0.9, 10, random_engine), dimension_mismatch_error);
+    EXPECT_THROW(polynomial_mutation(dv, {{}, {}}, 1u, 0.9, 10, random_engine), bounds_constraint_error);
     EXPECT_THROW(polynomial_mutation(dv, {{-2, -2}, {3, 3, 3}}, 1u, 0.9, 10, random_engine), dimension_mismatch_error);
     EXPECT_THROW(polynomial_mutation(dv, {{-2, -2}, {3, 3}}, 1u, 0.9, 10, random_engine), dimension_mismatch_error);
-    EXPECT_THROW(polynomial_mutation(dv, {{nan, -2, -2}, {3, 3, 3}}, 1u, 0.9, 10, random_engine),
-                 dimension_mismatch_error);
-    EXPECT_THROW(polynomial_mutation(dv, {{-2, -2, -2}, {3, inf, 3}}, 1u, 0.9, 10, random_engine),
-                 dimension_mismatch_error);
-    EXPECT_THROW(polynomial_mutation(dv, {{-2, -2, -2}, {3, nan, 3}}, 1u, 0.9, 10, random_engine),
-                 dimension_mismatch_error);
-    EXPECT_THROW(polynomial_mutation(dv, {{-2, -2, -inf}, {3, 3, 3}}, 1u, 0.9, 10, random_engine),
-                 dimension_mismatch_error);
-    EXPECT_THROW(polynomial_mutation(dv, {{-2, -2, -2}, {3, -5, 3}}, 1u, 0.9, 10, random_engine),
-                 dimension_mismatch_error);
-    EXPECT_THROW(polynomial_mutation(dv, {{-2, 8, -2}, {3, 3, 3}}, 1u, 0.9, 10, random_engine),
-                 dimension_mismatch_error);
+    EXPECT_THROW(polynomial_mutation(dv, {{nan, -2, -2}, {3, 3, 3}}, 1u, 0.9, 10, random_engine), invalid_value_error);
+    EXPECT_THROW(polynomial_mutation(dv, {{-2, -2, -2}, {3, inf, 3}}, 1u, 0.9, 10, random_engine), invalid_value_error);
+    EXPECT_THROW(polynomial_mutation(dv, {{-2, -2, -2}, {3, nan, 3}}, 1u, 0.9, 10, random_engine), invalid_value_error);
+    EXPECT_THROW(polynomial_mutation(dv, {{-2, -2, -inf}, {3, 3, 3}}, 1u, 0.9, 10, random_engine), invalid_value_error);
+    EXPECT_THROW(polynomial_mutation(dv, {{-2, -2, -2}, {3, -5, 3}}, 1u, 0.9, 10, random_engine), invalid_value_error);
+    EXPECT_THROW(polynomial_mutation(dv, {{-2, 8, -2}, {3, 3, 3}}, 1u, 0.9, 10, random_engine), invalid_value_error);
     EXPECT_THROW(polynomial_mutation(dv, {{-2, -2, -2}, {3, 3, 3}}, 32u, 0.9, 10, random_engine),
-                 dimension_mismatch_error);
-    EXPECT_THROW(polynomial_mutation(dv, {{-2, -2, -2.6}, {3, 3, 3}}, 1u, 0.9, 10, random_engine),
-                 dimension_mismatch_error);
+                 bounds_constraint_error);
+    EXPECT_THROW(polynomial_mutation(dv, {{-2, -2, -2.6}, {3, 3, 3}}, 1u, 0.9, 10, random_engine), invalid_value_error);
     EXPECT_THROW(polynomial_mutation(dv, {{-2, -2, -2}, {3, 3, 3.43}}, 1u, 0.9, 10, random_engine),
-                 dimension_mismatch_error);
-    EXPECT_THROW(polynomial_mutation(dv, {{-2, -2, -2}, {3, 3, 3}}, 1u, nan, 10, random_engine),
-                 dimension_mismatch_error);
-    EXPECT_THROW(polynomial_mutation(dv, {{-2, -2, -2}, {3, 3, 3}}, 1u, 0.4, nan, random_engine),
-                 dimension_mismatch_error);
+                 invalid_value_error);
+    EXPECT_THROW(polynomial_mutation(dv, {{-2, -2, -2}, {3, 3, 3}}, 1u, nan, 10, random_engine), invalid_value_error);
+    EXPECT_THROW(polynomial_mutation(dv, {{-2, -2, -2}, {3, 3, 3}}, 1u, 0.4, nan, random_engine), invalid_value_error);
 }
