@@ -45,6 +45,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/threading.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -63,13 +64,13 @@ TEST(mbh_test, mbh_algorithm_construction)
         EXPECT_TRUE(user_algo.get_verbosity() == 0u);
         EXPECT_TRUE((user_algo.get_log() == mbh::log_type{}));
     }
-    EXPECT_THROW((mbh{inner_algo, 5u, -2.1}), std::invalid_argument);
-    EXPECT_THROW((mbh{inner_algo, 5u, 3.2}), std::invalid_argument);
-    EXPECT_THROW((mbh{inner_algo, 5u, std::nan("")}), std::invalid_argument);
-    EXPECT_THROW((mbh{inner_algo, 5u, {0.2, 0.1, 0.}}), std::invalid_argument);
-    EXPECT_THROW((mbh{inner_algo, 5u, {0.2, 0.1, -0.12}}), std::invalid_argument);
-    EXPECT_THROW((mbh{inner_algo, 5u, {0.2, 1.1, 0.12}}), std::invalid_argument);
-    EXPECT_THROW((mbh{inner_algo, 5u, {0.2, std::nan(""), 0.12}}), std::invalid_argument);
+    EXPECT_THROW((mbh{inner_algo, 5u, -2.1}), invalid_parameter_error);
+    EXPECT_THROW((mbh{inner_algo, 5u, 3.2}), invalid_parameter_error);
+    EXPECT_THROW((mbh{inner_algo, 5u, std::nan("")}), invalid_parameter_error);
+    EXPECT_THROW((mbh{inner_algo, 5u, {0.2, 0.1, 0.}}), invalid_parameter_error);
+    EXPECT_THROW((mbh{inner_algo, 5u, {0.2, 0.1, -0.12}}), invalid_parameter_error);
+    EXPECT_THROW((mbh{inner_algo, 5u, {0.2, 1.1, 0.12}}), invalid_parameter_error);
+    EXPECT_THROW((mbh{inner_algo, 5u, {0.2, std::nan(""), 0.12}}), invalid_parameter_error);
     EXPECT_NO_THROW(mbh{});
 }
 
@@ -104,16 +105,16 @@ TEST(mbh_test, mbh_evolve_test)
     // We then check that the evolve throws if called on unsuitable problems
     {
         mbh user_algo{compass_search{100u, 0.1, 0.001, 0.7}, 5u, 0.1, 23u};
-        EXPECT_THROW(user_algo.evolve(population{problem{zdt{}}, 15u}), std::invalid_argument);
+        EXPECT_THROW(user_algo.evolve(population{problem{zdt{}}, 15u}), incompatible_problem_error);
     }
     {
         mbh user_algo{compass_search{100u, 0.1, 0.001, 0.7}, 5u, 0.1, 23u};
-        EXPECT_THROW(user_algo.evolve(population{problem{inventory{}}, 15u}), std::invalid_argument);
+        EXPECT_THROW(user_algo.evolve(population{problem{inventory{}}, 15u}), incompatible_problem_error);
     }
     // And that it throws if called with a wrong dimension of the perturbation vector
     {
         mbh user_algo{compass_search{100u, 0.1, 0.001, 0.7}, 5u, {1e-3, 1e-2}, 23u};
-        EXPECT_THROW(user_algo.evolve(population{problem{hock_schittkowski_71{}}, 15u}), std::invalid_argument);
+        EXPECT_THROW(user_algo.evolve(population{problem{hock_schittkowski_71{}}, 15u}), incompatible_problem_error);
     }
     // Here we test that the algo can be called twice with problems of different dimensions (Issue #505)
     {
@@ -147,9 +148,9 @@ TEST(mbh_test, mbh_setters_getters_test)
     EXPECT_TRUE(user_algo.get_seed() == 23u);
     user_algo.set_perturb({0.1, 0.2, 0.3, 0.4});
     EXPECT_TRUE((user_algo.get_perturb() == vector_double{0.1, 0.2, 0.3, 0.4}));
-    EXPECT_THROW(user_algo.set_perturb({0.1, std::nan(""), 0.3, 0.4}), std::invalid_argument);
-    EXPECT_THROW(user_algo.set_perturb({0.1, -0.2, 0.3, 0.4}), std::invalid_argument);
-    EXPECT_THROW(user_algo.set_perturb({0.1, 2.3, 0.3, 0.4}), std::invalid_argument);
+    EXPECT_THROW(user_algo.set_perturb({0.1, std::nan(""), 0.3, 0.4}), invalid_parameter_error);
+    EXPECT_THROW(user_algo.set_perturb({0.1, -0.2, 0.3, 0.4}), invalid_parameter_error);
+    EXPECT_THROW(user_algo.set_perturb({0.1, 2.3, 0.3, 0.4}), invalid_parameter_error);
     EXPECT_TRUE(user_algo.get_name().find("Monotonic Basin Hopping") != std::string::npos);
     EXPECT_TRUE(user_algo.get_extra_info().find("Inner algorithm extra info") != std::string::npos);
     EXPECT_NO_THROW(user_algo.get_log());

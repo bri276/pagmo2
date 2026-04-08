@@ -53,15 +53,15 @@ ihs::ihs(unsigned gen, double phmcr, double ppar_min, double ppar_max, double bw
       m_e(seed), m_seed(seed), m_verbosity(0u)
 {
     if (phmcr > 1 || phmcr < 0 || ppar_min > 1 || ppar_min < 0 || ppar_max > 1 || ppar_max < 0) {
-        pagmo_throw(std::invalid_argument, "The probability of choosing from memory (phmcr) and the pitch "
+        pagmo_throw(invalid_parameter_error, "The probability of choosing from memory (phmcr) and the pitch "
                                            "adjustment rates (ppar_min, ppar_max) must all be in the [0,1] range");
     }
     if (ppar_min > ppar_max) {
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(invalid_parameter_error,
                     "The minimum pitch adjustment rate must not be greater than maximum pitch adjustment rate");
     }
     if (bw_min <= 0 || bw_max < bw_min) {
-        pagmo_throw(std::invalid_argument, "The bandwidth values must be positive, and minimum bandwidth must not "
+        pagmo_throw(invalid_parameter_error, "The bandwidth values must be positive, and minimum bandwidth must not "
                                            "be greater than maximum bandwidth");
     }
 }
@@ -91,15 +91,15 @@ population ihs::evolve(population pop) const
         return pop;
     }
     if (!pop.size()) {
-        pagmo_throw(std::invalid_argument, get_name() + " does not work on an empty population");
+        pagmo_throw(insufficient_population_error, get_name() + " does not work on an empty population");
     }
     if (prob.get_nc() != 0u && prob.get_nobj() > 1u) {
-        pagmo_throw(std::invalid_argument, "Multiple objectives and non linear constraints detected in the "
+        pagmo_throw(incompatible_problem_error, "Multiple objectives and non linear constraints detected in the "
                                                + prob.get_name() + " instance. " + get_name()
                                                + " cannot deal with this type of problem.");
     }
     if (prob.is_stochastic()) {
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(invalid_parameter_error,
                     "The problem appears to be stochastic " + get_name() + " cannot deal with it");
     }
     // ---------------------------------------------------------------------------------------------------------

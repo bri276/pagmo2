@@ -36,6 +36,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/problem.hpp>
 #include <pagmo/problems/schwefel.hpp>
 #include <pagmo/types.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -44,7 +45,7 @@ TEST(schwefel_test, schwefel_test)
     // Problem construction
     schwefel sch1{1u};
     schwefel sch3{3u};
-    EXPECT_THROW(schwefel{0u}, std::invalid_argument);
+    EXPECT_THROW(schwefel{0u}, problem_config_error);
     EXPECT_NO_THROW(problem{sch3});
     // Pick a few reference points
     vector_double x1 = {1.12};

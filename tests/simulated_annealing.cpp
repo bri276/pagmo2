@@ -41,6 +41,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/problems/zdt.hpp>
 #include <pagmo/rng.hpp>
 #include <pagmo/utils/cast.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -52,15 +53,15 @@ TEST(sa_test, simulated_annealing_construction)
     EXPECT_TRUE(user_algo.get_seed() == 23u);
     EXPECT_TRUE((user_algo.get_log() == simulated_annealing::log_type{}));
 
-    EXPECT_THROW((simulated_annealing{-1., .1, 10u, 10u, 10u, 1., 23u}), std::invalid_argument);
-    EXPECT_THROW((simulated_annealing{std::nan(""), 0.1, 10u, 10u, 10u, 1., 23u}), std::invalid_argument);
-    EXPECT_THROW((simulated_annealing{10, -1., 10u, 10u, 10u, 1., 23u}), std::invalid_argument);
-    EXPECT_THROW((simulated_annealing{10, std::nan(""), 10u, 10u, 10u, 1., 23u}), std::invalid_argument);
-    EXPECT_THROW((simulated_annealing{10, .1, 10u, 10u, 10u, 1.1, 23u}), std::invalid_argument);
-    EXPECT_THROW((simulated_annealing{10, .1, 10u, 10u, 10u, -1.1, 23u}), std::invalid_argument);
-    EXPECT_THROW((simulated_annealing{10, .1, 0u, 10u, 10u, 1., 23u}), std::invalid_argument);
-    EXPECT_THROW((simulated_annealing{10, .1, 10u, 0u, 10u, 1., 23u}), std::invalid_argument);
-    EXPECT_THROW((simulated_annealing{.1, 10, 10u, 10u, 10u, 1., 23u}), std::invalid_argument);
+    EXPECT_THROW((simulated_annealing{-1., .1, 10u, 10u, 10u, 1., 23u}), invalid_parameter_error);
+    EXPECT_THROW((simulated_annealing{std::nan(""), 0.1, 10u, 10u, 10u, 1., 23u}), invalid_parameter_error);
+    EXPECT_THROW((simulated_annealing{10, -1., 10u, 10u, 10u, 1., 23u}), invalid_parameter_error);
+    EXPECT_THROW((simulated_annealing{10, std::nan(""), 10u, 10u, 10u, 1., 23u}), invalid_parameter_error);
+    EXPECT_THROW((simulated_annealing{10, .1, 10u, 10u, 10u, 1.1, 23u}), invalid_parameter_error);
+    EXPECT_THROW((simulated_annealing{10, .1, 10u, 10u, 10u, -1.1, 23u}), invalid_parameter_error);
+    EXPECT_THROW((simulated_annealing{10, .1, 0u, 10u, 10u, 1., 23u}), invalid_parameter_error);
+    EXPECT_THROW((simulated_annealing{10, .1, 10u, 0u, 10u, 1., 23u}), invalid_parameter_error);
+    EXPECT_THROW((simulated_annealing{.1, 10, 10u, 10u, 10u, 1., 23u}), invalid_parameter_error);
 }
 
 TEST(sa_test, simulated_annealing_evolve_test)
@@ -85,10 +86,10 @@ TEST(sa_test, simulated_annealing_evolve_test)
     EXPECT_TRUE(user_algo1.get_log() == user_algo2.get_log());
 
     // We check that the problem is checked to be suitable
-    EXPECT_THROW((simulated_annealing{}.evolve(population{zdt{}, 5u, 23u})), std::invalid_argument);
-    EXPECT_THROW((simulated_annealing{}.evolve(population{inventory{}, 5u, 23u})), std::invalid_argument);
-    EXPECT_THROW((simulated_annealing{}.evolve(population{hock_schittkowski_71{}, 5u, 23u})), std::invalid_argument);
-    EXPECT_THROW((simulated_annealing{}.evolve(population{rosenbrock{}})), std::invalid_argument);
+    EXPECT_THROW((simulated_annealing{}.evolve(population{zdt{}, 5u, 23u})), incompatible_problem_error);
+    EXPECT_THROW((simulated_annealing{}.evolve(population{inventory{}, 5u, 23u})), incompatible_problem_error);
+    EXPECT_THROW((simulated_annealing{}.evolve(population{hock_schittkowski_71{}, 5u, 23u})), incompatible_problem_error);
+    EXPECT_THROW((simulated_annealing{}.evolve(population{rosenbrock{}})), insufficient_population_error);
 }
 
 TEST(sa_test, sea_setters_getters_test)

@@ -103,12 +103,7 @@ TEST(member_bfe_test, basic_tests)
         }
     };
     p = problem{bf2{}};
-    EXPECT_THROW(bfe0(p, vector_double{1.}), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return std::string(ia.what()).contains(
-            "An invalid result was produced by a batch fitness evaluation: the length of "
-            "the vector representing the fitness vectors, 1, is not an exact multiple of the "
-            "fitness dimension of the problem, 2");
-    });
+    EXPECT_THROW(bfe0(p, vector_double{1.}), batch_eval_error);
 }
 
 TEST(member_bfe_test, s11n)

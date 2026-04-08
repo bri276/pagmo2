@@ -37,6 +37,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/s11n.hpp>
 #include <pagmo/topologies/ring.hpp>
 #include <pagmo/topology.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -147,12 +148,10 @@ TEST(ring, basic_test)
     }
 
     // Ctor from edge weight.
-    EXPECT_THROW(r0 = ring(-2), std::invalid_argument,
-                 [](const std::invalid_argument &ia) { return ia.what(), " is not in the [0..contains( 1.] range"); });
+    EXPECT_THROW(r0 = ring(-2), index_error); });
 
     // Ctor from number of vertices and edge weight.
-    EXPECT_THROW(r0 = ring(0, -2), std::invalid_argument,
-                 [](const std::invalid_argument &ia) { return ia.what(), " is not in the [0..contains( 1.] range"); });
+    EXPECT_THROW(r0 = ring(0, -2), index_error); });
 
     r0 = ring(0, 0);
 

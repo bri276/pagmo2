@@ -304,38 +304,33 @@ TEST(problem_test, problem_construction_test)
     std::vector<sparsity_pattern> hesss_22_correct{{{0, 0}, {1, 0}}, {{0, 0}, {1, 0}}};
 
     // 0 - lb size is zero
-    EXPECT_THROW(problem{base_p(1, 0, 0, fit_1, {}, {})}, std::invalid_argument);
+    EXPECT_THROW(problem{base_p(1, 0, 0, fit_1, {}, {})}, invalid_value_error);
     // 1 - lb > ub
-    EXPECT_THROW(problem{base_p(1, 0, 0, fit_1, ub_2, lb_2)}, std::invalid_argument);
+    EXPECT_THROW(problem{base_p(1, 0, 0, fit_1, ub_2, lb_2)}, bounds_constraint_error);
     // 2 - lb length is wrong
-    EXPECT_THROW(problem{base_p(1, 0, 0, fit_1, lb_3, ub_2)}, std::invalid_argument);
+    EXPECT_THROW(problem{base_p(1, 0, 0, fit_1, lb_3, ub_2)}, invalid_value_error);
     // 3 - ub length is wrong
-    EXPECT_THROW(problem{base_p(1, 0, 0, fit_1, lb_2, ub_3)}, std::invalid_argument);
+    EXPECT_THROW(problem{base_p(1, 0, 0, fit_1, lb_2, ub_3)}, invalid_value_error);
     // 4 - gradient sparsity has index out of bounds
-    EXPECT_THROW(problem{grad_p(1, 0, 0, fit_1, lb_2, ub_2, grad_2, grads_2_outofbounds)}, std::invalid_argument);
+    EXPECT_THROW(problem{grad_p(1, 0, 0, fit_1, lb_2, ub_2, grad_2, grads_2_outofbounds)}, sparsity_pattern_error);
     // 5 - gradient sparsity has a repeating pair
-    EXPECT_THROW(problem{grad_p(1, 0, 0, fit_1, lb_2, ub_2, grad_2, grads_2_repeats)}, std::invalid_argument);
+    EXPECT_THROW(problem{grad_p(1, 0, 0, fit_1, lb_2, ub_2, grad_2, grads_2_repeats)}, sparsity_pattern_error);
     // 6 - hessian sparsity has index out of bounds
-    EXPECT_THROW(problem{hess_p(1, 1, 0, fit_2, lb_2, ub_2, hess_22, hesss_22_outofbounds)}, std::invalid_argument);
+    EXPECT_THROW(problem{hess_p(1, 1, 0, fit_2, lb_2, ub_2, hess_22, hesss_22_outofbounds)}, sparsity_pattern_error);
     // 7 - hessian sparsity is not lower triangular
-    EXPECT_THROW(problem{hess_p(1, 1, 0, fit_2, lb_2, ub_2, hess_22, hesss_22_notlowertriangular)},
-                 std::invalid_argument);
+    EXPECT_THROW(problem{hess_p(1, 1, 0, fit_2, lb_2, ub_2, hess_22, hesss_22_notlowertriangular)}, sparsity_pattern_error);
     // 8 - hessian sparsity has repeated indexes
-    EXPECT_THROW(problem{hess_p(1, 1, 0, fit_2, lb_2, ub_2, hess_22, hesss_22_repeated)}, std::invalid_argument);
+    EXPECT_THROW(problem{hess_p(1, 1, 0, fit_2, lb_2, ub_2, hess_22, hesss_22_repeated)}, sparsity_pattern_error);
     // 9 - hessian sparsity has the wrong length
-    EXPECT_THROW(problem{hess_p(1, 1, 0, fit_2, lb_2, ub_2, hess_22, {{{0, 0}, {1, 0}}, {{0, 0}, {1, 0}}, {{0, 0}}})},
-                 std::invalid_argument);
+    EXPECT_THROW(problem{hess_p(1, 1, 0, fit_2, lb_2, ub_2, hess_22, {{{0, 0}, {1, 0}}, {{0, 0}, {1, 0}}, {{0, 0}}})}, invalid_value_error);
     // 10 - 0 objectives
-    EXPECT_THROW(problem{base_p(0, 0, 0, fit_1, {1}, {2})}, std::invalid_argument);
+    EXPECT_THROW(problem{base_p(0, 0, 0, fit_1, {1}, {2})}, bounds_constraint_error);
     // 11 - many objectives
-    EXPECT_THROW(problem{base_p(std::numeric_limits<vector_double::size_type>::max(), 0, 0, fit_2, {1}, {2})},
-                 std::invalid_argument);
+    EXPECT_THROW(problem{base_p(std::numeric_limits<vector_double::size_type>::max(), 0, 0, fit_2, {1}, {2})}, size_limit_error);
     // 12 - too many equalities
-    EXPECT_THROW(problem{base_p(1, std::numeric_limits<vector_double::size_type>::max(), 0, fit_2, {1}, {2})},
-                 std::invalid_argument);
+    EXPECT_THROW(problem{base_p(1, std::numeric_limits<vector_double::size_type>::max(), 0, fit_2, {1}, {2})}, size_limit_error);
     // 13 - too many inequalities
-    EXPECT_THROW(problem{base_p(1, 0, std::numeric_limits<vector_double::size_type>::max(), fit_2, {1}, {2})},
-                 std::invalid_argument);
+    EXPECT_THROW(problem{base_p(1, 0, std::numeric_limits<vector_double::size_type>::max(), fit_2, {1}, {2})}, size_limit_error);
     // We check that the data members are initialized correctly (i.e. counters to zero
     // and gradient / hessian dimensions to the right values
     {
@@ -532,8 +527,8 @@ TEST(problem_test, problem_fitness_test)
     problem p1_wrong_retval{base_p{2, 2, 2, {1, 1, 1}, {5, 5}, {10, 10}}};
 
     // We check the fitness checks
-    EXPECT_THROW(p1.fitness({3, 3, 3, 3}), std::invalid_argument);
-    EXPECT_THROW(p1_wrong_retval.fitness({3, 3}), std::invalid_argument);
+    EXPECT_THROW(p1.fitness({3, 3, 3, 3}), dimension_mismatch_error);
+    EXPECT_THROW(p1_wrong_retval.fitness({3, 3}), dimension_mismatch_error);
     // We check the fitness returns the correct value
     EXPECT_TRUE((p1.fitness({3, 3}) == vector_double{12, 13, 14, 15, 16, 17}));
 }
@@ -543,8 +538,8 @@ TEST(problem_test, problem_gradient_test)
     problem p1{grad_p{1, 0, 0, {12}, {5, 5}, {10, 10}, {12, 13}, {{0, 0}, {0, 1}}}};
     problem p1_wrong_retval{grad_p{1, 0, 0, {12}, {5, 5}, {10, 10}, {1, 2, 3, 4}}};
     // We check the gradient checks
-    EXPECT_THROW(p1.gradient({3, 3, 3}), std::invalid_argument);
-    EXPECT_THROW(p1_wrong_retval.gradient({3, 3}), std::invalid_argument);
+    EXPECT_THROW(p1.gradient({3, 3, 3}), dimension_mismatch_error);
+    EXPECT_THROW(p1_wrong_retval.gradient({3, 3}), dimension_mismatch_error);
     // We check the fitness returns the correct value
     EXPECT_TRUE((p1.gradient({3, 3}) == vector_double{12, 13}));
 
@@ -560,8 +555,8 @@ TEST(problem_test, problem_hessians_test)
     problem p1{hess_p{1, 0, 0, {12}, {5, 5}, {10, 10}, {{12, 13}}, {{{0, 0}, {1, 0}}}}};
     problem p1_wrong_retval{hess_p{1, 0, 0, {12}, {5, 5}, {10, 10}, {{12, 13, 14}}, {{{0, 0}, {1, 0}}}}};
     // We check the gradient checks
-    EXPECT_THROW(p1.hessians({3, 3, 3}), std::invalid_argument);
-    EXPECT_THROW(p1_wrong_retval.hessians({3, 3}), std::invalid_argument);
+    EXPECT_THROW(p1.hessians({3, 3, 3}), dimension_mismatch_error);
+    EXPECT_THROW(p1_wrong_retval.hessians({3, 3}), dimension_mismatch_error);
     // We check the fitness returns the correct value
     EXPECT_TRUE((p1.hessians({3, 3}) == std::vector<vector_double>{{12, 13}}));
 }
@@ -948,8 +943,7 @@ TEST(problem_test, problem_get_nobj_detection)
     EXPECT_TRUE(problem{with_get_nobj{}}.get_nobj() == 3u);
     EXPECT_TRUE(problem{without_get_nobj{}}.get_nobj() == 1u);
     EXPECT_NO_THROW(problem{with_get_nobj{}}.fitness({1.}));
-    EXPECT_THROW(problem{without_get_nobj{}}.fitness({1.}),
-                 std::invalid_argument); // detects a returned size of 3 but has the default
+    EXPECT_THROW(problem{without_get_nobj{}}.fitness({1.}), dimension_mismatch_error); // detects a returned size of 3 but has the default
 }
 
 TEST(problem_test, problem_auto_sparsity_test)
@@ -968,18 +962,18 @@ TEST(problem_test, problem_get_set_c_tol_test)
     prob.set_c_tol({12., 22.});
     EXPECT_TRUE((prob.get_c_tol() == vector_double{12., 22.}));
     if (std::numeric_limits<double>::has_quiet_NaN) {
-        EXPECT_THROW(prob.set_c_tol({std::numeric_limits<double>::quiet_NaN(), 22.}), std::invalid_argument);
+        EXPECT_THROW(prob.set_c_tol({std::numeric_limits<double>::quiet_NaN(), 22.}), invalid_value_error);
         EXPECT_TRUE((prob.get_c_tol() == vector_double{12., 22.}));
     }
-    EXPECT_THROW(prob.set_c_tol({-12., 22.}), std::invalid_argument);
+    EXPECT_THROW(prob.set_c_tol({-12., 22.}), dimension_mismatch_error);
     EXPECT_TRUE((prob.get_c_tol() == vector_double{12., 22.}));
-    EXPECT_THROW(prob.set_c_tol({12., 22., 33.});, std::invalid_argument);
+    EXPECT_THROW(prob.set_c_tol({12., 22., 33.});, dimension_mismatch_error);
     EXPECT_TRUE((prob.get_c_tol() == vector_double{12., 22.}));
 
     // checking the overload method
-    EXPECT_THROW(prob.set_c_tol(-12.), std::invalid_argument);
+    EXPECT_THROW(prob.set_c_tol(-12.), invalid_value_error);
     if (std::numeric_limits<double>::has_quiet_NaN) {
-        EXPECT_THROW(prob.set_c_tol(std::numeric_limits<double>::quiet_NaN()), std::invalid_argument);
+        EXPECT_THROW(prob.set_c_tol(std::numeric_limits<double>::quiet_NaN()), invalid_value_error);
     }
     prob.set_c_tol(22);
     EXPECT_TRUE((prob.get_c_tol() == vector_double{22., 22.}));
@@ -1002,7 +996,7 @@ TEST(problem_test, problem_feasibility_methods_test)
     EXPECT_TRUE(test02.feasibility_x({1., 1.}) == true);
     EXPECT_TRUE(test02.feasibility_f({2., 3., 1e-10, 1.5}) == true);
 
-    EXPECT_THROW(test02.feasibility_f({1., -23, 1e-10, 2., 34.}), std::invalid_argument);
+    EXPECT_THROW(test02.feasibility_f({1., -23, 1e-10, 2., 34.}), dimension_mismatch_error);
 }
 
 TEST(problem_test, null_problem_test)
@@ -1029,8 +1023,8 @@ TEST(problem_test, null_problem_test)
     EXPECT_TRUE(p.get_nobj() == 2u);
     EXPECT_TRUE((p.fitness(x1) == vector_double{0, 0}));
     EXPECT_TRUE((p.fitness(x2) == vector_double{0, 0}));
-    EXPECT_THROW(p = problem{null_problem{0}}, std::invalid_argument);
-    EXPECT_THROW((p = problem{null_problem{2, 3, 4, 2}}), std::invalid_argument);
+    EXPECT_THROW(p = problem{null_problem{0}}, problem_config_error);
+    EXPECT_THROW((p = problem{null_problem{2, 3, 4, 2}}), problem_config_error);
 }
 
 TEST(problem_test, null_problem_serialization_test)
@@ -1180,11 +1174,11 @@ TEST(problem_test, custom_gs)
 {
     // Test a gradient sparsity that changes after the first invocation of gradient_sparsity().
     problem p{gs1{}};
-    EXPECT_THROW(p.gradient_sparsity(), std::invalid_argument);
+    EXPECT_THROW(p.gradient_sparsity(), sparsity_pattern_error);
     p = problem{gs2{}};
     EXPECT_NO_THROW(p.gradient_sparsity());
     // Gradient sparsity not sorted.
-    EXPECT_THROW(p = problem{gs3{}}, std::invalid_argument);
+    EXPECT_THROW(p = problem{gs3{}}, invalid_value_error);
 }
 
 struct hs1 {
@@ -1255,10 +1249,10 @@ TEST(problem_test, custom_hs)
 {
     // Test a hessians sparsity that changes after the first invocation of hessians_sparsity().
     problem p{hs1{}};
-    EXPECT_THROW(p.hessians_sparsity(), std::invalid_argument);
+    EXPECT_THROW(p.hessians_sparsity(), sparsity_pattern_error);
     p = problem{hs2{}};
     EXPECT_NO_THROW(p.hessians_sparsity());
-    EXPECT_THROW(p = problem{hs3{}}, std::invalid_argument);
+    EXPECT_THROW(p = problem{hs3{}}, invalid_value_error);
 }
 
 struct hess1 {
@@ -1284,7 +1278,7 @@ TEST(problem_test, broken_hessian)
 {
     // Test a hessians method that returns a number of vectors different from get_nf().
     problem p{hess1{}};
-    EXPECT_THROW(p.hessians({1, 1, 1, 1, 1, 1}), std::invalid_argument);
+    EXPECT_THROW(p.hessians({1, 1, 1, 1, 1, 1}), dimension_mismatch_error);
 }
 
 struct minlp {
@@ -1334,7 +1328,7 @@ TEST(problem_test, minlp_test)
     EXPECT_TRUE((problem{minlp{3u}}.get_nix() == 3u));
     EXPECT_TRUE((problem{minlp{3u}}.get_ncx() == 0u));
     EXPECT_TRUE((problem{minlp{3u}}.get_nx() == 3u));
-    EXPECT_THROW(problem{minlp{5u}}, std::invalid_argument);
+    EXPECT_THROW(problem{minlp{5u}}, bounds_constraint_error);
 }
 
 TEST(problem_test, increase_counter)
@@ -1425,11 +1419,7 @@ TEST(problem_test, batch_fitness)
     EXPECT_TRUE(p.has_batch_fitness());
     EXPECT_TRUE(p.batch_fitness({1., 2., 3., 4.}) == vector_double(2, 1.));
     // Check throw on wrong input vector.
-    EXPECT_THROW(p.batch_fitness(vector_double{1.}), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return std::string(ia.what()).contains(
-            "Invalid argument for a batch fitness evaluation: the length of the vector "
-            "representing the decision vectors, 1, is not an exact multiple of the dimension of the problem, 2");
-    });
+    EXPECT_THROW(p.batch_fitness(vector_double{1.}), dimension_mismatch_error);
 
     // A UDP which provides batch_fitness(), but with wrong retval.
     struct bf2 {
@@ -1454,12 +1444,7 @@ TEST(problem_test, batch_fitness)
     EXPECT_TRUE(HasBatchFitness<bf2>);
     EXPECT_TRUE(!OverrideHasBatchFitness<bf2>);
     EXPECT_TRUE(p.has_batch_fitness());
-    EXPECT_THROW(p.batch_fitness(vector_double{1.}), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return std::string(ia.what()).contains(
-            "An invalid result was produced by a batch fitness evaluation: the length of "
-            "the vector representing the fitness vectors, 1, is not an exact multiple of the "
-            "fitness dimension of the problem, 2");
-    });
+    EXPECT_THROW(p.batch_fitness(vector_double{1.}), dimension_mismatch_error);
 
     // A UDP which provides batch_fitness(), but with wrong number of fvs.
     struct bf3 {
@@ -1480,11 +1465,7 @@ TEST(problem_test, batch_fitness)
     EXPECT_TRUE(HasBatchFitness<bf3>);
     EXPECT_TRUE(!OverrideHasBatchFitness<bf3>);
     EXPECT_TRUE(p.has_batch_fitness());
-    EXPECT_THROW(p.batch_fitness(vector_double{1.}), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return std::string(ia.what()).contains(
-            "An invalid result was produced by a batch fitness evaluation: the number of "
-            "produced fitness vectors, 0, differs from the number of input decision vectors, 1");
-    });
+    EXPECT_THROW(p.batch_fitness(vector_double{1.}), dimension_mismatch_error);
 
     // A UDP which provides has_batch_fitness(), but no batch_fitness().
     struct bf4 {

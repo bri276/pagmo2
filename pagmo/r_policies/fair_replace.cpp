@@ -65,7 +65,7 @@ individuals_group_t fair_replace::replace(const individuals_group_t &inds, const
                                           const vector_double &tol, const individuals_group_t &mig) const
 {
     if (nobj > 1u && (nic || nec)) {
-        pagmo_throw(std::invalid_argument, "The 'fair_replace' replacement policy is unable to deal with "
+        pagmo_throw(policy_config_error, "The 'fair_replace' replacement policy is unable to deal with "
                                            "multiobjective constrained optimisation problems");
     }
 

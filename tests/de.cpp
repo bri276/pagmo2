@@ -42,6 +42,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -52,14 +53,14 @@ TEST(de_test, de_algorithm_construction)
     EXPECT_TRUE(user_algo.get_seed() == 23u);
     EXPECT_TRUE((user_algo.get_log() == de::log_type{}));
 
-    EXPECT_THROW((de{1234u, 1.2, 0.5, 0u, 1e-6, 1e-6, 23u}), std::invalid_argument);
-    EXPECT_THROW((de{1234u, 1.2, 0.5, 10u, 1e-6, 1e-6, 23u}), std::invalid_argument);
+    EXPECT_THROW((de{1234u, 1.2, 0.5, 0u, 1e-6, 1e-6, 23u}), invalid_parameter_error);
+    EXPECT_THROW((de{1234u, 1.2, 0.5, 10u, 1e-6, 1e-6, 23u}), invalid_parameter_error);
 
-    EXPECT_THROW((de{1234u, 1.2, 0.5, 2u, 1e-6, 1e-6, 23u}), std::invalid_argument);
-    EXPECT_THROW((de{1234u, -0.7, 0.5, 2u, 1e-6, 1e-6, 23u}), std::invalid_argument);
+    EXPECT_THROW((de{1234u, 1.2, 0.5, 2u, 1e-6, 1e-6, 23u}), invalid_parameter_error);
+    EXPECT_THROW((de{1234u, -0.7, 0.5, 2u, 1e-6, 1e-6, 23u}), invalid_parameter_error);
 
-    EXPECT_THROW((de{1234u, 0.7, 1.5, 2u, 1e-6, 1e-6, 23u}), std::invalid_argument);
-    EXPECT_THROW((de{1234u, 0.7, -0.5, 2u, 1e-6, 1e-6, 23u}), std::invalid_argument);
+    EXPECT_THROW((de{1234u, 0.7, 1.5, 2u, 1e-6, 1e-6, 23u}), invalid_parameter_error);
+    EXPECT_THROW((de{1234u, 0.7, -0.5, 2u, 1e-6, 1e-6, 23u}), invalid_parameter_error);
 }
 
 TEST(de_test, de_evolve_test)
@@ -111,10 +112,10 @@ TEST(de_test, de_evolve_test)
     }
 
     // We then check that the evolve throws if called on unsuitable problems
-    EXPECT_THROW(de{10u}.evolve(population{problem{rosenbrock{}}, 4u}), std::invalid_argument);
-    EXPECT_THROW(de{10u}.evolve(population{problem{zdt{}}, 15u}), std::invalid_argument);
-    EXPECT_THROW(de{10u}.evolve(population{problem{hock_schittkowski_71{}}, 15u}), std::invalid_argument);
-    EXPECT_THROW(de{10u}.evolve(population{problem{inventory{}}, 15u}), std::invalid_argument);
+    EXPECT_THROW(de{10u}.evolve(population{problem{rosenbrock{}}, 4u}), insufficient_population_error);
+    EXPECT_THROW(de{10u}.evolve(population{problem{zdt{}}, 15u}), incompatible_problem_error);
+    EXPECT_THROW(de{10u}.evolve(population{problem{hock_schittkowski_71{}}, 15u}), incompatible_problem_error);
+    EXPECT_THROW(de{10u}.evolve(population{problem{inventory{}}, 15u}), incompatible_problem_error);
     // And a clean exit for 0 generations
     population pop{rosenbrock{25u}, 10u};
     EXPECT_TRUE(de{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);

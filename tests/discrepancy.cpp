@@ -35,6 +35,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/io.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/discrepancy.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -59,10 +60,10 @@ TEST(discrepancy_test, sample_from_simplex_test)
     }
 
     // Check that throws if point is not in [0,1]
-    EXPECT_THROW(sample_from_simplex({0.2, 2.3}), std::invalid_argument);
-    EXPECT_THROW(sample_from_simplex({0.3, 0.1, 0.6, 0.9, -0.1, 1.}), std::invalid_argument);
+    EXPECT_THROW(sample_from_simplex({0.2, 2.3}), utility_error);
+    EXPECT_THROW(sample_from_simplex({0.3, 0.1, 0.6, 0.9, -0.1, 1.}), utility_error);
     // Checks that input cannot be empty
-    EXPECT_THROW(sample_from_simplex({}), std::invalid_argument);
+    EXPECT_THROW(sample_from_simplex({}), utility_error);
 }
 
 TEST(discrepancy_test, van_der_corput_test)
@@ -86,9 +87,9 @@ TEST(discrepancy_test, van_der_corput_test)
         EXPECT_NEAR(real10[i], computed10[i], 1e-13);
     }
     // We check the construction throws
-    EXPECT_THROW(van_der_corput{1u}, std::invalid_argument);
+    EXPECT_THROW(van_der_corput{1u}, utility_error);
     // We check here the prime number utility of PaGMO (TODO: move somewhere else?)
-    EXPECT_THROW(detail::prime(1700u), std::invalid_argument);
+    EXPECT_THROW(detail::prime(1700u), utility_error);
 }
 
 TEST(discrepancy_test, halton_test)

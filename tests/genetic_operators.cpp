@@ -30,6 +30,7 @@ see https://www.gnu.org/licenses/. */
 
 #include <limits>
 
+#include <pagmo/exceptions.hpp>
 #include <pagmo/utils/genetic_operators.hpp>
 
 using namespace pagmo;
@@ -39,76 +40,43 @@ TEST(generic_test, sbx_crossover_test)
     detail::random_engine_type random_engine(32u);
     auto nan = std::numeric_limits<double>::quiet_NaN();
     auto inf = std::numeric_limits<double>::infinity();
-    EXPECT_TRUE_NO_THROW(
+    EXPECT_NO_THROW(
         sbx_crossover({0.1, 0.2, 3}, {0.2, 2.2, -1}, {{-2, -2, -2}, {3, 3, 3}}, 1u, 0.9, 10, random_engine));
     EXPECT_THROW(sbx_crossover({0.1, 0.2}, {0.2, 2.2, -1}, {{-2, -2, -2}, {3, 3, 3}}, 1u, 0.9, 10, random_engine),
-                 std::invalid_argument, [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains(
-                         "The length of the chromosomes of the parents should be equal: parent1 length is");
-                 });
+                 dimension_mismatch_error);
     EXPECT_THROW(sbx_crossover({0.1, 0.2, 0.3}, {0.2, 2.2, -1}, {{}, {}}, 1u, 0.9, 10, random_engine),
-                 std::invalid_argument, [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains("The bounds dimension cannot be zero");
-                 });
+                 dimension_mismatch_error);
     EXPECT_THROW(sbx_crossover({0.1, 0.2, 0.3}, {0.2, 2.2, -1}, {{-2, -2}, {3, 3, 3}}, 1u, 0.9, 10, random_engine),
-                 std::invalid_argument, [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains("The length of the lower bounds vector is");
-                 });
+                 dimension_mismatch_error);
     EXPECT_THROW(sbx_crossover({0.1, 0.2, 0.3}, {0.2, 2.2, -1}, {{-2, -2}, {3, 3}}, 1u, 0.9, 10, random_engine),
-                 std::invalid_argument, [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains(
-                         "The length of the chromosomes of the parents should be the same as that "
-                         "of the bounds: parent1 length is");
-                 });
+                 dimension_mismatch_error);
     EXPECT_THROW(sbx_crossover({0.1, 0.2, 0.3}, {0.2, 2.2, -1}, {{nan, -2, -2}, {3, 3, 3}}, 1u, 0.9, 10, random_engine),
-                 std::invalid_argument, [](const std::invalid_argument &ia) {
-            return ia.what(), "A NaN value was encountered in the problem bounds.contains( index");
-                 });
+                 dimension_mismatch_error);
     EXPECT_THROW(
         sbx_crossover({0.1, 0.2, 0.3}, {0.2, 2.2, -1}, {{-2, -2, -2}, {3, inf, 3}}, 1u, 0.9, 10, random_engine),
-        std::invalid_argument, [](const std::invalid_argument &ia) {
-            return std::string(ia.what()).contains("Infinite value detected in the bounds at position");
-        });
+        dimension_mismatch_error);
     EXPECT_THROW(
         sbx_crossover({0.1, 0.2, 0.3}, {0.2, 2.2, -1}, {{-2, -2, -2}, {3, nan, 3}}, 1u, 0.9, 10, random_engine),
-        std::invalid_argument, [](const std::invalid_argument &ia) {
-            return ia.what(), "A NaN value was encountered in the problem bounds.contains( index");
-        });
+        dimension_mismatch_error);
     EXPECT_THROW(
         sbx_crossover({0.1, 0.2, 0.3}, {0.2, 2.2, -1}, {{-2, -2, -inf}, {3, 3, 3}}, 1u, 0.9, 10, random_engine),
-        std::invalid_argument, [](const std::invalid_argument &ia) {
-            return std::string(ia.what()).contains("Infinite value detected in the bounds at position");
-        });
+        dimension_mismatch_error);
     EXPECT_THROW(sbx_crossover({0.1, 0.2, 0.3}, {0.2, 2.2, -1}, {{-2, -2, -2}, {3, -5, 3}}, 1u, 0.9, 10, random_engine),
-                 std::invalid_argument, [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains("The lower bound at position");
-                 });
+                 dimension_mismatch_error);
     EXPECT_THROW(sbx_crossover({0.1, 0.2, 0.3}, {0.2, 2.2, -1}, {{-2, 8, -2}, {3, 3, 3}}, 1u, 0.9, 10, random_engine),
-                 std::invalid_argument, [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains("The lower bound at position");
-                 });
+                 dimension_mismatch_error);
     EXPECT_THROW(sbx_crossover({0.1, 0.2, 0.3}, {0.2, 2.2, -1}, {{-2, -2, -2}, {3, 3, 3}}, 32u, 0.9, 10, random_engine),
-                 std::invalid_argument, [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains("The integer part cannot be larger than the bounds size");
-                 });
+                 dimension_mismatch_error);
     EXPECT_THROW(
         sbx_crossover({0.1, 0.2, 0.3}, {0.2, 2.2, -1}, {{-2, -2, -2.6}, {3, 3, 3}}, 1u, 0.9, 10, random_engine),
-        std::invalid_argument, [](const std::invalid_argument &ia) {
-            return std::string(ia.what()).contains("A lower bound of the integer part of the decision vector is");
-        });
+        dimension_mismatch_error);
     EXPECT_THROW(
         sbx_crossover({0.1, 0.2, 0.3}, {0.2, 2.2, -1}, {{-2, -2, -2}, {3, 3, 3.43}}, 1u, 0.9, 10, random_engine),
-        std::invalid_argument, [](const std::invalid_argument &ia) {
-            return std::string(ia.what()).contains("An upper bound of the integer part of the decision vector is");
-        });
+        dimension_mismatch_error);
     EXPECT_THROW(sbx_crossover({0.1, 0.2, 0.3}, {0.2, 2.2, -1}, {{-2, -2, -2}, {3, 3, 3}}, 1u, nan, 10, random_engine),
-                 std::invalid_argument, [](const std::invalid_argument &ia) {
-            return ia.what(), "Crossover probability is not finite.contains( value is");
-                 });
+                 dimension_mismatch_error);
     EXPECT_THROW(sbx_crossover({0.1, 0.2, 0.3}, {0.2, 2.2, -1}, {{-2, -2, -2}, {3, 3, 3}}, 1u, 0.4, nan, random_engine),
-                 std::invalid_argument, [](const std::invalid_argument &ia) {
-            return ia.what(), "Crossover distribution index is not finite.contains( value is");
-                 });
+                 dimension_mismatch_error);
 }
 
 TEST(generic_test, polynomial_mutation_test)
@@ -118,61 +86,29 @@ TEST(generic_test, polynomial_mutation_test)
     auto inf = std::numeric_limits<double>::infinity();
     vector_double dv = {-0.3, 2.4, 5};
     EXPECT_NO_THROW(polynomial_mutation(dv, {{-2, -2, -2}, {3, 3, 3}}, 1u, 0.9, 10, random_engine));
-    EXPECT_THROW(polynomial_mutation(dv, {{}, {}}, 1u, 0.9, 10, random_engine), std::invalid_argument,
-                 [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains("The bounds dimension cannot be zero");
-                 });
-    EXPECT_THROW(polynomial_mutation(dv, {{-2, -2}, {3, 3, 3}}, 1u, 0.9, 10, random_engine), std::invalid_argument,
-                 [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains("The length of the lower bounds vector is");
-                 });
-    EXPECT_THROW(polynomial_mutation(dv, {{-2, -2}, {3, 3}}, 1u, 0.9, 10, random_engine), std::invalid_argument,
-                 [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains(
-                         "The length of the chromosome should be the same as that of the bounds: detected length is");
-                 });
-    EXPECT_THROW(polynomial_mutation(dv, {{nan, -2, -2}, {3, 3, 3}}, 1u, 0.9, 10, random_engine), std::invalid_argument,
-                 [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains("A NaN value was encountered in the problem bounds, index");
-                 });
+    EXPECT_THROW(polynomial_mutation(dv, {{}, {}}, 1u, 0.9, 10, random_engine), dimension_mismatch_error);
+    EXPECT_THROW(polynomial_mutation(dv, {{-2, -2}, {3, 3, 3}}, 1u, 0.9, 10, random_engine), dimension_mismatch_error);
+    EXPECT_THROW(polynomial_mutation(dv, {{-2, -2}, {3, 3}}, 1u, 0.9, 10, random_engine), dimension_mismatch_error);
+    EXPECT_THROW(polynomial_mutation(dv, {{nan, -2, -2}, {3, 3, 3}}, 1u, 0.9, 10, random_engine),
+                 dimension_mismatch_error);
     EXPECT_THROW(polynomial_mutation(dv, {{-2, -2, -2}, {3, inf, 3}}, 1u, 0.9, 10, random_engine),
-                 std::invalid_argument, [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains("Infinite value detected in the bounds at position");
-                 });
+                 dimension_mismatch_error);
     EXPECT_THROW(polynomial_mutation(dv, {{-2, -2, -2}, {3, nan, 3}}, 1u, 0.9, 10, random_engine),
-                 std::invalid_argument, [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains("A NaN value was encountered in the problem bounds, index");
-                 });
+                 dimension_mismatch_error);
     EXPECT_THROW(polynomial_mutation(dv, {{-2, -2, -inf}, {3, 3, 3}}, 1u, 0.9, 10, random_engine),
-                 std::invalid_argument, [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains("Infinite value detected in the bounds at position");
-                 });
-    EXPECT_THROW(
-        polynomial_mutation(dv, {{-2, -2, -2}, {3, -5, 3}}, 1u, 0.9, 10, random_engine), std::invalid_argument,
-        [](const std::invalid_argument &ia) { return std::string(ia.what()).contains("The lower bound at position"); });
-    EXPECT_THROW(
-        polynomial_mutation(dv, {{-2, 8, -2}, {3, 3, 3}}, 1u, 0.9, 10, random_engine), std::invalid_argument,
-        [](const std::invalid_argument &ia) { return std::string(ia.what()).contains("The lower bound at position"); });
-    EXPECT_THROW(polynomial_mutation(dv, {{-2, -2, -2}, {3, 3, 3}}, 32u, 0.9, 10, random_engine), std::invalid_argument,
-                 [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains("The integer part cannot be larger than the bounds size");
-                 });
+                 dimension_mismatch_error);
+    EXPECT_THROW(polynomial_mutation(dv, {{-2, -2, -2}, {3, -5, 3}}, 1u, 0.9, 10, random_engine),
+                 dimension_mismatch_error);
+    EXPECT_THROW(polynomial_mutation(dv, {{-2, 8, -2}, {3, 3, 3}}, 1u, 0.9, 10, random_engine),
+                 dimension_mismatch_error);
+    EXPECT_THROW(polynomial_mutation(dv, {{-2, -2, -2}, {3, 3, 3}}, 32u, 0.9, 10, random_engine),
+                 dimension_mismatch_error);
     EXPECT_THROW(polynomial_mutation(dv, {{-2, -2, -2.6}, {3, 3, 3}}, 1u, 0.9, 10, random_engine),
-                 std::invalid_argument, [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains(
-                         "A lower bound of the integer part of the decision vector is");
-                 });
+                 dimension_mismatch_error);
     EXPECT_THROW(polynomial_mutation(dv, {{-2, -2, -2}, {3, 3, 3.43}}, 1u, 0.9, 10, random_engine),
-                 std::invalid_argument, [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains(
-                         "An upper bound of the integer part of the decision vector is");
-                 });
-    EXPECT_THROW(polynomial_mutation(dv, {{-2, -2, -2}, {3, 3, 3}}, 1u, nan, 10, random_engine), std::invalid_argument,
-                 [](const std::invalid_argument &ia) {
-                              return ia.what(), "Mutation probability is not finite.contains( value is");
-                 });
-    EXPECT_THROW(polynomial_mutation(dv, {{-2, -2, -2}, {3, 3, 3}}, 1u, 0.4, nan, random_engine), std::invalid_argument,
-                 [](const std::invalid_argument &ia) {
-                              return ia.what(), "Mutation distribution index is not finite.contains( value is");
-                 });
+                 dimension_mismatch_error);
+    EXPECT_THROW(polynomial_mutation(dv, {{-2, -2, -2}, {3, 3, 3}}, 1u, nan, 10, random_engine),
+                 dimension_mismatch_error);
+    EXPECT_THROW(polynomial_mutation(dv, {{-2, -2, -2}, {3, 3, 3}}, 1u, 0.4, nan, random_engine),
+                 dimension_mismatch_error);
 }

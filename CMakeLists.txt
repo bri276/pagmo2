@@ -393,7 +393,7 @@ elseif(TARGET cereal)
 endif()
 
 # Link additional header-only boost libraries needed by pagmo
-foreach(boost_lib IN ITEMS boost_any boost_math boost_safe_numerics boost_bimap boost_system boost_graph boost_lexical_cast boost_integer boost_variant boost_variant2 boost_property_map boost_container boost_move boost_type_index boost_multi_index boost_type_traits boost_config boost_mpl boost_iterator)
+foreach(boost_lib IN ITEMS boost_any boost_math boost_safe_numerics boost_bimap boost_system boost_graph boost_lexical_cast boost_integer boost_variant boost_variant2 boost_property_map boost_container boost_move boost_type_index boost_multi_index boost_type_traits boost_config boost_mpl boost_iterator boost_core boost_unordered)
     if(TARGET ${boost_lib})
         target_link_libraries(pagmo PRIVATE ${boost_lib})
         get_target_property(BOOST_LIB_INCLUDE_DIRS ${boost_lib} INTERFACE_INCLUDE_DIRECTORIES)
@@ -405,7 +405,7 @@ foreach(boost_lib IN ITEMS boost_any boost_math boost_safe_numerics boost_bimap 
 endforeach()
 
 # Link additional header-only boost libraries needed by pagmo
-foreach(boost_lib IN ITEMS boost_any boost_math boost_safe_numerics boost_bimap boost_system boost_graph boost_lexical_cast boost_integer boost_variant boost_variant2 boost_property_map boost_container boost_move boost_type_index boost_multi_index boost_type_traits boost_config boost_mpl)
+foreach(boost_lib IN ITEMS boost_any boost_math boost_safe_numerics boost_bimap boost_system boost_graph boost_lexical_cast boost_integer boost_variant boost_variant2 boost_property_map boost_container boost_move boost_type_index boost_multi_index boost_type_traits boost_config boost_mpl boost_core boost_unordered)
     if(TARGET ${boost_lib})
         target_link_libraries(pagmo PRIVATE ${boost_lib})
         get_target_property(BOOST_LIB_INCLUDE_DIRS ${boost_lib} INTERFACE_INCLUDE_DIRECTORIES)

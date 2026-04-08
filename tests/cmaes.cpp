@@ -44,6 +44,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/s11n.hpp>
 #include <pagmo/utils/cast.hpp>
 #include <pagmo/utils/generic.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -54,14 +55,14 @@ TEST(cmaes_test, cmaes_algorithm_construction)
     EXPECT_TRUE(user_algo.get_seed() == 23u);
     EXPECT_TRUE((user_algo.get_log() == cmaes::log_type{}));
 
-    EXPECT_THROW((cmaes{10u, 1.2, -1, -1, -1, 0.5, 1e-6, 1e-6, false, false, 23u}), std::invalid_argument);
-    EXPECT_THROW((cmaes{10u, -2.3, -1, -1, -1, 0.5, 1e-6, 1e-6, false, false, 23u}), std::invalid_argument);
-    EXPECT_THROW((cmaes{10u, -1, 1.2, -1, -1, 0.5, 1e-6, 1e-6, false, false, 23u}), std::invalid_argument);
-    EXPECT_THROW((cmaes{10u, -1, -1.2, -1, -1, 0.5, 1e-6, 1e-6, false, false, 23u}), std::invalid_argument);
-    EXPECT_THROW((cmaes{10u, -1, -1, -1.2, -1, 0.5, 1e-6, 1e-6, false, false, 23u}), std::invalid_argument);
-    EXPECT_THROW((cmaes{10u, -1, -1, -1.2, -1, 0.5, 1e-6, 1e-6, false, false, 23u}), std::invalid_argument);
-    EXPECT_THROW((cmaes{10u, -1, -1, -1, -1.2, 0.5, 1e-6, 1e-6, false, false, 23u}), std::invalid_argument);
-    EXPECT_THROW((cmaes{10u, -1, -1, -1, -1.2, 0.5, 1e-6, 1e-6, false, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((cmaes{10u, 1.2, -1, -1, -1, 0.5, 1e-6, 1e-6, false, false, 23u}), invalid_parameter_error);
+    EXPECT_THROW((cmaes{10u, -2.3, -1, -1, -1, 0.5, 1e-6, 1e-6, false, false, 23u}), invalid_parameter_error);
+    EXPECT_THROW((cmaes{10u, -1, 1.2, -1, -1, 0.5, 1e-6, 1e-6, false, false, 23u}), invalid_parameter_error);
+    EXPECT_THROW((cmaes{10u, -1, -1.2, -1, -1, 0.5, 1e-6, 1e-6, false, false, 23u}), invalid_parameter_error);
+    EXPECT_THROW((cmaes{10u, -1, -1, -1.2, -1, 0.5, 1e-6, 1e-6, false, false, 23u}), invalid_parameter_error);
+    EXPECT_THROW((cmaes{10u, -1, -1, -1.2, -1, 0.5, 1e-6, 1e-6, false, false, 23u}), invalid_parameter_error);
+    EXPECT_THROW((cmaes{10u, -1, -1, -1, -1.2, 0.5, 1e-6, 1e-6, false, false, 23u}), invalid_parameter_error);
+    EXPECT_THROW((cmaes{10u, -1, -1, -1, -1.2, 0.5, 1e-6, 1e-6, false, false, 23u}), invalid_parameter_error);
 }
 
 struct unbounded_lb {
@@ -183,9 +184,9 @@ TEST(cmaes_test, cmaes_evolve_test)
     }
 
     // We then check that the evolve throws if called on unsuitable problems
-    EXPECT_THROW(cmaes{10u}.evolve(population{problem{rosenbrock{}}, 4u}), std::invalid_argument);
-    EXPECT_THROW(cmaes{10u}.evolve(population{problem{zdt{}}, 15u}), std::invalid_argument);
-    EXPECT_THROW(cmaes{10u}.evolve(population{problem{hock_schittkowski_71{}}, 15u}), std::invalid_argument);
+    EXPECT_THROW(cmaes{10u}.evolve(population{problem{rosenbrock{}}, 4u}), insufficient_population_error);
+    EXPECT_THROW(cmaes{10u}.evolve(population{problem{zdt{}}, 15u}), incompatible_problem_error);
+    EXPECT_THROW(cmaes{10u}.evolve(population{problem{hock_schittkowski_71{}}, 15u}), incompatible_problem_error);
 
     detail::random_engine_type r_engine(32u);
     population pop_lb{problem{unbounded_lb{}}};
@@ -194,8 +195,8 @@ TEST(cmaes_test, cmaes_evolve_test)
         pop_lb.push_back(vector_double{pagmo::uniform_real_from_range(0., 1., r_engine)});
         pop_ub.push_back(vector_double{pagmo::uniform_real_from_range(0., 1., r_engine)});
     }
-    EXPECT_THROW(cmaes{10u}.evolve(pop_lb), std::invalid_argument);
-    EXPECT_THROW(cmaes{10u}.evolve(pop_ub), std::invalid_argument);
+    EXPECT_THROW(cmaes{10u}.evolve(pop_lb), invalid_parameter_error);
+    EXPECT_THROW(cmaes{10u}.evolve(pop_ub), invalid_parameter_error);
     // And a clean exit for 0 generations
     population pop{rosenbrock{25u}, 10u};
     EXPECT_TRUE(cmaes{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);

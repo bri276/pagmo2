@@ -51,12 +51,12 @@ cec2013::cec2013(unsigned prob_id, unsigned dim)
 {
     if (!(dim == 2u || dim == 5u || dim == 10u || dim == 20u || dim == 30u || dim == 40u || dim == 50u || dim == 60u
           || dim == 70u || dim == 80u || dim == 90u || dim == 100u)) {
-        pagmo_throw(std::invalid_argument, "Error: CEC2013 Test functions are only defined for dimensions "
+        pagmo_throw(problem_config_error, "Error: CEC2013 Test functions are only defined for dimensions "
                                            "2,5,10,20,30,40,50,60,70,80,90,100, a dimension of "
                                                + std::to_string(dim) + " was detected.");
     }
     if (prob_id < 1u || prob_id > 28u) {
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(problem_config_error,
                     "Error: CEC2013 Test functions are only defined for prob_id in [1, 28], a prob_id of "
                         + std::to_string(prob_id) + " was detected.");
     }

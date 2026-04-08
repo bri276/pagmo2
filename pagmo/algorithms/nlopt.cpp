@@ -183,12 +183,12 @@ struct nlopt_obj {
         // Try to init the nlopt_obj.
         m_value.reset(::nlopt_create(algo, n));
         if (!m_value) {
-            pagmo_throw(std::runtime_error, "the creation of the nlopt_opt object failed"); // LCOV_EXCL_LINE
+            pagmo_throw(system_error, "the creation of the nlopt_opt object failed"); // LCOV_EXCL_LINE
         }
 
         // NLopt does not handle MOO.
         if (prob.get_nobj() != 1u) {
-            pagmo_throw(std::invalid_argument, "NLopt algorithms cannot handle multi-objective optimization");
+            pagmo_throw(incompatible_problem_error, "NLopt algorithms cannot handle multi-objective optimization");
         }
 
         // This is just a vector_double that is re-used across objfun invocations.
@@ -199,7 +199,7 @@ struct nlopt_obj {
         auto res = ::nlopt_set_stopval(m_value.get(), stopval);
         if (res != NLOPT_SUCCESS) {
             // LCOV_EXCL_START
-            pagmo_throw(std::invalid_argument, "could not set the 'stopval' stopping criterion to "
+            pagmo_throw(invalid_parameter_error, "could not set the 'stopval' stopping criterion to "
                                                    + std::to_string(stopval) + " for the NLopt algorithm '"
                                                    + nlopt_names.right.at(algo)
                                                    + "', the error is: " + nlopt_res2string(res));
@@ -208,7 +208,7 @@ struct nlopt_obj {
         res = ::nlopt_set_ftol_rel(m_value.get(), ftol_rel);
         if (res != NLOPT_SUCCESS) {
             // LCOV_EXCL_START
-            pagmo_throw(std::invalid_argument, "could not set the 'ftol_rel' stopping criterion to "
+            pagmo_throw(invalid_parameter_error, "could not set the 'ftol_rel' stopping criterion to "
                                                    + std::to_string(ftol_rel) + " for the NLopt algorithm '"
                                                    + nlopt_names.right.at(algo)
                                                    + "', the error is: " + nlopt_res2string(res));
@@ -217,7 +217,7 @@ struct nlopt_obj {
         res = ::nlopt_set_ftol_abs(m_value.get(), ftol_abs);
         if (res != NLOPT_SUCCESS) {
             // LCOV_EXCL_START
-            pagmo_throw(std::invalid_argument, "could not set the 'ftol_abs' stopping criterion to "
+            pagmo_throw(invalid_parameter_error, "could not set the 'ftol_abs' stopping criterion to "
                                                    + std::to_string(ftol_abs) + " for the NLopt algorithm '"
                                                    + nlopt_names.right.at(algo)
                                                    + "', the error is: " + nlopt_res2string(res));
@@ -226,7 +226,7 @@ struct nlopt_obj {
         res = ::nlopt_set_xtol_rel(m_value.get(), xtol_rel);
         if (res != NLOPT_SUCCESS) {
             // LCOV_EXCL_START
-            pagmo_throw(std::invalid_argument, "could not set the 'xtol_rel' stopping criterion to "
+            pagmo_throw(invalid_parameter_error, "could not set the 'xtol_rel' stopping criterion to "
                                                    + std::to_string(xtol_rel) + " for the NLopt algorithm '"
                                                    + nlopt_names.right.at(algo)
                                                    + "', the error is: " + nlopt_res2string(res));
@@ -235,7 +235,7 @@ struct nlopt_obj {
         res = ::nlopt_set_xtol_abs1(m_value.get(), xtol_abs);
         if (res != NLOPT_SUCCESS) {
             // LCOV_EXCL_START
-            pagmo_throw(std::invalid_argument, "could not set the 'xtol_abs' stopping criterion to "
+            pagmo_throw(invalid_parameter_error, "could not set the 'xtol_abs' stopping criterion to "
                                                    + std::to_string(xtol_abs) + " for the NLopt algorithm '"
                                                    + nlopt_names.right.at(algo)
                                                    + "', the error is: " + nlopt_res2string(res));
@@ -244,7 +244,7 @@ struct nlopt_obj {
         res = ::nlopt_set_maxeval(m_value.get(), maxeval);
         if (res != NLOPT_SUCCESS) {
             // LCOV_EXCL_START
-            pagmo_throw(std::invalid_argument, "could not set the 'maxeval' stopping criterion to "
+            pagmo_throw(invalid_parameter_error, "could not set the 'maxeval' stopping criterion to "
                                                    + std::to_string(maxeval) + " for the NLopt algorithm '"
                                                    + nlopt_names.right.at(algo)
                                                    + "', the error is: " + nlopt_res2string(res));
@@ -253,7 +253,7 @@ struct nlopt_obj {
         res = ::nlopt_set_maxtime(m_value.get(), maxtime);
         if (res != NLOPT_SUCCESS) {
             // LCOV_EXCL_START
-            pagmo_throw(std::invalid_argument, "could not set the 'maxtime' stopping criterion to "
+            pagmo_throw(invalid_parameter_error, "could not set the 'maxtime' stopping criterion to "
                                                    + std::to_string(maxtime) + " for the NLopt algorithm '"
                                                    + nlopt_names.right.at(algo)
                                                    + "', the error is: " + nlopt_res2string(res));
@@ -268,7 +268,7 @@ struct nlopt_obj {
         auto res = ::nlopt_set_lower_bounds(m_value.get(), bounds.first.data());
         if (res != NLOPT_SUCCESS) {
             // LCOV_EXCL_START
-            pagmo_throw(std::invalid_argument, "could not set the lower bounds for the NLopt algorithm '"
+            pagmo_throw(invalid_parameter_error, "could not set the lower bounds for the NLopt algorithm '"
                                                    + nlopt_names.right.at(m_algo)
                                                    + "', the error is: " + nlopt_res2string(res));
             // LCOV_EXCL_STOP
@@ -276,7 +276,7 @@ struct nlopt_obj {
         res = ::nlopt_set_upper_bounds(m_value.get(), bounds.second.data());
         if (res != NLOPT_SUCCESS) {
             // LCOV_EXCL_START
-            pagmo_throw(std::invalid_argument, "could not set the upper bounds for the NLopt algorithm '"
+            pagmo_throw(invalid_parameter_error, "could not set the upper bounds for the NLopt algorithm '"
                                                    + nlopt_names.right.at(m_algo)
                                                    + "', the error is: " + nlopt_res2string(res));
             // LCOV_EXCL_STOP
@@ -296,7 +296,7 @@ struct nlopt_obj {
         auto res = ::nlopt_set_min_objective(m_value.get(), nlopt_objfun_wrapper, static_cast<void *>(this));
         if (res != NLOPT_SUCCESS) {
             // LCOV_EXCL_START
-            pagmo_throw(std::invalid_argument, "could not set the objective function for the NLopt algorithm '"
+            pagmo_throw(invalid_parameter_error, "could not set the objective function for the NLopt algorithm '"
                                                    + nlopt_names.right.at(m_algo)
                                                    + "', the error is: " + nlopt_res2string(res));
             // LCOV_EXCL_STOP
@@ -312,7 +312,7 @@ struct nlopt_obj {
                                                           nlopt_ineq_c_wrapper, static_cast<void *>(this),
                                                           c_tol.data() + m_prob.get_nec());
             if (res != NLOPT_SUCCESS) {
-                pagmo_throw(std::invalid_argument,
+                pagmo_throw(invalid_parameter_error,
                             "could not set the inequality constraints for the NLopt algorithm '"
                                 + nlopt_names.right.at(m_algo) + "', the error is: " + nlopt_res2string(res)
                                 + "\nThis usually means that the algorithm does not support inequality constraints");
@@ -328,7 +328,7 @@ struct nlopt_obj {
             auto res = ::nlopt_add_equality_mconstraint(m_value.get(), numeric_cast<unsigned>(m_prob.get_nec()),
                                                         nlopt_eq_c_wrapper, static_cast<void *>(this), c_tol.data());
             if (res != NLOPT_SUCCESS) {
-                pagmo_throw(std::invalid_argument,
+                pagmo_throw(invalid_parameter_error,
                             "could not set the equality constraints for the NLopt algorithm '"
                                 + nlopt_names.right.at(m_algo) + "', the error is: " + nlopt_res2string(res)
                                 + "\nThis usually means that the algorithm does not support equality constraints");
@@ -384,7 +384,7 @@ double nlopt_objfun_wrapper(unsigned dim, const double *x, double *grad, void *f
             // If grad is not null, it means we are in an algorithm
             // that needs the gradient. If the problem does not support it,
             // we error out.
-            pagmo_throw(std::invalid_argument,
+            pagmo_throw(invalid_parameter_error,
                         "during an optimization with the NLopt algorithm '"
                             + nlopt_names.right.at(::nlopt_get_algorithm(nlo.m_value.get()))
                             + "' an objective function gradient was requested, but the optimisation problem '"
@@ -491,7 +491,7 @@ void nlopt_ineq_c_wrapper(unsigned m, double *result, unsigned dim, const double
             // If grad is not null, it means we are in an algorithm
             // that needs the gradient. If the problem does not support it,
             // we error out.
-            pagmo_throw(std::invalid_argument, "during an optimization with the NLopt algorithm '"
+            pagmo_throw(invalid_parameter_error, "during an optimization with the NLopt algorithm '"
                                                    + nlopt_names.right.at(::nlopt_get_algorithm(nlo.m_value.get()))
                                                    + "' an inequality constraints gradient was requested, but the "
                                                      "optimisation problem '"
@@ -532,7 +532,7 @@ void nlopt_ineq_c_wrapper(unsigned m, double *result, unsigned dim, const double
                 using diff_type = std::iterator_traits<decltype(it_sp)>::difference_type;
                 using udiff_type = std::make_unsigned<diff_type>::type;
                 if (sp.size() > static_cast<udiff_type>(std::numeric_limits<diff_type>::max())) {
-                    pagmo_throw(std::overflow_error, "Overflow error, the sparsity pattern size is too large.");
+                    pagmo_throw(size_limit_error, "Overflow error, the sparsity pattern size is too large.");
                 }
                 // This is the index at which the ineq constraints start.
                 const auto idx = std::distance(sp.begin(), it_sp);
@@ -577,7 +577,7 @@ void nlopt_eq_c_wrapper(unsigned m, double *result, unsigned dim, const double *
             // If grad is not null, it means we are in an algorithm
             // that needs the gradient. If the problem does not support it,
             // we error out.
-            pagmo_throw(std::invalid_argument,
+            pagmo_throw(invalid_parameter_error,
                         "during an optimization with the NLopt algorithm '"
                             + nlopt_names.right.at(::nlopt_get_algorithm(nlo.m_value.get()))
                             + "' an equality constraints gradient was requested, but the optimisation problem '"
@@ -622,7 +622,7 @@ void nlopt_eq_c_wrapper(unsigned m, double *result, unsigned dim, const double *
                 using diff_type = std::iterator_traits<decltype(it_sp)>::difference_type;
                 using udiff_type = std::make_unsigned<diff_type>::type;
                 if (sp.size() > static_cast<udiff_type>(std::numeric_limits<diff_type>::max())) {
-                    pagmo_throw(std::overflow_error, "Overflow error, the sparsity pattern size is too large.");
+                    pagmo_throw(size_limit_error, "Overflow error, the sparsity pattern size is too large.");
                 }
                 // This is the index at which the eq constraints start.
                 const auto idx = std::distance(sp.begin(), it_sp);
@@ -714,7 +714,7 @@ nlopt::nlopt(const std::string &algo) : m_algo(algo)
     int major, minor, bugfix;
     ::nlopt_version(&major, &minor, &bugfix);
     if (major < 2) {
-        pagmo_throw(std::runtime_error, "Only NLopt version >= 2 is supported"); // LCOV_EXCL_LINE
+        pagmo_throw(system_error, "Only NLopt version >= 2 is supported"); // LCOV_EXCL_LINE
     }
 
     // Check the algorithm.
@@ -725,7 +725,7 @@ nlopt::nlopt(const std::string &algo) : m_algo(algo)
             detail::nlopt_names.left.begin(), detail::nlopt_names.left.end(),
             std::ostream_iterator<std::string>(oss, "\n"),
             [](const RemoveConstVolatileRef<decltype(*detail::nlopt_names.left.begin())> &v) { return v.first; });
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(invalid_parameter_error,
                     "unknown/unsupported NLopt algorithm '" + algo + "'. The supported algorithms are:\n" + oss.str());
     }
 }
@@ -809,11 +809,11 @@ population nlopt::evolve(population pop) const
     const auto bounds = prob.get_bounds();
     for (decltype(bounds.first.size()) i = 0; i < bounds.first.size(); ++i) {
         if (std::isnan(initial_guess[i])) {
-            pagmo_throw(std::invalid_argument,
+            pagmo_throw(invalid_parameter_error,
                         "the value of the initial guess at index " + std::to_string(i) + " is NaN");
         }
         if (initial_guess[i] < bounds.first[i] || initial_guess[i] > bounds.second[i]) {
-            pagmo_throw(std::invalid_argument, "the value of the initial guess at index " + std::to_string(i)
+            pagmo_throw(invalid_parameter_error, "the value of the initial guess at index " + std::to_string(i)
                                                    + " is outside the problem's bounds");
         }
     }
@@ -921,7 +921,7 @@ std::string nlopt::get_extra_info() const
 void nlopt::set_stopval(double stopval)
 {
     if (std::isnan(stopval)) {
-        pagmo_throw(std::invalid_argument, "The 'stopval' stopping criterion cannot be NaN");
+        pagmo_throw(invalid_parameter_error, "The 'stopval' stopping criterion cannot be NaN");
     }
     m_sc_stopval = stopval;
 }
@@ -935,7 +935,7 @@ void nlopt::set_stopval(double stopval)
 void nlopt::set_ftol_rel(double ftol_rel)
 {
     if (std::isnan(ftol_rel)) {
-        pagmo_throw(std::invalid_argument, "The 'ftol_rel' stopping criterion cannot be NaN");
+        pagmo_throw(invalid_parameter_error, "The 'ftol_rel' stopping criterion cannot be NaN");
     }
     m_sc_ftol_rel = ftol_rel;
 }
@@ -949,7 +949,7 @@ void nlopt::set_ftol_rel(double ftol_rel)
 void nlopt::set_ftol_abs(double ftol_abs)
 {
     if (std::isnan(ftol_abs)) {
-        pagmo_throw(std::invalid_argument, "The 'ftol_abs' stopping criterion cannot be NaN");
+        pagmo_throw(invalid_parameter_error, "The 'ftol_abs' stopping criterion cannot be NaN");
     }
     m_sc_ftol_abs = ftol_abs;
 }
@@ -963,7 +963,7 @@ void nlopt::set_ftol_abs(double ftol_abs)
 void nlopt::set_xtol_rel(double xtol_rel)
 {
     if (std::isnan(xtol_rel)) {
-        pagmo_throw(std::invalid_argument, "The 'xtol_rel' stopping criterion cannot be NaN");
+        pagmo_throw(invalid_parameter_error, "The 'xtol_rel' stopping criterion cannot be NaN");
     }
     m_sc_xtol_rel = xtol_rel;
 }
@@ -977,7 +977,7 @@ void nlopt::set_xtol_rel(double xtol_rel)
 void nlopt::set_xtol_abs(double xtol_abs)
 {
     if (std::isnan(xtol_abs)) {
-        pagmo_throw(std::invalid_argument, "The 'xtol_abs' stopping criterion cannot be NaN");
+        pagmo_throw(invalid_parameter_error, "The 'xtol_abs' stopping criterion cannot be NaN");
     }
     m_sc_xtol_abs = xtol_abs;
 }

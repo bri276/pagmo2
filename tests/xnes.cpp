@@ -43,6 +43,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/rng.hpp>
 #include <pagmo/utils/cast.hpp>
 #include <pagmo/utils/generic.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -53,14 +54,14 @@ TEST(xnes_test, xnes_algorithm_construction)
     EXPECT_NO_THROW((xnes{10u, -1, -1, -1, -1, 1e-6, 1e-6, false, false, 32u}));
     EXPECT_NO_THROW((algorithm{xnes{10u, -1, -1, -1, -1, 1e-6, 1e-6, false, false, 32u}}));
     // We test that wrong parameters will result in an error
-    EXPECT_THROW(xnes(10u, -0.6, -1, -1, -1, 1e-6, 1e-6, false, false, 32u), std::invalid_argument);
-    EXPECT_THROW((xnes{10u, 1.6, -1, -1, -1, 1e-6, 1e-6, false, false, 32u}), std::invalid_argument);
-    EXPECT_THROW((xnes{10u, -1, -0.6, -1, -1, 1e-6, 1e-6, false, false, 32u}), std::invalid_argument);
-    EXPECT_THROW((xnes{10u, -1, 1.6, -1, -1, 1e-6, 1e-6, false, false, 32u}), std::invalid_argument);
-    EXPECT_THROW((xnes{10u, -1, -1, -0.6, -1, 1e-6, 1e-6, false, false, 32u}), std::invalid_argument);
-    EXPECT_THROW((xnes{10u, -1, -1, 1.6, -1, 1e-6, 1e-6, false, false, 32u}), std::invalid_argument);
-    EXPECT_THROW((xnes{10u, -1, -1, -1, -0.6, 1e-6, 1e-6, false, false, 32u}), std::invalid_argument);
-    EXPECT_THROW((xnes{10u, -1, -1, 1, 1.6, 1e-6, 1e-6, false, false, 32u}), std::invalid_argument);
+    EXPECT_THROW(xnes(10u, -0.6, -1, -1, -1, 1e-6, 1e-6, false, false, 32u), invalid_parameter_error);
+    EXPECT_THROW((xnes{10u, 1.6, -1, -1, -1, 1e-6, 1e-6, false, false, 32u}), invalid_parameter_error);
+    EXPECT_THROW((xnes{10u, -1, -0.6, -1, -1, 1e-6, 1e-6, false, false, 32u}), invalid_parameter_error);
+    EXPECT_THROW((xnes{10u, -1, 1.6, -1, -1, 1e-6, 1e-6, false, false, 32u}), invalid_parameter_error);
+    EXPECT_THROW((xnes{10u, -1, -1, -0.6, -1, 1e-6, 1e-6, false, false, 32u}), invalid_parameter_error);
+    EXPECT_THROW((xnes{10u, -1, -1, 1.6, -1, 1e-6, 1e-6, false, false, 32u}), invalid_parameter_error);
+    EXPECT_THROW((xnes{10u, -1, -1, -1, -0.6, 1e-6, 1e-6, false, false, 32u}), invalid_parameter_error);
+    EXPECT_THROW((xnes{10u, -1, -1, 1, 1.6, 1e-6, 1e-6, false, false, 32u}), invalid_parameter_error);
     // We test the defaults are correctly
     xnes user_algo{10u, -1, -1, -1, -1, 1e-6, 1e-6, false, false, 32u};
     EXPECT_TRUE(user_algo.get_verbosity() == 0u);
@@ -187,9 +188,9 @@ TEST(xnes_test, xnes_evolve_test)
     }
 
     // We then check that the evolve throws if called on unsuitable problems
-    EXPECT_THROW(xnes{10u}.evolve(population{problem{rosenbrock{}}, 3u}), std::invalid_argument);
-    EXPECT_THROW(xnes{10u}.evolve(population{problem{zdt{}}, 15u}), std::invalid_argument);
-    EXPECT_THROW(xnes{10u}.evolve(population{problem{hock_schittkowski_71{}}, 15u}), std::invalid_argument);
+    EXPECT_THROW(xnes{10u}.evolve(population{problem{rosenbrock{}}, 3u}), insufficient_population_error);
+    EXPECT_THROW(xnes{10u}.evolve(population{problem{zdt{}}, 15u}), incompatible_problem_error);
+    EXPECT_THROW(xnes{10u}.evolve(population{problem{hock_schittkowski_71{}}, 15u}), incompatible_problem_error);
 
     detail::random_engine_type r_engine(32u);
     population pop_lb{problem{unbounded_lb{}}};
@@ -198,8 +199,8 @@ TEST(xnes_test, xnes_evolve_test)
         pop_lb.push_back(vector_double{pagmo::uniform_real_from_range(0., 1., r_engine)});
         pop_ub.push_back(vector_double{pagmo::uniform_real_from_range(0., 1., r_engine)});
     }
-    EXPECT_THROW(xnes{10u}.evolve(pop_lb), std::invalid_argument);
-    EXPECT_THROW(xnes{10u}.evolve(pop_ub), std::invalid_argument);
+    EXPECT_THROW(xnes{10u}.evolve(pop_lb), invalid_parameter_error);
+    EXPECT_THROW(xnes{10u}.evolve(pop_ub), invalid_parameter_error);
     // And a clean exit for 0 generations
     population pop{rosenbrock{25u}, 10u};
     EXPECT_TRUE(xnes{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);

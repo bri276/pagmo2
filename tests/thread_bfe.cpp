@@ -45,6 +45,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
 #include <pagmo/utils/generic.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -112,9 +113,7 @@ TEST(thread_bfe_test, basic_tests)
     };
     p0 = problem{unsafe_prob{}};
     EXPECT_EQ(p0.get_thread_safety(), thread_safety::none);
-    EXPECT_THROW(bfe0(p0, dvs), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return ia.what(), "Cannot use a thread_bfe on the problem 'unsafe_prob'.contains( which does not "
-                                          "provide the required level of thread safety");
+    EXPECT_THROW(bfe0(p0, dvs), batch_eval_error);
     });
 }
 

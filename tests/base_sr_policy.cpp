@@ -38,6 +38,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/detail/base_sr_policy.hpp>
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -84,21 +85,8 @@ TEST(base_sr_policy, basic_test)
     }
 
     // Error handling.
-    EXPECT_THROW(b0 = bsrp(-1.), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return ia.what()
-            contains("Invalid fractional migration rate specified in the constructor of a replacement/selection "
-                     "policy: the rate must be in the [0., 1.] range, but it is ");
-    });
-    EXPECT_THROW(b0 = bsrp(2.), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return ia.what()
-            contains("Invalid fractional migration rate specified in the constructor of a replacement/selection "
-                     "policy: the rate must be in the [0., 1.] range, but it is ");
-    });
-    EXPECT_THROW(
-        b0 = bsrp(std::numeric_limits<double>::infinity()), std::invalid_argument, [](const std::invalid_argument &ia) {
-            return ia.what()
-                contains("Invalid fractional migration rate specified in the constructor of a replacement/selection "
-                         "policy: the rate must be in the [0., 1.] range, but it is ");
-        });
-    EXPECT_THROW(b0 = bsrp(-1), std::runtime_error);
+    EXPECT_THROW(b0 = bsrp(-1.), policy_config_error);
+    EXPECT_THROW(b0 = bsrp(2.), policy_config_error);
+    EXPECT_THROW(b0 = bsrp(std::numeric_limits<double>::infinity()), policy_config_error);
+    EXPECT_THROW(b0 = bsrp(-1), policy_config_error);
 }

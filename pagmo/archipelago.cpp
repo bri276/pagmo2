@@ -283,8 +283,8 @@ archipelago::~archipelago()
 island &archipelago::operator[](size_type i)
 {
     if (i >= size()) {
-        pagmo_throw(std::out_of_range, "cannot access the island at index " + std::to_string(i)
-                                           + ": the archipelago has a size of only " + std::to_string(size()));
+        pagmo_throw(index_error, "cannot access the island at index " + std::to_string(i)
+                                     + ": the archipelago has a size of only " + std::to_string(size()));
     }
     return *m_islands[i];
 }
@@ -305,8 +305,8 @@ island &archipelago::operator[](size_type i)
 const island &archipelago::operator[](size_type i) const
 {
     if (i >= size()) {
-        pagmo_throw(std::out_of_range, "cannot access the island at index " + std::to_string(i)
-                                           + ": the archipelago has a size of only " + std::to_string(size()));
+        pagmo_throw(index_error, "cannot access the island at index " + std::to_string(i)
+                                     + ": the archipelago has a size of only " + std::to_string(size()));
     }
     return *m_islands[i];
 }
@@ -478,7 +478,7 @@ void archipelago::push_back_impl(std::unique_ptr<island> &&new_island)
     // Try to make space for the new island in the islands vector.
     // LCOV_EXCL_START
     if (m_islands.size() == std::numeric_limits<decltype(m_islands.size())>::max()) {
-        pagmo_throw(std::overflow_error, "cannot add a new island to an archipelago due to an overflow condition");
+        pagmo_throw(size_limit_error, "cannot add a new island to an archipelago due to an overflow condition");
     }
     // LCOV_EXCL_STOP
     m_islands.reserve(m_islands.size() + 1u);
@@ -486,7 +486,7 @@ void archipelago::push_back_impl(std::unique_ptr<island> &&new_island)
     // Try to make space for the new migrants entry.
     // LCOV_EXCL_START
     if (m_migrants.size() == std::numeric_limits<decltype(m_migrants.size())>::max()) {
-        pagmo_throw(std::overflow_error, "cannot add a new island to an archipelago due to an overflow condition");
+        pagmo_throw(size_limit_error, "cannot add a new island to an archipelago due to an overflow condition");
     }
     // LCOV_EXCL_STOP
     {
@@ -535,7 +535,7 @@ archipelago::size_type archipelago::get_island_idx(const island &isl) const
     std::lock_guard<std::mutex> lock(m_idx_map_mutex);
     const auto ret = m_idx_map.find(&isl);
     if (ret == m_idx_map.end()) {
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(index_error,
                     "the index of an island in an archipelago was requested, but the island is not in the archipelago");
     }
     return ret->second;
@@ -658,9 +658,9 @@ individuals_group_t archipelago::extract_migrants(size_type i)
     std::lock_guard<std::mutex> lock(m_migrants_mutex);
 
     if (i >= m_migrants.size()) {
-        pagmo_throw(std::out_of_range, "cannot access the migrants of the island at index " + std::to_string(i)
-                                           + ": the migrants database has a size of only "
-                                           + std::to_string(m_migrants.size()));
+        pagmo_throw(index_error, "cannot access the migrants of the island at index " + std::to_string(i)
+                                     + ": the migrants database has a size of only "
+                                     + std::to_string(m_migrants.size()));
     }
 
     // Move-construct the return value.
@@ -682,9 +682,9 @@ individuals_group_t archipelago::get_migrants(size_type i) const
     std::lock_guard<std::mutex> lock(m_migrants_mutex);
 
     if (i >= m_migrants.size()) {
-        pagmo_throw(std::out_of_range, "cannot access the migrants of the island at index " + std::to_string(i)
-                                           + ": the migrants database has a size of only "
-                                           + std::to_string(m_migrants.size()));
+        pagmo_throw(index_error, "cannot access the migrants of the island at index " + std::to_string(i)
+                                     + ": the migrants database has a size of only "
+                                     + std::to_string(m_migrants.size()));
     }
 
     // Return a copy of the migrants for island i.
@@ -697,9 +697,9 @@ void archipelago::set_migrants(size_type i, individuals_group_t &&inds)
     std::lock_guard<std::mutex> lock(m_migrants_mutex);
 
     if (i >= m_migrants.size()) {
-        pagmo_throw(std::out_of_range, "cannot access the migrants of the island at index " + std::to_string(i)
-                                           + ": the migrants database has a size of only "
-                                           + std::to_string(m_migrants.size()));
+        pagmo_throw(index_error, "cannot access the migrants of the island at index " + std::to_string(i)
+                                     + ": the migrants database has a size of only "
+                                     + std::to_string(m_migrants.size()));
     }
 
     // Move in the new individuals.

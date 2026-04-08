@@ -40,6 +40,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/rng.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/generic.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -74,61 +75,29 @@ TEST(generic_test, uniform_real_from_range_test)
     detail::random_engine_type r_engine(pagmo::random_device::next());
 
     // Test the throws
-    EXPECT_THROW(uniform_real_from_range(1, 0, r_engine), std::invalid_argument);
-    EXPECT_THROW(uniform_real_from_range(-big, big, r_engine), std::invalid_argument);
-    EXPECT_THROW(uniform_real_from_range(-3, inf, r_engine), std::invalid_argument);
-    EXPECT_THROW(uniform_real_from_range(-nan, nan, r_engine), std::invalid_argument);
-    EXPECT_THROW(uniform_real_from_range(nan, nan, r_engine), std::invalid_argument);
-    EXPECT_THROW(uniform_real_from_range(-nan, 3, r_engine), std::invalid_argument);
-    EXPECT_THROW(uniform_real_from_range(-3, nan, r_engine), std::invalid_argument);
-    EXPECT_THROW(uniform_real_from_range(inf, inf, r_engine), std::invalid_argument);
+    EXPECT_THROW(uniform_real_from_range(1, 0, r_engine), utility_error);
+    EXPECT_THROW(uniform_real_from_range(-big, big, r_engine), utility_error);
+    EXPECT_THROW(uniform_real_from_range(-3, inf, r_engine), utility_error);
+    EXPECT_THROW(uniform_real_from_range(-nan, nan, r_engine), utility_error);
+    EXPECT_THROW(uniform_real_from_range(nan, nan, r_engine), utility_error);
+    EXPECT_THROW(uniform_real_from_range(-nan, 3, r_engine), utility_error);
+    EXPECT_THROW(uniform_real_from_range(-3, nan, r_engine), utility_error);
+    EXPECT_THROW(uniform_real_from_range(inf, inf, r_engine), utility_error);
 
-    EXPECT_THROW(uniform_integral_from_range(1, 0, r_engine), std::invalid_argument,
-                 [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains(
-                         "Cannot generate a random integer if the lower bound is larger than the upper bound");
-                 });
-    EXPECT_THROW(
-        uniform_integral_from_range(0, inf, r_engine), std::invalid_argument, [](const std::invalid_argument &ia) {
-            return std::string(ia.what()).contains("Cannot generate a random integer if the bounds are not finite");
-        });
-    EXPECT_THROW(
-        uniform_integral_from_range(-inf, 0, r_engine), std::invalid_argument, [](const std::invalid_argument &ia) {
-            return std::string(ia.what()).contains("Cannot generate a random integer if the bounds are not finite");
-        });
-    EXPECT_THROW(
-        uniform_integral_from_range(-inf, inf, r_engine), std::invalid_argument, [](const std::invalid_argument &ia) {
-            return std::string(ia.what()).contains("Cannot generate a random integer if the bounds are not finite");
-        });
-    EXPECT_THROW(
-        uniform_integral_from_range(0, nan, r_engine), std::invalid_argument, [](const std::invalid_argument &ia) {
-            return std::string(ia.what()).contains("Cannot generate a random integer if the bounds are not finite");
-        });
-    EXPECT_THROW(
-        uniform_integral_from_range(-nan, 0, r_engine), std::invalid_argument, [](const std::invalid_argument &ia) {
-            return std::string(ia.what()).contains("Cannot generate a random integer if the bounds are not finite");
-        });
-    EXPECT_THROW(
-        uniform_integral_from_range(-nan, nan, r_engine), std::invalid_argument, [](const std::invalid_argument &ia) {
-            return std::string(ia.what()).contains("Cannot generate a random integer if the bounds are not finite");
-        });
-    EXPECT_THROW(uniform_integral_from_range(0, .1, r_engine), std::invalid_argument);
-    EXPECT_THROW(uniform_integral_from_range(0.1, 2, r_engine), std::invalid_argument);
-    EXPECT_THROW(uniform_integral_from_range(0.1, 0.2, r_engine), std::invalid_argument);
+    EXPECT_THROW(uniform_integral_from_range(1, 0, r_engine), utility_error);
+    EXPECT_THROW(uniform_integral_from_range(0, inf, r_engine), utility_error);
+    EXPECT_THROW(uniform_integral_from_range(-inf, 0, r_engine), utility_error);
+    EXPECT_THROW(uniform_integral_from_range(-inf, inf, r_engine), utility_error);
+    EXPECT_THROW(uniform_integral_from_range(0, nan, r_engine), utility_error);
+    EXPECT_THROW(uniform_integral_from_range(-nan, 0, r_engine), utility_error);
+    EXPECT_THROW(uniform_integral_from_range(-nan, nan, r_engine), utility_error);
+    EXPECT_THROW(uniform_integral_from_range(0, .1, r_engine), utility_error);
+    EXPECT_THROW(uniform_integral_from_range(0.1, 2, r_engine), utility_error);
+    EXPECT_THROW(uniform_integral_from_range(0.1, 0.2, r_engine), utility_error);
     if (big > static_cast<double>(std::numeric_limits<long long>::max())
         && -big < static_cast<double>(std::numeric_limits<long long>::min())) {
-        EXPECT_THROW(uniform_integral_from_range(0, big, r_engine), std::invalid_argument,
-                     [](const std::invalid_argument &ia) {
-                         return std::string(ia.what()).contains(
-                             "Cannot generate a random integer if the lower/upper bounds are not within "
-                             "the bounds of the long long type");
-                     });
-        EXPECT_THROW(uniform_integral_from_range(-big, 0, r_engine), std::invalid_argument,
-                     [](const std::invalid_argument &ia) {
-                         return std::string(ia.what()).contains(
-                             "Cannot generate a random integer if the lower/upper bounds are not within "
-                             "the bounds of the long long type");
-                     });
+        EXPECT_THROW(uniform_integral_from_range(0, big, r_engine), utility_error);
+        EXPECT_THROW(uniform_integral_from_range(-big, 0, r_engine), utility_error);
     }
 }
 
@@ -139,55 +108,17 @@ TEST(generic_test, random_decision_vector_test)
     detail::random_engine_type r_engine(pagmo::random_device::next());
 
     // Test the throws
-    EXPECT_THROW(random_decision_vector(problem{udp00{{0}, {inf}}}, r_engine), std::invalid_argument,
-                 [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains(
-                         "Cannot generate a random real if the bounds are not finite");
-                 });
-    EXPECT_THROW(random_decision_vector(problem{udp00{{-inf}, {0}}}, r_engine), std::invalid_argument,
-                 [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains(
-                         "Cannot generate a random real if the bounds are not finite");
-                 });
-    EXPECT_THROW(random_decision_vector(problem{udp00{{-inf}, {inf}}}, r_engine), std::invalid_argument,
-                 [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains(
-                         "Cannot generate a random real if the bounds are not finite");
-                 });
-    EXPECT_THROW(random_decision_vector(problem{udp00{{-big}, {big}}}, r_engine), std::invalid_argument,
-                 [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains(
-                         "Cannot generate a random real within bounds that are too large");
-                 });
-    EXPECT_THROW(random_decision_vector(problem{udp00{{0, 0}, {1, inf}, 1}}, r_engine), std::invalid_argument,
-                 [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains(
-                         "Cannot generate a random integer if the bounds are not finite");
-                 });
-    EXPECT_THROW(random_decision_vector(problem{udp00{{0, -inf}, {1, 0}, 1}}, r_engine), std::invalid_argument,
-                 [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains(
-                         "Cannot generate a random integer if the bounds are not finite");
-                 });
-    EXPECT_THROW(random_decision_vector(problem{udp00{{0, -inf}, {1, inf}, 1}}, r_engine), std::invalid_argument,
-                 [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains(
-                         "Cannot generate a random integer if the bounds are not finite");
-                 });
+    EXPECT_THROW(random_decision_vector(problem{udp00{{0}, {inf}}}, r_engine), utility_error);
+    EXPECT_THROW(random_decision_vector(problem{udp00{{-inf}, {0}}}, r_engine), utility_error);
+    EXPECT_THROW(random_decision_vector(problem{udp00{{-inf}, {inf}}}, r_engine), utility_error);
+    EXPECT_THROW(random_decision_vector(problem{udp00{{-big}, {big}}}, r_engine), utility_error);
+    EXPECT_THROW(random_decision_vector(problem{udp00{{0, 0}, {1, inf}, 1}}, r_engine), utility_error);
+    EXPECT_THROW(random_decision_vector(problem{udp00{{0, -inf}, {1, 0}, 1}}, r_engine), utility_error);
+    EXPECT_THROW(random_decision_vector(problem{udp00{{0, -inf}, {1, inf}, 1}}, r_engine), utility_error);
     if (big > static_cast<double>(std::numeric_limits<long long>::max())
         && -big < static_cast<double>(std::numeric_limits<long long>::min())) {
-        EXPECT_THROW(random_decision_vector(problem{udp00{{0, 0}, {1, big}, 1}}, r_engine), std::invalid_argument,
-                     [](const std::invalid_argument &ia) {
-                         return std::string(ia.what()).contains(
-                             "Cannot generate a random integer if the lower/upper bounds are not within "
-                             "the bounds of the long long type");
-                     });
-        EXPECT_THROW(random_decision_vector(problem{udp00{{0, -big}, {1, 0}, 1}}, r_engine), std::invalid_argument,
-                     [](const std::invalid_argument &ia) {
-                         return std::string(ia.what()).contains(
-                             "Cannot generate a random integer if the lower/upper bounds are not within "
-                             "the bounds of the long long type");
-                     });
+        EXPECT_THROW(random_decision_vector(problem{udp00{{0, 0}, {1, big}, 1}}, r_engine), utility_error);
+        EXPECT_THROW(random_decision_vector(problem{udp00{{0, -big}, {1, 0}, 1}}, r_engine), utility_error);
     }
 
     // Test the results
@@ -213,28 +144,17 @@ TEST(generic_test, batch_random_decision_vector_test)
     detail::random_engine_type r_engine(pagmo::random_device::next());
 
     // Test the throws
-    EXPECT_THROW(batch_random_decision_vector(problem{udp00{{0}, {inf}}}, 0, r_engine),
-                 std::invalid_argument("Cannot generate a random real if the bounds are not finite"));
-    EXPECT_THROW(batch_random_decision_vector(problem{udp00{{-inf}, {0}}}, 0, r_engine),
-                 std::invalid_argument("Cannot generate a random real if the bounds are not finite"));
-    EXPECT_THROW(batch_random_decision_vector(problem{udp00{{-inf}, {inf}}}, 0, r_engine),
-                 std::invalid_argument("Cannot generate a random real if the bounds are not finite"));
-    EXPECT_THROW(batch_random_decision_vector(problem{udp00{{-big}, {big}}}, 0, r_engine),
-                 std::invalid_argument("Cannot generate a random real within bounds that are too large"));
-    EXPECT_THROW(batch_random_decision_vector(problem{udp00{{0, 0}, {1, inf}, 1}}, 0, r_engine),
-                 std::invalid_argument("Cannot generate a random integer if the bounds are not finite"));
-    EXPECT_THROW(batch_random_decision_vector(problem{udp00{{0, -inf}, {1, 0}, 1}}, 0, r_engine),
-                 std::invalid_argument("Cannot generate a random integer if the bounds are not finite"));
-    EXPECT_THROW(batch_random_decision_vector(problem{udp00{{0, -inf}, {1, inf}, 1}}, 0, r_engine),
-                 std::invalid_argument("Cannot generate a random integer if the bounds are not finite"));
+    EXPECT_THROW(batch_random_decision_vector(problem{udp00{{0}, {inf}}}, 0, r_engine), utility_error);
+    EXPECT_THROW(batch_random_decision_vector(problem{udp00{{-inf}, {0}}}, 0, r_engine), utility_error);
+    EXPECT_THROW(batch_random_decision_vector(problem{udp00{{-inf}, {inf}}}, 0, r_engine), utility_error);
+    EXPECT_THROW(batch_random_decision_vector(problem{udp00{{-big}, {big}}}, 0, r_engine), utility_error);
+    EXPECT_THROW(batch_random_decision_vector(problem{udp00{{0, 0}, {1, inf}, 1}}, 0, r_engine), utility_error);
+    EXPECT_THROW(batch_random_decision_vector(problem{udp00{{0, -inf}, {1, 0}, 1}}, 0, r_engine), utility_error);
+    EXPECT_THROW(batch_random_decision_vector(problem{udp00{{0, -inf}, {1, inf}, 1}}, 0, r_engine), utility_error);
     if (big > static_cast<double>(std::numeric_limits<long long>::max())
         && -big < static_cast<double>(std::numeric_limits<long long>::min())) {
-        EXPECT_THROW(batch_random_decision_vector(problem{udp00{{0, 0}, {1, big}, 1}}, 10, r_engine),
-                     std::invalid_argument("Cannot generate a random integer if the lower/upper bounds are not within "
-                                           "the bounds of the long long type"));
-        EXPECT_THROW(batch_random_decision_vector(problem{udp00{{0, -big}, {1, 0}, 1}}, 10, r_engine),
-                     std::invalid_argument("Cannot generate a random integer if the lower/upper bounds are not within "
-                                           "the bounds of the long long type"));
+        EXPECT_THROW(batch_random_decision_vector(problem{udp00{{0, 0}, {1, big}, 1}}, 10, r_engine), utility_error);
+        EXPECT_THROW(batch_random_decision_vector(problem{udp00{{0, -big}, {1, 0}, 1}}, 10, r_engine), utility_error);
     }
 }
 
@@ -330,9 +250,9 @@ TEST(generic_test, binomial_coefficient_test)
     EXPECT_EQ(binomial_coefficient(2u, 2u), 1u);
     EXPECT_EQ(binomial_coefficient(13u, 5u), 1287u);
     EXPECT_EQ(binomial_coefficient(21u, 10u), 352716u);
-    EXPECT_THROW(binomial_coefficient(10u, 21u), std::invalid_argument);
-    EXPECT_THROW(binomial_coefficient(0u, 1u), std::invalid_argument);
-    EXPECT_THROW(binomial_coefficient(4u, 7u), std::invalid_argument);
+    EXPECT_THROW(binomial_coefficient(10u, 21u), utility_error);
+    EXPECT_THROW(binomial_coefficient(0u, 1u), utility_error);
+    EXPECT_THROW(binomial_coefficient(4u, 7u), utility_error);
 }
 
 TEST(generic_test, kNN_test)
@@ -369,6 +289,6 @@ TEST(generic_test, kNN_test)
     // throws
     {
         std::vector<vector_double> points = {{1, 1}, {2, 2}, {2, 3, 4}};
-        EXPECT_THROW(kNN(points, 3u), std::invalid_argument);
+        EXPECT_THROW(kNN(points, 3u), dimension_mismatch_error);
     }
 }

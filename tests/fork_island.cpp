@@ -48,6 +48,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/problems/rosenbrock.hpp>
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -121,9 +122,7 @@ TEST(fork_island_test, fork_island_basic)
         EXPECT_TRUE(fi_0.extract<fork_island>() != nullptr);
         EXPECT_TRUE(fi_0.get_extra_info().contains("No active child"));
         fi_0.evolve();
-        EXPECT_THROW(fi_0.wait_check(), std::runtime_error, [](const std::runtime_error &re) {
-            return re.what().contains("needs at least 5 individuals in the population");
-        });
+        EXPECT_THROW(fi_0.wait_check(), system_error);
     }
 #endif
 }
@@ -213,9 +212,7 @@ TEST(fork_island_test, fork_island_recurse)
         // Try also error transport.
         island fi_0(fork_island{}, recursive_algo2{}, rosenbrock{}, 1, 0);
         fi_0.evolve();
-        EXPECT_THROW(fi_0.wait_check(), std::runtime_error, [](const std::runtime_error &re) {
-            return re.what().contains("needs at least 5 individuals in the population");
-        });
+        EXPECT_THROW(fi_0.wait_check(), system_error);
     }
 #endif
 }

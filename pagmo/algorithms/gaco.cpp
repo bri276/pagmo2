@@ -60,28 +60,28 @@ gaco::gaco(unsigned gen, unsigned ker, double q, double oracle, double acc, unsi
       m_gen_mark(1u), m_fevals(0u)
 {
     if (acc < 0.) {
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(invalid_parameter_error,
                     "The accuracy parameter must be >=0, while a value of " + std::to_string(acc) + " was detected");
     }
     if (focus < 0.) {
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(invalid_parameter_error,
                     "The focus parameter must be >=0  while a value of " + std::to_string(focus) + " was detected");
     }
     if ((threshold < 1 || threshold > gen) && gen != 0 && memory == false) {
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(invalid_parameter_error,
                     "If memory is inactive, the threshold parameter must be either in [1,m_gen] while a value of "
                         + std::to_string(threshold) + " was detected");
     }
     if (threshold < 1 && gen != 0 && memory == true) {
-        pagmo_throw(std::invalid_argument, "If memory is active, the threshold parameter must be >=1 while a value of "
+        pagmo_throw(invalid_parameter_error, "If memory is active, the threshold parameter must be >=1 while a value of "
                                                + std::to_string(threshold) + " was detected");
     }
     if (q < 0.) {
-        pagmo_throw(std::invalid_argument, "The convergence speed parameter must be >=0  while a value of "
+        pagmo_throw(invalid_parameter_error, "The convergence speed parameter must be >=0  while a value of "
                                                + std::to_string(q) + " was detected");
     }
     if (ker < 2u) {
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(invalid_parameter_error,
                     "The ker size parameter must be >=2  while a value of " + std::to_string(ker) + " was detected");
     }
 }
@@ -143,23 +143,23 @@ population gaco::evolve(population pop) const
         return pop;
     }
     if (prob.is_stochastic()) {
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(incompatible_problem_error,
                     "The problem appears to be stochastic " + get_name() + " cannot deal with it");
     }
     if (m_gen == 0u) {
         return pop;
     }
     if (pop_size < 2u) {
-        pagmo_throw(std::invalid_argument, get_name() + " needs at least 2 individuals in the population, "
+        pagmo_throw(insufficient_population_error, get_name() + " needs at least 2 individuals in the population, "
                                                + std::to_string(pop.size()) + " detected");
     }
     // I verify that the solution archive is smaller or equal than the population size
     if (m_ker > pop_size) {
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(invalid_parameter_error,
                     get_name() + " cannot work with a solution archive bigger than the population size");
     }
     if (n_obj != 1u) {
-        pagmo_throw(std::invalid_argument, "Multiple objectives detected in " + prob.get_name() + " instance. "
+        pagmo_throw(incompatible_problem_error, "Multiple objectives detected in " + prob.get_name() + " instance. "
                                                + get_name() + " cannot deal with them");
     }
 

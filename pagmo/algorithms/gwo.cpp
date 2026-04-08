@@ -75,15 +75,15 @@ population gwo::evolve(population pop) const
     // We start by checking that the problem is suitable for this
     // particular algorithm.
     if (prob.get_nc() != 0u) {
-        pagmo_throw(std::invalid_argument, "Non linear constraints detected in " + prob.get_name() + " instance. "
+        pagmo_throw(incompatible_problem_error, "Non linear constraints detected in " + prob.get_name() + " instance. "
                                                + get_name() + " cannot deal with them");
     }
     if (prob_f_dimension != 1u) {
-        pagmo_throw(std::invalid_argument, "Multiple objectives detected in " + prob.get_name() + " instance. "
+        pagmo_throw(incompatible_problem_error, "Multiple objectives detected in " + prob.get_name() + " instance. "
                                                + get_name() + " cannot deal with them");
     }
     if (prob.is_stochastic()) {
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(incompatible_problem_error,
                     "The problem appears to be stochastic " + get_name() + " cannot deal with it");
     }
     // Get out if there is nothing to do.
@@ -91,7 +91,7 @@ population gwo::evolve(population pop) const
         return pop;
     }
     if (pop.size() < 3u) {
-        pagmo_throw(std::invalid_argument, get_name() + " needs at least 3 individuals in the population, "
+        pagmo_throw(insufficient_population_error, get_name() + " needs at least 3 individuals in the population, "
                                                + std::to_string(pop.size()) + " detected");
     }
     // ---------------------------------------------------------------------------------------------------------

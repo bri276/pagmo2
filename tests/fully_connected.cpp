@@ -38,6 +38,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/s11n.hpp>
 #include <pagmo/topologies/fully_connected.hpp>
 #include <pagmo/topology.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -46,11 +47,7 @@ void verify_fully_connected_topology(const fully_connected &f)
     const auto s = f.num_vertices();
 
     if (!s) {
-        EXPECT_THROW(f.get_connections(0), std::invalid_argument, [](const std::invalid_argument &ia) {
-            return std::string(ia.what()).contains(
-                "Cannot get the connections to the vertex at index 0 in a fully "
-                "connected topology: the number of vertices in the topology is only 0");
-        });
+        EXPECT_THROW(f.get_connections(0), index_error);
 
         return;
     }
@@ -59,11 +56,7 @@ void verify_fully_connected_topology(const fully_connected &f)
         EXPECT_TRUE(f.get_connections(0).first.empty());
         EXPECT_TRUE(f.get_connections(0).second.empty());
 
-        EXPECT_THROW(f.get_connections(1), std::invalid_argument, [](const std::invalid_argument &ia) {
-            return std::string(ia.what()).contains(
-                "Cannot get the connections to the vertex at index 1 in a fully "
-                "connected topology: the number of vertices in the topology is only 1");
-        });
+        EXPECT_THROW(f.get_connections(1), index_error);
 
         return;
     }

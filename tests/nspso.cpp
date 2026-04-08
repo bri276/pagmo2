@@ -44,6 +44,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -55,32 +56,32 @@ TEST(nspso_test, nspso_algorithm_construction)
     EXPECT_TRUE(user_algo.get_seed() == 24u);
     // Check the throws
     // Wrong omega
-    EXPECT_THROW((nspso{1u, -10., 0.01, 0.5, 0.5, 0.5, 2u, "crowding distance", false, 24u}), std::invalid_argument);
-    EXPECT_THROW((nspso{1u, 10., 0.01, 0.5, 0.5, 0.5, 2u, "crowding distance", false, 24u}), std::invalid_argument);
+    EXPECT_THROW((nspso{1u, -10., 0.01, 0.5, 0.5, 0.5, 2u, "crowding distance", false, 24u}), invalid_parameter_error);
+    EXPECT_THROW((nspso{1u, 10., 0.01, 0.5, 0.5, 0.5, 2u, "crowding distance", false, 24u}), invalid_parameter_error);
     // Wrong c1, c2 and chi
-    EXPECT_THROW((nspso{1u, 0.95, -0.01, 0.5, 0.5, 0.5, 2u, "crowding distance", false, 24u}), std::invalid_argument);
-    EXPECT_THROW((nspso{1u, 0.95, 0.01, -0.5, 0.5, 0.5, 2u, "crowding distance", false, 24u}), std::invalid_argument);
-    EXPECT_THROW((nspso{1u, 0.95, 0.01, 0.5, -0.5, 0.5, 2u, "crowding distance", false, 24u}), std::invalid_argument);
+    EXPECT_THROW((nspso{1u, 0.95, -0.01, 0.5, 0.5, 0.5, 2u, "crowding distance", false, 24u}), invalid_parameter_error);
+    EXPECT_THROW((nspso{1u, 0.95, 0.01, -0.5, 0.5, 0.5, 2u, "crowding distance", false, 24u}), invalid_parameter_error);
+    EXPECT_THROW((nspso{1u, 0.95, 0.01, 0.5, -0.5, 0.5, 2u, "crowding distance", false, 24u}), invalid_parameter_error);
     // Wrong v_coeff
-    EXPECT_THROW((nspso{1u, 0.95, 0.01, 0.5, 0.5, -0.5, 2u, "crowding distance", false, 24u}), std::invalid_argument);
-    EXPECT_THROW((nspso{1u, 0.95, 0.01, 0.5, 0.5, 1.5, 2u, "crowding distance", false, 24u}), std::invalid_argument);
+    EXPECT_THROW((nspso{1u, 0.95, 0.01, 0.5, 0.5, -0.5, 2u, "crowding distance", false, 24u}), invalid_parameter_error);
+    EXPECT_THROW((nspso{1u, 0.95, 0.01, 0.5, 0.5, 1.5, 2u, "crowding distance", false, 24u}), invalid_parameter_error);
     // Wrong leader_selection_range
-    EXPECT_THROW((nspso{1u, 0.95, 0.01, 0.5, 0.5, 0.5, 101u, "crowding distance", false, 24u}), std::invalid_argument);
+    EXPECT_THROW((nspso{1u, 0.95, 0.01, 0.5, 0.5, 0.5, 101u, "crowding distance", false, 24u}), invalid_parameter_error);
     // Wrong eta_m
-    EXPECT_THROW((nspso{1u, 0.95, 0.01, 0.5, 0.5, 0.5, 2u, "something else", false, 24u}), std::invalid_argument);
+    EXPECT_THROW((nspso{1u, 0.95, 0.01, 0.5, 0.5, 0.5, 2u, "something else", false, 24u}), invalid_parameter_error);
 }
 
 TEST(nspso_test, nspso_evolve_test)
 {
     // We check that the problem is checked to be suitable
     // stochastic
-    EXPECT_THROW((nspso{}.evolve(population{inventory{}, 5u, 23u})), std::invalid_argument);
+    EXPECT_THROW((nspso{}.evolve(population{inventory{}, 5u, 23u})), incompatible_problem_error);
     // constrained prob
-    EXPECT_THROW((nspso{}.evolve(population{hock_schittkowski_71{}, 5u, 23u})), std::invalid_argument);
+    EXPECT_THROW((nspso{}.evolve(population{hock_schittkowski_71{}, 5u, 23u})), incompatible_problem_error);
     // single objective prob
-    EXPECT_THROW((nspso{}.evolve(population{rosenbrock{}, 5u, 23u})), std::invalid_argument);
+    EXPECT_THROW((nspso{}.evolve(population{rosenbrock{}, 5u, 23u})), incompatible_problem_error);
     // wrong pop size
-    EXPECT_THROW((nspso{}.evolve(population{zdt{}, 1u, 23u})), std::invalid_argument);
+    EXPECT_THROW((nspso{}.evolve(population{zdt{}, 1u, 23u})), incompatible_problem_error);
     // and a clean exit for 0 generation
     population pop{zdt{2u}, 10u};
     EXPECT_TRUE(nspso{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);

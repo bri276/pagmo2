@@ -41,6 +41,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/problems/rosenbrock.hpp>
 #include <pagmo/problems/zdt.hpp>
 #include <pagmo/rng.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -54,33 +55,33 @@ TEST(pso_test, construction)
 
     EXPECT_NO_THROW((pso{100, 0.79, 2., 2., 0.1, 5u, 2u, 4u, false, 23u}));
 
-    EXPECT_THROW((pso{100, -0.79, 2., 2., 0.1, 5u, 2u, 4u, false, 23u}), std::invalid_argument);
-    EXPECT_THROW((pso{100, 2.3, 2., 2., 0.1, 5u, 2u, 4u, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((pso{100, -0.79, 2., 2., 0.1, 5u, 2u, 4u, false, 23u}), invalid_parameter_error);
+    EXPECT_THROW((pso{100, 2.3, 2., 2., 0.1, 5u, 2u, 4u, false, 23u}), invalid_parameter_error);
 
-    EXPECT_THROW((pso{100, 0.79, -1., 2., 0.1, 5u, 2u, 4u, false, 23u}), std::invalid_argument);
-    EXPECT_THROW((pso{100, 0.79, 2., -1., 0.1, 5u, 2u, 4u, false, 23u}), std::invalid_argument);
-    EXPECT_THROW((pso{100, 0.79, 5., 2., 0.1, 5u, 2u, 4u, false, 23u}), std::invalid_argument);
-    EXPECT_THROW((pso{100, 0.79, 2., 5., 0.1, 5u, 2u, 4u, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((pso{100, 0.79, -1., 2., 0.1, 5u, 2u, 4u, false, 23u}), invalid_parameter_error);
+    EXPECT_THROW((pso{100, 0.79, 2., -1., 0.1, 5u, 2u, 4u, false, 23u}), invalid_parameter_error);
+    EXPECT_THROW((pso{100, 0.79, 5., 2., 0.1, 5u, 2u, 4u, false, 23u}), invalid_parameter_error);
+    EXPECT_THROW((pso{100, 0.79, 2., 5., 0.1, 5u, 2u, 4u, false, 23u}), invalid_parameter_error);
 
-    EXPECT_THROW((pso{100, 0.79, 2., 2., -2.3, 5u, 2u, 4u, false, 23u}), std::invalid_argument);
-    EXPECT_THROW((pso{100, 0.79, 2., 2., 1.1, 5u, 2u, 4u, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((pso{100, 0.79, 2., 2., -2.3, 5u, 2u, 4u, false, 23u}), invalid_parameter_error);
+    EXPECT_THROW((pso{100, 0.79, 2., 2., 1.1, 5u, 2u, 4u, false, 23u}), invalid_parameter_error);
 
-    EXPECT_THROW((pso{100, 0.79, 2., 2., 0.1, 8u, 2u, 4u, false, 23u}), std::invalid_argument);
-    EXPECT_THROW((pso{100, 0.79, 2., 2., 0.1, 0u, 2u, 4u, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((pso{100, 0.79, 2., 2., 0.1, 8u, 2u, 4u, false, 23u}), invalid_parameter_error);
+    EXPECT_THROW((pso{100, 0.79, 2., 2., 0.1, 0u, 2u, 4u, false, 23u}), invalid_parameter_error);
 
-    EXPECT_THROW((pso{100, 0.79, 2., 2., 0.1, 5u, 6u, 4u, false, 23u}), std::invalid_argument);
-    EXPECT_THROW((pso{100, 0.79, 2., 2., 0.1, 5u, 0u, 4u, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((pso{100, 0.79, 2., 2., 0.1, 5u, 6u, 4u, false, 23u}), invalid_parameter_error);
+    EXPECT_THROW((pso{100, 0.79, 2., 2., 0.1, 5u, 0u, 4u, false, 23u}), invalid_parameter_error);
 
-    EXPECT_THROW((pso{100, 0.79, 2., 2., 0.1, 5u, 2u, 0u, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((pso{100, 0.79, 2., 2., 0.1, 5u, 2u, 0u, false, 23u}), invalid_parameter_error);
 }
 
 TEST(pso_test, evolve_test)
 {
     // We then check that the evolve throws if called on unsuitable problems
-    EXPECT_THROW(pso{10u}.evolve(population{problem{rosenbrock{}}}), std::invalid_argument);
-    EXPECT_THROW(pso{10u}.evolve(population{problem{zdt{}}, 15u}), std::invalid_argument);
-    EXPECT_THROW(pso{10u}.evolve(population{problem{hock_schittkowski_71{}}, 15u}), std::invalid_argument);
-    EXPECT_THROW(pso{10u}.evolve(population{problem{inventory{}}, 15u}), std::invalid_argument);
+    EXPECT_THROW(pso{10u}.evolve(population{problem{rosenbrock{}}}), insufficient_population_error);
+    EXPECT_THROW(pso{10u}.evolve(population{problem{zdt{}}, 15u}), incompatible_problem_error);
+    EXPECT_THROW(pso{10u}.evolve(population{problem{hock_schittkowski_71{}}, 15u}), incompatible_problem_error);
+    EXPECT_THROW(pso{10u}.evolve(population{problem{inventory{}}, 15u}), incompatible_problem_error);
     // And a clean exit for 0 generations
     population pop{rosenbrock{2u}, 20u};
     EXPECT_TRUE(pso{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);

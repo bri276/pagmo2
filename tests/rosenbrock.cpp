@@ -39,6 +39,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/threading.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -47,8 +48,8 @@ TEST(rosenbrock_test, rosenbrock_test)
     // Problem construction
     rosenbrock ros2{2u};
     rosenbrock ros5{5u};
-    EXPECT_THROW(rosenbrock{0u}, std::invalid_argument);
-    EXPECT_THROW(rosenbrock{1u}, std::invalid_argument);
+    EXPECT_THROW(rosenbrock{0u}, problem_config_error);
+    EXPECT_THROW(rosenbrock{1u}, problem_config_error);
     EXPECT_NO_THROW(problem{rosenbrock{2u}});
     // Pick a few reference points
     vector_double x2 = {1., 1.};

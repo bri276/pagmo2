@@ -37,6 +37,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
+#include <pagmo/exceptions.hpp>
 using namespace pagmo;
 
 TEST(ackley_test, ackley_test)
@@ -44,7 +45,7 @@ TEST(ackley_test, ackley_test)
     // Problem construction
     ackley ack1{1u};
     ackley ack3{3u};
-    EXPECT_THROW(ackley{0u}, std::invalid_argument);
+    EXPECT_THROW(ackley{0u}, problem_config_error);
     EXPECT_NO_THROW(problem{ack3});
     // Pick a few reference points
     vector_double x1 = {1.12};

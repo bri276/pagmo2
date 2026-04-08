@@ -46,6 +46,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/problems/zdt.hpp>
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -62,41 +63,32 @@ TEST(sga_test, sga_algorithm_construction)
     EXPECT_NO_THROW((sga{1u, .95, 10., .02, .5, 5u, "sbx", "gaussian", "tournament", 32u}));
     EXPECT_NO_THROW(algorithm(sga{}));
     // We check incorrect calls to the constructor
-    EXPECT_THROW((sga{1u, 12., 10., .02, .5, 5u, "exponential", "gaussian", "tournament", 32u}), std::invalid_argument);
-    EXPECT_THROW((sga{1u, -1.1, 10., .02, .5, 5u, "exponential", "gaussian", "tournament", 32u}),
-                 std::invalid_argument);
-    EXPECT_THROW((sga{1u, .95, 0.1, .02, .5, 5u, "exponential", "gaussian", "truncated", 32u}), std::invalid_argument);
-    EXPECT_THROW((sga{1u, .95, 101., .02, .5, 5u, "exponential", "gaussian", "tournament", 32u}),
-                 std::invalid_argument);
-    EXPECT_THROW((sga{1u, .95, 10., -0.2, .5, 5u, "exponential", "gaussian", "truncated", 32u}), std::invalid_argument);
-    EXPECT_THROW((sga{1u, .95, 10., 1.3, .5, 5u, "exponential", "gaussian", "tournament", 32u}), std::invalid_argument);
-    EXPECT_THROW((sga{1u, .95, 10., .02, .5, 5u, "exponential", "unknown_method", "tournament", 32u}),
-                 std::invalid_argument);
-    EXPECT_THROW((sga{1u, .95, 10., .02, .5, 5u, "exponential", "gaussian", "unknown_method", 32u}),
-                 std::invalid_argument);
-    EXPECT_THROW((sga{1u, .95, 10., .02, .5, 5u, "unknown_method", "gaussian", "truncated", 32u}),
-                 std::invalid_argument);
-    EXPECT_THROW((sga{1u, .95, 10., .02, .5, 5u, "exponential", "polynomial", "tournament", 32u}),
-                 std::invalid_argument);
-    EXPECT_THROW((sga{1u, .95, 10., .02, 101, 5u, "exponential", "polynomial", "truncated", 32u}),
-                 std::invalid_argument);
-    EXPECT_THROW((sga{1u, .95, 10., .02, -3, 5u, "exponential", "uniform", "tournament", 32u}), std::invalid_argument);
-    EXPECT_THROW((sga{1u, .95, 10., .02, 1.1, 5u, "exponential", "uniform", "tournament", 32u}), std::invalid_argument);
-    EXPECT_THROW((sga{1u, .95, 10., .02, 0.9, 0u, "exponential", "uniform", "tournament", 32u}), std::invalid_argument);
+    EXPECT_THROW((sga{1u, 12., 10., .02, .5, 5u, "exponential", "gaussian", "tournament", 32u}), invalid_parameter_error);
+    EXPECT_THROW((sga{1u, -1.1, 10., .02, .5, 5u, "exponential", "gaussian", "tournament", 32u}), invalid_parameter_error);
+    EXPECT_THROW((sga{1u, .95, 0.1, .02, .5, 5u, "exponential", "gaussian", "truncated", 32u}), invalid_parameter_error);
+    EXPECT_THROW((sga{1u, .95, 101., .02, .5, 5u, "exponential", "gaussian", "tournament", 32u}), invalid_parameter_error);
+    EXPECT_THROW((sga{1u, .95, 10., -0.2, .5, 5u, "exponential", "gaussian", "truncated", 32u}), invalid_parameter_error);
+    EXPECT_THROW((sga{1u, .95, 10., 1.3, .5, 5u, "exponential", "gaussian", "tournament", 32u}), invalid_parameter_error);
+    EXPECT_THROW((sga{1u, .95, 10., .02, .5, 5u, "exponential", "unknown_method", "tournament", 32u}), invalid_parameter_error);
+    EXPECT_THROW((sga{1u, .95, 10., .02, .5, 5u, "exponential", "gaussian", "unknown_method", 32u}), invalid_parameter_error);
+    EXPECT_THROW((sga{1u, .95, 10., .02, .5, 5u, "unknown_method", "gaussian", "truncated", 32u}), invalid_parameter_error);
+    EXPECT_THROW((sga{1u, .95, 10., .02, .5, 5u, "exponential", "polynomial", "tournament", 32u}), invalid_parameter_error);
+    EXPECT_THROW((sga{1u, .95, 10., .02, 101, 5u, "exponential", "polynomial", "truncated", 32u}), invalid_parameter_error);
+    EXPECT_THROW((sga{1u, .95, 10., .02, -3, 5u, "exponential", "uniform", "tournament", 32u}), invalid_parameter_error);
+    EXPECT_THROW((sga{1u, .95, 10., .02, 1.1, 5u, "exponential", "uniform", "tournament", 32u}), invalid_parameter_error);
+    EXPECT_THROW((sga{1u, .95, 10., .02, 0.9, 0u, "exponential", "uniform", "tournament", 32u}), invalid_parameter_error);
 }
 TEST(sga_test, sga_evolve_test)
 {
     // We start testing the various throws in case the evolve is called on a population
     // not suitable for sga
-    EXPECT_THROW((sga{}.evolve(population{zdt{}, 5u, 23u})), std::invalid_argument);
-    EXPECT_THROW((sga{}.evolve(population{hock_schittkowski_71{}, 5u, 23u})), std::invalid_argument);
-    EXPECT_THROW((sga{}.evolve(population{schwefel{20u}, 1u, 23u})), std::invalid_argument);
+    EXPECT_THROW((sga{}.evolve(population{zdt{}, 5u, 23u})), incompatible_problem_error);
+    EXPECT_THROW((sga{}.evolve(population{hock_schittkowski_71{}, 5u, 23u})), incompatible_problem_error);
+    EXPECT_THROW((sga{}.evolve(population{schwefel{20u}, 1u, 23u})), insufficient_population_error);
     EXPECT_THROW((sga{1u, .95, 10., .02, .5, 21u, "exponential", "gaussian", "tournament", 32u}.evolve(
-                     population{schwefel{20u}, 20u, 23u})),
-                 std::invalid_argument);
+                     population{schwefel{20u}, 20u, 23u})), insufficient_population_error);
     EXPECT_THROW((sga{1u, .95, 10., .02, .5, 2u, "sbx", "gaussian", "tournament", 32u}.evolve(
-                     population{schwefel{20u}, 25u, 23u})),
-                 std::invalid_argument);
+                     population{schwefel{20u}, 25u, 23u})), insufficient_population_error);
     // And a clean exit for 0 generations
     population pop{schwefel{25u}, 10u};
     EXPECT_TRUE(sga{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);

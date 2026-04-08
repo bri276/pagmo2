@@ -37,6 +37,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/problem.hpp>
 #include <pagmo/problems/rastrigin.hpp>
 #include <pagmo/types.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -45,7 +46,7 @@ TEST(rastrigin_test, rastrigin_test)
     // Problem construction
     rastrigin ras1{1u};
     rastrigin ras5{5u};
-    EXPECT_THROW(rastrigin{0u}, std::invalid_argument);
+    EXPECT_THROW(rastrigin{0u}, problem_config_error);
     EXPECT_NO_THROW(problem{rastrigin{2u}});
     // Pick a few reference points
     vector_double x1 = {1.};

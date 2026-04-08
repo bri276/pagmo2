@@ -63,7 +63,7 @@ TEST(translate_test, translate_construction_test)
 
     // We check that wrong size for translation results in an invalid_argument
     // exception
-    EXPECT_THROW((translate{null_problem{}, {1, 2}}), std::invalid_argument);
+    EXPECT_THROW((translate{null_problem{}, {1, 2}}), dimension_mismatch_error);
 }
 
 TEST(translate_test, translate_functional_test)

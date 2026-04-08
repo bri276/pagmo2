@@ -71,6 +71,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/topology.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
+#include <pagmo/exceptions.hpp>
 using namespace pagmo;
 
 TEST(archipelago_test, archipelago_construction)
@@ -525,8 +526,8 @@ TEST(archipelago_test, archipelago_topology_setter)
 TEST(archipelago_test, archipelago_island_access)
 {
     archipelago archi0;
-    EXPECT_THROW(archi0[0], std::out_of_range);
-    EXPECT_THROW(static_cast<archipelago const &>(archi0)[0], std::out_of_range);
+    EXPECT_THROW(archi0[0], index_error);
+    EXPECT_THROW(static_cast<archipelago const &>(archi0)[0], index_error);
     archi0.push_back(de{}, rosenbrock{}, 10u);
     archi0.push_back(pso{}, schwefel{4}, 11u);
     EXPECT_TRUE(archi0[0].get_algorithm().is<de>());
@@ -546,8 +547,8 @@ TEST(archipelago_test, archipelago_island_access)
     EXPECT_TRUE(i1.get_population().get_problem().is<schwefel>());
     EXPECT_TRUE(archi0[2].get_algorithm().is<de>());
     EXPECT_TRUE(archi0[2].get_population().get_problem().is<schwefel>());
-    EXPECT_THROW(archi0[3], std::out_of_range);
-    EXPECT_THROW(static_cast<archipelago const &>(archi0)[3], std::out_of_range);
+    EXPECT_THROW(archi0[3], index_error);
+    EXPECT_THROW(static_cast<archipelago const &>(archi0)[3], index_error);
 }
 
 TEST(archipelago_test, archipelago_evolve)
@@ -623,7 +624,7 @@ TEST(archipelago_test, archipelago_get_wait_busy)
     a.evolve(10);
     a.evolve(10);
     a.evolve(10);
-    EXPECT_THROW(a.wait_check(), std::invalid_argument);
+    EXPECT_THROW(a.wait_check(), pagmo_exception);
     EXPECT_TRUE(a.status() == evolve_status::idle);
     a.wait_check();
     a.wait();
@@ -722,8 +723,8 @@ TEST(archipelago_test, archipelago_champion_tests)
     EXPECT_TRUE(archi.get_champions_x()[2].size() == 2u);
     EXPECT_TRUE(archi.get_champions_x()[3].size() == 10u);
     archi.push_back(de{}, zdt{}, 20u);
-    EXPECT_THROW(archi.get_champions_f(), std::invalid_argument);
-    EXPECT_THROW(archi.get_champions_x(), std::invalid_argument);
+    EXPECT_THROW(archi.get_champions_f(), pagmo_exception);
+    EXPECT_THROW(archi.get_champions_x(), pagmo_exception);
 }
 
 TEST(archipelago_test, archipelago_status)
@@ -766,7 +767,7 @@ TEST(archipelago_test, archipelago_status)
     a[10].evolve();
     EXPECT_TRUE(a.status() == evolve_status::busy_error);
     flag.store(true);
-    EXPECT_THROW(a.wait_check(), std::invalid_argument);
+    EXPECT_THROW(a.wait_check(), pagmo_exception);
     EXPECT_TRUE(a.status() == evolve_status::idle);
 }
 
@@ -791,7 +792,7 @@ int pthrower_00::counter = 0;
 // Small test about proper cleanup when throwing from the ctor.
 TEST(archipelago_test, archipelago_throw_on_ctor)
 {
-    EXPECT_THROW((archipelago{100u, de{}, pthrower_00{}, 1u}), std::invalid_argument);
+    EXPECT_THROW((archipelago{100u, de{}, pthrower_00{}, 1u}), pagmo_exception);
 }
 
 TEST(archipelago_test, archipelago_bfe_ctors)

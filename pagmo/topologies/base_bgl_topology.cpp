@@ -81,7 +81,7 @@ void base_bgl_topology::unsafe_check_vertex_indices(std::size_t idx, Args... oth
 {
     const auto nv = boost::num_vertices(m_graph);
     if (idx >= nv) {
-        pagmo_throw(std::invalid_argument, "invalid vertex index in a BGL topology: the index is " + std::to_string(idx)
+        pagmo_throw(index_error, "invalid vertex index in a BGL topology: the index is " + std::to_string(idx)
                                                + ", but the number of vertices is only " + std::to_string(nv));
     }
     unsafe_check_vertex_indices(others...);
@@ -158,7 +158,7 @@ void base_bgl_topology::add_edge(std::size_t i, std::size_t j, double w)
     std::lock_guard<std::mutex> lock(m_mutex);
 
     if (unsafe_are_adjacent(i, j)) {
-        pagmo_throw(std::invalid_argument, "cannot add an edge in a BGL topology: there is already an edge connecting "
+        pagmo_throw(index_error, "cannot add an edge in a BGL topology: there is already an edge connecting "
                                                + std::to_string(i) + " to " + std::to_string(j));
     }
 
@@ -173,7 +173,7 @@ void base_bgl_topology::remove_edge(std::size_t i, std::size_t j)
     std::lock_guard<std::mutex> lock(m_mutex);
 
     if (!unsafe_are_adjacent(i, j)) {
-        pagmo_throw(std::invalid_argument, "cannot remove an edge in a BGL topology: there is no edge connecting "
+        pagmo_throw(index_error, "cannot remove an edge in a BGL topology: there is no edge connecting "
                                                + std::to_string(i) + " to " + std::to_string(j));
     }
     boost::remove_edge(boost::vertex(detail::vcast(i), m_graph), boost::vertex(detail::vcast(j), m_graph), m_graph);
@@ -203,7 +203,7 @@ void base_bgl_topology::set_weight(std::size_t i, std::size_t j, double w)
     if (ret.second) {
         m_graph[ret.first] = w;
     } else {
-        pagmo_throw(std::invalid_argument, "cannot set the weight of an edge in a BGL topology: the vertex "
+        pagmo_throw(index_error, "cannot set the weight of an edge in a BGL topology: the vertex "
                                                + std::to_string(i) + " is not connected to vertex "
                                                + std::to_string(j));
     }
@@ -238,7 +238,7 @@ double base_bgl_topology::get_edge_weight(std::size_t i, std::size_t j) const
     if (ret.second) {
         return m_graph[ret.first];
     } else {
-        pagmo_throw(std::invalid_argument, "cannot get the weight of an edge in a BGL topology: the vertex "
+        pagmo_throw(index_error, "cannot get the weight of an edge in a BGL topology: the vertex "
                                                + std::to_string(i) + " is not connected to vertex "
                                                + std::to_string(j));
     }

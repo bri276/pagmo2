@@ -43,6 +43,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -56,17 +57,17 @@ TEST(nsga2_test, nsga2_algorithm_construction)
 
     // Check the throws
     // Wrong cr
-    EXPECT_THROW((nsga2{1u, 1., 10., 0.01, 50., 32u}), std::invalid_argument);
-    EXPECT_THROW((nsga2{1u, -1., 10., 0.01, 50., 32u}), std::invalid_argument);
+    EXPECT_THROW((nsga2{1u, 1., 10., 0.01, 50., 32u}), invalid_parameter_error);
+    EXPECT_THROW((nsga2{1u, -1., 10., 0.01, 50., 32u}), invalid_parameter_error);
     // Wrong m
-    EXPECT_THROW((nsga2{1u, .95, 10., 1.1, 50., 32u}), std::invalid_argument);
-    EXPECT_THROW((nsga2{1u, .95, 10., -1.1, 50., 32u}), std::invalid_argument);
+    EXPECT_THROW((nsga2{1u, .95, 10., 1.1, 50., 32u}), invalid_parameter_error);
+    EXPECT_THROW((nsga2{1u, .95, 10., -1.1, 50., 32u}), invalid_parameter_error);
     // Wrong eta_m
-    EXPECT_THROW((nsga2{1u, .95, 100.1, 0.01, 50., 32u}), std::invalid_argument);
-    EXPECT_THROW((nsga2{1u, .95, .98, 0.01, 50., 32u}), std::invalid_argument);
+    EXPECT_THROW((nsga2{1u, .95, 100.1, 0.01, 50., 32u}), invalid_parameter_error);
+    EXPECT_THROW((nsga2{1u, .95, .98, 0.01, 50., 32u}), invalid_parameter_error);
     // Wrong eta_m
-    EXPECT_THROW((nsga2{1u, .95, 10., 0.01, 100.1, 32u}), std::invalid_argument);
-    EXPECT_THROW((nsga2{1u, .95, 10., 0.01, .98, 32u}), std::invalid_argument);
+    EXPECT_THROW((nsga2{1u, .95, 10., 0.01, 100.1, 32u}), invalid_parameter_error);
+    EXPECT_THROW((nsga2{1u, .95, 10., 0.01, .98, 32u}), invalid_parameter_error);
 }
 
 struct mo_equal_bounds {
@@ -90,16 +91,16 @@ TEST(nsga2_test, nsga2_evolve_test)
 {
     // We check that the problem is checked to be suitable
     // Some bound is equal
-    EXPECT_THROW(nsga2{10u}.evolve(population{problem{mo_equal_bounds{}}, 0u}), std::invalid_argument);
+    EXPECT_THROW(nsga2{10u}.evolve(population{problem{mo_equal_bounds{}}, 0u}), incompatible_problem_error);
     // stochastic
-    EXPECT_THROW((nsga2{}.evolve(population{inventory{}, 5u, 23u})), std::invalid_argument);
+    EXPECT_THROW((nsga2{}.evolve(population{inventory{}, 5u, 23u})), incompatible_problem_error);
     // constrained prob
-    EXPECT_THROW((nsga2{}.evolve(population{hock_schittkowski_71{}, 5u, 23u})), std::invalid_argument);
+    EXPECT_THROW((nsga2{}.evolve(population{hock_schittkowski_71{}, 5u, 23u})), incompatible_problem_error);
     // single objective prob
-    EXPECT_THROW((nsga2{}.evolve(population{rosenbrock{}, 5u, 23u})), std::invalid_argument);
+    EXPECT_THROW((nsga2{}.evolve(population{rosenbrock{}, 5u, 23u})), incompatible_problem_error);
     // wrong population size
-    EXPECT_THROW((nsga2{}.evolve(population{zdt{}, 3u, 23u})), std::invalid_argument);
-    EXPECT_THROW((nsga2{}.evolve(population{zdt{}, 50u, 23u})), std::invalid_argument);
+    EXPECT_THROW((nsga2{}.evolve(population{zdt{}, 3u, 23u})), incompatible_problem_error);
+    EXPECT_THROW((nsga2{}.evolve(population{zdt{}, 50u, 23u})), incompatible_problem_error);
 
     // We check for deterministic behaviour if the seed is controlled
     // we treat the last three components of the decision vector as integers

@@ -36,6 +36,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/problems/dtlz.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -44,14 +45,12 @@ TEST(dtlz_test, zdt_construction_test)
     dtlz dtlz_default{};
     dtlz dtlz5{5u, 7u, 3u, 100u};
 
-    EXPECT_THROW((dtlz{0u, 7u, 3u, 100u}), std::invalid_argument);
-    EXPECT_THROW((dtlz{9u, 7u, 3u, 100u}), std::invalid_argument);
-    EXPECT_THROW((dtlz{1u, 7u, 1u, 100u}), std::invalid_argument);
-    EXPECT_THROW((dtlz{1u, 7u, std::numeric_limits<vector_double::size_type>::max() - 1u, 100u}),
-                 std::invalid_argument);
-    EXPECT_THROW((dtlz{1u, std::numeric_limits<vector_double::size_type>::max() - 1u, 3u, 100u}),
-                 std::invalid_argument);
-    EXPECT_THROW((dtlz{1u, 3u, 3u, 100u}), std::invalid_argument);
+    EXPECT_THROW((dtlz{0u, 7u, 3u, 100u}), problem_config_error);
+    EXPECT_THROW((dtlz{9u, 7u, 3u, 100u}), problem_config_error);
+    EXPECT_THROW((dtlz{1u, 7u, 1u, 100u}), problem_config_error);
+    EXPECT_THROW((dtlz{1u, 7u, std::numeric_limits<vector_double::size_type>::max() - 1u, 100u}), problem_config_error);
+    EXPECT_THROW((dtlz{1u, std::numeric_limits<vector_double::size_type>::max() - 1u, 3u, 100u}), problem_config_error);
+    EXPECT_THROW((dtlz{1u, 3u, 3u, 100u}), problem_config_error);
 
     EXPECT_NO_THROW(problem{dtlz_default});
     EXPECT_NO_THROW(problem{dtlz5});
@@ -204,7 +203,7 @@ TEST(dtlz_test, dtlz_p_distance_test)
         EXPECT_NEAR(udp.p_distance(x), res[i - 1u], 1e-12);
     }
     dtlz udp{3u, 4u};
-    EXPECT_THROW(udp.p_distance(x_wrong), std::invalid_argument);
+    EXPECT_THROW(udp.p_distance(x_wrong), dimension_mismatch_error);
     EXPECT_NO_THROW(udp.p_distance(population{udp, 20u, 32u}));
 }
 

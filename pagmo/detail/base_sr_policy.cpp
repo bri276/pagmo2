@@ -56,7 +56,7 @@ void base_sr_policy::verify_fp_ctor() const
     const auto rate = std::get<double>(m_migr_rate);
 
     if (!std::isfinite(rate) || rate < 0. || rate > 1.) {
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(policy_config_error,
                     "Invalid fractional migration rate specified in the constructor of a replacement/selection "
                     "policy: the rate must be in the [0., 1.] range, but it is "
                         + std::to_string(rate) + " instead");

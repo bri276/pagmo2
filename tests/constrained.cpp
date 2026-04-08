@@ -34,6 +34,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/io.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/constrained.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -54,11 +55,11 @@ TEST(constrained_test, compare_fc_test)
     EXPECT_TRUE(compare_fc(f4, f5, 2u, tol) == false);
     EXPECT_TRUE(compare_fc(f4, f5, 1u, tol) == true);
 
-    EXPECT_THROW(compare_fc(f1, f5, 1u, 0.), std::invalid_argument);
-    EXPECT_THROW(compare_fc(f1, f2, 3u, 0.), std::invalid_argument);
-    EXPECT_THROW(compare_fc(f1, f2, 1u, tol), std::invalid_argument);
-    EXPECT_THROW(compare_fc(empty, empty, 1u, 0.), std::invalid_argument);
-    EXPECT_THROW(compare_fc(empty, empty, 1u, tol), std::invalid_argument);
+    EXPECT_THROW(compare_fc(f1, f5, 1u, 0.), dimension_mismatch_error);
+    EXPECT_THROW(compare_fc(f1, f2, 3u, 0.), dimension_mismatch_error);
+    EXPECT_THROW(compare_fc(f1, f2, 1u, tol), dimension_mismatch_error);
+    EXPECT_THROW(compare_fc(empty, empty, 1u, 0.), dimension_mismatch_error);
+    EXPECT_THROW(compare_fc(empty, empty, 1u, tol), dimension_mismatch_error);
 }
 
 TEST(constrained_test, sort_population_con_test)
@@ -128,15 +129,15 @@ TEST(constrained_test, sort_population_con_test)
     EXPECT_TRUE(sort_population_con(example, neq, tol) == result);
     // Test throws
     example = {{1, 2, 3}, {1, 2}};
-    EXPECT_THROW(sort_population_con(example, neq), std::invalid_argument);
+    EXPECT_THROW(sort_population_con(example, neq), dimension_mismatch_error);
     example = {{-1, 0, 0}, {0, 0, -1}, {1, 0, 0}};
-    EXPECT_THROW(sort_population_con(example, 3), std::invalid_argument);
-    EXPECT_THROW(sort_population_con(example, 4), std::invalid_argument);
+    EXPECT_THROW(sort_population_con(example, 3), dimension_mismatch_error);
+    EXPECT_THROW(sort_population_con(example, 4), dimension_mismatch_error);
     tol = {2, 3, 4};
-    EXPECT_THROW(sort_population_con(example, 0, tol), std::invalid_argument);
+    EXPECT_THROW(sort_population_con(example, 0, tol), dimension_mismatch_error);
     tol = {2};
-    EXPECT_THROW(sort_population_con(example, 0, tol), std::invalid_argument);
+    EXPECT_THROW(sort_population_con(example, 0, tol), dimension_mismatch_error);
     example = {{}, {}};
-    EXPECT_THROW(sort_population_con(example, 0), std::invalid_argument);
-    EXPECT_THROW(sort_population_con(example, 0, tol), std::invalid_argument);
+    EXPECT_THROW(sort_population_con(example, 0), dimension_mismatch_error);
+    EXPECT_THROW(sort_population_con(example, 0, tol), dimension_mismatch_error);
 }

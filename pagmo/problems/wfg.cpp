@@ -61,29 +61,29 @@ wfg::wfg(unsigned prob_id, vector_double::size_type dim_dvs, vector_double::size
 {
 
     if (prob_id == 0u || prob_id > 9u) {
-        pagmo_throw(std::invalid_argument, "WFG test suite contains nine (prob_id=[1 ... 9]) problems, prob_id="
+        pagmo_throw(problem_config_error, "WFG test suite contains nine (prob_id=[1 ... 9]) problems, prob_id="
                                                + std::to_string(prob_id) + " was detected");
     }
     if (dim_dvs < 1u) {
-        pagmo_throw(std::invalid_argument, "WFG problem suite must have minimum 1 dimension for the decision vector, "
+        pagmo_throw(problem_config_error, "WFG problem suite must have minimum 1 dimension for the decision vector, "
                                                + std::to_string(dim_dvs) + " requested");
     }
 
     if (dim_obj < 2u) {
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(problem_config_error,
                     "WFG test problems must have a minimum value of 2 for the objective vector dimension, "
                         + std::to_string(dim_obj) + " requested");
     }
 
     if (dim_k >= dim_dvs || dim_k < 1 || dim_k % (dim_obj - 1) != 0) {
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(problem_config_error,
                     "WFG test problems must have a dim_k parameter which is within [1,dim_dvs), and such that dim_k "
                     "mod(dim_obj-1) == 0 "
                         + std::to_string(dim_k) + " requested");
     }
     if (prob_id == 2u || prob_id == 3u) {
         if ((dim_dvs - dim_k) % 2 != 0) {
-            pagmo_throw(std::invalid_argument,
+            pagmo_throw(problem_config_error,
                         "For problems WFG2 and WFG3 the dim_k parameter and the decision vector size must satisfy "
                         "(dim_dvs-dim_k) mod(2)=0"
                             + std::to_string((dim_dvs - dim_k) % 2) + " was detected");

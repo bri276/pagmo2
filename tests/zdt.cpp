@@ -38,6 +38,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -46,8 +47,8 @@ TEST(zdt_test, zdt_construction_test)
     zdt zdt_default{};
     zdt zdt5{5, 11};
 
-    EXPECT_THROW((zdt{7, 23}), std::invalid_argument);
-    EXPECT_THROW((zdt{2, 1}), std::invalid_argument);
+    EXPECT_THROW((zdt{7, 23}), problem_config_error);
+    EXPECT_THROW((zdt{2, 1}), problem_config_error);
     EXPECT_NO_THROW(problem{zdt_default});
     EXPECT_NO_THROW(problem{zdt5});
     // We also test get_nobj() here as not to add one more small test

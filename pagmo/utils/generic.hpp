@@ -64,7 +64,7 @@ inline void uniform_real_from_range_checks(double lb, double ub)
     // 0 - Forbid random generation when bounds are not finite.
     if (FiniteCheck) {
         if (!std::isfinite(lb) || !std::isfinite(ub)) {
-            pagmo_throw(std::invalid_argument, "Cannot generate a random real if the bounds are not finite");
+            pagmo_throw(utility_error, "Cannot generate a random real if the bounds are not finite");
         }
     } else {
         assert(std::isfinite(lb) && std::isfinite(ub));
@@ -73,7 +73,7 @@ inline void uniform_real_from_range_checks(double lb, double ub)
     // 1 - Check that lb is <= ub
     if (LbUbCheck) {
         if (lb > ub) {
-            pagmo_throw(std::invalid_argument,
+            pagmo_throw(utility_error,
                         "Cannot generate a random real if the lower bound is larger than the upper bound");
         }
     } else {
@@ -84,7 +84,7 @@ inline void uniform_real_from_range_checks(double lb, double ub)
     if (RangeCheck) {
         const auto delta = ub - lb;
         if (!std::isfinite(delta) || delta > std::numeric_limits<double>::max()) {
-            pagmo_throw(std::invalid_argument, "Cannot generate a random real within bounds that are too large");
+            pagmo_throw(utility_error, "Cannot generate a random real within bounds that are too large");
         }
     } else {
         assert(std::isfinite(ub - lb) && (ub - lb) <= std::numeric_limits<double>::max());
@@ -110,7 +110,7 @@ inline void uniform_integral_from_range_checks(double lb, double ub)
     // 0 - Check for finite bounds.
     if (FiniteCheck) {
         if (!std::isfinite(lb) || !std::isfinite(ub)) {
-            pagmo_throw(std::invalid_argument, "Cannot generate a random integer if the bounds are not finite");
+            pagmo_throw(utility_error, "Cannot generate a random integer if the bounds are not finite");
         }
     } else {
         assert(std::isfinite(lb) && std::isfinite(ub));
@@ -119,7 +119,7 @@ inline void uniform_integral_from_range_checks(double lb, double ub)
     // 1 - Check that lb is <= ub
     if (LbUbCheck) {
         if (lb > ub) {
-            pagmo_throw(std::invalid_argument,
+            pagmo_throw(utility_error,
                         "Cannot generate a random integer if the lower bound is larger than the upper bound");
         }
     } else {
@@ -129,7 +129,7 @@ inline void uniform_integral_from_range_checks(double lb, double ub)
     // 2 - Check that lb/ub are integral values.
     if (IntCheck) {
         if (std::trunc(lb) != lb || std::trunc(ub) != ub) {
-            pagmo_throw(std::invalid_argument,
+            pagmo_throw(utility_error,
                         "Cannot generate a random integer if the lower/upper bounds are not integral values");
         }
     } else {
@@ -153,8 +153,8 @@ inline double uniform_integral_from_range_impl(double lb, double ub, Rng &r_engi
         l = numeric_cast<long long>(lb);
         u = numeric_cast<long long>(ub);
     } catch (...) {
-        pagmo_throw(std::invalid_argument, "Cannot generate a random integer if the lower/upper bounds are not within "
-                                           "the bounds of the long long type");
+        pagmo_throw(utility_error, "Cannot generate a random integer if the lower/upper bounds are not within "
+                                   "the bounds of the long long type");
     }
     // NOTE: it should be safe here to do a raw cast, as the result
     // will be within the original bounds and thus representable by double.
@@ -336,7 +336,7 @@ inline vector_double batch_random_decision_vector(const problem &prob, vector_do
 
     // LCOV_EXCL_START
     if (n > std::numeric_limits<vector_double::size_type>::max() / nx) {
-        pagmo_throw(std::overflow_error,
+        pagmo_throw(size_limit_error,
                     "Cannot generate " + std::to_string(n)
                         + " random decision vectors in batch mode, as that would result in an overflow error");
     }
@@ -358,9 +358,8 @@ inline vector_double batch_random_decision_vector(const problem &prob, vector_do
             numeric_cast<long long>(lb[i]);
             numeric_cast<long long>(ub[i]);
         } catch (...) {
-            pagmo_throw(std::invalid_argument,
-                        "Cannot generate a random integer if the lower/upper bounds are not within "
-                        "the bounds of the long long type");
+            pagmo_throw(utility_error, "Cannot generate a random integer if the lower/upper bounds are not within "
+                                       "the bounds of the long long type");
         }
     }
 

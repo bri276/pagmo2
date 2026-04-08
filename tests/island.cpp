@@ -64,6 +64,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/threading.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -372,11 +373,11 @@ TEST(island_test, island_get_wait_busy)
     isl.evolve(10);
     isl.evolve(10);
     isl.wait();
-    EXPECT_THROW(isl.wait_check(), std::invalid_argument);
+    EXPECT_THROW(isl.wait_check(), pagmo_exception);
     isl.evolve(10);
     isl.evolve(10);
     isl.evolve(10);
-    EXPECT_THROW(isl.wait_check(), std::invalid_argument);
+    EXPECT_THROW(isl.wait_check(), pagmo_exception);
     isl.wait_check();
     isl.wait();
 }
@@ -479,7 +480,7 @@ TEST(island_test, island_status)
     isl.evolve();
     isl.wait();
     EXPECT_TRUE(isl.status() == evolve_status::idle_error);
-    EXPECT_THROW(isl.wait_check(), std::invalid_argument);
+    EXPECT_THROW(isl.wait_check(), pagmo_exception);
 }
 
 TEST(island_test, island_evolve_status)

@@ -41,6 +41,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
 #include <pagmo/utils/generic.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -59,9 +60,9 @@ TEST(cec2013_test, cec2013_test)
         EXPECT_TRUE((cec2013{i, 2u}.get_name().find("CEC2013 - f")) != std::string::npos);
     }
     // We check that wrong problem ids and dimensions cannot be constructed
-    EXPECT_THROW((cec2013{0u, 2u}), std::invalid_argument);
-    EXPECT_THROW((cec2013{29u, 2u}), std::invalid_argument);
-    EXPECT_THROW((cec2013{10u, 3u}), std::invalid_argument);
+    EXPECT_THROW((cec2013{0u, 2u}), problem_config_error);
+    EXPECT_THROW((cec2013{29u, 2u}), problem_config_error);
+    EXPECT_THROW((cec2013{10u, 3u}), problem_config_error);
 }
 
 TEST(cec2013_test, cec2013_serialization_test)

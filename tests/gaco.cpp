@@ -47,6 +47,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -57,13 +58,13 @@ TEST(gaco_test, construction_test)
     EXPECT_TRUE(user_algo.get_verbosity() == 0u);
     EXPECT_TRUE(user_algo.get_seed() == 23u);
     EXPECT_TRUE((user_algo.get_log() == gaco::log_type{}));
-    EXPECT_THROW((gaco{2u, 13u, 1.0, 0.0, -0.01, 1u, 7u, 1000u, 1000u, 0.1, false, 23u}), std::invalid_argument);
-    EXPECT_THROW((gaco{2u, 13u, 1.0, 0.0, 0.01, 1u, 7u, 1000u, 1000u, -0.1, false, 23u}), std::invalid_argument);
-    EXPECT_THROW((gaco{2u, 13u, -1.0, 0.0, 0.01, 1u, 7u, 1000u, 1000u, 0.0, false, 23u}), std::invalid_argument);
-    EXPECT_THROW((gaco{2u, 13u, 1.0, 0.0, 0.01, 3u, 7u, 1000u, 1000u, 0.0, false, 23u}), std::invalid_argument);
-    EXPECT_THROW((gaco{2u, 13u, 1.0, 0.0, 0.01, 0u, 7u, 1000u, 1000u, 0.0, false, 23u}), std::invalid_argument);
-    EXPECT_THROW((gaco{2u, 13u, 1.0, 0.0, 0.01, 0u, 7u, 1000u, 1000u, 0.0, true, 23u}), std::invalid_argument);
-    EXPECT_THROW((gaco{2u, 1u, 1.0, 0.0, 0.01, 1u, 7u, 1000u, 1000u, 0.0, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((gaco{2u, 13u, 1.0, 0.0, -0.01, 1u, 7u, 1000u, 1000u, 0.1, false, 23u}), invalid_parameter_error);
+    EXPECT_THROW((gaco{2u, 13u, 1.0, 0.0, 0.01, 1u, 7u, 1000u, 1000u, -0.1, false, 23u}), invalid_parameter_error);
+    EXPECT_THROW((gaco{2u, 13u, -1.0, 0.0, 0.01, 1u, 7u, 1000u, 1000u, 0.0, false, 23u}), invalid_parameter_error);
+    EXPECT_THROW((gaco{2u, 13u, 1.0, 0.0, 0.01, 3u, 7u, 1000u, 1000u, 0.0, false, 23u}), invalid_parameter_error);
+    EXPECT_THROW((gaco{2u, 13u, 1.0, 0.0, 0.01, 0u, 7u, 1000u, 1000u, 0.0, false, 23u}), invalid_parameter_error);
+    EXPECT_THROW((gaco{2u, 13u, 1.0, 0.0, 0.01, 0u, 7u, 1000u, 1000u, 0.0, true, 23u}), invalid_parameter_error);
+    EXPECT_THROW((gaco{2u, 1u, 1.0, 0.0, 0.01, 1u, 7u, 1000u, 1000u, 0.0, false, 23u}), invalid_parameter_error);
 }
 
 TEST(gaco_test, evolve_test)
@@ -114,15 +115,15 @@ TEST(gaco_test, evolve_test)
 
     // We then check that the evolve throws if called on unsuitable problems
     // Integer variables problem
-    //    EXPECT_THROW(gaco{2u}.evolve(population{problem{minlp_rastrigin{}}, 64u}), std::invalid_argument);
+    //    EXPECT_THROW(gaco{2u}.evolve(population{problem{minlp_rastrigin{}}, 64u}), insufficient_population_error);
     // Multi-objective problem
-    EXPECT_THROW(gaco{2u}.evolve(population{problem{zdt{}}, 64u}), std::invalid_argument);
+    EXPECT_THROW(gaco{2u}.evolve(population{problem{zdt{}}, 64u}), incompatible_problem_error);
     // Population size smaller than ker size
-    EXPECT_THROW(gaco{2u}.evolve(population{problem{rosenbrock{}}, 60u}), std::invalid_argument);
+    EXPECT_THROW(gaco{2u}.evolve(population{problem{rosenbrock{}}, 60u}), insufficient_population_error);
     // Population size smaller than 2
-    EXPECT_THROW(gaco{1u}.evolve(population{problem{rosenbrock{}}, 1}), std::invalid_argument);
+    EXPECT_THROW(gaco{1u}.evolve(population{problem{rosenbrock{}}, 1}), insufficient_population_error);
     // Stochastic problem
-    EXPECT_THROW((gaco{}.evolve(population{inventory{}, 65u, 23u})), std::invalid_argument);
+    EXPECT_THROW((gaco{}.evolve(population{inventory{}, 65u, 23u})), incompatible_problem_error);
     // and a clean exit for 0 generation
     population pop{rosenbrock{2u}, 10u};
     EXPECT_TRUE(gaco{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);

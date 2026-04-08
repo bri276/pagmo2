@@ -86,7 +86,7 @@ std::pair<std::vector<std::size_t>, vector_double> fully_connected::get_connecti
     const auto num_vertices = m_num_vertices.load(std::memory_order_relaxed);
 
     if (i >= num_vertices) {
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(index_error,
                     "Cannot get the connections to the vertex at index " + std::to_string(i)
                         + " in a fully connected topology: the number of vertices in the topology is only "
                         + std::to_string(num_vertices));

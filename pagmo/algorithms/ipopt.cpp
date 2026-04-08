@@ -134,7 +134,7 @@ struct ipopt_nlp final : Ipopt::TNLP {
 
         // Check the problem is single-objective.
         if (m_prob.get_nobj() > 1u) {
-            pagmo_throw(std::invalid_argument,
+            pagmo_throw(incompatible_problem_error,
                         std::to_string(m_prob.get_nobj()) + " objectives were detected in the input problem named '"
                             + m_prob.get_name()
                             + "', but the ipopt algorithm can solve only single-objective problems");
@@ -142,7 +142,7 @@ struct ipopt_nlp final : Ipopt::TNLP {
 
         // We need the gradient.
         if (!m_prob.has_gradient()) {
-            pagmo_throw(std::invalid_argument, "the ipopt algorithm needs the gradient, but the problem named '"
+            pagmo_throw(incompatible_problem_error, "the ipopt algorithm needs the gradient, but the problem named '"
                                                    + m_prob.get_name() + "' does not provide it");
         }
 
@@ -305,13 +305,13 @@ struct ipopt_nlp final : Ipopt::TNLP {
 
             // LCOV_EXCL_START
             if (init_z) {
-                pagmo_throw(std::runtime_error,
+                pagmo_throw(system_error,
                             "we are being asked to provide initial values for the bounds multiplier by "
                             "the Ipopt API, but in pagmo we do not support them");
             }
 
             if (init_lambda) {
-                pagmo_throw(std::runtime_error,
+                pagmo_throw(system_error,
                             "we are being asked to provide initial values for the constraints multiplier by "
                             "the Ipopt API, but in pagmo we do not support them");
             }
@@ -659,7 +659,7 @@ template <typename Pair>
 void ipopt_opt_checker(bool status, const Pair &p, const std::string &op_type)
 {
     if (!status) {
-        pagmo_throw(std::invalid_argument, "failed to set the ipopt " + op_type + " option '" + p.first
+        pagmo_throw(invalid_parameter_error, "failed to set the ipopt " + op_type + " option '" + p.first
                                                + "' to the value: " + detail::to_string(p.second));
     }
 }
@@ -833,11 +833,11 @@ population ipopt::evolve(population pop) const
     const auto bounds = prob.get_bounds();
     for (decltype(bounds.first.size()) i = 0; i < bounds.first.size(); ++i) {
         if (std::isnan(initial_guess[i])) {
-            pagmo_throw(std::invalid_argument,
+            pagmo_throw(invalid_parameter_error,
                         "the value of the initial guess at index " + std::to_string(i) + " is NaN");
         }
         if (initial_guess[i] < bounds.first[i] || initial_guess[i] > bounds.second[i]) {
-            pagmo_throw(std::invalid_argument, "the value of the initial guess at index " + std::to_string(i)
+            pagmo_throw(invalid_parameter_error, "the value of the initial guess at index " + std::to_string(i)
                                                    + " is outside the problem's bounds");
         }
     }
@@ -896,7 +896,7 @@ population ipopt::evolve(population pop) const
     const Ipopt::ApplicationReturnStatus status = app->Initialize("");
     if (status != Ipopt::Solve_Succeeded) {
         // LCOV_EXCL_START
-        pagmo_throw(std::runtime_error, "the initialisation of the ipopt algorithm failed. The return status code is: "
+        pagmo_throw(system_error, "the initialisation of the ipopt algorithm failed. The return status code is: "
                                             + detail::ipopt_results.at(status));
         // LCOV_EXCL_STOP
     }

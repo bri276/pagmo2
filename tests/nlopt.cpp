@@ -49,6 +49,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/problems/zdt.hpp>
 #include <pagmo/rng.hpp>
 #include <pagmo/s11n.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -140,7 +141,7 @@ TEST(nlopt_test, nlopt_construction)
     EXPECT_EQ(d.get_maxeval(), 123);
     EXPECT_EQ(d.get_maxtime(), 0);
     // Check exception throwing on ctor.
-    EXPECT_THROW(nlopt{""}, std::invalid_argument);
+    EXPECT_THROW(nlopt{""}, pagmo_exception);
 }
 
 TEST(nlopt_test, nlopt_selection_replacement)
@@ -148,12 +149,12 @@ TEST(nlopt_test, nlopt_selection_replacement)
     nlopt a;
     a.set_selection("worst");
     EXPECT_EQ(std::any_cast<std::string>(a.get_selection()), "worst");
-    EXPECT_THROW(a.set_selection("worstee"), std::invalid_argument);
+    EXPECT_THROW(a.set_selection("worstee"), pagmo_exception);
     a.set_selection(0);
     EXPECT_EQ(std::any_cast<population::size_type>(a.get_selection()), 0u);
     a.set_replacement("worst");
     EXPECT_EQ(std::any_cast<std::string>(a.get_replacement()), "worst");
-    EXPECT_THROW(a.set_replacement("worstee"), std::invalid_argument);
+    EXPECT_THROW(a.set_replacement("worstee"), pagmo_exception);
     a.set_replacement(0);
     EXPECT_EQ(std::any_cast<population::size_type>(a.get_replacement()), 0u);
     a.set_random_sr_seed(123);
@@ -175,15 +176,15 @@ TEST(nlopt_test, nlopt_evolve)
     EXPECT_TRUE(a.extract<nlopt>()->get_last_opt_result() >= 0);
     pop = population{zdt{}, 20};
     // MOO not supported by NLopt.
-    EXPECT_THROW(a.evolve(pop), std::invalid_argument);
+    EXPECT_THROW(a.evolve(pop), pagmo_exception);
     // Solver wants gradient, but problem does not provide it.
     pop = population{null_problem{}, 20};
-    EXPECT_THROW(a.evolve(pop), std::invalid_argument);
+    EXPECT_THROW(a.evolve(pop), pagmo_exception);
     pop = population{hs71{}, 20};
     // lbfgs does not support ineq constraints.
-    EXPECT_THROW(a.evolve(pop), std::invalid_argument);
+    EXPECT_THROW(a.evolve(pop), pagmo_exception);
     // mma supports ineq constraints but not eq constraints.
-    EXPECT_THROW(algorithm{nlopt{"mma"}}.evolve(pop), std::invalid_argument);
+    EXPECT_THROW(algorithm{nlopt{"mma"}}.evolve(pop), pagmo_exception);
     a = algorithm{nlopt{"slsqp"}};
     a.extract<nlopt>()->set_verbosity(5);
     for (auto s : {"best", "worst", "random"}) {
@@ -207,7 +208,7 @@ TEST(nlopt_test, nlopt_evolve)
             a.extract<nlopt>()->set_replacement(r);
             pop = population(rosenbrock{10}, 20);
             if (s >= 20u || r >= 20u) {
-                EXPECT_THROW(a.evolve(pop), std::invalid_argument);
+                EXPECT_THROW(a.evolve(pop), pagmo_exception);
                 continue;
             }
             a.evolve(pop);
@@ -225,13 +226,13 @@ TEST(nlopt_test, nlopt_evolve)
     a = algorithm{nlopt{"slsqp"}};
     pop = population{hs71{}, 1};
     pop.set_x(0, {-123., -123., -123., -123.});
-    EXPECT_THROW(a.evolve(pop), std::invalid_argument);
+    EXPECT_THROW(a.evolve(pop), pagmo_exception);
     pop.set_x(0, {123., 123., 123., 123.});
-    EXPECT_THROW(a.evolve(pop), std::invalid_argument);
+    EXPECT_THROW(a.evolve(pop), pagmo_exception);
     if (std::numeric_limits<double>::has_quiet_NaN) {
         pop.set_x(0, {std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN(),
                       std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN()});
-        EXPECT_THROW(a.evolve(pop), std::invalid_argument);
+        EXPECT_THROW(a.evolve(pop), pagmo_exception);
     }
 }
 
@@ -241,27 +242,27 @@ TEST(nlopt_test, nlopt_set_sc)
     a.set_stopval(-1.23);
     EXPECT_EQ(a.get_stopval(), -1.23);
     if (std::numeric_limits<double>::has_quiet_NaN) {
-        EXPECT_THROW(a.set_stopval(std::numeric_limits<double>::quiet_NaN()), std::invalid_argument);
+        EXPECT_THROW(a.set_stopval(std::numeric_limits<double>::quiet_NaN()), pagmo_exception);
     }
     a.set_ftol_rel(-1.23);
     EXPECT_EQ(a.get_ftol_rel(), -1.23);
     if (std::numeric_limits<double>::has_quiet_NaN) {
-        EXPECT_THROW(a.set_ftol_rel(std::numeric_limits<double>::quiet_NaN()), std::invalid_argument);
+        EXPECT_THROW(a.set_ftol_rel(std::numeric_limits<double>::quiet_NaN()), pagmo_exception);
     }
     a.set_ftol_abs(-1.23);
     EXPECT_EQ(a.get_ftol_abs(), -1.23);
     if (std::numeric_limits<double>::has_quiet_NaN) {
-        EXPECT_THROW(a.set_ftol_abs(std::numeric_limits<double>::quiet_NaN()), std::invalid_argument);
+        EXPECT_THROW(a.set_ftol_abs(std::numeric_limits<double>::quiet_NaN()), pagmo_exception);
     }
     a.set_xtol_rel(-1.23);
     EXPECT_EQ(a.get_xtol_rel(), -1.23);
     if (std::numeric_limits<double>::has_quiet_NaN) {
-        EXPECT_THROW(a.set_xtol_rel(std::numeric_limits<double>::quiet_NaN()), std::invalid_argument);
+        EXPECT_THROW(a.set_xtol_rel(std::numeric_limits<double>::quiet_NaN()), pagmo_exception);
     }
     a.set_xtol_abs(-1.23);
     EXPECT_EQ(a.get_xtol_abs(), -1.23);
     if (std::numeric_limits<double>::has_quiet_NaN) {
-        EXPECT_THROW(a.set_xtol_abs(std::numeric_limits<double>::quiet_NaN()), std::invalid_argument);
+        EXPECT_THROW(a.set_xtol_abs(std::numeric_limits<double>::quiet_NaN()), pagmo_exception);
     }
     a.set_maxtime(123);
 }

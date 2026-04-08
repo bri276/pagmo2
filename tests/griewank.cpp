@@ -36,6 +36,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/problem.hpp>
 #include <pagmo/problems/griewank.hpp>
 #include <pagmo/types.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -44,7 +45,7 @@ TEST(griewank_test, griewank_test)
     // Problem construction
     griewank gri1{1u};
     griewank gri3{3u};
-    EXPECT_THROW(griewank{0u}, std::invalid_argument);
+    EXPECT_THROW(griewank{0u}, problem_config_error);
     EXPECT_NO_THROW(problem{gri3});
     // Pick a few reference points
     vector_double x1 = {1.12};

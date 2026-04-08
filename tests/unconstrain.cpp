@@ -74,10 +74,10 @@ TEST(unconstrain_test, unconstrain_construction_test)
     EXPECT_EQ((problem{unconstrain{constrained_udp, "death penalty"}}.has_gradient()), false);
     EXPECT_EQ((problem{unconstrain{constrained_udp, "death penalty"}}.has_hessians()), false);
     // We test the various throws
-    EXPECT_THROW((unconstrain{null_problem{2, 0, 0}, "kuri"}), std::invalid_argument);
-    EXPECT_THROW((unconstrain{null_problem{2, 3, 4}, "weighted", vector_double(6, 1.)}), std::invalid_argument);
-    EXPECT_THROW((unconstrain{null_problem{2, 3, 4}, "mispelled"}), std::invalid_argument);
-    EXPECT_THROW((unconstrain{null_problem{2, 3, 4}, "kuri", vector_double(3, 1.)}), std::invalid_argument);
+    EXPECT_THROW((unconstrain{null_problem{2, 0, 0}, "kuri"}), incompatible_problem_error);
+    EXPECT_THROW((unconstrain{null_problem{2, 3, 4}, "weighted", vector_double(6, 1.)}), incompatible_problem_error);
+    EXPECT_THROW((unconstrain{null_problem{2, 3, 4}, "mispelled"}), incompatible_problem_error);
+    EXPECT_THROW((unconstrain{null_problem{2, 3, 4}, "kuri", vector_double(3, 1.)}), incompatible_problem_error);
 }
 
 struct my_udp {

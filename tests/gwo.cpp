@@ -34,6 +34,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -76,10 +77,10 @@ TEST(gwo_test, gwo_evolve_test)
     }
 
     // We then check that the evolve throws if called on unsuitable problems
-    EXPECT_THROW(gwo{10u}.evolve(population{problem{rosenbrock{}}, 2u}), std::invalid_argument);
-    EXPECT_THROW(gwo{10u}.evolve(population{problem{zdt{}}, 15u}), std::invalid_argument);
-    EXPECT_THROW(gwo{10u}.evolve(population{problem{hock_schittkowski_71{}}, 15u}), std::invalid_argument);
-    EXPECT_THROW(gwo{10u}.evolve(population{problem{inventory{}}, 15u}), std::invalid_argument);
+    EXPECT_THROW(gwo{10u}.evolve(population{problem{rosenbrock{}}, 2u}), insufficient_population_error);
+    EXPECT_THROW(gwo{10u}.evolve(population{problem{zdt{}}, 15u}), incompatible_problem_error);
+    EXPECT_THROW(gwo{10u}.evolve(population{problem{hock_schittkowski_71{}}, 15u}), incompatible_problem_error);
+    EXPECT_THROW(gwo{10u}.evolve(population{problem{inventory{}}, 15u}), incompatible_problem_error);
     // And a clean exit for 0 generations
     population pop{rosenbrock{25u}, 10u};
     EXPECT_TRUE(gwo{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);

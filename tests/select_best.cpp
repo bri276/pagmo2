@@ -39,6 +39,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/s_policies/select_best.hpp>
 #include <pagmo/s_policy.hpp>
 #include <pagmo/types.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -56,23 +57,10 @@ TEST(select_best_test, select_best_basic)
     EXPECT_TRUE(f02.get_migr_rate().index() == 0);
     EXPECT_TRUE(std::get<pop_size_t>(f02.get_migr_rate()) == 2u);
 
-    EXPECT_THROW(f02 = select_best(-1.), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return std::string(ia.what()).contains(
-            "Invalid fractional migration rate specified in the constructor of a replacement/selection "
-            "policy: the rate must be in the [0., 1.] range, but it is ");
-    });
-    EXPECT_THROW(f02 = select_best(2.), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return std::string(ia.what()).contains(
-            "Invalid fractional migration rate specified in the constructor of a replacement/selection "
-            "policy: the rate must be in the [0., 1.] range, but it is ");
-    });
-    EXPECT_THROW(f02 = select_best(std::numeric_limits<double>::infinity()), std::invalid_argument,
-                 [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains(
-                         "Invalid fractional migration rate specified in the constructor of a replacement/selection "
-                         "policy: the rate must be in the [0., 1.] range, but it is ");
-                 });
-    EXPECT_THROW(f02 = select_best(-1), std::runtime_error);
+    EXPECT_THROW(f02 = select_best(-1.), policy_config_error);
+    EXPECT_THROW(f02 = select_best(2.), policy_config_error);
+    EXPECT_THROW(f02 = select_best(std::numeric_limits<double>::infinity()), policy_config_error);
+    EXPECT_THROW(f02 = select_best(-1), policy_config_error);
 
     auto f03(f02);
     EXPECT_TRUE(f03.get_migr_rate().index() == 0);
@@ -118,20 +106,11 @@ TEST(select_best_test, select_best_select)
 {
     select_best f00;
 
-    EXPECT_THROW(f00.select(individuals_group_t{}, 0, 0, 2, 1, 0, vector_double{}), std::invalid_argument,
-                 [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains("The 'Select best' selection policy is unable to deal with "
-                                                            "multiobjective constrained optimisation problems");
-                 });
+    EXPECT_THROW(f00.select(individuals_group_t{}, 0, 0, 2, 1, 0, vector_double{}), policy_config_error);
 
     f00 = select_best(100);
 
-    EXPECT_THROW(f00.select(individuals_group_t{}, 0, 0, 1, 0, 0, vector_double{}), std::invalid_argument,
-                 [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains(
-                         "The absolute migration rate (100) in a 'Select best' selection policy "
-                         "is larger than the number of input individuals (0)");
-                 });
+    EXPECT_THROW(f00.select(individuals_group_t{}, 0, 0, 1, 0, 0, vector_double{}), policy_config_error);
 
     // Single-objective, unconstrained.
     f00 = select_best(.1);

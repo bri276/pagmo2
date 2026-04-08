@@ -47,6 +47,7 @@
 #include <pagmo/threading.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -135,19 +136,19 @@ TEST(cstrs_test, cstrs_self_adaptive_construction)
     // We then check that the evolve throws if called on unsuitable problems
     {
         cstrs_self_adaptive user_algo{150u, de{10u, 0.8, 0.9, 2u, 1e-6, 1e-6, 32u}, 32u};
-        EXPECT_THROW(user_algo.evolve(population{zdt{}, 15u}), std::invalid_argument);
+        EXPECT_THROW(user_algo.evolve(population{zdt{}, 15u}), incompatible_problem_error);
     }
     {
         cstrs_self_adaptive user_algo{150u, de{10u, 0.8, 0.9, 2u, 1e-6, 1e-6, 32u}, 32u};
-        EXPECT_THROW(user_algo.evolve(population{inventory{}, 15u}), std::invalid_argument);
+        EXPECT_THROW(user_algo.evolve(population{inventory{}, 15u}), incompatible_problem_error);
     }
     {
         cstrs_self_adaptive user_algo{150u, de{10u, 0.8, 0.9, 2u, 1e-6, 1e-6, 32u}, 32u};
-        EXPECT_THROW(user_algo.evolve(population{rosenbrock{}, 15u}), std::invalid_argument);
+        EXPECT_THROW(user_algo.evolve(population{rosenbrock{}, 15u}), insufficient_population_error);
     }
     {
         cstrs_self_adaptive user_algo{150u, de{10u, 0.8, 0.9, 2u, 1e-6, 1e-6, 32u}, 32u};
-        EXPECT_THROW(user_algo.evolve(population{hock_schittkowski_71{}, 3u}), std::invalid_argument);
+        EXPECT_THROW(user_algo.evolve(population{hock_schittkowski_71{}, 3u}), incompatible_problem_error);
     }
     // And a clean exit for 0 iterations
     problem prob{hock_schittkowski_71{}};

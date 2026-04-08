@@ -67,11 +67,11 @@ population sea::evolve(population pop) const
     // We start by checking that the problem is suitable for this
     // particular algorithm.
     if (prob.get_nc() != 0u) {
-        pagmo_throw(std::invalid_argument, "Non linear constraints detected in " + prob.get_name() + " instance. "
+        pagmo_throw(incompatible_problem_error, "Non linear constraints detected in " + prob.get_name() + " instance. "
                                                + get_name() + " cannot deal with them");
     }
     if (prob.get_nf() != 1u) {
-        pagmo_throw(std::invalid_argument, "Multiple objectives detected in " + prob.get_name() + " instance. "
+        pagmo_throw(incompatible_problem_error, "Multiple objectives detected in " + prob.get_name() + " instance. "
                                                + get_name() + " cannot deal with them");
     }
     // Get out if there is nothing to do.
@@ -79,7 +79,7 @@ population sea::evolve(population pop) const
         return pop;
     }
     if (!pop.size()) {
-        pagmo_throw(std::invalid_argument, get_name() + " does not work on an empty population");
+        pagmo_throw(insufficient_population_error, get_name() + " does not work on an empty population");
     }
     // ---------------------------------------------------------------------------------------------------------
 

@@ -56,6 +56,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/islands/fork_island.hpp>
 #else
 #include <pagmo/islands/thread_island.hpp>
+#include <pagmo/exceptions.hpp>
 #endif
 
 using namespace pagmo;
@@ -148,31 +149,31 @@ TEST(ipopt_test, ipopt_failure_modes)
         algorithm algo(ipopt{});
         population pop(zdt{}, 1);
         algo.extract<ipopt>()->set_selection("random");
-        EXPECT_THROW(algo.evolve(pop), std::invalid_argument);
+        EXPECT_THROW(algo.evolve(pop), pagmo_exception);
     }
     {
         // Problem does not provide gradient.
         algorithm algo(ipopt{});
         population pop(schwefel{20}, 1);
-        EXPECT_THROW(algo.evolve(pop), std::invalid_argument);
+        EXPECT_THROW(algo.evolve(pop), pagmo_exception);
     }
     {
         // Problem's objfun throws.
         algorithm algo(ipopt{});
         population pop(throw_hs71_0{}, 1);
-        EXPECT_THROW(algo.evolve(pop), std::invalid_argument);
+        EXPECT_THROW(algo.evolve(pop), pagmo_exception);
     }
     {
         // Problem's gradient throws.
         algorithm algo(ipopt{});
         population pop(throw_hs71_1{}, 1);
-        EXPECT_THROW(algo.evolve(pop), std::invalid_argument);
+        EXPECT_THROW(algo.evolve(pop), pagmo_exception);
     }
     {
         // Problem's gradient throws.
         algorithm algo(ipopt{});
         population pop(throw_hs71_2{}, 1);
-        EXPECT_THROW(algo.evolve(pop), std::invalid_argument);
+        EXPECT_THROW(algo.evolve(pop), pagmo_exception);
     }
     {
         // Explicitly requiring exact hessians in a problem that does
@@ -180,42 +181,42 @@ TEST(ipopt_test, ipopt_failure_modes)
         algorithm algo(ipopt{});
         algo.extract<ipopt>()->set_string_option("hessian_approximation", "exact");
         population pop(luksan_vlcek1{}, 1);
-        EXPECT_THROW(algo.evolve(pop), std::invalid_argument);
+        EXPECT_THROW(algo.evolve(pop), pagmo_exception);
     }
     {
         // Set bogus string option.
         algorithm algo(ipopt{});
         population pop(hock_schittkowski_71{}, 1);
         algo.extract<ipopt>()->set_string_option("hello,", "world");
-        EXPECT_THROW(algo.evolve(pop), std::invalid_argument);
+        EXPECT_THROW(algo.evolve(pop), pagmo_exception);
     }
     {
         // Set bogus integer option.
         algorithm algo(ipopt{});
         population pop(hock_schittkowski_71{}, 1);
         algo.extract<ipopt>()->set_integer_option("hello, world", 3);
-        EXPECT_THROW(algo.evolve(pop), std::invalid_argument);
+        EXPECT_THROW(algo.evolve(pop), pagmo_exception);
     }
     {
         // Set bogus numeric option.
         algorithm algo(ipopt{});
         population pop(hock_schittkowski_71{}, 1);
         algo.extract<ipopt>()->set_numeric_option("hello, world", 3.);
-        EXPECT_THROW(algo.evolve(pop), std::invalid_argument);
+        EXPECT_THROW(algo.evolve(pop), pagmo_exception);
     }
     {
         // Initial guess out of bounds.
         algorithm algo(ipopt{});
         population pop(hock_schittkowski_71{}, 1);
         pop.set_x(0, {-100., -100., -100., -100.});
-        EXPECT_THROW(algo.evolve(pop), std::invalid_argument);
+        EXPECT_THROW(algo.evolve(pop), pagmo_exception);
     }
     if (std::numeric_limits<double>::has_quiet_NaN) {
         // Initial guess has nans.
         algorithm algo(ipopt{});
         population pop(hock_schittkowski_71{}, 1);
         pop.set_x(0, {2., 2., 2., std::numeric_limits<double>::quiet_NaN()});
-        EXPECT_THROW(algo.evolve(pop), std::invalid_argument);
+        EXPECT_THROW(algo.evolve(pop), pagmo_exception);
     }
 }
 

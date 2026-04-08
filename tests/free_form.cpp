@@ -40,6 +40,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/topologies/free_form.hpp>
 #include <pagmo/topologies/ring.hpp>
 #include <pagmo/topology.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -188,24 +189,17 @@ TEST(free_form, bgl_ctor)
 
     auto trigger = [&bogus]() { free_form fobus(bogus); };
 
-    EXPECT_THROW(trigger(), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return             ia.what(), "In the constructor of a free_form topology from a graph object.contains( an invalid edge weight of "
-                           + std::to_string(2.) + " was detected (the weight must be in the [0., 1.] range)");
+    EXPECT_THROW(trigger(), invalid_value_error);
     });
 
     bogus[res.first] = -1.;
 
-    EXPECT_THROW(trigger(), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return             ia.what(), "In the constructor of a free_form topology from a graph object.contains( an invalid edge weight of "
-                           + std::to_string(-1.) + " was detected (the weight must be in the [0., 1.] range)");
+    EXPECT_THROW(trigger(), invalid_value_error);
     });
 
     bogus[res.first] = std::numeric_limits<double>::quiet_NaN();
 
-    EXPECT_THROW(trigger(), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return             ia.what(), "In the constructor of a free_form topology from a graph object.contains( an invalid edge weight of "
-                           + std::to_string(std::numeric_limits<double>::quiet_NaN())
-                           + " was detected (the weight must be in the [0., 1.] range)");
+    EXPECT_THROW(trigger(), invalid_value_error);
     });
 }
 

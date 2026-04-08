@@ -47,7 +47,7 @@ namespace pagmo
 minlp_rastrigin::minlp_rastrigin(unsigned dim_c, unsigned dim_i) : m_dim_c(dim_c), m_dim_i(dim_i)
 {
     if (dim_c + dim_i < 1u) {
-        pagmo_throw(std::invalid_argument, "Minlp Rastrigin Function must have minimum 1 dimension, "
+        pagmo_throw(problem_config_error, "Minlp Rastrigin Function must have minimum 1 dimension, "
                                                + std::to_string(dim_c + dim_i) + " requested");
     }
 }

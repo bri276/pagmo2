@@ -35,6 +35,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/rng.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/gradients_and_hessians.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -91,9 +92,7 @@ TEST(gradients_and_hessians_test, estimate_sparsity_test)
         auto sp
             = estimate_sparsity([udp](const vector_double &x) { return udp.fitness(x); }, {0.1, 0.2, 0.3, 0.4}, 1e-8);
         EXPECT_TRUE((sp == sparsity_pattern{{0, 0}, {0, 1}, {0, 2}, {0, 3}, {1, 1}, {1, 2}, {1, 3}, {2, 2}}));
-        EXPECT_THROW(
-            estimate_sparsity([udp2](const vector_double &x) { return udp2.fitness(x); }, {0.1, 0.2, 0.3, 0.4}, 1e-8),
-            std::invalid_argument);
+        EXPECT_THROW(estimate_sparsity([udp2](const vector_double &x) { return udp2.fitness(x); }, {0.1, 0.2, 0.3, 0.4}, 1e-8), dimension_mismatch_error);
     }
     {
         problem prob{dummy_problem{}};
@@ -101,9 +100,7 @@ TEST(gradients_and_hessians_test, estimate_sparsity_test)
         auto sp
             = estimate_sparsity([prob](const vector_double &x) { return prob.fitness(x); }, {0.1, 0.2, 0.3, 0.4}, 1e-8);
         EXPECT_TRUE((sp == sparsity_pattern{{0, 0}, {0, 1}, {0, 2}, {0, 3}, {1, 1}, {1, 2}, {1, 3}, {2, 2}}));
-        EXPECT_THROW(
-            estimate_sparsity([prob2](const vector_double &x) { return prob2.fitness(x); }, {0.1, 0.2, 0.3, 0.4}, 1e-8),
-            std::invalid_argument);
+        EXPECT_THROW(estimate_sparsity([prob2](const vector_double &x) { return prob2.fitness(x); }, {0.1, 0.2, 0.3, 0.4}, 1e-8), dimension_mismatch_error);
     }
 }
 
@@ -133,12 +130,8 @@ TEST(gradients_and_hessians_test, estimate_gradient_test)
 
     dummy_problem_easy_grad udp{};
     dummy_problem_malformed udp2{};
-    EXPECT_THROW(
-        estimate_gradient([udp2](const vector_double &x) { return udp2.fitness(x); }, {0.1, 0.2, 0.3, 0.4}, 1e-8),
-        std::invalid_argument);
-    EXPECT_THROW(
-        estimate_gradient_h([udp2](const vector_double &x) { return udp2.fitness(x); }, {0.1, 0.2, 0.3, 0.4}, 1e-8),
-        std::invalid_argument);
+    EXPECT_THROW(estimate_gradient([udp2](const vector_double &x) { return udp2.fitness(x); }, {0.1, 0.2, 0.3, 0.4}, 1e-8), dimension_mismatch_error);
+    EXPECT_THROW(estimate_gradient_h([udp2](const vector_double &x) { return udp2.fitness(x); }, {0.1, 0.2, 0.3, 0.4}, 1e-8), dimension_mismatch_error);
     auto g = estimate_gradient([udp](const vector_double &x) { return udp.fitness(x); }, {0.1, 0.2, 0.3, 0.4}, 1e-8);
     auto gh = estimate_gradient_h([udp](const vector_double &x) { return udp.fitness(x); }, {0.1, 0.2, 0.3, 0.4}, 1e-2);
     vector_double res = {1, 0.4, 0.6, 0.48, 0.024, 0.012, 0.008, 0.006, 0.9950041652780257660956, 0, 0, 0};

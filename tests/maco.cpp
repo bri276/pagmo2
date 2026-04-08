@@ -46,6 +46,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -58,25 +59,25 @@ TEST(maco_test, maco_algorithm_construction)
 
     // Check the throws
     // Wrong focus
-    EXPECT_THROW((maco{1u, 63u, 1.0, 1u, 7u, 10000u, -1.0, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((maco{1u, 63u, 1.0, 1u, 7u, 10000u, -1.0, false, 23u}), invalid_parameter_error);
     // Wrong threshold
-    EXPECT_THROW((maco{1u, 63u, 1.0, 3u, 7u, 10000u, 0., false, 23u}), std::invalid_argument);
-    EXPECT_THROW((maco{1u, 63u, 1.0, 0, 7u, 10000u, 0., true, 23u}), std::invalid_argument);
+    EXPECT_THROW((maco{1u, 63u, 1.0, 3u, 7u, 10000u, 0., false, 23u}), invalid_parameter_error);
+    EXPECT_THROW((maco{1u, 63u, 1.0, 0, 7u, 10000u, 0., true, 23u}), invalid_parameter_error);
 }
 
 TEST(maco_test, maco_evolve_test)
 {
     // We check that the problem is checked to be suitable
     // stochastic
-    EXPECT_THROW((maco{}.evolve(population{inventory{}, 63u, 23u})), std::invalid_argument);
+    EXPECT_THROW((maco{}.evolve(population{inventory{}, 63u, 23u})), incompatible_problem_error);
     // Empty population.
-    EXPECT_THROW(maco{10u}.evolve(population{problem{rosenbrock{}}, 0u}), std::invalid_argument);
+    EXPECT_THROW(maco{10u}.evolve(population{problem{rosenbrock{}}, 0u}), incompatible_problem_error);
     // constrained prob
-    EXPECT_THROW((maco{}.evolve(population{hock_schittkowski_71{}, 63u, 23u})), std::invalid_argument);
+    EXPECT_THROW((maco{}.evolve(population{hock_schittkowski_71{}, 63u, 23u})), incompatible_problem_error);
     // single objective prob
-    EXPECT_THROW((maco{}.evolve(population{rosenbrock{}, 63u, 23u})), std::invalid_argument);
+    EXPECT_THROW((maco{}.evolve(population{rosenbrock{}, 63u, 23u})), incompatible_problem_error);
     // population size smaller than ker size
-    EXPECT_THROW((maco{}.evolve(population{zdt{}, 3u, 23u})), std::invalid_argument);
+    EXPECT_THROW((maco{}.evolve(population{zdt{}, 3u, 23u})), incompatible_problem_error);
     // and a clean exit for 0 generation
     population pop{zdt{}, 63u};
     EXPECT_TRUE(maco{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);

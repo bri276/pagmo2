@@ -73,7 +73,7 @@ mbh::mbh() : m_algorithm(compass_search{}), m_stop(5u), m_perturb(1, 1e-2), m_ve
 void mbh::scalar_ctor_impl(double perturb)
 {
     if (std::isnan(perturb) || perturb > 1. || perturb <= 0.) {
-        pagmo_throw(std::invalid_argument, "The scalar perturbation must be in (0, 1], while a value of "
+        pagmo_throw(invalid_parameter_error, "The scalar perturbation must be in (0, 1], while a value of "
                                                + std::to_string(perturb) + " was detected.");
     }
 }
@@ -82,7 +82,7 @@ void mbh::vector_ctor_impl(const vector_double &perturb)
 {
     if (!std::all_of(perturb.begin(), perturb.end(),
                      [](double item) { return (!std::isnan(item) && item > 0. && item <= 1.); })) {
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(invalid_parameter_error,
                     "The perturbation must have all components in (0, 1], while that is not the case.");
     }
 }
@@ -116,11 +116,11 @@ population mbh::evolve(population pop) const
 
     // PREAMBLE-------------------------------------------------------------------------------------------------
     if (prob.get_nobj() != 1u) {
-        pagmo_throw(std::invalid_argument, "Multiple objectives detected in " + prob.get_name() + " instance. "
+        pagmo_throw(incompatible_problem_error, "Multiple objectives detected in " + prob.get_name() + " instance. "
                                                + get_name() + " cannot deal with them");
     }
     if (prob.is_stochastic()) {
-        pagmo_throw(std::invalid_argument, "The input problem " + prob.get_name() + " appears to be stochastic, "
+        pagmo_throw(incompatible_problem_error, "The input problem " + prob.get_name() + " appears to be stochastic, "
                                                + get_name() + " cannot deal with it");
     }
     // Get out if there is nothing to do.
@@ -137,7 +137,7 @@ population mbh::evolve(population pop) const
     }
     // Check that the perturbation vector size equals the size of the problem
     if (perturb.size() != dim) {
-        pagmo_throw(std::invalid_argument, "The perturbation vector size is: " + std::to_string(perturb.size())
+        pagmo_throw(dimension_mismatch_error, "The perturbation vector size is: " + std::to_string(perturb.size())
                                                + ", while the problem dimension is: " + std::to_string(dim)
                                                + ". They need to be equal for MBH to work.");
     }
@@ -222,7 +222,7 @@ void mbh::set_perturb(const vector_double &perturb)
 {
     if (!std::all_of(perturb.begin(), perturb.end(),
                      [](double item) { return (!std::isnan(item) && item > 0. && item <= 1.); })) {
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(invalid_parameter_error,
                     "The perturbation must have all components in (0, 1], while that is not the case.");
     }
     m_perturb = perturb;

@@ -49,6 +49,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -173,16 +174,16 @@ TEST(population_test, population_push_back_test)
     EXPECT_TRUE(pop.get_problem().get_fevals() == 5u);
     // We check important undefined throws
     // 1 - Cannot push back the wrong decision vector dimension
-    EXPECT_THROW(pop.push_back(vector_double(28u, 0.5)), std::invalid_argument);
+    EXPECT_THROW(pop.push_back(vector_double(28u, 0.5)), dimension_mismatch_error);
     // 2 - Malformed problem. The user declares 2 objectives but returns something else
     population pop2{problem{malformed{}}};
-    EXPECT_THROW(pop2.push_back({1.}), std::invalid_argument);
+    EXPECT_THROW(pop2.push_back({1.}), dimension_mismatch_error);
     // 3 - Consistency checks on the second push_back() overload.
     population pop3{problem{zdt{1u, 30u}}};
-    EXPECT_THROW(pop3.push_back({}, {}), std::invalid_argument);
-    EXPECT_THROW(pop3.push_back(vector_double(30u, 0.5), {}), std::invalid_argument);
-    EXPECT_THROW(pop3.push_back(vector_double(30u, 0.5), {0.}), std::invalid_argument);
-    EXPECT_THROW(pop3.push_back(vector_double(30u, 0.5), {0., 0., 0.}), std::invalid_argument);
+    EXPECT_THROW(pop3.push_back({}, {}), dimension_mismatch_error);
+    EXPECT_THROW(pop3.push_back(vector_double(30u, 0.5), {}), dimension_mismatch_error);
+    EXPECT_THROW(pop3.push_back(vector_double(30u, 0.5), {0.}), dimension_mismatch_error);
+    EXPECT_THROW(pop3.push_back(vector_double(30u, 0.5), {0., 0., 0.}), dimension_mismatch_error);
 }
 
 TEST(population_test, population_random_decision_vector_test)
@@ -205,10 +206,10 @@ TEST(population_test, population_best_worst_test)
     {
         population pop{problem{zdt{}}, 2};
         population pop2{problem{}, 0u};
-        EXPECT_THROW(pop.best_idx(), std::invalid_argument);
-        EXPECT_THROW(pop.worst_idx(), std::invalid_argument);
-        EXPECT_THROW(pop2.best_idx(), std::invalid_argument);
-        EXPECT_THROW(pop2.worst_idx(), std::invalid_argument);
+        EXPECT_THROW(pop.best_idx(), empty_collection_error);
+        EXPECT_THROW(pop.worst_idx(), empty_collection_error);
+        EXPECT_THROW(pop2.best_idx(), empty_collection_error);
+        EXPECT_THROW(pop2.worst_idx(), empty_collection_error);
     }
     // Test on single objective
     {
@@ -232,9 +233,9 @@ TEST(population_test, population_setters_test)
 {
     population pop{problem{}, 2};
     // Test throw
-    EXPECT_THROW(pop.set_xf(2, {3}, {1, 2, 3}), std::invalid_argument); // index invalid
-    EXPECT_THROW(pop.set_xf(1, {3, 2}, {1}), std::invalid_argument);    // chromosome invalid
-    EXPECT_THROW(pop.set_xf(1, {3}, {1, 2}), std::invalid_argument);    // fitness invalid
+    EXPECT_THROW(pop.set_xf(2, {3}, {1, 2, 3}), index_error); // index invalid
+    EXPECT_THROW(pop.set_xf(1, {3, 2}, {1}), index_error);    // chromosome invalid
+    EXPECT_THROW(pop.set_xf(1, {3}, {1, 2}), index_error);    // fitness invalid
     // Test set_xf
     pop.set_xf(0, {3}, {1});
     EXPECT_TRUE((pop.get_x()[0] == vector_double{3}));
@@ -322,11 +323,11 @@ TEST(population_test, population_champion_test)
     // We check that requests to the champion cannot be made if the population
     // contains a problem with more than 1 objective or is stochastic
     population pop_mo{problem{zdt{}}, 2u};
-    EXPECT_THROW(pop_mo.champion_f(), std::invalid_argument);
-    EXPECT_THROW(pop_mo.champion_x(), std::invalid_argument);
+    EXPECT_THROW(pop_mo.champion_f(), incompatible_problem_error);
+    EXPECT_THROW(pop_mo.champion_x(), incompatible_problem_error);
     population pop_sto{problem{inventory{12u}}, 2u};
-    EXPECT_THROW(pop_sto.champion_f(), std::invalid_argument);
-    EXPECT_THROW(pop_sto.champion_x(), std::invalid_argument);
+    EXPECT_THROW(pop_sto.champion_f(), incompatible_problem_error);
+    EXPECT_THROW(pop_sto.champion_x(), incompatible_problem_error);
 }
 
 TEST(population_test, population_serialization_test)

@@ -37,6 +37,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/problems/luksan_vlcek1.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/gradients_and_hessians.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -45,8 +46,8 @@ TEST(luksan_vlcek1_test, luksan_vlcek1_test)
     // 1 - Construction
     EXPECT_NO_THROW(luksan_vlcek1{3});
     EXPECT_NO_THROW(problem{luksan_vlcek1{3}});
-    EXPECT_THROW(luksan_vlcek1{2}, std::invalid_argument);
-    EXPECT_THROW(problem{luksan_vlcek1{1}}, std::invalid_argument);
+    EXPECT_THROW(luksan_vlcek1{2}, problem_config_error);
+    EXPECT_THROW(problem{luksan_vlcek1{1}}, problem_config_error);
     problem prob{luksan_vlcek1{3}};
     EXPECT_EQ(prob.get_nic(), 0u);
     EXPECT_EQ(prob.get_nec(), 1u);

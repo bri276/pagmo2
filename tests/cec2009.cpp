@@ -38,6 +38,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
 #include <pagmo/utils/generic.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -51,10 +52,10 @@ TEST(cec2009_test, cec2009_construction_test)
         cec2009 udp{i, true};
     }
     // We check that wrong problem ids and dimensions cannot be constructed
-    EXPECT_THROW((cec2009{0u}), std::invalid_argument);
-    EXPECT_THROW((cec2009{11u}), std::invalid_argument);
-    EXPECT_THROW((cec2009{1u, false, 0u}), std::invalid_argument);
-    EXPECT_THROW((cec2009{8u, true, 0u}), std::invalid_argument);
+    EXPECT_THROW((cec2009{0u}), problem_config_error);
+    EXPECT_THROW((cec2009{11u}), problem_config_error);
+    EXPECT_THROW((cec2009{1u, false, 0u}), problem_config_error);
+    EXPECT_THROW((cec2009{8u, true, 0u}), problem_config_error);
 }
 
 TEST(cec2009_test, cec2009_fitness_test)

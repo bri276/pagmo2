@@ -53,6 +53,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/s_policy.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -323,80 +324,28 @@ TEST(s_policy_test, selection)
 {
     s_policy r0;
 
-    EXPECT_THROW(r0.select(individuals_group_t{{0}, {}, {}}, 0, 0, 0, 0, 0, {}), std::invalid_argument,
-                 [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains(
-                         "an invalid group of individuals was passed to a selection policy of type 'Select "
-                         "best': the sets of individuals IDs, decision vectors and fitness vectors "
-                         "must all have the same sizes, but instead their sizes are 1, 0 and 0");
-                 });
+    EXPECT_THROW(r0.select(individuals_group_t{{0}, {}, {}}, 0, 0, 0, 0, 0, {}), policy_config_error);
 
-    EXPECT_THROW(r0.select(individuals_group_t{{0}, {{1.}}, {{1.}}}, 0, 0, 0, 0, 0, {}), std::invalid_argument,
-                 [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains(
-                         "a problem dimension of zero was passed to a selection policy of type 'Select best'");
-                 });
+    EXPECT_THROW(r0.select(individuals_group_t{{0}, {{1.}}, {{1.}}}, 0, 0, 0, 0, 0, {}), policy_config_error);
 
-    EXPECT_THROW(r0.select(individuals_group_t{{0}, {{1.}}, {{1.}}}, 1, 2, 0, 0, 0, {}), std::invalid_argument,
-                 [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains(
-                         "the integer dimension (2) passed to a selection policy of type "
-                         "'Select best' is larger than the supplied problem dimension (1)");
-                 });
+    EXPECT_THROW(r0.select(individuals_group_t{{0}, {{1.}}, {{1.}}}, 1, 2, 0, 0, 0, {}), policy_config_error);
 
-    EXPECT_THROW(r0.select(individuals_group_t{{0}, {{1.}}, {{1.}}}, 1, 0, 0, 0, 0, {}), std::invalid_argument,
-                 [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains(
-                         "an invalid number of objectives (0) was passed to a selection policy of type 'Select best'");
-                 });
+    EXPECT_THROW(r0.select(individuals_group_t{{0}, {{1.}}, {{1.}}}, 1, 0, 0, 0, 0, {}), policy_config_error);
 
     EXPECT_THROW(r0.select(individuals_group_t{{0}, {{1.}}, {{1.}}}, 1, 0,
-                           std::numeric_limits<vector_double::size_type>::max(), 0, 0, {}),
-                 std::invalid_argument, [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains(
-                         "the number of objectives ("
-                         + std::to_string(std::numeric_limits<vector_double::size_type>::max())
-                         + ") passed to a selection policy of type 'Select best' is too large");
-                 });
+                           std::numeric_limits<vector_double::size_type>::max(), 0, 0, {}), policy_config_error);
 
     EXPECT_THROW(r0.select(individuals_group_t{{0}, {{1.}}, {{1.}}}, 1, 0, 1,
-                           std::numeric_limits<vector_double::size_type>::max(), 0, {}),
-                 std::invalid_argument, [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains(
-                         "the number of equality constraints ("
-                         + std::to_string(std::numeric_limits<vector_double::size_type>::max())
-                         + ") passed to a selection policy of type 'Select best' is too large");
-                 });
+                           std::numeric_limits<vector_double::size_type>::max(), 0, {}), policy_config_error);
 
     EXPECT_THROW(r0.select(individuals_group_t{{0}, {{1.}}, {{1.}}}, 1, 0, 1, 0,
-                           std::numeric_limits<vector_double::size_type>::max(), {}),
-                 std::invalid_argument, [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains(
-                         "the number of inequality constraints ("
-                         + std::to_string(std::numeric_limits<vector_double::size_type>::max())
-                         + ") passed to a selection policy of type 'Select best' is too large");
-                 });
+                           std::numeric_limits<vector_double::size_type>::max(), {}), policy_config_error);
 
-    EXPECT_THROW(r0.select(individuals_group_t{{0}, {{1.}}, {{1.}}}, 1, 0, 1, 1, 1, {}), std::invalid_argument,
-                 [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains(
-                         "the vector of tolerances passed to a selection policy of type 'Select best' has "
-                         "a dimension (0) which is inconsistent with the total number of constraints (2)");
-                 });
+    EXPECT_THROW(r0.select(individuals_group_t{{0}, {{1.}}, {{1.}}}, 1, 0, 1, 1, 1, {}), policy_config_error);
 
-    EXPECT_THROW(r0.select(individuals_group_t{{0, 1}, {{1.}, {}}, {{1.}, {1.}}}, 1, 0, 1, 0, 0, {}),
-                 std::invalid_argument, [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains(
-                         "not all the individuals passed to a selection policy of type 'Select "
-                         "best' have the expected dimension (1)");
-                 });
+    EXPECT_THROW(r0.select(individuals_group_t{{0, 1}, {{1.}, {}}, {{1.}, {1.}}}, 1, 0, 1, 0, 0, {}), policy_config_error);
 
-    EXPECT_THROW(r0.select(individuals_group_t{{0, 1}, {{1.}, {1.}}, {{1.}, {}}}, 1, 0, 1, 0, 0, {}),
-                 std::invalid_argument, [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains(
-                         "not all the individuals passed to a selection policy of type 'Select "
-                         "best' have the expected fitness dimension (1)");
-                 });
+    EXPECT_THROW(r0.select(individuals_group_t{{0, 1}, {{1.}, {1.}}, {{1.}, {}}}, 1, 0, 1, 0, 0, {}), policy_config_error);
 
     struct fail_0 {
         individuals_group_t select(const individuals_group_t &, const vector_double::size_type &,
@@ -412,13 +361,7 @@ TEST(s_policy_test, selection)
         }
     };
 
-    EXPECT_THROW(s_policy{fail_0{}}.select(individuals_group_t{{0, 1}, {{1.}, {1.}}, {{1.}, {1.}}}, 1, 0, 1, 0, 0, {}),
-                 std::invalid_argument, [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains(
-                         "an invalid group of individuals was returned by a selection policy of type "
-                         "'fail_0': the sets of individuals IDs, decision vectors and fitness vectors "
-                         "must all have the same sizes, but instead their sizes are 1, 0 and 0");
-                 });
+    EXPECT_THROW(s_policy{fail_0{}}.select(individuals_group_t{{0, 1}, {{1.}, {1.}}, {{1.}, {1.}}}, 1, 0, 1, 0, 0, {}), policy_config_error);
 
     struct fail_1 {
         individuals_group_t select(const individuals_group_t &, const vector_double::size_type &,
@@ -434,11 +377,7 @@ TEST(s_policy_test, selection)
         }
     };
 
-    EXPECT_THROW(s_policy{fail_1{}}.select(individuals_group_t{{0, 1}, {{1.}, {1.}}, {{1.}, {1.}}}, 1, 0, 1, 0, 0, {}),
-                 std::invalid_argument, [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains("not all the individuals returned by a selection "
-                                                            "policy of type 'fail_1' have the expected dimension (1)");
-                 });
+    EXPECT_THROW(s_policy{fail_1{}}.select(individuals_group_t{{0, 1}, {{1.}, {1.}}, {{1.}, {1.}}}, 1, 0, 1, 0, 0, {}), policy_config_error);
 
     struct fail_2 {
         individuals_group_t select(const individuals_group_t &, const vector_double::size_type &,
@@ -454,12 +393,7 @@ TEST(s_policy_test, selection)
         }
     };
 
-    EXPECT_THROW(s_policy{fail_2{}}.select(individuals_group_t{{0, 1}, {{1.}, {1.}}, {{1.}, {1.}}}, 1, 0, 1, 0, 0, {}),
-                 std::invalid_argument, [](const std::invalid_argument &ia) {
-                     return std::string(ia.what()).contains(
-                         "not all the individuals returned by a selection policy of type "
-                         "'fail_2' have the expected fitness dimension (1)");
-                 });
+    EXPECT_THROW(s_policy{fail_2{}}.select(individuals_group_t{{0, 1}, {{1.}, {1.}}, {{1.}, {1.}}}, 1, 0, 1, 0, 0, {}), policy_config_error);
 }
 
 struct udsp_a {

@@ -45,7 +45,7 @@ namespace pagmo
 ackley::ackley(unsigned dim) : m_dim(dim)
 {
     if (dim < 1u) {
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(problem_config_error,
                     "Ackley Function must have minimum 1 dimension, " + std::to_string(dim) + " requested");
     }
 }

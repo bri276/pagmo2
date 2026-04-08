@@ -129,7 +129,7 @@ inline std::vector<vector_double> decomposition_weights(vector_double::size_type
 {
     // Sanity check
     if (n_f > n_w) {
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(decomposition_error,
                     "A fitness size of " + std::to_string(n_f)
                         + " was requested to the weight generation routine, while " + std::to_string(n_w)
                         + " weights were requested to be generated. To allow weight be generated correctly the number "
@@ -138,7 +138,7 @@ inline std::vector<vector_double> decomposition_weights(vector_double::size_type
 
     if (n_f < 2u) {
         pagmo_throw(
-            std::invalid_argument,
+            decomposition_error,
             "A fitness size of " + std::to_string(n_f)
                 + " was requested to generate decomposed weights. A dimension of at least two must be requested.");
     }
@@ -167,7 +167,7 @@ inline std::vector<vector_double> decomposition_weights(vector_double::size_type
                           << method << "' weight generation method selected. A size of "
                           << binomial_coefficient(H + n_f - 1u, n_f - 1u) << " or "
                           << binomial_coefficient(H + n_f, n_f - 1u) << " is possible.";
-            pagmo_throw(std::invalid_argument, error_message.str());
+            pagmo_throw(decomposition_error, error_message.str());
         }
         // We generate the weights
         std::vector<pop_size_t> range(H + 1u);
@@ -203,7 +203,7 @@ inline std::vector<vector_double> decomposition_weights(vector_double::size_type
             retval.push_back(sample_from_simplex(dummy));
         }
     } else {
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(decomposition_error,
                     "Weight generation method " + method
                         + " is unknown. One of 'grid', 'random' or 'low discrepancy' was expected");
     }

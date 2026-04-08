@@ -39,6 +39,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/problems/rosenbrock.hpp>
 #include <pagmo/problems/zdt.hpp>
 #include <pagmo/utils/cast.hpp>
+#include <pagmo/exceptions.hpp>
 using namespace pagmo;
 using namespace std;
 
@@ -53,15 +54,15 @@ TEST(ihs_test, ihs_algorithm_construction)
     }
 
     // Here we construct invalid ihs udas and test that construction fails
-    EXPECT_THROW((ihs{1u, 1.2, 0.35, 0.99, 1e-5, 1., 42u}), std::invalid_argument);
-    EXPECT_THROW((ihs{1u, -0.2, 0.35, 0.99, 1e-5, 1., 42u}), std::invalid_argument);
-    EXPECT_THROW((ihs{1u, 0.85, 23., 0.99, 1e-5, 1., 42u}), std::invalid_argument);
-    EXPECT_THROW((ihs{1u, 0.85, -22.4, 0.99, 1e-5, 1., 42u}), std::invalid_argument);
-    EXPECT_THROW((ihs{1u, 0.85, 0.35, 12., 1e-5, 1., 42u}), std::invalid_argument);
-    EXPECT_THROW((ihs{1u, 0.85, 0.35, -0.2, 1e-5, 1., 42u}), std::invalid_argument);
-    EXPECT_THROW((ihs{1u, 0.85, 0.35, 0.34, 1e-5, 1., 42u}), std::invalid_argument);
-    EXPECT_THROW((ihs{1u, 0.85, 0.35, 0.99, -0.43, 1., 42u}), std::invalid_argument);
-    EXPECT_THROW((ihs{1u, 0.85, 0.35, 0.99, 0.4, 0.3, 42u}), std::invalid_argument);
+    EXPECT_THROW((ihs{1u, 1.2, 0.35, 0.99, 1e-5, 1., 42u}), invalid_parameter_error);
+    EXPECT_THROW((ihs{1u, -0.2, 0.35, 0.99, 1e-5, 1., 42u}), invalid_parameter_error);
+    EXPECT_THROW((ihs{1u, 0.85, 23., 0.99, 1e-5, 1., 42u}), invalid_parameter_error);
+    EXPECT_THROW((ihs{1u, 0.85, -22.4, 0.99, 1e-5, 1., 42u}), invalid_parameter_error);
+    EXPECT_THROW((ihs{1u, 0.85, 0.35, 12., 1e-5, 1., 42u}), invalid_parameter_error);
+    EXPECT_THROW((ihs{1u, 0.85, 0.35, -0.2, 1e-5, 1., 42u}), invalid_parameter_error);
+    EXPECT_THROW((ihs{1u, 0.85, 0.35, 0.34, 1e-5, 1., 42u}), invalid_parameter_error);
+    EXPECT_THROW((ihs{1u, 0.85, 0.35, 0.99, -0.43, 1., 42u}), invalid_parameter_error);
+    EXPECT_THROW((ihs{1u, 0.85, 0.35, 0.99, 0.4, 0.3, 42u}), invalid_parameter_error);
 }
 
 struct mo_many {
@@ -86,11 +87,11 @@ TEST(ihs_test, ihs_evolve_test)
     // We test for unsuitable populations
     {
         population pop{rosenbrock{25u}};
-        EXPECT_THROW(ihs{15u}.evolve(pop), std::invalid_argument);
+        EXPECT_THROW(ihs{15u}.evolve(pop), insufficient_population_error);
         population pop2{null_problem{2u, 3u, 4u}, 20u};
-        EXPECT_THROW(ihs{15u}.evolve(pop2), std::invalid_argument);
+        EXPECT_THROW(ihs{15u}.evolve(pop2), insufficient_population_error);
         population pop3{inventory{}, 20u};
-        EXPECT_THROW(ihs{15u}.evolve(pop3), std::invalid_argument);
+        EXPECT_THROW(ihs{15u}.evolve(pop3), insufficient_population_error);
     }
     // And a clean exit for 0 generations
     {

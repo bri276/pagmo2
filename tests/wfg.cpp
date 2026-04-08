@@ -38,6 +38,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -46,15 +47,15 @@ TEST(wfg_test, wfg_construction_test)
     wfg wfg_default{};
     wfg wfg1{1u, 10u, 5u, 8u};
 
-    EXPECT_THROW((wfg{10u, 5u, 3u, 4u}), std::invalid_argument);
-    EXPECT_THROW((wfg{0u, 5u, 3u, 4u}), std::invalid_argument);
-    EXPECT_THROW((wfg{8u, 0u, 3u, 4u}), std::invalid_argument);
-    EXPECT_THROW((wfg{8u, 5u, 1u, 4u}), std::invalid_argument);
-    EXPECT_THROW((wfg{8u, 5u, 3u, 6u}), std::invalid_argument);
-    EXPECT_THROW((wfg{8u, 5u, 3u, 0u}), std::invalid_argument);
-    EXPECT_THROW((wfg{8u, 5u, 4u, 4u}), std::invalid_argument);
-    EXPECT_THROW((wfg{2u, 9u, 3u, 4u}), std::invalid_argument);
-    EXPECT_THROW((wfg{3u, 9u, 3u, 4u}), std::invalid_argument);
+    EXPECT_THROW((wfg{10u, 5u, 3u, 4u}), problem_config_error);
+    EXPECT_THROW((wfg{0u, 5u, 3u, 4u}), problem_config_error);
+    EXPECT_THROW((wfg{8u, 0u, 3u, 4u}), problem_config_error);
+    EXPECT_THROW((wfg{8u, 5u, 1u, 4u}), problem_config_error);
+    EXPECT_THROW((wfg{8u, 5u, 3u, 6u}), problem_config_error);
+    EXPECT_THROW((wfg{8u, 5u, 3u, 0u}), problem_config_error);
+    EXPECT_THROW((wfg{8u, 5u, 4u, 4u}), problem_config_error);
+    EXPECT_THROW((wfg{2u, 9u, 3u, 4u}), problem_config_error);
+    EXPECT_THROW((wfg{3u, 9u, 3u, 4u}), problem_config_error);
 
     EXPECT_NO_THROW(problem{wfg_default});
     EXPECT_NO_THROW(problem{wfg1});

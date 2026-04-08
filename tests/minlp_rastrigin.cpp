@@ -40,13 +40,14 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/rng.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/generic.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
 TEST(minlp_rastrigin_test, min_lp_rastrigin_test)
 {
     // Problem construction
-    EXPECT_THROW((minlp_rastrigin{0u, 0u}), std::invalid_argument);
+    EXPECT_THROW((minlp_rastrigin{0u, 0u}), problem_config_error);
     EXPECT_NO_THROW((problem{minlp_rastrigin{1u, 1u}}));
     EXPECT_NO_THROW((problem{minlp_rastrigin{0u, 1u}}));
     EXPECT_NO_THROW((problem{minlp_rastrigin{1u, 0u}}));

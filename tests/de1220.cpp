@@ -43,6 +43,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -55,10 +56,10 @@ TEST(de1220_test, construction_test)
     EXPECT_TRUE(user_algo.get_seed() == 23u);
     EXPECT_TRUE((user_algo.get_log() == de1220::log_type{}));
 
-    EXPECT_THROW((de1220{53u, {3u, 5u, 0u, 14u}, 1u, 1e-6, 1e-6, false, 23u}), std::invalid_argument);
-    EXPECT_THROW((de1220{53u, {4u, 5u, 15u, 22u, 7u}, 1u, 1e-6, 1e-6, false, 23u}), std::invalid_argument);
-    EXPECT_THROW((de1220{53u, mutation_variants, 0u, 1e-6, 1e-6, false, 23u}), std::invalid_argument);
-    EXPECT_THROW((de1220{53u, mutation_variants, 3u, 1e-6, 1e-6, false, 23u}), std::invalid_argument);
+    EXPECT_THROW((de1220{53u, {3u, 5u, 0u, 14u}, 1u, 1e-6, 1e-6, false, 23u}), invalid_parameter_error);
+    EXPECT_THROW((de1220{53u, {4u, 5u, 15u, 22u, 7u}, 1u, 1e-6, 1e-6, false, 23u}), invalid_parameter_error);
+    EXPECT_THROW((de1220{53u, mutation_variants, 0u, 1e-6, 1e-6, false, 23u}), invalid_parameter_error);
+    EXPECT_THROW((de1220{53u, mutation_variants, 3u, 1e-6, 1e-6, false, 23u}), invalid_parameter_error);
 }
 
 TEST(de1220_test, evolve_test)
@@ -114,10 +115,10 @@ TEST(de1220_test, evolve_test)
     }
 
     // We then check that the evolve throws if called on unsuitable problems
-    EXPECT_THROW(de1220{10u}.evolve(population{problem{rosenbrock{}}, 6u}), std::invalid_argument);
-    EXPECT_THROW(de1220{10u}.evolve(population{problem{zdt{}}, 15u}), std::invalid_argument);
-    EXPECT_THROW(de1220{10u}.evolve(population{problem{hock_schittkowski_71{}}, 15u}), std::invalid_argument);
-    EXPECT_THROW(de1220{10u}.evolve(population{problem{inventory{}}, 15u}), std::invalid_argument);
+    EXPECT_THROW(de1220{10u}.evolve(population{problem{rosenbrock{}}, 6u}), insufficient_population_error);
+    EXPECT_THROW(de1220{10u}.evolve(population{problem{zdt{}}, 15u}), incompatible_problem_error);
+    EXPECT_THROW(de1220{10u}.evolve(population{problem{hock_schittkowski_71{}}, 15u}), incompatible_problem_error);
+    EXPECT_THROW(de1220{10u}.evolve(population{problem{inventory{}}, 15u}), incompatible_problem_error);
     // And a clean exit for 0 generations
     population pop{rosenbrock{25u}, 10u};
     EXPECT_TRUE(de1220{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);

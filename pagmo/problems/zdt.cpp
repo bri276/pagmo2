@@ -55,13 +55,13 @@ namespace pagmo
 zdt::zdt(unsigned prob_id, unsigned param) : m_prob_id(prob_id), m_param(param)
 {
     if (param < 2u) {
-        pagmo_throw(std::invalid_argument, "ZDT test problems must have a minimum value of 2 for the constructing "
-                                           "parameter (representing the dimension except for ZDT5), "
-                                               + std::to_string(param) + " requested");
+        pagmo_throw(problem_config_error, "ZDT test problems must have a minimum value of 2 for the constructing "
+                                          "parameter (representing the dimension except for ZDT5), "
+                                              + std::to_string(param) + " requested");
     }
     if (prob_id == 0u || prob_id > 6u) {
-        pagmo_throw(std::invalid_argument, "ZDT test suite contains six (prob_id=[1 ... 6]) problems, prob_id="
-                                               + std::to_string(prob_id) + " was detected");
+        pagmo_throw(problem_config_error, "ZDT test suite contains six (prob_id=[1 ... 6]) problems, prob_id="
+                                              + std::to_string(prob_id) + " was detected");
     }
 }
 

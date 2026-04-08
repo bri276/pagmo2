@@ -57,22 +57,22 @@ cmaes::cmaes(unsigned gen, double cc, double cs, double c1, double cmu, double s
       m_memory(memory), m_force_bounds(force_bounds), m_e(seed), m_seed(seed), m_verbosity(0u)
 {
     if (((cc < 0.) || (cc > 1.)) && !(cc == -1)) {
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(invalid_parameter_error,
                     "cc must be in [0,1] or -1 if its value has to be initialized automatically, a value of "
                         + std::to_string(cc) + " was detected");
     }
     if (((cs < 0.) || (cs > 1.)) && !(cs == -1)) {
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(invalid_parameter_error,
                     "cs needs to be in [0,1] or -1 if its value has to be initialized automatically, a value of "
                         + std::to_string(cs) + " was detected");
     }
     if (((c1 < 0.) || (c1 > 1.)) && !(c1 == -1)) {
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(invalid_parameter_error,
                     "c1 needs to be in [0,1] or -1 if its value has to be initialized automatically, a value of "
                         + std::to_string(c1) + " was detected");
     }
     if (((cmu < 0.) || (cmu > 1.)) && !(cmu == -1)) {
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(invalid_parameter_error,
                     "cmu needs to be in [0,1] or -1 if its value has to be initialized automatically, a value of "
                         + std::to_string(cmu) + " was detected");
     }
@@ -122,26 +122,26 @@ population cmaes::evolve(population pop) const
     // PREAMBLE--------------------------------------------------
     // Checks on the problem type
     if (prob.get_nc() != 0u) {
-        pagmo_throw(std::invalid_argument, "Non linear constraints detected in " + prob.get_name() + " instance. "
+        pagmo_throw(incompatible_problem_error, "Non linear constraints detected in " + prob.get_name() + " instance. "
                                                + get_name() + " cannot deal with them");
     }
     if (prob_f_dimension != 1u) {
-        pagmo_throw(std::invalid_argument, "Multiple objectives detected in " + prob.get_name() + " instance. "
+        pagmo_throw(incompatible_problem_error, "Multiple objectives detected in " + prob.get_name() + " instance. "
                                                + get_name() + " cannot deal with them");
     }
     if (lam < 5u) {
-        pagmo_throw(std::invalid_argument, get_name() + " needs at least 5 individuals in the population, "
+        pagmo_throw(insufficient_population_error, get_name() + " needs at least 5 individuals in the population, "
                                                + std::to_string(lam) + " detected");
     }
     for (auto num : lb) {
         if (!std::isfinite(num)) {
-            pagmo_throw(std::invalid_argument, "A " + std::to_string(num) + " is detected in the lower bounds, "
+            pagmo_throw(invalid_parameter_error, "A " + std::to_string(num) + " is detected in the lower bounds, "
                                                    + this->get_name() + " cannot deal with it.");
         }
     }
     for (auto num : ub) {
         if (!std::isfinite(num)) {
-            pagmo_throw(std::invalid_argument, "A " + std::to_string(num) + " is detected in the upper bounds, "
+            pagmo_throw(invalid_parameter_error, "A " + std::to_string(num) + " is detected in the upper bounds, "
                                                    + this->get_name() + " cannot deal with it.");
         }
     }

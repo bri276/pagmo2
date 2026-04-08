@@ -87,7 +87,7 @@ void not_population_based::set_random_sr_seed(unsigned seed)
 void not_population_based::set_selection(const std::string &select)
 {
     if (select != "best" && select != "worst" && select != "random") {
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(invalid_parameter_error,
                     "the individual selection policy must be one of ['best', 'worst', 'random'], but '" + select
                         + "' was provided instead");
     }
@@ -129,7 +129,7 @@ std::any not_population_based::get_selection() const
 void not_population_based::set_replacement(const std::string &replace)
 {
     if (replace != "best" && replace != "worst" && replace != "random") {
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(invalid_parameter_error,
                     "the individual replacement policy must be one of ['best', 'worst', 'random'], but '" + replace
                         + "' was provided instead");
     }
@@ -195,7 +195,7 @@ std::pair<vector_double, vector_double> not_population_based::select_individual(
     } else {
         const auto idx = std::any_cast<population::size_type>(m_select);
         if (idx >= pop.size()) {
-            pagmo_throw(std::invalid_argument, "cannot select the individual at index " + std::to_string(idx)
+            pagmo_throw(index_error, "cannot select the individual at index " + std::to_string(idx)
                                                    + ": the population has a size of only "
                                                    + std::to_string(pop.size()));
         }
@@ -244,7 +244,7 @@ void not_population_based::replace_individual(population &pop, const vector_doub
     } else {
         const auto idx = std::any_cast<population::size_type>(m_replace);
         if (idx >= pop.size()) {
-            pagmo_throw(std::invalid_argument, "cannot replace the individual at index " + std::to_string(idx)
+            pagmo_throw(index_error, "cannot replace the individual at index " + std::to_string(idx)
                                                    + ": the population has a size of only "
                                                    + std::to_string(pop.size()));
         }

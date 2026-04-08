@@ -37,16 +37,17 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/problem.hpp>
 #include <pagmo/problems/lennard_jones.hpp>
 #include <pagmo/types.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
 TEST(lennard_jones_test, lennard_jones_test)
 {
     // Problem construction
-    EXPECT_THROW(lennard_jones{0u}, std::invalid_argument);
-    EXPECT_THROW(lennard_jones{1u}, std::invalid_argument);
-    EXPECT_THROW(lennard_jones{2u}, std::invalid_argument);
-    EXPECT_THROW(lennard_jones{std::numeric_limits<unsigned>::max() / 2}, std::overflow_error);
+    EXPECT_THROW(lennard_jones{0u}, problem_config_error);
+    EXPECT_THROW(lennard_jones{1u}, problem_config_error);
+    EXPECT_THROW(lennard_jones{2u}, problem_config_error);
+    EXPECT_THROW(lennard_jones{std::numeric_limits<unsigned>::max() / 2}, size_limit_error);
 
     lennard_jones lj{3u};
     EXPECT_NO_THROW(problem{lj});

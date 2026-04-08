@@ -102,14 +102,14 @@ void thread_island::run_evolve(island &isl) const
 
             // Check the thread safety levels.
             if (tmp_algo.get_thread_safety() < thread_safety::basic) {
-                pagmo_throw(std::invalid_argument,
+                pagmo_throw(incompatible_problem_error,
                             "the 'thread_island' UDI requires an algorithm providing at least the 'basic' "
                             "thread safety guarantee, but an algorithm of type '"
                                 + tmp_algo.get_name() + "' does not");
             }
 
             if (tmp_pop.get_problem().get_thread_safety() < thread_safety::basic) {
-                pagmo_throw(std::invalid_argument,
+                pagmo_throw(incompatible_problem_error,
                             "the 'thread_island' UDI requires a problem providing at least the 'basic' "
                             "thread safety guarantee, but a problem of type '"
                                 + tmp_pop.get_problem().get_name() + "' does not");

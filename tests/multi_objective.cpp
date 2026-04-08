@@ -36,6 +36,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/io.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/multi_objective.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -48,7 +49,7 @@ TEST(multi_objective_test, pareto_dominance_test)
     EXPECT_TRUE(pareto_dominance({-3.4, 1.5, 2.9, -2.3, 4.99, 3.2, 6.6}, {1, 2, 3, 4, 5, 6, 7}));
     EXPECT_TRUE(!pareto_dominance({}, {}));
     EXPECT_TRUE(pareto_dominance({2}, {3}));
-    EXPECT_THROW(pareto_dominance({1, 2}, {3, 4, 5}), std::invalid_argument);
+    EXPECT_THROW(pareto_dominance({1, 2}, {3, 4, 5}), dimension_mismatch_error);
 }
 
 TEST(multi_objective_test, non_dominated_front_2d_test)
@@ -72,8 +73,8 @@ TEST(multi_objective_test, non_dominated_front_2d_test)
         EXPECT_TRUE(std::is_permutation(res.begin(), res.end(), sol.begin()));
     }
     // And we test the throws
-    EXPECT_THROW(non_dominated_front_2d({{1, 2}, {2}, {2, 3, 4}}), std::invalid_argument);
-    EXPECT_THROW(non_dominated_front_2d({{2, 3, 2}, {1, 2, 5}, {2, 3, 4}}), std::invalid_argument);
+    EXPECT_THROW(non_dominated_front_2d({{1, 2}, {2}, {2, 3, 4}}), dimension_mismatch_error);
+    EXPECT_THROW(non_dominated_front_2d({{2, 3, 2}, {1, 2, 5}, {2, 3, 4}}), dimension_mismatch_error);
 }
 
 TEST(multi_objective_test, fast_non_dominated_sorting_test)
@@ -131,15 +132,15 @@ TEST(multi_objective_test, fast_non_dominated_sorting_test)
 
     // Test 4
     example = {{0, 0, 0}};
-    EXPECT_THROW(fast_non_dominated_sorting(example), std::invalid_argument);
+    EXPECT_THROW(fast_non_dominated_sorting(example), dimension_mismatch_error);
     example = {{}};
-    EXPECT_THROW(fast_non_dominated_sorting(example), std::invalid_argument);
+    EXPECT_THROW(fast_non_dominated_sorting(example), dimension_mismatch_error);
     example = {};
-    EXPECT_THROW(fast_non_dominated_sorting(example), std::invalid_argument);
+    EXPECT_THROW(fast_non_dominated_sorting(example), dimension_mismatch_error);
     example = {{1, 3}, {3, 42, 3}, {}};
-    EXPECT_THROW(fast_non_dominated_sorting(example), std::invalid_argument);
+    EXPECT_THROW(fast_non_dominated_sorting(example), dimension_mismatch_error);
     example = {{3, 4, 5}, {}};
-    EXPECT_THROW(fast_non_dominated_sorting(example), std::invalid_argument);
+    EXPECT_THROW(fast_non_dominated_sorting(example), dimension_mismatch_error);
 }
 
 TEST(multi_objective_test, crowding_distance_test)
@@ -167,15 +168,15 @@ TEST(multi_objective_test, crowding_distance_test)
     EXPECT_TRUE(crowding_distance(example) == result);
     // Test 4
     example = {};
-    EXPECT_THROW(crowding_distance(example), std::invalid_argument);
+    EXPECT_THROW(crowding_distance(example), dimension_mismatch_error);
     example = {{}, {}};
-    EXPECT_THROW(crowding_distance(example), std::invalid_argument);
+    EXPECT_THROW(crowding_distance(example), dimension_mismatch_error);
     example = {{1, 2}};
-    EXPECT_THROW(crowding_distance(example), std::invalid_argument);
+    EXPECT_THROW(crowding_distance(example), dimension_mismatch_error);
     example = {{1}, {2}};
-    EXPECT_THROW(crowding_distance(example), std::invalid_argument);
+    EXPECT_THROW(crowding_distance(example), dimension_mismatch_error);
     example = {{2, 3}, {3, 4}, {2, 4, 5}};
-    EXPECT_THROW(crowding_distance(example), std::invalid_argument);
+    EXPECT_THROW(crowding_distance(example), dimension_mismatch_error);
 }
 
 TEST(multi_objective_test, sort_population_mo_test)
@@ -201,9 +202,9 @@ TEST(multi_objective_test, sort_population_mo_test)
     EXPECT_TRUE(sort_population_mo(example) == result);
     // Test 3 - Throws
     example = {{0}, {1, 2}};
-    EXPECT_THROW(sort_population_mo(example), std::invalid_argument);
+    EXPECT_THROW(sort_population_mo(example), dimension_mismatch_error);
     example = {{}, {}};
-    EXPECT_THROW(sort_population_mo(example), std::invalid_argument);
+    EXPECT_THROW(sort_population_mo(example), dimension_mismatch_error);
 }
 
 TEST(multi_objective_test, select_best_N_mo_test)
@@ -252,9 +253,9 @@ TEST(multi_objective_test, select_best_N_mo_test)
 
     // Test 3 - throws
     example = {{0}, {1, 2}, {2}, {0, 0}, {6}};
-    EXPECT_THROW(select_best_N_mo(example, 2u), std::invalid_argument);
+    EXPECT_THROW(select_best_N_mo(example, 2u), dimension_mismatch_error);
     example = {{}, {}, {}, {}, {}, {}};
-    EXPECT_THROW(select_best_N_mo(example, 2u), std::invalid_argument);
+    EXPECT_THROW(select_best_N_mo(example, 2u), dimension_mismatch_error);
     example = {{1, 2}, {3, 4}, {0, 1}, {1, 0}, {2, 2}, {2, 4}};
     EXPECT_TRUE(select_best_N_mo(example, 0u).empty());
 }
@@ -282,9 +283,9 @@ TEST(multi_objective_test, ideal_test)
     EXPECT_TRUE(ideal(example) == result);
     // Test 2 - throws
     example = {{-1}, {1, 4}, {2}, {0, 4, 2}, {6}};
-    EXPECT_THROW(ideal(example), std::invalid_argument);
+    EXPECT_THROW(ideal(example), dimension_mismatch_error);
     example = {{}, {1}};
-    EXPECT_THROW(ideal(example), std::invalid_argument);
+    EXPECT_THROW(ideal(example), dimension_mismatch_error);
 }
 
 TEST(multi_objective_test, nadir_test)
@@ -310,9 +311,9 @@ TEST(multi_objective_test, nadir_test)
     EXPECT_TRUE(nadir(example) == result);
     // Test 2 - throws
     example = {{-1}, {1, 4}, {2}, {0, 4, 2}, {6}};
-    EXPECT_THROW(nadir(example), std::invalid_argument);
+    EXPECT_THROW(nadir(example), dimension_mismatch_error);
     example = {{}, {1}};
-    EXPECT_THROW(nadir(example), std::invalid_argument);
+    EXPECT_THROW(nadir(example), dimension_mismatch_error);
 }
 
 void check_weights(const std::vector<std::vector<double>> &win, vector_double::size_type n_f)
@@ -329,13 +330,13 @@ TEST(multi_objective_test, decomposition_weights_test)
     std::mt19937 r_engine(23u);
     // We test some throws
     // At least 2 objectives are needed
-    EXPECT_THROW(decomposition_weights(1u, 5u, "grid", r_engine), std::invalid_argument);
+    EXPECT_THROW(decomposition_weights(1u, 5u, "grid", r_engine), dimension_mismatch_error);
     // The weight generation method must be one of 'grid', 'random', 'low discrepancy'
-    EXPECT_THROW(decomposition_weights(2u, 5u, "grod", r_engine), std::invalid_argument);
+    EXPECT_THROW(decomposition_weights(2u, 5u, "grod", r_engine), dimension_mismatch_error);
     // The number of weights are smaller than the number of objectives
-    EXPECT_THROW(decomposition_weights(10u, 5u, "grid", r_engine), std::invalid_argument);
+    EXPECT_THROW(decomposition_weights(10u, 5u, "grid", r_engine), dimension_mismatch_error);
     // The number of weights is not compatible with 'grid'
-    EXPECT_THROW(decomposition_weights(4u, 31u, "grid", r_engine), std::invalid_argument);
+    EXPECT_THROW(decomposition_weights(4u, 31u, "grid", r_engine), dimension_mismatch_error);
 
     // We test some known cases
     {
@@ -403,8 +404,8 @@ TEST(multi_objective_test, decompose_objectives_test)
     EXPECT_NEAR(d1 + 5.0 * d2, fb, 1e-8);
 
     // We check the throws
-    EXPECT_THROW(decompose_objectives(f, {1., 2., 3., 4.}, ref_point, "weighted"), std::invalid_argument);
-    EXPECT_THROW(decompose_objectives(f, weight, {1.}, "weighted"), std::invalid_argument);
-    EXPECT_THROW(decompose_objectives(f, weight, ref_point, "pippo"), std::invalid_argument);
-    EXPECT_THROW(decompose_objectives({}, {}, {}, "weighted"), std::invalid_argument);
+    EXPECT_THROW(decompose_objectives(f, {1., 2., 3., 4.}, ref_point, "weighted"), dimension_mismatch_error);
+    EXPECT_THROW(decompose_objectives(f, weight, {1.}, "weighted"), dimension_mismatch_error);
+    EXPECT_THROW(decompose_objectives(f, weight, ref_point, "pippo"), dimension_mismatch_error);
+    EXPECT_THROW(decompose_objectives({}, {}, {}, "weighted"), dimension_mismatch_error);
 }

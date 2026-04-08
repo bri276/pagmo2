@@ -70,7 +70,7 @@ struct pipe_t {
         int fd[2];
         // LCOV_EXCL_START
         if (pipe(fd) == -1) {
-            pagmo_throw(std::runtime_error, "Unable to create a pipe with the pipe() function. The error code is "
+            pagmo_throw(system_error, "Unable to create a pipe with the pipe() function. The error code is "
                                                 + std::to_string(errno) + " and the error message is: '"
                                                 + std::strerror(errno) + "'");
         }
@@ -86,7 +86,7 @@ struct pipe_t {
         if (r_status) {
             // LCOV_EXCL_START
             if (close(rd) == -1) {
-                pagmo_throw(std::runtime_error,
+                pagmo_throw(system_error,
                             "Unable to close the reading end of a pipe with the close() function. The error code is "
                                 + std::to_string(errno) + " and the error message is: '" + std::strerror(errno) + "'");
             }
@@ -100,7 +100,7 @@ struct pipe_t {
         if (w_status) {
             // LCOV_EXCL_START
             if (close(wd) == -1) {
-                pagmo_throw(std::runtime_error,
+                pagmo_throw(system_error,
                             "Unable to close the writing end of a pipe with the close() function. The error code is "
                                 + std::to_string(errno) + " and the error message is: '" + std::strerror(errno) + "'");
             }
@@ -130,7 +130,7 @@ struct pipe_t {
         auto retval = ::read(rd, buf, count);
         // LCOV_EXCL_START
         if (retval == -1) {
-            pagmo_throw(std::runtime_error, "Unable to read from a pipe with the read() function. The error code is "
+            pagmo_throw(system_error, "Unable to read from a pipe with the read() function. The error code is "
                                                 + std::to_string(errno) + " and the error message is: '"
                                                 + std::strerror(errno) + "'");
         }
@@ -143,7 +143,7 @@ struct pipe_t {
         auto retval = ::write(wd, buf, count);
         // LCOV_EXCL_START
         if (retval == -1) {
-            pagmo_throw(std::runtime_error, "Unable to write to a pipe with the write() function. The error code is "
+            pagmo_throw(system_error, "Unable to write to a pipe with the write() function. The error code is "
                                                 + std::to_string(errno) + " and the error message is: '"
                                                 + std::strerror(errno) + "'");
         }
@@ -178,7 +178,7 @@ void fork_island::run_evolve(island &isl) const
     // LCOV_EXCL_START
     if (child_pid == -1) {
         // Forking failed.
-        pagmo_throw(std::runtime_error,
+        pagmo_throw(system_error,
                     "Cannot fork the process in a fork_island with the fork() function. The error code is "
                         + std::to_string(errno) + " and the error message is: '" + std::strerror(errno) + "'");
     }
@@ -246,14 +246,14 @@ void fork_island::run_evolve(island &isl) const
         // failure in the creation of new child processes.
         if (::waitpid(child_pid, nullptr, 0) != child_pid) {
             // LCOV_EXCL_START
-            pagmo_throw(std::runtime_error, "The waitpid() function returned an error while attempting to wait for the "
+            pagmo_throw(system_error, "The waitpid() function returned an error while attempting to wait for the "
                                             "child process in fork_island");
             // LCOV_EXCL_STOP
         }
         // At this point, we have received the data from the child, and we can insert
         // it into isl, or raise an error.
         if (std::get<0>(m)) {
-            pagmo_throw(std::runtime_error, "The run_evolve() method of fork_island raised an error in the "
+            pagmo_throw(system_error, "The run_evolve() method of fork_island raised an error in the "
                                             "child process. The full error message reported by the child is:\n"
                                                 + std::get<1>(m));
         }

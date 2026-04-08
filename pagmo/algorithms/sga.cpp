@@ -119,20 +119,20 @@ sga::sga(unsigned gen, double cr, double eta_c, double m, double param_m, unsign
       m_verbosity(0u), m_log()
 {
     if (cr > 1. || cr < 0.) {
-        pagmo_throw(std::invalid_argument, "The crossover probability must be in the [0,1] range, while a value of "
+        pagmo_throw(invalid_parameter_error, "The crossover probability must be in the [0,1] range, while a value of "
                                                + std::to_string(cr) + " was detected");
     }
     if (eta_c < 1. || eta_c > 100.) {
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(invalid_parameter_error,
                     "The distribution index for SBX crossover must be in [1, 100], while a value of "
                         + std::to_string(eta_c) + " was detected");
     }
     if (m < 0. || m > 1.) {
-        pagmo_throw(std::invalid_argument, "The mutation probability must be in the [0,1] range, while a value of "
+        pagmo_throw(invalid_parameter_error, "The mutation probability must be in the [0,1] range, while a value of "
                                                + std::to_string(cr) + " was detected");
     }
     if (param_s == 0u) {
-        pagmo_throw(std::invalid_argument, "The selection parameter must be at least 1, while a value of "
+        pagmo_throw(invalid_parameter_error, "The selection parameter must be at least 1, while a value of "
                                                + std::to_string(param_s) + " was detected");
     }
     if (mutation != "gaussian" && mutation != "uniform" && mutation != "polynomial") {
@@ -155,14 +155,14 @@ sga::sga(unsigned gen, double cr, double eta_c, double m, double param_m, unsign
     }
     // param_m represents the distribution index if polynomial mutation is selected
     if (mutation == "polynomial" && (param_m < 1. || param_m > 100.)) {
-        pagmo_throw(std::invalid_argument, "Polynomial mutation was selected, the mutation parameter (distribution "
+        pagmo_throw(invalid_parameter_error, "Polynomial mutation was selected, the mutation parameter (distribution "
                                            "index) must be in [1, 100], while a value of "
                                                + std::to_string(param_m) + " was detected");
     }
 
     // otherwise param_m represents the width of the mutation relative to the box bounds
     if (mutation != "polynomial" && (param_m < 0 || param_m > 1.)) {
-        pagmo_throw(std::invalid_argument, "The mutation parameter must be in [0,1], while a value of "
+        pagmo_throw(invalid_parameter_error, "The mutation parameter must be in [0,1], while a value of "
                                                + std::to_string(param_m) + " was detected");
     }
     // We can now init the data members representing the various choices made using std::string
@@ -192,25 +192,25 @@ population sga::evolve(population pop) const
     // PREAMBLE-------------------------------------------------------------------------------------------------
     // Check whether the problem/population are suitable for bee_colony
     if (prob.get_nc() != 0u) {
-        pagmo_throw(std::invalid_argument, "Constraints detected in " + prob.get_name() + " instance. " + get_name()
+        pagmo_throw(incompatible_problem_error, "Constraints detected in " + prob.get_name() + " instance. " + get_name()
                                                + " cannot deal with them");
     }
     if (prob.get_nf() != 1u) {
-        pagmo_throw(std::invalid_argument, "Multiple objectives detected in " + prob.get_name() + " instance. "
+        pagmo_throw(incompatible_problem_error, "Multiple objectives detected in " + prob.get_name() + " instance. "
                                                + get_name() + " cannot deal with them");
     }
     if (NP < 2u) {
-        pagmo_throw(std::invalid_argument, prob.get_name() + " needs at least 2 individuals in the population, "
+        pagmo_throw(insufficient_population_error, prob.get_name() + " needs at least 2 individuals in the population, "
                                                + std::to_string(NP) + " detected");
     }
     if (m_param_s > pop.size()) {
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(invalid_parameter_error,
                     "The parameter for selection must be smaller than the population size, while a value of: "
                         + std::to_string(m_param_s)
                         + " was detected in a population of size: " + std::to_string(pop.size()));
     }
     if (m_crossover == detail::sga_crossover::SBX && (pop.size() % 2 != 0u)) {
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(invalid_parameter_error,
                     "Population size must be even if sbx crossover is selected. Detected pop size is: "
                         + std::to_string(pop.size()));
     }

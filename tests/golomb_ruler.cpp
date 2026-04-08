@@ -42,15 +42,16 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/problems/golomb_ruler.hpp>
 #include <pagmo/problems/unconstrain.hpp>
 #include <pagmo/types.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
 TEST(golomb_ruler_test, golomb_ruler_test)
 {
     // Problem construction
-    EXPECT_THROW((golomb_ruler{0u, 10u}), std::invalid_argument);
-    EXPECT_THROW((golomb_ruler{10u, 0u}), std::invalid_argument);
-    EXPECT_THROW((golomb_ruler{400u, std::numeric_limits<unsigned>::max() / 300u}), std::overflow_error);
+    EXPECT_THROW((golomb_ruler{0u, 10u}), problem_config_error);
+    EXPECT_THROW((golomb_ruler{10u, 0u}), problem_config_error);
+    EXPECT_THROW((golomb_ruler{400u, std::numeric_limits<unsigned>::max() / 300u}), size_limit_error);
 
     golomb_ruler gr{4u, 4u};
     EXPECT_NO_THROW(problem{gr});

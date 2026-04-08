@@ -53,7 +53,7 @@ free_form::free_form(bgl_graph_t g)
         const auto w = g[*erange.first];
 
         if (!std::isfinite(w) || w < 0. || w > 1.) {
-            pagmo_throw(std::invalid_argument,
+            pagmo_throw(invalid_value_error,
                         "In the constructor of a free_form topology from a graph object, an invalid edge weight of "
                             + std::to_string(w) + " was detected (the weight must be in the [0., 1.] range)");
         }

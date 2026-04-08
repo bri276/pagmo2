@@ -39,6 +39,7 @@ see https://www.gnu.org/licenses/. */
 
 #include <pagmo/s11n.hpp>
 #include <pagmo/topologies/base_bgl_topology.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -145,58 +146,37 @@ TEST(base_bgl_topology, error_handling)
 {
     bbt t0;
 
-    EXPECT_THROW(t0.are_adjacent(0, 1), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return             ia.what(), "invalid vertex index in a BGL topology: the index is 0.contains( but the number of vertices is only 0");
+    EXPECT_THROW(t0.are_adjacent(0, 1), index_error);
     });
 
     t0.add_vertex();
     t0.add_vertex();
     t0.add_vertex();
 
-    EXPECT_THROW(t0.get_connections(42), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return             ia.what(), "invalid vertex index in a BGL topology: the index is 42.contains( but the number of vertices is only 3");
+    EXPECT_THROW(t0.get_connections(42), index_error);
     });
 
-    EXPECT_THROW(t0.add_edge(4, 5), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return             ia.what(), "invalid vertex index in a BGL topology: the index is 4.contains( but the number of vertices is only 3");
+    EXPECT_THROW(t0.add_edge(4, 5), index_error);
     });
 
     t0.add_edge(0, 2);
-    EXPECT_THROW(t0.add_edge(0, 2), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return std::string(ia.what()).contains(
-            "cannot add an edge in a BGL topology: there is already an edge connecting 0 to 2");
-    });
+    EXPECT_THROW(t0.add_edge(0, 2), index_error);
 
     t0.remove_edge(0, 2);
-    EXPECT_THROW(t0.remove_edge(0, 2), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return std::string(ia.what()).contains(
-            "cannot remove an edge in a BGL topology: there is no edge connecting 0 to 2");
-    });
+    EXPECT_THROW(t0.remove_edge(0, 2), index_error);
 
     t0.add_edge(0, 2);
     t0.set_weight(0, 2, .2);
-    EXPECT_THROW(t0.set_weight(0, 2, -1.), std::invalid_argument,
-                 [](const std::invalid_argument &ia) { return ia.what(), " is not in the [0..contains( 1.] range"); });
-    EXPECT_THROW(t0.set_all_weights(-1.), std::invalid_argument,
-                 [](const std::invalid_argument &ia) { return ia.what(), " is not in the [0..contains( 1.] range"); });
-    EXPECT_THROW(t0.set_weight(0, 2, std::numeric_limits<double>::infinity()), std::invalid_argument,
-                 [](const std::invalid_argument &ia) { return std::string(ia.what()).contains(" is not finite"); });
-    EXPECT_THROW(t0.set_all_weights(std::numeric_limits<double>::infinity()), std::invalid_argument,
-                 [](const std::invalid_argument &ia) { return std::string(ia.what()).contains(" is not finite"); });
-    EXPECT_THROW(t0.set_weight(0, 1, .2), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return std::string(ia.what()).contains(
-            "cannot set the weight of an edge in a BGL topology: the vertex 0 is not connected to vertex 1");
-    });
+    EXPECT_THROW(t0.set_weight(0, 2, -1.), invalid_value_error); });
+    EXPECT_THROW(t0.set_all_weights(-1.), invalid_value_error); });
+    EXPECT_THROW(t0.set_weight(0, 2, std::numeric_limits<double>::infinity()), invalid_value_error);
+    EXPECT_THROW(t0.set_all_weights(std::numeric_limits<double>::infinity()), invalid_value_error);
+    EXPECT_THROW(t0.set_weight(0, 1, .2), index_error);
 
-    EXPECT_THROW(t0.get_edge_weight(0, 1), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return std::string(ia.what()).contains(
-            "cannot get the weight of an edge in a BGL topology: the vertex 0 is not connected to vertex 1");
+    EXPECT_THROW(t0.get_edge_weight(0, 1), index_error);
+    EXPECT_THROW(t0.get_edge_weight(0, 10), index_error);
     });
-    EXPECT_THROW(t0.get_edge_weight(0, 10), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return             ia.what(), "invalid vertex index in a BGL topology: the index is 10.contains( but the number of vertices is only 3");
-    });
-    EXPECT_THROW(t0.get_edge_weight(11, 10), std::invalid_argument, [](const std::invalid_argument &ia) {
-        return             ia.what(), "invalid vertex index in a BGL topology: the index is 11.contains( but the number of vertices is only 3");
+    EXPECT_THROW(t0.get_edge_weight(11, 10), index_error);
     });
 }
 
@@ -272,7 +252,7 @@ TEST(base_bgl_topology, thread_torture_test)
                     t0.add_edge(0u, 4u);
                     t0.set_weight(0u, 4u, .3);
                     t0.remove_edge(0u, 4u);
-                } catch (const std::invalid_argument &) {
+                } catch (const pagmo_exception &) {
                 }
 
                 t0.set_all_weights(.1);

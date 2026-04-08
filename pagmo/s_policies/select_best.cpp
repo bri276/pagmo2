@@ -65,7 +65,7 @@ individuals_group_t select_best::select(const individuals_group_t &inds, const v
                                         const vector_double &tol) const
 {
     if (nobj > 1u && (nic || nec)) {
-        pagmo_throw(std::invalid_argument, "The 'Select best' selection policy is unable to deal with "
+        pagmo_throw(policy_config_error, "The 'Select best' selection policy is unable to deal with "
                                            "multiobjective constrained optimisation problems");
     }
 

@@ -42,6 +42,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/s11n.hpp>
 #include <pagmo/types.hpp>
 #include <pagmo/utils/cast.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -51,12 +52,12 @@ TEST(compass_search_test, compass_search_algorithm_construction)
     EXPECT_TRUE(user_algo.get_verbosity() == 0u);
     EXPECT_TRUE((user_algo.get_log() == compass_search::log_type{}));
 
-    EXPECT_THROW((compass_search{1234u, 1.1}), std::invalid_argument);
-    EXPECT_THROW((compass_search{1234u, -0.3}), std::invalid_argument);
-    EXPECT_THROW((compass_search{1234u, 0.7, 1.1}), std::invalid_argument);
-    EXPECT_THROW((compass_search{1234u, 0.7, 0.8}), std::invalid_argument);
-    EXPECT_THROW((compass_search{1234u, 0.7, 0.1, 1.3}), std::invalid_argument);
-    EXPECT_THROW((compass_search{1234u, 0.7, 0.1, -0.3}), std::invalid_argument);
+    EXPECT_THROW((compass_search{1234u, 1.1}), invalid_parameter_error);
+    EXPECT_THROW((compass_search{1234u, -0.3}), invalid_parameter_error);
+    EXPECT_THROW((compass_search{1234u, 0.7, 1.1}), invalid_parameter_error);
+    EXPECT_THROW((compass_search{1234u, 0.7, 0.8}), invalid_parameter_error);
+    EXPECT_THROW((compass_search{1234u, 0.7, 0.1, 1.3}), invalid_parameter_error);
+    EXPECT_THROW((compass_search{1234u, 0.7, 0.1, -0.3}), invalid_parameter_error);
 }
 
 TEST(compass_search_test, compass_search_evolve_test)
@@ -93,9 +94,9 @@ TEST(compass_search_test, compass_search_evolve_test)
     EXPECT_TRUE(std::get<0>(user_algo3.get_log()[user_algo3.get_log().size() - 1]) > max_fevals);
 
     // We then check that the evolve throws if called on unsuitable problems
-    EXPECT_THROW(compass_search{10u}.evolve(population{problem{rosenbrock{}}, 0u}), std::invalid_argument);
-    EXPECT_THROW(compass_search{10u}.evolve(population{problem{zdt{}}, 15u}), std::invalid_argument);
-    EXPECT_THROW(compass_search{10u}.evolve(population{problem{inventory{}}, 15u}), std::invalid_argument);
+    EXPECT_THROW(compass_search{10u}.evolve(population{problem{rosenbrock{}}, 0u}), insufficient_population_error);
+    EXPECT_THROW(compass_search{10u}.evolve(population{problem{zdt{}}, 15u}), incompatible_problem_error);
+    EXPECT_THROW(compass_search{10u}.evolve(population{problem{inventory{}}, 15u}), incompatible_problem_error);
     // And a clean exit for 0 generations
     population pop{rosenbrock{25u}, 10u};
     EXPECT_TRUE(compass_search{0u}.evolve(pop).get_x()[0] == pop.get_x()[0]);

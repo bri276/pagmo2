@@ -70,22 +70,22 @@ void unconstrain::generic_ctor_impl(const std::string &method, const vector_doub
     auto nc = nec + nic;
     // 1 - We throw if the original problem is unconstrained
     if (nc == 0u) {
-        pagmo_throw(std::invalid_argument, "Unconstrain can only be applied to constrained problems, the instance of "
+        pagmo_throw(incompatible_problem_error, "Unconstrain can only be applied to constrained problems, the instance of "
                                                + m_problem.get_name() + " is not one.");
     }
     // 2 - We throw if the method weighted is selected but the weight vector has the wrong size
     if (weights.size() != nc && method == "weighted") {
-        pagmo_throw(std::invalid_argument, "Length of weight vector is: " + std::to_string(weights.size())
+        pagmo_throw(dimension_mismatch_error, "Length of weight vector is: " + std::to_string(weights.size())
                                                + " while the problem constraints are: " + std::to_string(nc));
     }
     // 3 - We throw if the method selected is not supported
     if (method != "death penalty" && method != "kuri" && method != "weighted" && method != "ignore_c"
         && method != "ignore_o") {
-        pagmo_throw(std::invalid_argument, "The method " + method + " is not supported (did you misspell?)");
+        pagmo_throw(invalid_parameter_error, "The method " + method + " is not supported (did you misspell?)");
     }
     // 4 - We throw if a non empty weight vector is passed but the method weighted is not selected
     if (weights.size() != 0u && method != "weighted") {
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(invalid_parameter_error,
                     "The weight vector needs to be empty to use the unconstrain method " + method);
     }
     // 5 - We store the method in a more efficient enum type and the number of objectives of the original udp

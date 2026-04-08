@@ -48,18 +48,18 @@ namespace pagmo
 cec2014::cec2014(unsigned prob_id, unsigned dim) : m_z(dim), m_y(dim), func_num(prob_id)
 {
     if (!(dim == 2u || dim == 10u || dim == 20u || dim == 30u || dim == 50u || dim == 100u)) {
-        pagmo_throw(std::invalid_argument, "Error: CEC2014 Test functions are only defined for dimensions "
+        pagmo_throw(problem_config_error, "Error: CEC2014 Test functions are only defined for dimensions "
                                            "2,10,20,30,50,100, a dimension of "
                                                + std::to_string(dim) + " was detected.");
     }
     if (prob_id < 1u || prob_id > 30u) {
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(problem_config_error,
                     "Error: CEC2014 Test functions are only defined for prob_id in [1, 28], a prob_id of "
                         + std::to_string(prob_id) + " was detected.");
     }
 
     if (dim == 2 && ((func_num >= 17u && func_num <= 22u) || (func_num >= 29u && func_num <= 30u))) {
-        pagmo_throw(std::invalid_argument, "hf01,hf02,hf03,hf04,hf05,hf06,cf07&cf08 are NOT defined for D=2.");
+        pagmo_throw(problem_config_error, "hf01,hf02,hf03,hf04,hf05,hf06,cf07&cf08 are NOT defined for D=2.");
     }
 
     /* Load Rotation Matrix */

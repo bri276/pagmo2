@@ -50,6 +50,7 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/utils/hv_algos/hv_hv3d.hpp>
 #include <pagmo/utils/hv_algos/hv_hvwfg.hpp>
 #include <pagmo/utils/hypervolume.hpp>
+#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -213,17 +214,17 @@ TEST(hypervolume_utils_test, hypervolume_compute_test)
 
     // errors
     population pop2{problem{rosenbrock(10)}, 2};
-    EXPECT_THROW(hypervolume(pop2, true), std::invalid_argument);
+    EXPECT_THROW(hypervolume(pop2, true), incompatible_problem_error);
     // Checks the hypervolume cannot be constructed if nans are present
-    EXPECT_THROW(hypervolume({{std::numeric_limits<double>::quiet_NaN(), 2.}, {2., 1.}}), std::invalid_argument);
+    EXPECT_THROW(hypervolume({{std::numeric_limits<double>::quiet_NaN(), 2.}, {2., 1.}}), invalid_value_error);
     // Checks the hypervolume cannot be constructed if point have different dimensions
-    EXPECT_THROW(hypervolume({{1., 2.}, {2., 1.}, {3, 0, 5}}), std::invalid_argument);
+    EXPECT_THROW(hypervolume({{1., 2.}, {2., 1.}, {3, 0, 5}}), dimension_mismatch_error);
     // Checks the hypervolume cannot be constructed if points have no dimension
     std::vector<double> empty;
     std::vector<std::vector<double>> emptyempty;
-    EXPECT_THROW(hypervolume({empty, empty}), std::invalid_argument);
+    EXPECT_THROW(hypervolume({empty, empty}), empty_collection_error);
     // Checks the hypervolume cannot be constructed if points are empty
-    EXPECT_THROW(hypervolume{emptyempty}, std::invalid_argument);
+    EXPECT_THROW(hypervolume{emptyempty}, empty_collection_error);
 
     // 2d computation of hypervolume indicator
     hv = hypervolume{{{1, 2}, {2, 1}}};
@@ -264,14 +265,14 @@ TEST(hypervolume_utils_test, hypervolume_compute_test)
     // tests for invalid reference points
     hv = hypervolume({{1, 3}, {2, 2}, {3, 1}});
     // equal to some other point
-    EXPECT_THROW(hv.compute({3, 1}), std::invalid_argument);
+    EXPECT_THROW(hv.compute({3, 1}), dimension_mismatch_error);
     // refpoint dominating some points
-    EXPECT_THROW(hv.compute({1.5, 1.5}), std::invalid_argument);
+    EXPECT_THROW(hv.compute({1.5, 1.5}), dimension_mismatch_error);
     // refpoint dominating all points
-    EXPECT_THROW(hv.compute({0, 0}), std::invalid_argument);
+    EXPECT_THROW(hv.compute({0, 0}), dimension_mismatch_error);
 
     // invalid dimensions of points.
-    EXPECT_THROW(hv = hypervolume({{2.3, 3.4, 5.6}, {1.0, 2.0, 3.0, 4.0}}), std::invalid_argument);
+    EXPECT_THROW(hv = hypervolume({{2.3, 3.4, 5.6}, {1.0, 2.0, 3.0, 4.0}}), dimension_mismatch_error);
 
     // Calling specific algorithms
     hv2d hv_algo_2d;
@@ -282,33 +283,33 @@ TEST(hypervolume_utils_test, hypervolume_compute_test)
     hv = hypervolume({{2.3, 4.5}, {3.4, 3.4}, {6.0, 1.2}});
     EXPECT_TRUE((hv.compute({7.0, 7.0}) == 17.91));
     EXPECT_TRUE((hv.compute({7.0, 7.0}, hv_algo_2d) == 17.91));
-    EXPECT_THROW(hv.compute({7.0, 7.0}, hv_algo_3d), std::invalid_argument);
+    EXPECT_THROW(hv.compute({7.0, 7.0}, hv_algo_3d), problem_config_error);
     EXPECT_TRUE((hv.compute({7.0, 7.0}, hv_algo_nd) == 17.91));
     EXPECT_TRUE((hv.compute({7.0, 7.0}, hv_algo_nd2) == 17.91));
 
     hv = hypervolume({{2.3, 4.5, 3.2}, {3.4, 3.4, 3.4}, {6.0, 1.2, 3.6}});
     EXPECT_TRUE((hv.compute({7.0, 7.0, 7.0}) == 66.386));
-    EXPECT_THROW(hv.compute({7.0, 7.0, 7.0}, hv_algo_2d), std::invalid_argument);
+    EXPECT_THROW(hv.compute({7.0, 7.0, 7.0}, hv_algo_2d), problem_config_error);
     EXPECT_TRUE((hv.compute({7.0, 7.0, 7.0}, hv_algo_3d) == 66.386));
     EXPECT_TRUE((hv.compute({7.0, 7.0, 7.0}, hv_algo_nd) == 66.386));
     EXPECT_TRUE((hv.compute({7.0, 7.0, 7.0}, hv_algo_nd2) == 66.386));
 
     hv = hypervolume({{2.3, 4.5, 3.2}, {3.4, 3.4, 3.4}, {6.0, 1.2, 3.6}});
     EXPECT_TRUE((hv.compute({7.0, 7.0, 7.0}) == 66.386));
-    EXPECT_THROW(hv.compute({7.0, 7.0, 7.0}, hv_algo_2d), std::invalid_argument);
+    EXPECT_THROW(hv.compute({7.0, 7.0, 7.0}, hv_algo_2d), problem_config_error);
     EXPECT_TRUE((hv.compute({7.0, 7.0, 7.0}, hv_algo_3d) == 66.386));
     EXPECT_TRUE((hv.compute({7.0, 7.0, 7.0}, hv_algo_nd) == 66.386));
     EXPECT_TRUE((hv.compute({7.0, 7.0, 7.0}, hv_algo_nd2) == 66.386));
 
     hv = hypervolume({{2.3, 4.5, 3.2, 1.9, 6.0}, {3.4, 3.4, 3.4, 2.1, 5.8}, {6.0, 1.2, 3.6, 3.0, 6.0}});
     EXPECT_TRUE((hv.compute({7.0, 7.0, 7.0, 7.0, 7.0}) == 373.21228));
-    EXPECT_THROW(hv.compute({7.0, 7.0, 7.0, 7.0, 7.0}, hv_algo_2d), std::invalid_argument);
-    EXPECT_THROW(hv.compute({7.0, 7.0, 7.0, 7.0, 7.0}, hv_algo_3d), std::invalid_argument);
+    EXPECT_THROW(hv.compute({7.0, 7.0, 7.0, 7.0, 7.0}, hv_algo_2d), problem_config_error);
+    EXPECT_THROW(hv.compute({7.0, 7.0, 7.0, 7.0, 7.0}, hv_algo_3d), problem_config_error);
     EXPECT_TRUE((hv.compute({7.0, 7.0, 7.0, 7.0, 7.0}, hv_algo_nd) == 373.21228));
     EXPECT_TRUE((hv.compute({7.0, 7.0, 7.0, 7.0, 7.0}, hv_algo_nd2) == 373.21228));
 
-    EXPECT_THROW(hvwfg(0), std::invalid_argument);
-    EXPECT_THROW(hvwfg(1), std::invalid_argument);
+    EXPECT_THROW(hvwfg(0), invalid_parameter_error);
+    EXPECT_THROW(hvwfg(1), invalid_parameter_error);
 }
 
 TEST(hypervolume_utils_test, hypervolume_contributions_test)
@@ -516,7 +517,7 @@ TEST(hypervolume_utils_test, hypervolume_least_contribution_test)
     EXPECT_TRUE((hv.least_contributor(ref) == 2));
 
     hv = hypervolume({{3, 1}, {2, 2}, {1, 3.5}});
-    EXPECT_THROW(hv.least_contributor({4, 4, 4}), std::invalid_argument);
+    EXPECT_THROW(hv.least_contributor({4, 4, 4}), index_error);
 }
 
 TEST(hypervolume_utils_test, hypervolume_exclusive_test)
@@ -547,12 +548,12 @@ TEST(hypervolume_utils_test, hypervolume_exclusive_test)
     }
 
     // index out of bounds
-    EXPECT_THROW(hv.exclusive(200, ref), std::invalid_argument);
+    EXPECT_THROW(hv.exclusive(200, ref), index_error);
 
     // picking the wrong algorithm
     hv3d hv_algo_3d;
     hv = hypervolume({{3, 1}, {2, 2}, {1, 3}}, true);
-    EXPECT_THROW(hv.exclusive(0, ref, hv_algo_3d), std::invalid_argument);
+    EXPECT_THROW(hv.exclusive(0, ref, hv_algo_3d), dimension_mismatch_error);
 }
 
 TEST(hypervolume_utils_test, hypervolume_refpoint_test)
@@ -602,8 +603,8 @@ TEST(hypervolume_utils_test, hypervolume_approximation_test)
     EXPECT_TRUE(((hv.compute({7.0, 7.0, 7.0, 7.0, 7.0}, hv_bf_fpras) <= correct * (1.0 + epsilon))
                  && (hv.compute({7.0, 7.0, 7.0, 7.0, 7.0}, hv_bf_fpras) >= correct * (1.0 - epsilon))));
 
-    EXPECT_THROW(bf_fpras(1.1, delta, seed), std::invalid_argument);
-    EXPECT_THROW(bf_fpras(epsilon, -2.0, seed), std::invalid_argument);
+    EXPECT_THROW(bf_fpras(1.1, delta, seed), invalid_parameter_error);
+    EXPECT_THROW(bf_fpras(epsilon, -2.0, seed), invalid_parameter_error);
 }
 
 TEST(hypervolume_utils_test, hypervolume_contributor_approximation_test)
@@ -634,8 +635,8 @@ TEST(hypervolume_utils_test, hypervolume_contributor_approximation_test)
     hv = hypervolume({{3, 1}, {2, 2}, {1, 3.5}});
     EXPECT_TRUE((hv.least_contributor(ref, hv_bf_approx) == 2));
 
-    EXPECT_THROW(bf_approx(true, 1, epsilon, 5000.0, 0.775, 0.2, 0.1, 0.25, seed), std::invalid_argument);
-    EXPECT_THROW(bf_approx(true, 1, -1.0, delta, 0.775, 0.2, 0.1, 0.25, seed), std::invalid_argument);
+    EXPECT_THROW(bf_approx(true, 1, epsilon, 5000.0, 0.775, 0.2, 0.1, 0.25, seed), invalid_parameter_error);
+    EXPECT_THROW(bf_approx(true, 1, -1.0, delta, 0.775, 0.2, 0.1, 0.25, seed), invalid_parameter_error);
 
     // The following case should actually trigger the sampling routines
     hv = hypervolume({{2.49, 3.15, 2.3, 5.1, 5.07},   {4.47, 5.89, 5.1, 1.61, 3.7},   {1.88, 6.33, 3.43, 6.45, 6.63},
@@ -734,15 +735,15 @@ TEST(hypervolume_utils_test, hypervolume_construction_test)
     population pop_ok(zdt(1u, 10u), 10u);
     population pop_wrong1(hock_schittkowski_71{}, 10u);
     population pop_wrong2(rosenbrock{10u}, 10u);
-    EXPECT_THROW((hypervolume{pop_empty, true}), std::invalid_argument);
-    EXPECT_THROW((hypervolume{pop_wrong1, true}), std::invalid_argument);
-    EXPECT_THROW((hypervolume{pop_wrong2, true}), std::invalid_argument);
+    EXPECT_THROW((hypervolume{pop_empty, true}), incompatible_problem_error);
+    EXPECT_THROW((hypervolume{pop_wrong1, true}), incompatible_problem_error);
+    EXPECT_THROW((hypervolume{pop_wrong2, true}), incompatible_problem_error);
     EXPECT_NO_THROW((hypervolume{pop_ok, true}));
     auto points = pop_ok.get_f();
     auto hv = hypervolume{pop_ok, true};
     EXPECT_TRUE(points == hv.get_points());
-    EXPECT_THROW((hypervolume(std::vector<vector_double>{}, true)), std::invalid_argument);
-    EXPECT_THROW((hypervolume{{{1.}, {2.}}, true}), std::invalid_argument);
+    EXPECT_THROW((hypervolume(std::vector<vector_double>{}, true)), empty_collection_error);
+    EXPECT_THROW((hypervolume{{{1.}, {2.}}, true}), dimension_mismatch_error);
 }
 
 TEST(hypervolume_utils_test, hypervolume_cmp_test)
@@ -796,7 +797,7 @@ TEST(hypervolume_utils_test, hypervolume_bf_approx_test)
     bf_approx al;
     std::vector<vector_double> points;
     vector_double ref;
-    EXPECT_THROW(al.compute(points, ref), std::invalid_argument);
+    EXPECT_THROW(al.compute(points, ref), multi_objective_error);
     auto al_clone = al.clone();
     EXPECT_TRUE(al_clone->get_name().find("Bringmann-Friedrich") != std::string::npos);
 }
@@ -806,10 +807,10 @@ TEST(hypervolume_utils_test, hypervolume_bf_pras_test)
     bf_fpras al;
     std::vector<vector_double> points;
     vector_double ref;
-    EXPECT_THROW(al.exclusive(0u, points, ref), std::invalid_argument);
-    EXPECT_THROW(al.least_contributor(points, ref), std::invalid_argument);
-    EXPECT_THROW(al.greatest_contributor(points, ref), std::invalid_argument);
-    EXPECT_THROW(al.contributions(points, ref), std::invalid_argument);
+    EXPECT_THROW(al.exclusive(0u, points, ref), multi_objective_error);
+    EXPECT_THROW(al.least_contributor(points, ref), index_error);
+    EXPECT_THROW(al.greatest_contributor(points, ref), multi_objective_error);
+    EXPECT_THROW(al.contributions(points, ref), multi_objective_error);
     auto al_clone = al.clone();
     EXPECT_TRUE(al_clone->get_name().find("bf_fpras") != std::string::npos);
 }
