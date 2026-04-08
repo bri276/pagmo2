@@ -97,13 +97,6 @@ vector_double griewank::best_known() const
     return vector_double(m_dim, 0.);
 }
 
-// Object serialization
-template <typename Archive>
-void griewank::serialize(Archive &ar, unsigned)
-{
-    ar & m_dim;
-}
-
 } // namespace pagmo
 
 PAGMO_S11N_PROBLEM_IMPLEMENT(pagmo::griewank)

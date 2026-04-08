@@ -234,13 +234,6 @@ std::string gwo::get_extra_info() const
            + "\n\tSeed: " + std::to_string(m_seed);
 }
 
-// Object serialization
-template <typename Archive>
-void gwo::serialize(Archive &ar, unsigned)
-{
-    detail::archive(ar, m_gen, m_seed, m_e, m_verbosity, m_log);
-}
-
 } // namespace pagmo
 
 PAGMO_S11N_ALGORITHM_IMPLEMENT(pagmo::gwo)

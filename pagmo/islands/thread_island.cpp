@@ -156,29 +156,6 @@ void thread_island::run_evolve(island &isl) const
     }
 }
 
-// Serialization support.
-template <typename Archive>
-void thread_island::save(Archive &ar, unsigned) const
-{
-    ar << m_use_pool;
-}
-
-template <typename Archive>
-void thread_island::load(Archive &ar, unsigned version)
-{
-    if (version > 0u) {
-        ar >> m_use_pool;
-    } else {
-        // LCOV_EXCL_START
-        // NOTE: if loading from version 0,
-        // set the flag to false (as the version 0
-        // of thread_island had no support for
-        // a thread pool).
-        m_use_pool = false;
-        // LCOV_EXCL_STOP
-    }
-}
-
 } // namespace pagmo
 
 PAGMO_S11N_ISLAND_IMPLEMENT(pagmo::thread_island)

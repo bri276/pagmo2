@@ -119,13 +119,6 @@ std::string golomb_ruler::get_name() const
     return "Golomb Ruler (order " + std::to_string(m_order) + ")";
 }
 
-// Object serialization
-template <typename Archive>
-void golomb_ruler::serialize(Archive &ar, unsigned)
-{
-    detail::archive(ar, m_order, m_upper_bound);
-}
-
 } // namespace pagmo
 
 PAGMO_S11N_PROBLEM_IMPLEMENT(pagmo::golomb_ruler)

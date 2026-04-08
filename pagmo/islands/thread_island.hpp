@@ -59,9 +59,19 @@ private:
     // Object serialization
     friend class cereal::access;
     template <typename Archive>
-    void save(Archive &, unsigned) const;
+    void save(Archive &ar) const
+    {
+
+        ar(m_use_pool);
+    }
     template <typename Archive>
-    void load(Archive &, unsigned);
+    void load(Archive &ar)
+    {
+
+
+            ar(m_use_pool);
+
+    }
 
     bool m_use_pool;
 };

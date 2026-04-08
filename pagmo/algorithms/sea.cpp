@@ -178,13 +178,6 @@ std::string sea::get_extra_info() const
            + "\n\tSeed: " + std::to_string(m_seed);
 }
 
-// Object serialization
-template <typename Archive>
-void sea::serialize(Archive &ar, unsigned)
-{
-    detail::archive(ar, m_gen, m_e, m_seed, m_verbosity, m_log);
-}
-
 } // namespace pagmo
 
 PAGMO_S11N_ALGORITHM_IMPLEMENT(pagmo::sea)

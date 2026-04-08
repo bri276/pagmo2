@@ -189,7 +189,11 @@ private:
     // Object serialization
     friend class cereal::access;
     template <typename Archive>
-    void serialize(Archive &, unsigned);
+    void serialize(Archive &ar)
+    {
+
+        detail::archive(ar, m_problem, m_translation);
+    }
 
     PAGMO_DLL_LOCAL vector_double translate_back(const vector_double &) const;
     PAGMO_DLL_LOCAL vector_double apply_translation(const vector_double &) const;

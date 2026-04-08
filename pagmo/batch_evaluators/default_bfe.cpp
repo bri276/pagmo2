@@ -81,12 +81,6 @@ vector_double default_bfe::operator()(const problem &p, const vector_double &dvs
     return detail::default_bfe_impl(p, dvs);
 }
 
-// Serialization support.
-template <typename Archive>
-void default_bfe::serialize(Archive &, unsigned)
-{
-}
-
 } // namespace pagmo
 
 PAGMO_S11N_BFE_IMPLEMENT(pagmo::default_bfe)

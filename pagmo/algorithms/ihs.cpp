@@ -237,13 +237,6 @@ std::string ihs::get_extra_info() const
     return ss.str();
 }
 
-// Object serialization
-template <typename Archive>
-void ihs::serialize(Archive &ar, unsigned)
-{
-    detail::archive(ar, m_gen, m_phmcr, m_ppar_min, m_ppar_max, m_bw_min, m_bw_max, m_e, m_seed, m_verbosity, m_log);
-}
-
 // logging is complex fir ihs as the algorithm is an "any-problem" wannabe
 void ihs::log_a_line(const population &pop, unsigned &count, unsigned long long fevals0, double ppar_cur,
                      double bw_cur) const

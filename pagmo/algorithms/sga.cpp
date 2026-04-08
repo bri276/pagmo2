@@ -320,14 +320,6 @@ std::string sga::get_extra_info() const
     return ss.str();
 }
 
-// Object serialization
-template <typename Archive>
-void sga::serialize(Archive &ar, unsigned)
-{
-    detail::archive(ar, m_gen, m_cr, m_eta_c, m_m, m_param_m, m_param_s, m_mutation, m_selection, m_crossover, m_e,
-                    m_seed, m_verbosity, m_log);
-}
-
 std::vector<vector_double::size_type> sga::perform_selection(const std::vector<vector_double> &F) const
 {
     assert(m_param_s <= F.size());

@@ -105,7 +105,11 @@ private:
     // Object serialization
     friend class cereal::access;
     template <typename Archive>
-    void serialize(Archive &, unsigned);
+    void serialize(Archive &ar)
+    {
+
+        detail::archive(ar, m_nobj, m_nec, m_nic, m_nix);
+    }
 
     vector_double::size_type m_nobj;
     vector_double::size_type m_nec;

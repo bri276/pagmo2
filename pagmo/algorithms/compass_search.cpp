@@ -210,14 +210,6 @@ std::string compass_search::get_extra_info() const
     return ss.str();
 }
 
-// Object serialization
-template <typename Archive>
-void compass_search::serialize(Archive &ar, unsigned)
-{
-    detail::archive(ar, cereal::base_class<not_population_based>(this), m_max_fevals, m_start_range, m_stop_range,
-                    m_reduction_coeff, m_verbosity, m_log);
-}
-
 } // namespace pagmo
 
 PAGMO_S11N_ALGORITHM_IMPLEMENT(pagmo::compass_search)

@@ -257,7 +257,12 @@ private:
     // Object serialization
     friend class cereal::access;
     template <typename Archive>
-    void serialize(Archive &, unsigned);
+    void serialize(Archive &ar)
+    {
+
+        detail::archive(ar, m_gen, m_F, m_CR, m_allowed_variants, m_variant_adptv, m_ftol, m_xtol, m_memory, m_e, m_seed,
+                        m_verbosity, m_log);
+    }
 
     unsigned m_gen;
     mutable vector_double m_F;

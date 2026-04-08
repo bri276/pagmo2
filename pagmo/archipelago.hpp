@@ -646,7 +646,7 @@ private:
     friend class cereal::access;
     // Save to archive.
     template <typename Archive>
-    void save(Archive &ar, unsigned) const
+    void save(Archive &ar) const
     {
         detail::to_archive(ar, m_islands, get_migrants_db(), get_migration_log(), get_topology(),
                            m_migr_type.load(std::memory_order_relaxed),
@@ -654,7 +654,7 @@ private:
     }
     // Load from archive.
     template <typename Archive>
-    void load(Archive &ar, unsigned)
+    void load(Archive &ar)
     {
         // Make sure all evolutions are finished before attempting
         // to load from the archive.
@@ -662,7 +662,7 @@ private:
 
         try {
             // Recover the islands.
-            ar >> m_islands;
+            ar(m_islands);
 
             // Reset and remap the island indices, assign the
             // archi pointers.
@@ -673,20 +673,20 @@ private:
             }
 
             // Load the migrants.
-            ar >> m_migrants;
+            ar(m_migrants);
 
             // Load the migration log.
-            ar >> m_migr_log;
+            ar(m_migr_log);
 
             // Load the topology.
-            ar >> m_topology;
+            ar(m_topology);
 
             // Migration type and migrant handling policy.
             migration_type tmp_migr_type;
             migrant_handling tmp_migr_handling;
 
-            ar >> tmp_migr_type;
-            ar >> tmp_migr_handling;
+            ar(tmp_migr_type);
+            ar(tmp_migr_handling);
 
             m_migr_type.store(tmp_migr_type, std::memory_order_relaxed);
             m_migr_handling.store(tmp_migr_handling, std::memory_order_relaxed);

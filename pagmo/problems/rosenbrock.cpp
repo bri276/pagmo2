@@ -100,13 +100,6 @@ vector_double rosenbrock::best_known() const
     return vector_double(m_dim, 1.);
 }
 
-// Object serialization
-template <typename Archive>
-void rosenbrock::serialize(Archive &ar, unsigned)
-{
-    ar & m_dim;
-}
-
 } // namespace pagmo
 
 PAGMO_S11N_PROBLEM_IMPLEMENT(pagmo::rosenbrock)

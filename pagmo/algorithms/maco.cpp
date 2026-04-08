@@ -560,14 +560,6 @@ std::string maco::get_extra_info() const
     return ss.str();
 }
 
-// Object serialization
-template <typename Archive>
-void maco::serialize(Archive &ar, unsigned)
-{
-    detail::archive(ar, m_gen, m_focus, m_ker, m_evalstop, m_e, m_seed, m_verbosity, m_log, m_threshold, m_q,
-                    m_n_gen_mark, m_memory, m_counter, m_sol_archive, m_n_evalstop, m_gen_mark, m_bfe);
-}
-
 // Function which computes the pheromone values (useful for generating offspring)
 void maco::pheromone_computation(const unsigned gen, vector_double &prob_cumulative, vector_double &omega_vec,
                                  vector_double &sigma_vec, const population &popul,

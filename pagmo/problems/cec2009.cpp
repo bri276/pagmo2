@@ -245,13 +245,6 @@ std::string cec2009::get_name() const
     return retval;
 }
 
-// Object serialization
-template <typename Archive>
-void cec2009::serialize(Archive &ar, unsigned)
-{
-    detail::archive(ar, m_prob_id, m_is_constrained, m_dim);
-}
-
 namespace
 {
 

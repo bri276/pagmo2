@@ -171,13 +171,6 @@ std::string dtlz::get_name() const
     return "DTLZ" + std::to_string(m_prob_id);
 }
 
-// Object serialization
-template <typename Archive>
-void dtlz::serialize(Archive &ar, unsigned)
-{
-    detail::archive(ar, m_prob_id, m_dim, m_fdim, m_alpha);
-}
-
 // Convergence metric for a dv (0 = converged to the optimal front)
 double dtlz::g_func(const vector_double &x) const
 {

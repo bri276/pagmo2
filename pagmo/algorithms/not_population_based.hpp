@@ -93,52 +93,52 @@ private:
     friend class cereal::access;
     // Save to archive.
     template <typename Archive>
-    void save(Archive &ar, unsigned) const
+    void save(Archive &ar) const
     {
         if (std::any_cast<std::string>(&m_select)) {
             // NOTE: true -> string, false -> idx.
-            ar << true;
-            ar << std::any_cast<std::string>(m_select);
+            ar(true);
+            ar(std::any_cast<std::string>(m_select));
         } else {
-            ar << false;
-            ar << std::any_cast<population::size_type>(m_select);
+            ar(false);
+            ar(std::any_cast<population::size_type>(m_select));
         }
         if (std::any_cast<std::string>(&m_replace)) {
             // NOTE: true -> string, false -> idx.
-            ar << true;
-            ar << std::any_cast<std::string>(m_replace);
+            ar(true);
+            ar(std::any_cast<std::string>(m_replace));
         } else {
-            ar << false;
-            ar << std::any_cast<population::size_type>(m_replace);
+            ar(false);
+            ar(std::any_cast<population::size_type>(m_replace));
         }
-        ar << m_rselect_seed;
-        ar << m_e;
+        ar(m_rselect_seed);
+        ar(m_e);
     }
     // Load from archive.
     template <typename Archive>
-    void load(Archive &ar, unsigned)
+    void load(Archive &ar)
     {
         bool flag;
         std::string str;
         population::size_type idx;
-        ar >> flag;
+        ar(flag);
         if (flag) {
-            ar >> str;
+            ar(str);
             m_select = str;
         } else {
-            ar >> idx;
+            ar(idx);
             m_select = idx;
         }
-        ar >> flag;
+        ar(flag);
         if (flag) {
-            ar >> str;
+            ar(str);
             m_replace = str;
         } else {
-            ar >> idx;
+            ar(idx);
             m_replace = idx;
         }
-        ar >> m_rselect_seed;
-        ar >> m_e;
+        ar(m_rselect_seed);
+        ar(m_e);
     }
 
 protected:

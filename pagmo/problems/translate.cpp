@@ -404,13 +404,6 @@ problem &translate::get_inner_problem()
     return m_problem;
 }
 
-// Object serialization
-template <typename Archive>
-void translate::serialize(Archive &ar, unsigned)
-{
-    detail::archive(ar, m_problem, m_translation);
-}
-
 vector_double translate::translate_back(const vector_double &x) const
 {
     // NOTE: here we use assert instead of throwing because the general idea is that we don't

@@ -260,13 +260,6 @@ std::string bee_colony::get_extra_info() const
     return ss.str();
 }
 
-// Object serialization
-template <typename Archive>
-void bee_colony::serialize(Archive &ar, unsigned)
-{
-    detail::archive(ar, m_gen, m_limit, m_e, m_seed, m_verbosity, m_log);
-}
-
 } // namespace pagmo
 
 PAGMO_S11N_ALGORITHM_IMPLEMENT(pagmo::bee_colony)

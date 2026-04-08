@@ -170,24 +170,6 @@ std::size_t fully_connected::num_vertices() const
     return m_num_vertices.load(std::memory_order_relaxed);
 }
 
-// Serialization.
-template <typename Archive>
-void fully_connected::save(Archive &ar, unsigned) const
-{
-    detail::archive(ar, m_weight, m_num_vertices.load(std::memory_order_relaxed));
-}
-
-template <typename Archive>
-void fully_connected::load(Archive &ar, unsigned)
-{
-    std::size_t num_vertices;
-
-    ar >> m_weight;
-    ar >> num_vertices;
-
-    m_num_vertices.store(num_vertices, std::memory_order_relaxed);
-}
-
 } // namespace pagmo
 
 PAGMO_S11N_TOPOLOGY_IMPLEMENT(pagmo::fully_connected)

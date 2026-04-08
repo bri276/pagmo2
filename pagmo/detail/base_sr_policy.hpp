@@ -81,7 +81,7 @@ private:
     friend class cereal::access;
     // Serialization support.
     template <typename Archive>
-    void serialize(Archive &ar, unsigned)
+    void serialize(Archive &ar)
     {
         detail::archive(ar, m_migr_rate);
     }

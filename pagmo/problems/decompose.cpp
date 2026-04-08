@@ -285,13 +285,6 @@ problem &decompose::get_inner_problem()
     return m_problem;
 }
 
-// Object serialization.
-template <typename Archive>
-void decompose::serialize(Archive &ar, unsigned)
-{
-    detail::archive(ar, m_problem, m_weight, m_z, m_method, m_adapt_ideal);
-}
-
 } // namespace pagmo
 
 PAGMO_S11N_PROBLEM_IMPLEMENT(pagmo::decompose)

@@ -616,14 +616,6 @@ std::string sade::get_extra_info() const
     return ss.str();
 }
 
-// Object serialization
-template <typename Archive>
-void sade::serialize(Archive &ar, unsigned)
-{
-    detail::archive(ar, m_gen, m_F, m_CR, m_variant, m_variant_adptv, m_Ftol, m_xtol, m_memory, m_e, m_seed,
-                    m_verbosity, m_log);
-}
-
 } // namespace pagmo
 
 PAGMO_S11N_ALGORITHM_IMPLEMENT(pagmo::sade)

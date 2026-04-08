@@ -377,13 +377,6 @@ std::string unconstrain::get_extra_info() const
     return m_problem.get_extra_info() + oss.str();
 }
 
-// Object serialization.
-template <typename Archive>
-void unconstrain::serialize(Archive &ar, unsigned)
-{
-    detail::archive(ar, m_problem, m_method, m_weights);
-}
-
 } // namespace pagmo
 
 PAGMO_S11N_PROBLEM_IMPLEMENT(pagmo::unconstrain)

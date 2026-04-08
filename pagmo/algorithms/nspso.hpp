@@ -112,7 +112,12 @@ private:
     // Object serialization
     friend class cereal::access;
     template <typename Archive>
-    void serialize(Archive &, unsigned);
+    void serialize(Archive &ar)
+    {
+
+        detail::archive(ar, m_gen, m_omega, m_c1, m_c2, m_chi, m_v_coeff, m_leader_selection_range, m_diversity_mechanism,
+                        m_e, m_seed, m_verbosity, m_log, m_bfe);
+    }
 
     PAGMO_DLL_LOCAL double minfit(vector_double::size_type, vector_double::size_type,
                                   const std::vector<vector_double> &) const;

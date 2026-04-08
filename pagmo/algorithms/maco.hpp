@@ -110,7 +110,12 @@ private:
     // Object serialization
     friend class cereal::access;
     template <typename Archive>
-    void serialize(Archive &, unsigned);
+    void serialize(Archive &ar)
+    {
+
+        detail::archive(ar, m_gen, m_focus, m_ker, m_evalstop, m_e, m_seed, m_verbosity, m_log, m_threshold, m_q,
+                        m_n_gen_mark, m_memory, m_counter, m_sol_archive, m_n_evalstop, m_gen_mark, m_bfe);
+    }
 
     PAGMO_DLL_LOCAL void pheromone_computation(const unsigned gen, vector_double &prob_cumulative,
                                                vector_double &omega_vec, vector_double &sigma_vec,

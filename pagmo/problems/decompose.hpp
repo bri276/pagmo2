@@ -216,7 +216,11 @@ private:
     // Object serialization
     friend class cereal::access;
     template <typename Archive>
-    void serialize(Archive &, unsigned);
+    void serialize(Archive &ar)
+    {
+
+        detail::archive(ar, m_problem, m_weight, m_z, m_method, m_adapt_ideal);
+    }
 
     // Inner problem
     problem m_problem;

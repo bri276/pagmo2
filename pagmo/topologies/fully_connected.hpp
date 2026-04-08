@@ -67,9 +67,22 @@ public:
 private:
     friend class cereal::access;
     template <typename Archive>
-    void save(Archive &, unsigned) const;
+    void save(Archive &ar) const
+    {
+
+        detail::archive(ar, m_weight, m_num_vertices.load(std::memory_order_relaxed));
+    }
     template <typename Archive>
-    void load(Archive &, unsigned);
+    void load(Archive &ar)
+    {
+
+        std::size_t num_vertices;
+
+        ar(m_weight);
+        ar(num_vertices);
+
+        m_num_vertices.store(num_vertices, std::memory_order_relaxed);
+    }
 
     double m_weight;
     std::atomic<std::size_t> m_num_vertices;

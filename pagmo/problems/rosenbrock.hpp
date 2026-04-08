@@ -94,7 +94,11 @@ private:
     friend class cereal::access;
     // Object serialization
     template <typename Archive>
-    void serialize(Archive &, unsigned);
+    void serialize(Archive &ar)
+    {
+
+        ar & m_dim;
+    }
 };
 
 } // namespace pagmo

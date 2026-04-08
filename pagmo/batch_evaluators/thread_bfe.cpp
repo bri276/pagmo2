@@ -142,12 +142,6 @@ vector_double thread_bfe::operator()(problem p, const vector_double &dvs) const
     return retval;
 }
 
-// Serialization support.
-template <typename Archive>
-void thread_bfe::serialize(Archive &, unsigned)
-{
-}
-
 } // namespace pagmo
 
 PAGMO_S11N_BFE_IMPLEMENT(pagmo::thread_bfe)

@@ -370,11 +370,6 @@ std::string fork_island::get_extra_info() const
     return "\tNo active child";
 }
 
-template <typename Archive>
-void fork_island::serialize(Archive &, unsigned)
-{
-}
-
 } // namespace pagmo
 
 PAGMO_S11N_ISLAND_IMPLEMENT(pagmo::fork_island)

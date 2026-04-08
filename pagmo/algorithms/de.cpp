@@ -377,13 +377,6 @@ std::string de::get_extra_info() const
            + "\n\tVerbosity: " + std::to_string(m_verbosity) + "\n\tSeed: " + std::to_string(m_seed);
 }
 
-// Object serialization
-template <typename Archive>
-void de::serialize(Archive &ar, unsigned)
-{
-    detail::archive(ar, m_gen, m_F, m_CR, m_variant, m_Ftol, m_xtol, m_e, m_seed, m_verbosity, m_log);
-}
-
 } // namespace pagmo
 
 PAGMO_S11N_ALGORITHM_IMPLEMENT(pagmo::de)

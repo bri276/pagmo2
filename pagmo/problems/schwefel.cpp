@@ -90,13 +90,6 @@ vector_double schwefel::best_known() const
     return vector_double(m_dim, 420.9687);
 }
 
-// Object serialization
-template <typename Archive>
-void schwefel::serialize(Archive &ar, unsigned)
-{
-    ar & m_dim;
-}
-
 } // namespace pagmo
 
 PAGMO_S11N_PROBLEM_IMPLEMENT(pagmo::schwefel)

@@ -149,13 +149,6 @@ std::string wfg::get_name() const
     return "WFG" + std::to_string(m_prob_id);
 }
 
-// Object serialization
-template <typename Archive>
-void wfg::serialize(Archive &ar, unsigned)
-{
-    detail::archive(ar, m_prob_id, m_dim_dvs, m_dim_obj, m_dim_k);
-}
-
 // We first define the shape functions (we assume that m varies from 1 to m_dim_obj):
 double wfg::linear(const vector_double &parameters, const vector_double::size_type m) const
 {

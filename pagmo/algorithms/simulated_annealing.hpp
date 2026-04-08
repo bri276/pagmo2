@@ -200,7 +200,12 @@ private:
     // Object serialization
     friend class cereal::access;
     template <typename Archive>
-    void serialize(Archive &, unsigned);
+    void serialize(Archive &ar)
+    {
+
+        detail::archive(ar, cereal::base_class<not_population_based>(this), m_Ts, m_Tf, m_n_T_adj, m_n_range_adj,
+                        m_bin_size, m_start_range, m_e, m_seed, m_verbosity, m_log);
+    }
 
     // Starting temperature
     double m_Ts;

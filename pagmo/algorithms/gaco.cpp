@@ -478,15 +478,6 @@ std::string gaco::get_extra_info() const
     return ss.str();
 }
 
-// Object serialization
-template <typename Archive>
-void gaco::serialize(Archive &ar, unsigned)
-{
-    detail::archive(ar, m_gen, m_acc, m_impstop, m_evalstop, m_focus, m_ker, m_oracle, m_e, m_seed, m_verbosity, m_log,
-                    m_res, m_threshold, m_q, m_n_gen_mark, m_memory, m_counter, m_sol_archive, m_n_evalstop,
-                    m_n_impstop, m_gen_mark, m_fevals, m_bfe);
-}
-
 /**
  * Function which computes the penalty function values for each individual of the population
  *

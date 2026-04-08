@@ -181,13 +181,6 @@ std::string select_best::get_extra_info() const
     }
 }
 
-// Serialization support.
-template <typename Archive>
-void select_best::serialize(Archive &ar, unsigned)
-{
-    detail::archive(ar, cereal::base_class<detail::base_sr_policy>(this));
-}
-
 } // namespace pagmo
 
 PAGMO_S11N_S_POLICY_IMPLEMENT(pagmo::select_best)

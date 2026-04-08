@@ -62,13 +62,6 @@ free_form::free_form(graph_t g)
 
 free_form::free_form(const topology &t) : free_form(t.to_graph()) {}
 
-// Serialization.
-template <typename Archive>
-void free_form::serialize(Archive &ar, unsigned)
-{
-    detail::archive(ar, cereal::base_class<base_bgl_topology>(this));
-}
-
 // Add vertex.
 void free_form::push_back()
 {

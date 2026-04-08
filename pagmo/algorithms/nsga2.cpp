@@ -340,13 +340,6 @@ std::string nsga2::get_extra_info() const
     return ss.str();
 }
 
-// Object serialization
-template <typename Archive>
-void nsga2::serialize(Archive &ar, unsigned)
-{
-    detail::archive(ar, m_gen, m_cr, m_eta_c, m_m, m_eta_m, m_e, m_seed, m_verbosity, m_log, m_bfe);
-}
-
 } // namespace pagmo
 
 PAGMO_S11N_ALGORITHM_IMPLEMENT(pagmo::nsga2)

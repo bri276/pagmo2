@@ -223,13 +223,6 @@ double zdt::p_distance(const vector_double &x) const
     return retval;
 }
 
-// Object serialization
-template <typename Archive>
-void zdt::serialize(Archive &ar, unsigned)
-{
-    detail::archive(ar, m_prob_id, m_param);
-}
-
 vector_double zdt::zdt1_fitness(const vector_double &x) const
 {
     double g = 0.;

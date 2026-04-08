@@ -631,14 +631,6 @@ std::string de1220::get_extra_info() const
     return ss.str();
 }
 
-// Object serialization
-template <typename Archive>
-void de1220::serialize(Archive &ar, unsigned)
-{
-    detail::archive(ar, m_gen, m_F, m_CR, m_allowed_variants, m_variant_adptv, m_ftol, m_xtol, m_memory, m_e, m_seed,
-                    m_verbosity, m_log);
-}
-
 } // namespace pagmo
 
 PAGMO_S11N_ALGORITHM_IMPLEMENT(pagmo::de1220)

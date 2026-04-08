@@ -254,13 +254,6 @@ std::string cec2006::get_name() const
     return retval;
 }
 
-// Object serialization
-template <typename Archive>
-void cec2006::serialize(Archive &ar, unsigned)
-{
-    ar & m_prob_id;
-}
-
 // Pointers to member functions are used
 vector_double cec2006::fitness_impl(detail::cec2006_data::func_ptr c, detail::cec2006_data::func_ptr o,
                                     const vector_double &x) const

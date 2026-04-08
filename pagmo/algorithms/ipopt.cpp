@@ -947,14 +947,6 @@ std::string ipopt::get_extra_info() const
            + (m_numeric_opts.size() ? "\n\tNumeric options: " + detail::to_string(m_numeric_opts) : "") + "\n";
 }
 
-// Serialization.
-template <typename Archive>
-void ipopt::serialize(Archive &ar, unsigned)
-{
-    detail::archive(ar, cereal::base_class<not_population_based>(this), m_string_opts, m_integer_opts, m_numeric_opts,
-                    m_last_opt_res, m_verbosity, m_log);
-}
-
 /// Set string option.
 /**
  * This method will set the optimisation string option \p name to \p value.

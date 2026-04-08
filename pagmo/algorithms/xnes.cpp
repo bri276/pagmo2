@@ -369,14 +369,6 @@ std::string xnes::get_extra_info() const
     return ss.str();
 }
 
-// Object serialization
-template <typename Archive>
-void xnes::serialize(Archive &ar, unsigned)
-{
-    detail::archive(ar, m_gen, m_eta_mu, m_eta_sigma, m_eta_b, m_sigma0, m_ftol, m_xtol, m_memory, m_force_bounds,
-                    sigma, mean, A, m_e, m_seed, m_verbosity, m_log);
-}
-
 } // namespace pagmo
 
 PAGMO_S11N_ALGORITHM_IMPLEMENT(pagmo::xnes)

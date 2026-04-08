@@ -461,15 +461,6 @@ std::string cmaes::get_extra_info() const
     return ss.str();
 }
 
-// Object serialization
-template <typename Archive>
-void cmaes::serialize(Archive &ar, unsigned)
-{
-    detail::archive(ar, m_gen, m_cc, m_cs, m_c1, m_cmu, m_sigma0, m_ftol, m_xtol, m_memory, m_force_bounds, sigma, mean,
-                    variation, newpop, B, D, C, invsqrtC, pc, ps, counteval, eigeneval, m_e, m_seed, m_verbosity, m_log,
-                    m_bfe);
-}
-
 } // namespace pagmo
 
 PAGMO_S11N_ALGORITHM_IMPLEMENT(pagmo::cmaes)

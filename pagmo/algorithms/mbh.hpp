@@ -284,7 +284,11 @@ private:
     // Object serialization
     friend class cereal::access;
     template <typename Archive>
-    void serialize(Archive &, unsigned);
+    void serialize(Archive &ar)
+    {
+
+        detail::archive(ar, m_algorithm, m_stop, m_perturb, m_e, m_seed, m_verbosity, m_log);
+    }
 
     algorithm m_algorithm;
     unsigned m_stop;

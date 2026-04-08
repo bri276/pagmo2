@@ -137,7 +137,7 @@ struct PAGMO_DLL_PUBLIC_INLINE_CLASS isl_inner_base {
 private:
     friend class cereal::access;
     template <typename Archive>
-    void serialize(Archive &, unsigned)
+    void serialize(Archive &)
     {
     }
 };
@@ -213,7 +213,7 @@ private:
     friend class cereal::access;
     // Serialization
     template <typename Archive>
-    void serialize(Archive &ar, unsigned)
+    void serialize(Archive &ar)
     {
         detail::archive(ar, cereal::base_class<isl_inner_base>(this), m_value);
     }
@@ -1187,12 +1187,12 @@ public:
 private:
     friend class cereal::access;
     template <typename Archive>
-    void save(Archive &ar, unsigned) const
+    void save(Archive &ar) const
     {
         detail::to_archive(ar, m_ptr->isl_ptr, get_algorithm(), get_population(), m_ptr->r_pol, m_ptr->s_pol);
     }
     template <typename Archive>
-    void load(Archive &ar, unsigned)
+    void load(Archive &ar)
     {
         // Wait for ongoing evolutions to finish.
         wait_check_ignore();

@@ -348,13 +348,6 @@ std::string cec2014::get_name() const
     return retval;
 }
 
-// Object serialization
-template <typename Archive>
-void cec2014::serialize(Archive &ar, unsigned)
-{
-    detail::archive(ar, func_num, m_rotation_matrix, m_origin_shift, m_shuffle, m_y, m_z);
-}
-
 // For the coverage analysis we do not cover the code below as its derived from a third party source
 // LCOV_EXCL_START
 /* Sphere */

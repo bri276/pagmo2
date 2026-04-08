@@ -245,7 +245,12 @@ private:
     // Object serialization
     friend class cereal::access;
     template <typename Archive>
-    void serialize(Archive &, unsigned);
+    void serialize(Archive &ar)
+    {
+
+        detail::archive(ar, cereal::base_class<not_population_based>(this), m_string_opts, m_integer_opts, m_numeric_opts,
+                        m_last_opt_res, m_verbosity, m_log);
+    }
 
 public:
     // Set string option.

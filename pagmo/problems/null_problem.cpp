@@ -69,13 +69,6 @@ std::pair<vector_double, vector_double> null_problem::get_bounds() const
     return {{0.}, {1.}};
 }
 
-// Serialization
-template <typename Archive>
-void null_problem::serialize(Archive &ar, unsigned)
-{
-    detail::archive(ar, m_nobj, m_nec, m_nic, m_nix);
-}
-
 } // namespace pagmo
 
 PAGMO_S11N_PROBLEM_IMPLEMENT(pagmo::null_problem)

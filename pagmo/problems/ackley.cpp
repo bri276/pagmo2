@@ -98,13 +98,6 @@ vector_double ackley::best_known() const
     return vector_double(m_dim, 0.);
 }
 
-// Object serialization
-template <typename Archive>
-void ackley::serialize(Archive &ar, unsigned)
-{
-    ar & m_dim;
-}
-
 } // namespace pagmo
 
 PAGMO_S11N_PROBLEM_IMPLEMENT(pagmo::ackley)

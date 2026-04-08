@@ -230,7 +230,12 @@ private:
     // Object serialization
     friend class cereal::access;
     template <typename Archive>
-    void serialize(Archive &, unsigned);
+    void serialize(Archive &ar)
+    {
+
+        detail::archive(ar, m_gen, m_eta_mu, m_eta_sigma, m_eta_b, m_sigma0, m_ftol, m_xtol, m_memory, m_force_bounds,
+                        sigma, mean, A, m_e, m_seed, m_verbosity, m_log);
+    }
 
     // Eigen stores indexes and sizes as signed types, while PaGMO
     // uses STL containers thus sizes and indexes are unsigned. To

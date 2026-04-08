@@ -72,7 +72,10 @@ private:
     // Object serialization
     friend class cereal::access;
     template <typename Archive>
-    void serialize(Archive &, unsigned);
+    void serialize(Archive &ar)
+    {
+
+    }
 
     mutable std::atomic<pid_t> m_pid;
 };

@@ -229,13 +229,6 @@ std::string fair_replace::get_extra_info() const
     }
 }
 
-// Serialization support.
-template <typename Archive>
-void fair_replace::serialize(Archive &ar, unsigned)
-{
-    detail::archive(ar, cereal::base_class<detail::base_sr_policy>(this));
-}
-
 } // namespace pagmo
 
 PAGMO_S11N_R_POLICY_IMPLEMENT(pagmo::fair_replace)

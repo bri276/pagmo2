@@ -385,14 +385,6 @@ std::string moead_gen::get_extra_info() const
     return ss.str();
 }
 
-// Object serialization
-template <typename Archive>
-void moead_gen::serialize(Archive &ar, unsigned)
-{
-    detail::archive(ar, m_gen, m_weight_generation, m_decomposition, m_neighbours, m_CR, m_F, m_eta_m, m_realb, m_limit,
-                    m_preserve_diversity, m_e, m_seed, m_verbosity, m_log, m_bfe);
-}
-
 std::vector<population::size_type>
 moead_gen::select_parents(population::size_type n, const std::vector<std::vector<population::size_type>> &neigh_idx,
                           bool whole_population) const

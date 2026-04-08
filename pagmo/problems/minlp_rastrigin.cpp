@@ -164,13 +164,6 @@ std::string minlp_rastrigin::get_extra_info() const
     return ss.str();
 }
 
-// Object serialization
-template <typename Archive>
-void minlp_rastrigin::serialize(Archive &ar, unsigned)
-{
-    detail::archive(ar, m_dim_c, m_dim_i);
-}
-
 } // namespace pagmo
 
 PAGMO_S11N_PROBLEM_IMPLEMENT(pagmo::minlp_rastrigin)

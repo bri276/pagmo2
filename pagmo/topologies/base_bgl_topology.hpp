@@ -114,7 +114,7 @@ public:
 private:
     friend class cereal::access;
     template <typename Archive>
-    void serialize(Archive &ar, unsigned)
+    void serialize(Archive &ar)
     {
         std::lock_guard<std::mutex> lock(m_mutex);
         detail::archive(ar, m_graph);

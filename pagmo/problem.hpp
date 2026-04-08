@@ -65,7 +65,10 @@ see https://www.gnu.org/licenses/. */
 // See also:
 // https://www.boost.org/doc/libs/1_70_0/libs/serialization/doc/special.html#objecttracking
 // https://www.boost.org/doc/libs/1_70_0/libs/serialization/doc/traits.html#level
-#define PAGMO_S11N_PROBLEM_EXPORT_KEY(prob)
+
+#define PAGMO_S11N_PROBLEM_EXPORT_KEY(prob)                                                                            \
+    CEREAL_REGISTER_TYPE(pagmo::detail::prob_inner<prob>)                                                              \
+    CEREAL_REGISTER_POLYMORPHIC_RELATION(pagmo::detail::prob_inner_base, pagmo::detail::prob_inner<prob>)
 
 #define PAGMO_S11N_PROBLEM_IMPLEMENT(prob)
 
@@ -381,7 +384,7 @@ struct PAGMO_DLL_PUBLIC_INLINE_CLASS prob_inner_base {
 private:
     friend class cereal::access;
     template <typename Archive>
-    void serialize(Archive &, unsigned)
+    void serialize(Archive &)
     {
     }
 };
@@ -768,7 +771,7 @@ private:
     // Serialization.
     friend class cereal::access;
     template <typename Archive>
-    void serialize(Archive &ar, unsigned)
+    void serialize(Archive &ar)
     {
         detail::archive(ar, cereal::base_class<prob_inner_base>(this), m_value);
     }
@@ -1500,7 +1503,7 @@ public:
 private:
     friend class cereal::access;
     template <typename Archive>
-    void save(Archive &ar, unsigned) const
+    void save(Archive &ar) const
     {
         detail::to_archive(ar, m_ptr, m_fevals.load(std::memory_order_relaxed),
                            m_gevals.load(std::memory_order_relaxed), m_hevals.load(std::memory_order_relaxed), m_lb,
@@ -1510,7 +1513,7 @@ private:
     }
 
     template <typename Archive>
-    void load(Archive &ar, unsigned)
+    void load(Archive &ar)
     {
         try {
             unsigned long long fevals, gevals, hevals;

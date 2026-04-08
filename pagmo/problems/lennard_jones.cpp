@@ -121,13 +121,6 @@ std::string lennard_jones::get_name() const
     return "Lennard Jones Cluster (" + std::to_string(m_atoms) + " atoms)";
 }
 
-// Object serialization
-template <typename Archive>
-void lennard_jones::serialize(Archive &ar, unsigned)
-{
-    ar & m_atoms;
-}
-
 // Helper function that transforms the decision vector x in atoms positions r
 double lennard_jones::_r(unsigned atom, unsigned coord, const vector_double &x) const
 {

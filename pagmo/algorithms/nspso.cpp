@@ -433,14 +433,6 @@ std::string nspso::get_extra_info() const
     return ss.str();
 }
 
-// Object serialization
-template <typename Archive>
-void nspso::serialize(Archive &ar, unsigned)
-{
-    detail::archive(ar, m_gen, m_omega, m_c1, m_c2, m_chi, m_v_coeff, m_leader_selection_range, m_diversity_mechanism,
-                    m_e, m_seed, m_verbosity, m_log, m_bfe);
-}
-
 double nspso::minfit(vector_double::size_type(i), vector_double::size_type(j),
                      const std::vector<vector_double> &fit) const
 

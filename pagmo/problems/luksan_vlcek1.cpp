@@ -148,13 +148,6 @@ sparsity_pattern luksan_vlcek1::gradient_sparsity() const
     return retval;
 }
 
-// Object serialization
-template <typename Archive>
-void luksan_vlcek1::serialize(Archive &ar, unsigned)
-{
-    ar & m_dim;
-}
-
 } // namespace pagmo
 
 PAGMO_S11N_PROBLEM_IMPLEMENT(pagmo::luksan_vlcek1)
