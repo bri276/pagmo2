@@ -101,7 +101,7 @@ TEST(sga_test, sga_evolve_test)
     EXPECT_THROW((sga{}.evolve(population{schwefel{20u}, 1u, 23u})), insufficient_population_error);
     EXPECT_THROW((sga{1u, .95, 10., .02, .5, 21u, "exponential", "gaussian", "tournament", 32u}.evolve(
                      population{schwefel{20u}, 20u, 23u})),
-                 invalid_parameter_error);
+                 insufficient_population_error);
     EXPECT_THROW((sga{1u, .95, 10., .02, .5, 2u, "sbx", "gaussian", "tournament", 32u}.evolve(
                      population{schwefel{20u}, 25u, 23u})),
                  insufficient_population_error);

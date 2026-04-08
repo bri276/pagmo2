@@ -662,7 +662,7 @@ TEST(hypervolume_utils_test, hypervolume_test_instances)
     std::string line;
 
     // root directory of the hypervolume data
-    std::string input_data_dir("./hypervolume_test_data/");
+    std::string input_data_dir("./tests/hypervolume_test_data/");
 
     // root directory of the testcases
     std::string input_data_testcases_dir(input_data_dir + "testcases/");

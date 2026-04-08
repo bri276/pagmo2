@@ -39,7 +39,7 @@ see https://www.gnu.org/licenses/. */
 #include <utility>
 #include <vector>
 
-#include <bimap.hpp>
+#include <map>
 
 #include <pagmo/algorithm.hpp>
 #include <pagmo/algorithms/sga.hpp>
@@ -63,9 +63,57 @@ namespace
 
 // All this scaffolding is to establish a one to one correspondence between enums and genetic operator types
 // represented as strings.
-using sga_selection_map_t = stde::bimap<std::string, sga_selection>;
-using sga_crossover_map_t = stde::bimap<std::string, sga_crossover>;
-using sga_mutation_map_t = stde::bimap<std::string, sga_mutation>;
+struct sga_selection_map_t {
+    std::map<std::string, sga_selection> fwd;
+    std::map<sga_selection, std::string> rev;
+    void insert(const std::string &k, sga_selection v)
+    {
+        fwd[k] = v;
+        rev[v] = k;
+    }
+    sga_selection get_value(const std::string &k) const
+    {
+        return fwd.at(k);
+    }
+    const std::string &get_key(sga_selection v) const
+    {
+        return rev.at(v);
+    }
+};
+struct sga_crossover_map_t {
+    std::map<std::string, sga_crossover> fwd;
+    std::map<sga_crossover, std::string> rev;
+    void insert(const std::string &k, sga_crossover v)
+    {
+        fwd[k] = v;
+        rev[v] = k;
+    }
+    sga_crossover get_value(const std::string &k) const
+    {
+        return fwd.at(k);
+    }
+    const std::string &get_key(sga_crossover v) const
+    {
+        return rev.at(v);
+    }
+};
+struct sga_mutation_map_t {
+    std::map<std::string, sga_mutation> fwd;
+    std::map<sga_mutation, std::string> rev;
+    void insert(const std::string &k, sga_mutation v)
+    {
+        fwd[k] = v;
+        rev[v] = k;
+    }
+    sga_mutation get_value(const std::string &k) const
+    {
+        return fwd.at(k);
+    }
+    const std::string &get_key(sga_mutation v) const
+    {
+        return rev.at(v);
+    }
+};
 
 // Helper init functions
 sga_selection_map_t sga_init_selection_map()
@@ -194,7 +242,7 @@ population sga::evolve(population pop) const
                                                        + std::to_string(NP) + " detected");
     }
     if (m_param_s > pop.size()) {
-        pagmo_throw(invalid_parameter_error,
+        pagmo_throw(insufficient_population_error,
                     "The parameter for selection must be smaller than the population size, while a value of: "
                         + std::to_string(m_param_s)
                         + " was detected in a population of size: " + std::to_string(pop.size()));

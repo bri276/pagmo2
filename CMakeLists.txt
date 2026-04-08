@@ -188,9 +188,6 @@ include(cmake/find_or_build_cereal.cmake)
 # Graaf dependency (graph library, replaces Boost Graph Library)
 include(cmake/find_or_build_graaf.cmake)
 
-# bimap dependency (LarsHagemann/bimap, replaces boost::bimap)
-include(cmake/find_or_build_bimap.cmake)
-
 # Google Test dependency
 include(cmake/find_or_build_gtest.cmake)
 
@@ -398,9 +395,6 @@ endif()
 # Link Graaf graph library (header-only, replaces Boost Graph Library).
 # Must be PUBLIC since graph_t is exposed in pagmo's public headers.
 target_link_libraries(pagmo PUBLIC Graaf::Graaf)
-
-# Link LarsHagemann/bimap (header-only, replaces boost::bimap).
-target_link_libraries(pagmo PRIVATE bimap::bimap)
 
 if(PAGMO_WITH_EIGEN3)
     # Link pagmo to eigen3 privately and expose headers publicly

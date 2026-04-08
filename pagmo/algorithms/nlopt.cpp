@@ -32,9 +32,6 @@ see https://www.gnu.org/licenses/. */
 // triggered by Boost algos instantiations which we cannot do much about.
 #define _SCL_SECURE_NO_WARNINGS
 
-// Boost's bimap results in some C++17 deprecation warnings in C++17 mode.
-#define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
-
 #endif
 
 #include <algorithm>
@@ -57,7 +54,7 @@ see https://www.gnu.org/licenses/. */
 #include <utility>
 #include <vector>
 
-#include <bimap.hpp>
+#include <map>
 #include <nlopt.h>
 
 #include <pagmo/algorithm.hpp>
@@ -85,9 +82,37 @@ namespace
 
 // The idea here is to establish a bijection between string name (e.g., "cobyla")
 // and the enums used in the NLopt C API to refer to the algos (e.g., NLOPT_LN_COBYLA).
-// We use a bidirectional map so that we can map both string -> enum and enum -> string,
+// We use two maps so that we can map both string -> enum and enum -> string,
 // depending on what is needed.
-using nlopt_names_map_t = stde::bimap<std::string, ::nlopt_algorithm>;
+struct nlopt_names_map_t {
+    std::map<std::string, ::nlopt_algorithm> fwd;
+    std::map<::nlopt_algorithm, std::string> rev;
+    void insert(const std::string &k, ::nlopt_algorithm v)
+    {
+        fwd[k] = v;
+        rev[v] = k;
+    }
+    ::nlopt_algorithm get_value(const std::string &k) const
+    {
+        return fwd.at(k);
+    }
+    const std::string &get_key(::nlopt_algorithm v) const
+    {
+        return rev.at(v);
+    }
+    bool has_key(const std::string &k) const
+    {
+        return fwd.find(k) != fwd.end();
+    }
+    auto begin() const
+    {
+        return fwd.begin();
+    }
+    auto end() const
+    {
+        return fwd.end();
+    }
+};
 
 // Initialise the mapping between algo names and enums for the supported algorithms.
 nlopt_names_map_t nlopt_names_map_init()
@@ -721,7 +746,7 @@ nlopt::nlopt(const std::string &algo) : m_algo(algo)
         // The selected algorithm is unknown or not among the supported ones.
         std::ostringstream oss;
         std::transform(detail::nlopt_names.begin(), detail::nlopt_names.end(),
-                       std::ostream_iterator<std::string>(oss, "\n"), [](const auto &p) { return *p.first; });
+                       std::ostream_iterator<std::string>(oss, "\n"), [](const auto &p) { return p.first; });
         pagmo_throw(invalid_parameter_error,
                     "unknown/unsupported NLopt algorithm '" + algo + "'. The supported algorithms are:\n" + oss.str());
     }
