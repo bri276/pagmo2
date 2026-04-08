@@ -92,6 +92,25 @@ public:
         return m_it != o.m_it;
     }
 
+    // Mixed comparison: allow comparing indirect_iterator<Iter> with indirect_iterator<OtherIter>
+    // (e.g. iterator vs const_iterator) when their base iterators are equality-comparable.
+    template <typename OtherIter>
+    bool operator==(const indirect_iterator<OtherIter> &o) const
+    {
+        return m_it == o.base();
+    }
+    template <typename OtherIter>
+    bool operator!=(const indirect_iterator<OtherIter> &o) const
+    {
+        return m_it != o.base();
+    }
+
+    // Expose the underlying iterator for mixed comparisons.
+    Iter base() const
+    {
+        return m_it;
+    }
+
     reference operator[](difference_type n) const
     {
         return *m_it[n];
