@@ -37,9 +37,9 @@ see https://www.gnu.org/licenses/. */
 #include <thread>
 #include <utility>
 
+#include <pagmo/exceptions.hpp>
 #include <pagmo/s11n.hpp>
 #include <pagmo/topologies/base_bgl_topology.hpp>
-#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -147,17 +147,14 @@ TEST(base_bgl_topology, error_handling)
     bbt t0;
 
     EXPECT_THROW(t0.are_adjacent(0, 1), index_error);
-    });
 
     t0.add_vertex();
     t0.add_vertex();
     t0.add_vertex();
 
     EXPECT_THROW(t0.get_connections(42), index_error);
-    });
 
     EXPECT_THROW(t0.add_edge(4, 5), index_error);
-    });
 
     t0.add_edge(0, 2);
     EXPECT_THROW(t0.add_edge(0, 2), index_error);
@@ -167,17 +164,15 @@ TEST(base_bgl_topology, error_handling)
 
     t0.add_edge(0, 2);
     t0.set_weight(0, 2, .2);
-    EXPECT_THROW(t0.set_weight(0, 2, -1.), invalid_value_error); });
-    EXPECT_THROW(t0.set_all_weights(-1.), invalid_value_error); });
+    EXPECT_THROW(t0.set_weight(0, 2, -1.), invalid_value_error);
+    EXPECT_THROW(t0.set_all_weights(-1.), invalid_value_error);
     EXPECT_THROW(t0.set_weight(0, 2, std::numeric_limits<double>::infinity()), invalid_value_error);
     EXPECT_THROW(t0.set_all_weights(std::numeric_limits<double>::infinity()), invalid_value_error);
     EXPECT_THROW(t0.set_weight(0, 1, .2), index_error);
 
     EXPECT_THROW(t0.get_edge_weight(0, 1), index_error);
     EXPECT_THROW(t0.get_edge_weight(0, 10), index_error);
-    });
     EXPECT_THROW(t0.get_edge_weight(11, 10), index_error);
-    });
 }
 
 TEST(base_bgl_topology, s11n_test)
@@ -271,47 +266,37 @@ TEST(base_bgl_topology, thread_torture_test)
     EXPECT_TRUE(failures.load() == 0);
 }
 
-TEST(base_bgl_topology, to_bgl_test)
+TEST(base_bgl_topology, to_graph_test)
 {
     bbt t0;
 
-    auto b = t0.to_bgl();
+    auto b = t0.to_graph();
 
-    EXPECT_TRUE(boost::num_vertices(b) == 0u);
+    EXPECT_TRUE(b.vertex_count() == 0u);
 
     t0.add_vertex();
     t0.add_vertex();
     t0.add_vertex();
 
-    b = t0.to_bgl();
-    EXPECT_TRUE(boost::num_vertices(b) == 3u);
-    auto a_vertices = boost::adjacent_vertices(boost::vertex(0, b), b);
-    EXPECT_TRUE(a_vertices.first == a_vertices.second);
-    a_vertices = boost::adjacent_vertices(boost::vertex(1, b), b);
-    EXPECT_TRUE(a_vertices.first == a_vertices.second);
-    a_vertices = boost::adjacent_vertices(boost::vertex(2, b), b);
-    EXPECT_TRUE(a_vertices.first == a_vertices.second);
+    b = t0.to_graph();
+    EXPECT_TRUE(b.vertex_count() == 3u);
+    EXPECT_TRUE(b.get_neighbors(0).empty());
+    EXPECT_TRUE(b.get_neighbors(1).empty());
+    EXPECT_TRUE(b.get_neighbors(2).empty());
 
     t0.add_edge(0, 1, .25);
     t0.add_edge(1, 2, 1);
-    b = t0.to_bgl();
-    EXPECT_TRUE(boost::num_vertices(b) == 3u);
-    a_vertices = boost::adjacent_vertices(boost::vertex(0, b), b);
-    EXPECT_TRUE(a_vertices.second - a_vertices.first == 1);
-    auto vi = boost::vertex(0, b);
-    for (auto av = boost::adjacent_vertices(vi, b); av.first != av.second; ++av.first) {
-        const auto e = boost::edge(vi, boost::vertex(*av.first, b), b);
-        EXPECT_TRUE(e.second);
-        EXPECT_TRUE(b[e.first] == .25);
+    b = t0.to_graph();
+    EXPECT_TRUE(b.vertex_count() == 3u);
+    EXPECT_TRUE(b.get_neighbors(0).size() == 1u);
+    for (const auto nid : b.get_neighbors(0)) {
+        EXPECT_TRUE(b.has_edge(0, nid));
+        EXPECT_TRUE(b.get_edge(0, nid) == .25);
     }
-    a_vertices = boost::adjacent_vertices(boost::vertex(1, b), b);
-    EXPECT_TRUE(a_vertices.second - a_vertices.first == 1);
-    vi = boost::vertex(1, b);
-    for (auto av = boost::adjacent_vertices(vi, b); av.first != av.second; ++av.first) {
-        const auto e = boost::edge(vi, boost::vertex(*av.first, b), b);
-        EXPECT_TRUE(e.second);
-        EXPECT_TRUE(b[e.first] == 1.);
+    EXPECT_TRUE(b.get_neighbors(1).size() == 1u);
+    for (const auto nid : b.get_neighbors(1)) {
+        EXPECT_TRUE(b.has_edge(1, nid));
+        EXPECT_TRUE(b.get_edge(1, nid) == 1.);
     }
-    a_vertices = boost::adjacent_vertices(boost::vertex(2, b), b);
-    EXPECT_TRUE(a_vertices.first == a_vertices.second);
+    EXPECT_TRUE(b.get_neighbors(2).empty());
 }

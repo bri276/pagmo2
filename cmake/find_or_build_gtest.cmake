@@ -5,7 +5,7 @@ if(PAGMO_BUILD_TESTS)
     message(STATUS "Configuring Google Test dependency...")
     
     # Use CPM to fetch Google Test
-    CPMAddPackage(
+    CPMFindPackage(
         NAME googletest
         GITHUB_REPOSITORY google/googletest
         GIT_TAG v1.14.0

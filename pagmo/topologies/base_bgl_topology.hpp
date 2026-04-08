@@ -85,9 +85,9 @@ class PAGMO_DLL_PUBLIC base_bgl_topology
     // A few helpers to set/get the integral graph
     // object. These will lock the mutex, so they
     // are safe for general use.
-    bgl_graph_t get_graph() const;
-    PAGMO_DLL_LOCAL bgl_graph_t move_graph();
-    PAGMO_DLL_LOCAL void set_graph(bgl_graph_t &&);
+    graph_t get_graph() const;
+    PAGMO_DLL_LOCAL graph_t move_graph();
+    PAGMO_DLL_LOCAL void set_graph(graph_t &&);
 
 public:
     base_bgl_topology() = default;
@@ -109,7 +109,7 @@ public:
 
     std::string get_extra_info() const;
 
-    bgl_graph_t to_bgl() const;
+    graph_t to_graph() const;
 
 private:
     friend class cereal::access;
@@ -121,7 +121,7 @@ private:
     }
 
     mutable std::mutex m_mutex;
-    bgl_graph_t m_graph;
+    graph_t m_graph;
 };
 
 } // namespace pagmo

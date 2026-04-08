@@ -40,7 +40,7 @@ see https://www.gnu.org/licenses/. */
 #include <utility>
 #include <vector>
 
-#include <boost/graph/adjacency_list.hpp>
+#include <graaflib/graph.h>
 
 #include <pagmo/concepts.hpp>
 #include <pagmo/config.hpp>
@@ -79,27 +79,17 @@ concept HasPushBack = requires(T &t) {
 
 #if !defined(PAGMO_DOXYGEN_INVOKED)
 
-// A Boost graph type which is used as an export format for topologies
+// A directed graph type used as export format for topologies
 // and also as the underlying graph type for base_bgl_topology.
-// NOTE: the definition of the graph type is taken from pagmo 1. We might
-// want to consider alternative storage classes down the line, as the complexity
-// of some graph operations is not that great when using vecs and lists.
-using bgl_graph_t
-    = boost::adjacency_list<boost::vecS,           // std::vector for list of adjacent vertices (OutEdgeList)
-                            boost::vecS,           // std::vector for the list of vertices (VertexList)
-                            boost::bidirectionalS, // we require bi-directional edges for topology (Directed)
-                            boost::no_property,    // no vertex properties (VertexProperties)
-                            double,                // edge property stores migration probability (EdgeProperties)
-                            boost::no_property,    // no graph properties (GraphProperties)
-                            boost::listS           // std::list for of the graph's edge list (EdgeList)
-                            >;
+// Vertices carry no data (int dummy), edges store migration probability (double).
+using graph_t = graaf::directed_graph<int, double>;
 
 #endif
 
-// Detect the to_bgl() method.
+// Detect the to_graph() method.
 template <typename T>
-concept HasToBgl = requires(const T &t) {
-    { t.to_bgl() } -> std::same_as<bgl_graph_t>;
+concept HasToGraph = requires(const T &t) {
+    { t.to_graph() } -> std::same_as<graph_t>;
 };
 
 namespace detail
@@ -137,7 +127,7 @@ struct PAGMO_DLL_PUBLIC_INLINE_CLASS topo_inner_base {
     virtual std::string get_extra_info() const = 0;
     virtual std::pair<std::vector<std::size_t>, vector_double> get_connections(std::size_t) const = 0;
     virtual void push_back() = 0;
-    virtual bgl_graph_t to_bgl() const = 0;
+    virtual graph_t to_graph() const = 0;
     virtual std::type_index get_type_index() const = 0;
     virtual const void *get_ptr() const = 0;
     virtual void *get_ptr() = 0;
@@ -176,9 +166,9 @@ struct PAGMO_DLL_PUBLIC_INLINE_CLASS topo_inner final : topo_inner_base {
         m_value.push_back();
     }
     // Optional methods.
-    bgl_graph_t to_bgl() const final
+    graph_t to_graph() const final
     {
-        return to_bgl_impl(m_value);
+        return to_graph_impl(m_value);
     }
     std::string get_name() const final
     {
@@ -190,17 +180,17 @@ struct PAGMO_DLL_PUBLIC_INLINE_CLASS topo_inner final : topo_inner_base {
     }
     // Implementation of the optional methods.
     template <typename U>
-        requires(HasToBgl<U>)
-    static bgl_graph_t to_bgl_impl(const U &value)
+        requires(HasToGraph<U>)
+    static graph_t to_graph_impl(const U &value)
     {
-        return value.to_bgl();
+        return value.to_graph();
     }
     template <typename U>
-        requires(!HasToBgl<U>)
-    [[noreturn]] static bgl_graph_t to_bgl_impl(const U &value)
+        requires(!HasToGraph<U>)
+    [[noreturn]] static graph_t to_graph_impl(const U &value)
     {
         pagmo_throw(not_implemented_error,
-                    "The to_bgl() method has been invoked, but it is not implemented in a UDT of type '"
+                    "The to_graph() method has been invoked, but it is not implemented in a UDT of type '"
                         + get_name_impl(value) + "'");
     }
     template <typename U>
@@ -352,8 +342,8 @@ public:
     // Add multiple vertices.
     void push_back(unsigned);
 
-    // Convert to BGL.
-    bgl_graph_t to_bgl() const;
+    // Convert to graph.
+    graph_t to_graph() const;
 
     // Get the type at runtime.
     std::type_index get_type_index() const;

@@ -188,6 +188,9 @@ include(cmake/find_or_build_boost.cmake)
 # Cereal dependency (for serialization)
 include(cmake/find_or_build_cereal.cmake)
 
+# Graaf dependency (graph library, replaces Boost Graph Library)
+include(cmake/find_or_build_graaf.cmake)
+
 # Google Test dependency
 include(cmake/find_or_build_gtest.cmake)
 
@@ -393,7 +396,7 @@ elseif(TARGET cereal)
 endif()
 
 # Link additional header-only boost libraries needed by pagmo
-foreach(boost_lib IN ITEMS boost_any boost_math boost_safe_numerics boost_bimap boost_system boost_graph boost_lexical_cast boost_integer boost_variant boost_variant2 boost_property_map boost_container boost_move boost_type_index boost_multi_index boost_type_traits boost_config boost_mpl boost_iterator boost_core boost_unordered)
+foreach(boost_lib IN ITEMS boost_any boost_math boost_safe_numerics boost_bimap boost_system boost_lexical_cast boost_integer boost_variant boost_variant2 boost_container boost_move boost_type_index boost_multi_index boost_type_traits boost_config boost_mpl boost_iterator boost_core boost_unordered)
     if(TARGET ${boost_lib})
         target_link_libraries(pagmo PRIVATE ${boost_lib})
         get_target_property(BOOST_LIB_INCLUDE_DIRS ${boost_lib} INTERFACE_INCLUDE_DIRECTORIES)
@@ -405,7 +408,7 @@ foreach(boost_lib IN ITEMS boost_any boost_math boost_safe_numerics boost_bimap 
 endforeach()
 
 # Link additional header-only boost libraries needed by pagmo
-foreach(boost_lib IN ITEMS boost_any boost_math boost_safe_numerics boost_bimap boost_system boost_graph boost_lexical_cast boost_integer boost_variant boost_variant2 boost_property_map boost_container boost_move boost_type_index boost_multi_index boost_type_traits boost_config boost_mpl boost_core boost_unordered)
+foreach(boost_lib IN ITEMS boost_any boost_math boost_safe_numerics boost_bimap boost_system boost_lexical_cast boost_integer boost_variant boost_variant2 boost_container boost_move boost_type_index boost_multi_index boost_type_traits boost_config boost_mpl boost_core boost_unordered)
     if(TARGET ${boost_lib})
         target_link_libraries(pagmo PRIVATE ${boost_lib})
         get_target_property(BOOST_LIB_INCLUDE_DIRS ${boost_lib} INTERFACE_INCLUDE_DIRECTORIES)
@@ -415,6 +418,10 @@ foreach(boost_lib IN ITEMS boost_any boost_math boost_safe_numerics boost_bimap 
         message(STATUS "Linked with ${boost_lib} (private)")
     endif()
 endforeach()
+
+# Link Graaf graph library (header-only, replaces Boost Graph Library).
+# Must be PUBLIC since graph_t is exposed in pagmo's public headers.
+target_link_libraries(pagmo PUBLIC Graaf::Graaf)
 
 # NOTE: quench warnings from Boost when building the library.
 target_compile_definitions(pagmo PRIVATE BOOST_ALLOW_DEPRECATED_HEADERS)

@@ -44,14 +44,12 @@ free_form::free_form() = default;
 free_form::free_form(const free_form &) = default;
 free_form::free_form(free_form &&) noexcept = default;
 
-free_form::free_form(bgl_graph_t g)
+free_form::free_form(graph_t g)
 {
     // NOTE: verify the values of the weights,
-    // as the base BGL topology maintains
+    // as the base graph topology maintains
     // correct weights as a class invariant.
-    for (auto erange = boost::edges(g); erange.first != erange.second; ++erange.first) {
-        const auto w = g[*erange.first];
-
+    for (const auto &[edge_id, w] : g.get_edges()) {
         if (!std::isfinite(w) || w < 0. || w > 1.) {
             pagmo_throw(invalid_value_error,
                         "In the constructor of a free_form topology from a graph object, an invalid edge weight of "
@@ -62,7 +60,7 @@ free_form::free_form(bgl_graph_t g)
     set_graph(std::move(g));
 }
 
-free_form::free_form(const topology &t) : free_form(t.to_bgl()) {}
+free_form::free_form(const topology &t) : free_form(t.to_graph()) {}
 
 // Serialization.
 template <typename Archive>

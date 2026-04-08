@@ -34,10 +34,10 @@ see https://www.gnu.org/licenses/. */
 #include <sstream>
 #include <stdexcept>
 
+#include <pagmo/exceptions.hpp>
 #include <pagmo/s11n.hpp>
 #include <pagmo/topologies/ring.hpp>
 #include <pagmo/topology.hpp>
-#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -148,54 +148,56 @@ TEST(ring, basic_test)
     }
 
     // Ctor from edge weight.
-    EXPECT_THROW(r0 = ring(-2), index_error); });
+    EXPECT_THROW(r0 = ring(-2), index_error);
+});
 
-    // Ctor from number of vertices and edge weight.
-    EXPECT_THROW(r0 = ring(0, -2), index_error); });
+// Ctor from number of vertices and edge weight.
+EXPECT_THROW(r0 = ring(0, -2), index_error);
+});
 
-    r0 = ring(0, 0);
+r0 = ring(0, 0);
 
-    EXPECT_TRUE(r0.get_weight() == 0.);
-    EXPECT_TRUE(r0.num_vertices() == 0u);
-    verify_ring_topology(r0);
+EXPECT_TRUE(r0.get_weight() == 0.);
+EXPECT_TRUE(r0.num_vertices() == 0u);
+verify_ring_topology(r0);
 
-    r0 = ring(1, .2);
-    EXPECT_TRUE(r0.get_weight() == .2);
-    EXPECT_TRUE(r0.num_vertices() == 1u);
-    verify_ring_topology(r0);
+r0 = ring(1, .2);
+EXPECT_TRUE(r0.get_weight() == .2);
+EXPECT_TRUE(r0.num_vertices() == 1u);
+verify_ring_topology(r0);
 
-    r0 = ring(2, .3);
-    EXPECT_TRUE(r0.get_weight() == .3);
-    EXPECT_TRUE(r0.num_vertices() == 2u);
-    verify_ring_topology(r0);
+r0 = ring(2, .3);
+EXPECT_TRUE(r0.get_weight() == .3);
+EXPECT_TRUE(r0.num_vertices() == 2u);
+verify_ring_topology(r0);
 
-    r0 = ring(3, .4);
-    EXPECT_TRUE(r0.get_weight() == .4);
-    EXPECT_TRUE(r0.num_vertices() == 3u);
-    verify_ring_topology(r0);
+r0 = ring(3, .4);
+EXPECT_TRUE(r0.get_weight() == .4);
+EXPECT_TRUE(r0.num_vertices() == 3u);
+verify_ring_topology(r0);
 
-    r0 = ring(4, .5);
-    EXPECT_TRUE(r0.get_weight() == .5);
-    EXPECT_TRUE(r0.num_vertices() == 4u);
-    verify_ring_topology(r0);
+r0 = ring(4, .5);
+EXPECT_TRUE(r0.get_weight() == .5);
+EXPECT_TRUE(r0.num_vertices() == 4u);
+verify_ring_topology(r0);
 
-    // Example of cout printing for ring.
-    r0.push_back();
-    r0.push_back();
-    r0.push_back();
-    r0.push_back();
+// Example of cout printing for ring.
+r0.push_back();
+r0.push_back();
+r0.push_back();
+r0.push_back();
 
-    r0.set_weight(0, 1, .1);
-    r0.set_weight(4, 5, .7);
+r0.set_weight(0, 1, .1);
+r0.set_weight(4, 5, .7);
 
-    std::cout << r0.get_extra_info() << '\n';
+std::cout << r0.get_extra_info() << '\n';
 }
 
-TEST(ring, to_bgl_test)
+TEST(ring, to_graph_test)
 {
-    EXPECT_TRUE(HasToBgl<ring>);
+    EXPECT_TRUE(HasToGraph<ring>);
 
     auto r0 = ring(4, .5);
-    EXPECT_TRUE(boost::num_vertices(r0.to_bgl()) == 4);
-    EXPECT_TRUE(boost::num_edges(r0.to_bgl()) == 8);
+    EXPECT_TRUE(r0.to_graph().vertex_count() == 4);
+    EXPECT_TRUE(r0.to_graph().edge_count() == 8);
 }

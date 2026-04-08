@@ -74,8 +74,8 @@ struct npb01 {
     int push_back();
 };
 
-struct with_to_bgl {
-    bgl_graph_t to_bgl() const;
+struct with_to_graph {
+    graph_t to_graph() const;
 };
 
 struct udt00 {
@@ -122,9 +122,9 @@ struct udt01 {
     {
         return "hello";
     }
-    bgl_graph_t to_bgl() const
+    graph_t to_graph() const
     {
-        return bgl_graph_t{};
+        return graph_t{};
     }
     int n_pushed = 0;
 };
@@ -337,16 +337,17 @@ TEST(topology_test, topology_push_back_n_test)
     EXPECT_TRUE(t0.extract<ring>()->num_vertices() == 7u);
 }
 
-TEST(topology_test, topology_to_bgl_test)
+TEST(topology_test, topology_to_graph_test)
 {
-    EXPECT_TRUE(!HasToBgl<gc00>);
-    EXPECT_TRUE(HasToBgl<with_to_bgl>);
+    EXPECT_TRUE(!HasToGraph<gc00>);
+    EXPECT_TRUE(HasToGraph<with_to_graph>);
 
-    EXPECT_THROW(topology{udt00{}}.to_bgl(), not_implemented_error, [](const not_implemented_error &nie) {
-        return             nie.what(), "The to_bgl() method has been invoked.contains( but it is not implemented in a UDT of type 'udt00'");
+    EXPECT_THROW(topology{udt00{}}.to_graph(), not_implemented_error, [](const not_implemented_error &nie) {
+        return nie.what(),
+               "The to_graph() method has been invoked.contains( but it is not implemented in a UDT of type 'udt00'";
     });
 
-    EXPECT_TRUE(boost::num_vertices(topology{udt01{}}.to_bgl()) == 0);
+    EXPECT_TRUE(topology{udt01{}}.to_graph().vertex_count() == 0);
 }
 
 TEST(topology_test, type_index)

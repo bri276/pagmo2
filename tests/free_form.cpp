@@ -36,11 +36,11 @@ see https://www.gnu.org/licenses/. */
 #include <string>
 #include <utility>
 
+#include <pagmo/exceptions.hpp>
 #include <pagmo/s11n.hpp>
 #include <pagmo/topologies/free_form.hpp>
 #include <pagmo/topologies/ring.hpp>
 #include <pagmo/topology.hpp>
-#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -154,10 +154,10 @@ TEST(free_form, basic_test)
     std::cout << topology{f0}.get_extra_info() << '\n';
 }
 
-TEST(free_form, bgl_ctor)
+TEST(free_form, graph_ctor)
 {
     ring r0{100, .25};
-    free_form f0{r0.to_bgl()};
+    free_form f0{r0.to_graph()};
 
     EXPECT_TRUE(f0.num_vertices() == 100u);
     EXPECT_TRUE(f0.are_adjacent(0, 1));
@@ -176,31 +176,27 @@ TEST(free_form, bgl_ctor)
     }
 
     // Test error throwing with invalid weights.
-    bgl_graph_t bogus;
+    graph_t bogus;
+    bogus.add_vertex(0);
+    bogus.add_vertex(0);
+    bogus.add_vertex(0);
 
-    boost::add_vertex(bogus);
-    boost::add_vertex(bogus);
-    boost::add_vertex(bogus);
-
-    auto res = boost::add_edge(boost::vertex(0, bogus), boost::vertex(1, bogus), bogus);
-    bogus[res.first] = 0.;
-    res = boost::add_edge(boost::vertex(1, bogus), boost::vertex(2, bogus), bogus);
-    bogus[res.first] = 2.;
+    bogus.add_edge(0, 1, 0.);
+    bogus.add_edge(1, 2, 2.); // invalid: weight > 1
 
     auto trigger = [&bogus]() { free_form fobus(bogus); };
 
     EXPECT_THROW(trigger(), invalid_value_error);
-    });
 
-    bogus[res.first] = -1.;
-
-    EXPECT_THROW(trigger(), invalid_value_error);
-    });
-
-    bogus[res.first] = std::numeric_limits<double>::quiet_NaN();
+    bogus.remove_edge(1, 2);
+    bogus.add_edge(1, 2, -1.); // invalid: weight < 0
 
     EXPECT_THROW(trigger(), invalid_value_error);
-    });
+
+    bogus.remove_edge(1, 2);
+    bogus.add_edge(1, 2, std::numeric_limits<double>::quiet_NaN()); // invalid: NaN
+
+    EXPECT_THROW(trigger(), invalid_value_error);
 }
 
 TEST(free_form, udt_ctor)

@@ -27,7 +27,6 @@ GNU Lesser General Public License along with the PaGMO library.  If not,
 see https://www.gnu.org/licenses/. */
 
 #include <atomic>
-#include <cassert>
 #include <cstddef>
 #include <limits>
 #include <stdexcept>
@@ -86,10 +85,9 @@ std::pair<std::vector<std::size_t>, vector_double> fully_connected::get_connecti
     const auto num_vertices = m_num_vertices.load(std::memory_order_relaxed);
 
     if (i >= num_vertices) {
-        pagmo_throw(index_error,
-                    "Cannot get the connections to the vertex at index " + std::to_string(i)
-                        + " in a fully connected topology: the number of vertices in the topology is only "
-                        + std::to_string(num_vertices));
+        pagmo_throw(index_error, "Cannot get the connections to the vertex at index " + std::to_string(i)
+                                     + " in a fully connected topology: the number of vertices in the topology is only "
+                                     + std::to_string(num_vertices));
     }
 
     // Init the retval.
@@ -112,10 +110,10 @@ std::pair<std::vector<std::size_t>, vector_double> fully_connected::get_connecti
     return retval;
 }
 
-// Convert to bgl_graph_t.
-bgl_graph_t fully_connected::to_bgl() const
+// Convert to graph_t.
+graph_t fully_connected::to_graph() const
 {
-    bgl_graph_t retval;
+    graph_t retval;
 
     // Fetch the number of vertices and the weight.
     const auto nv = m_num_vertices.load();
@@ -126,28 +124,20 @@ bgl_graph_t fully_connected::to_bgl() const
             break;
         case 1u:
             // Add a single vertex, no edges.
-            boost::add_vertex(retval);
+            retval.add_vertex(0);
             break;
         default:
-            // Add the edges.
-            // NOTE: adding the edges will automatically
-            // create the vertices too.
+            // Add all vertices first.
+            for (std::size_t i = 0; i < nv; ++i) {
+                retval.add_vertex(0);
+            }
+            // Add all edges (fully connected, no self-loops).
             for (std::size_t i = 0; i < nv; ++i) {
                 for (std::size_t j = 0; j < nv; ++j) {
                     if (i == j) {
-                        // NOTE: avoid connecting i to itself.
                         continue;
                     }
-
-                    // Establish the connection between i and j.
-                    const auto result = boost::add_edge(
-                        boost::vertex(numeric_cast<bgl_graph_t::vertices_size_type>(i), retval),
-                        boost::vertex(numeric_cast<bgl_graph_t::vertices_size_type>(j), retval), retval);
-
-                    assert(result.second);
-
-                    // Assign the weight too.
-                    retval[result.first] = w;
+                    retval.add_edge(i, j, w);
                 }
             }
     }

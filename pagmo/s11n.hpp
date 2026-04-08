@@ -49,6 +49,8 @@ see https://www.gnu.org/licenses/. */
 #include <cereal/types/variant.hpp>
 #include <cereal/types/vector.hpp>
 
+#include <graaflib/graph.h>
+
 #include <pagmo/detail/s11n_wrappers.hpp>
 
 namespace pagmo
@@ -89,6 +91,52 @@ void load(Archive &ar, std::mersenne_twister_engine<UIntType, w, n, m, r, a, u, 
     iss.str(tmp);
     iss >> e;
 }
+} // namespace cereal
+
+// Cereal serialization support for graaf directed_graph.
+// Uses public API (get_vertices/get_edges/add_vertex/add_edge) since
+// graaf's internals are private.
+namespace cereal
+{
+
+template <typename Archive, typename VERTEX_T, typename EDGE_T>
+void save(Archive &ar, const graaf::directed_graph<VERTEX_T, EDGE_T> &g)
+{
+    const auto &vertices = g.get_vertices();
+    const auto nv = static_cast<std::size_t>(vertices.size());
+    ar(nv);
+    for (const auto &[id, v] : vertices) {
+        ar(id, v);
+    }
+    const auto &edges = g.get_edges();
+    const auto ne = static_cast<std::size_t>(edges.size());
+    ar(ne);
+    for (const auto &[edge_id, e] : edges) {
+        ar(edge_id.first, edge_id.second, e);
+    }
+}
+
+template <typename Archive, typename VERTEX_T, typename EDGE_T>
+void load(Archive &ar, graaf::directed_graph<VERTEX_T, EDGE_T> &g)
+{
+    std::size_t nv{};
+    ar(nv);
+    for (std::size_t i = 0; i < nv; ++i) {
+        graaf::vertex_id_t id{};
+        VERTEX_T v{};
+        ar(id, v);
+        g.add_vertex(std::move(v), id);
+    }
+    std::size_t ne{};
+    ar(ne);
+    for (std::size_t i = 0; i < ne; ++i) {
+        graaf::vertex_id_t src{}, dst{};
+        EDGE_T e{};
+        ar(src, dst, e);
+        g.add_edge(src, dst, std::move(e));
+    }
+}
+
 } // namespace cereal
 
 #endif

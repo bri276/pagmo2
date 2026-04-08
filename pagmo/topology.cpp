@@ -154,9 +154,9 @@ void topology::push_back(unsigned n)
     }
 }
 
-bgl_graph_t topology::to_bgl() const
+graph_t topology::to_graph() const
 {
-    return ptr()->to_bgl();
+    return ptr()->to_graph();
 }
 
 // Get the type of the UDT.

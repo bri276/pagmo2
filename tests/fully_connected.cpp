@@ -35,10 +35,10 @@ see https://www.gnu.org/licenses/. */
 #include <stdexcept>
 #include <utility>
 
+#include <pagmo/exceptions.hpp>
 #include <pagmo/s11n.hpp>
 #include <pagmo/topologies/fully_connected.hpp>
 #include <pagmo/topology.hpp>
-#include <pagmo/exceptions.hpp>
 
 using namespace pagmo;
 
@@ -198,77 +198,39 @@ TEST(fully_connected, basic_test)
     }
 }
 
-TEST(fully_connected, to_bgl_test)
+TEST(fully_connected, to_graph_test)
 {
-    EXPECT_TRUE(HasToBgl<fully_connected>);
+    EXPECT_TRUE(HasToGraph<fully_connected>);
 
-    auto g0 = fully_connected{}.to_bgl();
-    EXPECT_TRUE(boost::num_vertices(g0) == 0u);
+    auto g0 = fully_connected{}.to_graph();
+    EXPECT_TRUE(g0.vertex_count() == 0u);
 
-    g0 = fully_connected{1, .5}.to_bgl();
-    EXPECT_TRUE(boost::num_vertices(g0) == 1u);
-    auto vi = boost::vertex(0, g0);
-    auto av = boost::adjacent_vertices(vi, g0);
-    EXPECT_TRUE(av.first == av.second);
+    g0 = fully_connected{1, .5}.to_graph();
+    EXPECT_TRUE(g0.vertex_count() == 1u);
+    EXPECT_TRUE(g0.get_neighbors(0).empty());
 
-    g0 = fully_connected{2, .5}.to_bgl();
-    EXPECT_TRUE(boost::num_vertices(g0) == 2u);
+    g0 = fully_connected{2, .5}.to_graph();
+    EXPECT_TRUE(g0.vertex_count() == 2u);
+    EXPECT_TRUE(g0.has_edge(0, 1));
+    EXPECT_TRUE(g0.get_edge(0, 1) == .5);
+    EXPECT_TRUE(g0.has_edge(1, 0));
+    EXPECT_TRUE(g0.get_edge(1, 0) == .5);
+    EXPECT_TRUE(g0.get_neighbors(0).size() == 1u);
+    EXPECT_TRUE(g0.get_neighbors(1).size() == 1u);
 
-    vi = boost::vertex(0, g0);
-    av = boost::adjacent_vertices(vi, g0);
-    auto e = boost::edge(boost::vertex(*av.first, g0), vi, g0);
-    EXPECT_TRUE(e.second);
-    EXPECT_TRUE(*av.first == 1);
-    EXPECT_TRUE(g0[e.first] == .5);
-    EXPECT_TRUE(++av.first == av.second);
-
-    vi = boost::vertex(1, g0);
-    av = boost::adjacent_vertices(vi, g0);
-    e = boost::edge(boost::vertex(*av.first, g0), vi, g0);
-    EXPECT_TRUE(e.second);
-    EXPECT_TRUE(*av.first == 0);
-    EXPECT_TRUE(g0[e.first] == .5);
-    EXPECT_TRUE(++av.first == av.second);
-
-    g0 = fully_connected{3, .5}.to_bgl();
-    EXPECT_TRUE(boost::num_vertices(g0) == 3u);
-
-    vi = boost::vertex(0, g0);
-    av = boost::adjacent_vertices(vi, g0);
-    e = boost::edge(boost::vertex(*av.first, g0), vi, g0);
-    EXPECT_TRUE(e.second);
-    EXPECT_TRUE(*av.first == 1 || *av.first == 2);
-    EXPECT_TRUE(g0[e.first] == .5);
-    ++av.first;
-    e = boost::edge(boost::vertex(*av.first, g0), vi, g0);
-    EXPECT_TRUE(e.second);
-    EXPECT_TRUE(*av.first == 1 || *av.first == 2);
-    EXPECT_TRUE(g0[e.first] == .5);
-    EXPECT_TRUE(++av.first == av.second);
-
-    vi = boost::vertex(1, g0);
-    av = boost::adjacent_vertices(vi, g0);
-    e = boost::edge(boost::vertex(*av.first, g0), vi, g0);
-    EXPECT_TRUE(e.second);
-    EXPECT_TRUE(*av.first == 0 || *av.first == 2);
-    EXPECT_TRUE(g0[e.first] == .5);
-    ++av.first;
-    e = boost::edge(boost::vertex(*av.first, g0), vi, g0);
-    EXPECT_TRUE(e.second);
-    EXPECT_TRUE(*av.first == 0 || *av.first == 2);
-    EXPECT_TRUE(g0[e.first] == .5);
-    EXPECT_TRUE(++av.first == av.second);
-
-    vi = boost::vertex(2, g0);
-    av = boost::adjacent_vertices(vi, g0);
-    e = boost::edge(boost::vertex(*av.first, g0), vi, g0);
-    EXPECT_TRUE(e.second);
-    EXPECT_TRUE(*av.first == 0 || *av.first == 1);
-    EXPECT_TRUE(g0[e.first] == .5);
-    ++av.first;
-    e = boost::edge(boost::vertex(*av.first, g0), vi, g0);
-    EXPECT_TRUE(e.second);
-    EXPECT_TRUE(*av.first == 0 || *av.first == 1);
-    EXPECT_TRUE(g0[e.first] == .5);
-    EXPECT_TRUE(++av.first == av.second);
+    g0 = fully_connected{3, .5}.to_graph();
+    EXPECT_TRUE(g0.vertex_count() == 3u);
+    // Every vertex should have 2 outgoing edges to all others.
+    EXPECT_TRUE(g0.get_neighbors(0).size() == 2u);
+    EXPECT_TRUE(g0.get_neighbors(1).size() == 2u);
+    EXPECT_TRUE(g0.get_neighbors(2).size() == 2u);
+    // Check all cross-edges exist and have correct weight.
+    for (std::size_t i = 0; i < 3u; ++i) {
+        for (std::size_t j = 0; j < 3u; ++j) {
+            if (i != j) {
+                EXPECT_TRUE(g0.has_edge(i, j));
+                EXPECT_TRUE(g0.get_edge(i, j) == .5);
+            }
+        }
+    }
 }
