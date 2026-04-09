@@ -170,6 +170,12 @@ if (YACMA_COMPILER_IS_CLANGXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQU
     unset (_PAGMO_CLANG_SUPPORTS_ASSUME_UNIQUE_VTABLES)
 endif ()
 
+# retrieve a copy of the current directory's `COMPILE_OPTIONS`
+get_directory_property(old_compile_options COMPILE_OPTIONS)
+
+# silence external build warnings
+add_compile_options(-w)
+
 # TBB dependency
 include(cmake/find_or_build_tbb.cmake)
 
@@ -190,6 +196,9 @@ include(cmake/find_or_build_graaf.cmake)
 
 # Google Test dependency
 include(cmake/find_or_build_gtest.cmake)
+
+# restore the current directory's old `COMPILE_OPTIONS`
+set_directory_properties(PROPERTIES COMPILE_OPTIONS "${old_compile_options}")
 
 # List of source files.
 set(PAGMO_SRC_FILES
@@ -335,6 +344,9 @@ else()
     set_target_properties(pagmo PROPERTIES CXX_VISIBILITY_PRESET hidden)
     set_target_properties(pagmo PROPERTIES VISIBILITY_INLINES_HIDDEN TRUE)
 endif()
+
+# Namespaced alias for modern CMake consumers (target_link_libraries(... pagmo::pagmo))
+add_library(pagmo::pagmo ALIAS pagmo)
 
 # Ensure position-independent code for all configurations
 set_target_properties(pagmo PROPERTIES POSITION_INDEPENDENT_CODE ON)
