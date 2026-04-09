@@ -17,27 +17,14 @@ jobs:
       - name: Install base dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake gcc-13 g++-13 libblas-dev liblapack-dev libboost-all-dev
-      - name: Configure CMake
+          sudo apt-get install -y gcc-13 g++-13
+      - name: Build
         env:
           CC: gcc-13
           CXX: g++-13
-        run: |
-          mkdir build
-          cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release \
-                   -DPAGMO_BUILD_TESTS=ON \
-                   -DPAGMO_WITH_EIGEN3=OFF \
-                   -DPAGMO_WITH_NLOPT=OFF \
-                   -DPAGMO_WITH_IPOPT=OFF
-      - name: Build
-        run: |
-          cd build
-          make -j$(nproc) VERBOSE=1
+        run: make CMAKE=cmake BUILD_TYPE=Release PAGMO_BUILD_TESTS=ON build
       - name: Test
-        run: |
-          cd build
-          ctest -V -j$(nproc) --output-on-failure
+        run: make CMAKE=cmake BUILD_TYPE=Release test
 
   linux-eigen3:
     name: Linux - With Eigen3
@@ -48,27 +35,14 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake gcc-13 g++-13 libblas-dev liblapack-dev libeigen3-dev libboost-all-dev
-      - name: Configure CMake
+          sudo apt-get install -y gcc-13 g++-13
+      - name: Build
         env:
           CC: gcc-13
           CXX: g++-13
-        run: |
-          mkdir build
-          cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release \
-                   -DPAGMO_BUILD_TESTS=ON \
-                   -DPAGMO_WITH_EIGEN3=ON \
-                   -DPAGMO_WITH_NLOPT=OFF \
-                   -DPAGMO_WITH_IPOPT=OFF
-      - name: Build
-        run: |
-          cd build
-          make -j$(nproc) VERBOSE=1
+        run: make CMAKE=cmake BUILD_TYPE=Release PAGMO_BUILD_TESTS=ON PAGMO_WITH_EIGEN3=ON build
       - name: Test
-        run: |
-          cd build
-          ctest -V -j$(nproc) --output-on-failure
+        run: make CMAKE=cmake BUILD_TYPE=Release test
 
   linux-nlopt:
     name: Linux - With NLopt
@@ -79,27 +53,14 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake gcc-13 g++-13 libblas-dev liblapack-dev libnlopt-dev libboost-all-dev
-      - name: Configure CMake
+          sudo apt-get install -y gcc-13 g++-13
+      - name: Build
         env:
           CC: gcc-13
           CXX: g++-13
-        run: |
-          mkdir build
-          cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release \
-                   -DPAGMO_BUILD_TESTS=ON \
-                   -DPAGMO_WITH_EIGEN3=OFF \
-                   -DPAGMO_WITH_NLOPT=ON \
-                   -DPAGMO_WITH_IPOPT=OFF
-      - name: Build
-        run: |
-          cd build
-          make -j$(nproc) VERBOSE=1
+        run: make CMAKE=cmake BUILD_TYPE=Release PAGMO_BUILD_TESTS=ON PAGMO_WITH_NLOPT=ON build
       - name: Test
-        run: |
-          cd build
-          ctest -V -j$(nproc) --output-on-failure
+        run: make CMAKE=cmake BUILD_TYPE=Release test
 
   linux-ipopt:
     name: Linux - With Ipopt
@@ -110,27 +71,14 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake gcc-13 g++-13 libblas-dev liblapack-dev coinor-libipopt-dev libboost-all-dev
-      - name: Configure CMake
+          sudo apt-get install -y gcc-13 g++-13 gfortran libblas-dev liblapack-dev
+      - name: Build
         env:
           CC: gcc-13
           CXX: g++-13
-        run: |
-          mkdir build
-          cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release \
-                   -DPAGMO_BUILD_TESTS=ON \
-                   -DPAGMO_WITH_EIGEN3=OFF \
-                   -DPAGMO_WITH_NLOPT=OFF \
-                   -DPAGMO_WITH_IPOPT=ON
-      - name: Build
-        run: |
-          cd build
-          make -j$(nproc) VERBOSE=1
+        run: make CMAKE=cmake BUILD_TYPE=Release PAGMO_BUILD_TESTS=ON PAGMO_WITH_IPOPT=ON build
       - name: Test
-        run: |
-          cd build
-          ctest -V -j$(nproc) --output-on-failure
+        run: make CMAKE=cmake BUILD_TYPE=Release test
 
   linux-all-deps:
     name: Linux - All Dependencies
@@ -141,31 +89,12 @@ jobs:
       - name: Install all dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake gcc-13 g++-13 libblas-dev liblapack-dev \
-                                  libeigen3-dev libnlopt-dev coinor-libipopt-dev libboost-all-dev
-      - name: Configure CMake
+          sudo apt-get install -y gcc-13 g++-13 gfortran libblas-dev liblapack-dev
+      - name: Build and Test
         env:
           CC: gcc-13
           CXX: g++-13
-        run: |
-          mkdir build
-          cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release \
-                   -DPAGMO_BUILD_TESTS=ON \
-                   -DPAGMO_BUILD_BENCHMARKS=ON \
-                   -DPAGMO_BUILD_TUTORIALS=ON \
-                   -DPAGMO_WITH_EIGEN3=ON \
-                   -DPAGMO_WITH_NLOPT=ON \
-                   -DPAGMO_WITH_IPOPT=ON \
-                   -DPAGMO_ENABLE_IPO=ON
-      - name: Build
-        run: |
-          cd build
-          make -j$(nproc) VERBOSE=1
-      - name: Test
-        run: |
-          cd build
-          ctest -V -j$(nproc) --output-on-failure
+        run: make CMAKE=cmake full-test
 
   linux-debug:
     name: Linux - Debug Build with All Dependencies
@@ -176,25 +105,19 @@ jobs:
       - name: Install all dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake gcc-13 g++-13 libblas-dev liblapack-dev \
-                                  libeigen3-dev libnlopt-dev coinor-libipopt-dev libboost-all-dev
-      - name: Configure CMake
+          sudo apt-get install -y gcc-13 g++-13 gfortran libblas-dev liblapack-dev
+      - name: Build
         env:
           CC: gcc-13
           CXX: g++-13
         run: |
-          mkdir build
-          cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Debug \
-                   -DPAGMO_BUILD_TESTS=ON \
-                   -DPAGMO_WITH_EIGEN3=ON \
-                   -DPAGMO_WITH_NLOPT=ON \
-                   -DPAGMO_WITH_IPOPT=ON
-      - name: Build
-        run: |
-          cd build
-          make -j$(nproc) VERBOSE=1
+          make CMAKE=cmake BUILD_TYPE=Debug \
+               PAGMO_BUILD_TESTS=ON \
+               PAGMO_WITH_EIGEN3=ON \
+               PAGMO_WITH_NLOPT=ON \
+               PAGMO_WITH_IPOPT=ON \
+               PAGMO_ENABLE_IPO=OFF \
+               build
       - name: Test
-        run: |
-          cd build
-          ctest -V -j$(nproc) --output-on-failure
+        run: make CMAKE=cmake BUILD_TYPE=Debug test
+
