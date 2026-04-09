@@ -263,7 +263,7 @@ Or using the provided Makefile:
 
 .. code-block:: bash
 
-   make with-mpi
+   make mpi
 
 Prerequisites:
 
@@ -276,7 +276,7 @@ On Ubuntu/Debian:
 
 .. code-block:: bash
 
-   sudo apt-get install libopenmpi-dev openmpi-bin libboost-all-dev libtbb-dev
+   sudo apt-get install libopenmpi-dev openmpi-bin
 
 Performance Guidelines
 ----------------------
