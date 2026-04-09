@@ -53,30 +53,30 @@ inline U numeric_cast(T value)
     // unsigned <-- unsigned
     if ((not ULim::is_signed) and (not TLim::is_signed)) {
         if (positive_overflow_possible and (value > ULim::max())) {
-            throw std::overflow_error(__PRETTY_FUNCTION__ + std::string(": positive overflow"));
+            throw std::overflow_error(std::string("Error: positive overflow"));
         }
     }
     // unsigned <-- signed
     else if ((not ULim::is_signed) and TLim::is_signed) {
         if (positive_overflow_possible and (value > ULim::max())) {
-            throw std::overflow_error(__PRETTY_FUNCTION__ + std::string(": positive overflow"));
+            throw std::overflow_error(std::string("Error: positive overflow"));
         } else if (negative_overflow_possible and (value < 0)) {
-            throw std::overflow_error(__PRETTY_FUNCTION__ + std::string(": negative overflow"));
+            throw std::overflow_error(std::string("Error: negative overflow"));
         }
 
     }
     // signed <-- unsigned
     else if (ULim::is_signed and (not TLim::is_signed)) {
         if (positive_overflow_possible and (value > ULim::max())) {
-            throw std::overflow_error(__PRETTY_FUNCTION__ + std::string(": positive overflow"));
+            throw std::overflow_error(std::string("Error: positive overflow"));
         }
     }
     // signed <-- signed
     else if (ULim::is_signed and TLim::is_signed) {
         if (positive_overflow_possible and (value > ULim::max())) {
-            throw std::overflow_error(__PRETTY_FUNCTION__ + std::string(": positive overflow"));
+            throw std::overflow_error(std::string("Error: positive overflow"));
         } else if (negative_overflow_possible and (value < ULim::lowest())) {
-            throw std::overflow_error(__PRETTY_FUNCTION__ + std::string(": negative overflow"));
+            throw std::overflow_error(std::string("Error: negative overflow"));
         }
     }
 
