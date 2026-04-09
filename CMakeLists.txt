@@ -188,14 +188,9 @@ include(cmake/find_or_build_nlopt.cmake)
 # IPOPT dependency
 include(cmake/find_or_build_ipopt.cmake)
 
-# MPI
+# MPI dependency
 if(PAGMO_WITH_MPI)
-    find_package(MPI REQUIRED COMPONENTS CXX)
-    message(STATUS "MPI found. MPI island will be available.")
-    message(STATUS "  MPI C++ compiler: ${MPI_CXX_COMPILER}")
-    message(STATUS "  MPI C++ compile flags: ${MPI_CXX_COMPILE_FLAGS}")
-    message(STATUS "  MPI C++ include dirs: ${MPI_CXX_INCLUDE_DIRS}")
-    message(STATUS "  MPI C++ libraries: ${MPI_CXX_LIBRARIES}")
+    include(cmake/find_or_build_mpi.cmake)
 endif()
 
 if(PAGMO_BUILD_TESTS)
