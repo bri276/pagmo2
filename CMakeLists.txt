@@ -110,8 +110,8 @@ mark_as_advanced(PAGMO_INSTALL_LIBDIR)
 message(STATUS "Library installation directory: ${PAGMO_INSTALL_LIBDIR}")
 
 # Assemble the flags.
-set(PAGMO_CXX_FLAGS_DEBUG ${YACMA_CXX_FLAGS} ${YACMA_CXX_FLAGS_DEBUG} ${YACMA_THREADING_CXX_FLAGS})
-set(PAGMO_CXX_FLAGS_RELEASE ${YACMA_CXX_FLAGS} ${YACMA_THREADING_CXX_FLAGS})
+set(PAGMO_CXX_FLAGS_DEBUG ${YACMA_CXX_FLAGS} ${YACMA_CXX_FLAGS_DEBUG} ${YACMA_THREADING_CXX_FLAGS}  -Wno-deprecated-declarations)
+set(PAGMO_CXX_FLAGS_RELEASE ${YACMA_CXX_FLAGS} ${YACMA_THREADING_CXX_FLAGS}  -Wno-deprecated-declarations)
 if(APPLE AND YACMA_COMPILER_IS_CLANGXX)
   message(STATUS "Clang compiler on OSX detected, setting the standard library to 'libc++'.")
   list(APPEND PAGMO_CXX_FLAGS_DEBUG "-stdlib=libc++")
@@ -170,11 +170,14 @@ if (YACMA_COMPILER_IS_CLANGXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQU
     unset (_PAGMO_CLANG_SUPPORTS_ASSUME_UNIQUE_VTABLES)
 endif ()
 
+# retrieve a copy of the current directory's `COMPILE_OPTIONS`
+get_directory_property(old_compile_options COMPILE_OPTIONS)
+
+# silence external build warnings
+add_compile_options(-w)
+
 # TBB dependency
 include(cmake/find_or_build_tbb.cmake)
-
-# Boost dependency
-include(cmake/find_or_build_boost.cmake)
 
 # Eigen3 dependency
 include(cmake/find_or_build_eigen.cmake)
@@ -184,6 +187,18 @@ include(cmake/find_or_build_nlopt.cmake)
 
 # IPOPT dependency
 include(cmake/find_or_build_ipopt.cmake)
+
+# Cereal dependency (for serialization)
+include(cmake/find_or_build_cereal.cmake)
+
+# Graaf dependency (graph library, replaces Boost Graph Library)
+include(cmake/find_or_build_graaf.cmake)
+
+# Google Test dependency
+include(cmake/find_or_build_gtest.cmake)
+
+# restore the current directory's old `COMPILE_OPTIONS`
+set_directory_properties(PROPERTIES COMPILE_OPTIONS "${old_compile_options}")
 
 # List of source files.
 set(PAGMO_SRC_FILES
@@ -330,6 +345,9 @@ else()
     set_target_properties(pagmo PROPERTIES VISIBILITY_INLINES_HIDDEN TRUE)
 endif()
 
+# Namespaced alias for modern CMake consumers (target_link_libraries(... pagmo::pagmo))
+add_library(pagmo::pagmo ALIAS pagmo)
+
 # Ensure position-independent code for all configurations
 set_target_properties(pagmo PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
@@ -371,45 +389,24 @@ endif()
 # Threads.
 target_link_libraries(pagmo PUBLIC Threads::Threads)
 
-# Boost linking - use PRIVATE to avoid export issues
-if(TARGET boost_boost)
-    target_link_libraries(pagmo PRIVATE boost_boost)
-    # Also need to expose boost headers publicly for pagmo's public API
-    get_target_property(BOOST_INCLUDE_DIRS boost_boost INTERFACE_INCLUDE_DIRECTORIES)
-    if(BOOST_INCLUDE_DIRS)
-        target_include_directories(pagmo PUBLIC ${BOOST_INCLUDE_DIRS})
-    endif()
-    message(STATUS "Linked with boost_boost (private)")
-endif()
-
-# Link additional header-only boost libraries needed by pagmo
-foreach(boost_lib IN ITEMS boost_any boost_math boost_safe_numerics boost_bimap boost_system boost_graph boost_lexical_cast boost_integer boost_variant boost_variant2 boost_property_map boost_container boost_move boost_type_index boost_multi_index boost_type_traits boost_config boost_mpl boost_cat boost_preprocessor)
-    if(TARGET ${boost_lib})
-        target_link_libraries(pagmo PRIVATE ${boost_lib})
-        get_target_property(BOOST_LIB_INCLUDE_DIRS ${boost_lib} INTERFACE_INCLUDE_DIRECTORIES)
-        if(BOOST_LIB_INCLUDE_DIRS)
-            target_include_directories(pagmo PUBLIC ${BOOST_LIB_INCLUDE_DIRS})
-        endif()
-        message(STATUS "Linked with ${boost_lib} (private)")
-    endif()
-endforeach()
-
-target_link_libraries(pagmo PRIVATE boost_serialization)
-# Expose serialization headers publicly since pagmo's API uses them
-get_target_property(BOOST_SERIAL_INCLUDE_DIRS boost_serialization INTERFACE_INCLUDE_DIRECTORIES)
-if(BOOST_SERIAL_INCLUDE_DIRS)
-    target_include_directories(pagmo PUBLIC ${BOOST_SERIAL_INCLUDE_DIRS})
-endif()
-message(STATUS "Linked with boost_serialization (private)")
-
-# NOTE: quench warnings from Boost when building the library.
-target_compile_definitions(pagmo PRIVATE BOOST_ALLOW_DEPRECATED_HEADERS)
-
 # TBB.
 # NOTE: TBB is a private dependency because
 # all uses of TBB are limited to the .cpp files,
 # thus fully encapsulated in the pagmo library.
 target_link_libraries(pagmo PRIVATE pagmo_tbb_wrapper)
+
+# Cereal serialization library for the main library
+if(TARGET cereal::cereal)
+    target_link_libraries(pagmo PRIVATE cereal::cereal)
+    message(STATUS "Linked with cereal::cereal (private)")
+elseif(TARGET cereal)
+    target_link_libraries(pagmo PRIVATE cereal)
+    message(STATUS "Linked with cereal (private)")
+endif()
+
+# Link Graaf graph library (header-only, replaces Boost Graph Library).
+# Must be PUBLIC since graph_t is exposed in pagmo's public headers.
+target_link_libraries(pagmo PUBLIC Graaf::Graaf)
 
 if(PAGMO_WITH_EIGEN3)
     # Link pagmo to eigen3 privately and expose headers publicly

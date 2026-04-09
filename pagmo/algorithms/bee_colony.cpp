@@ -49,7 +49,7 @@ bee_colony::bee_colony(unsigned gen, unsigned limit, unsigned seed)
     : m_gen(gen), m_limit(limit), m_e(seed), m_seed(seed), m_verbosity(0u)
 {
     if (limit == 0u) {
-        pagmo_throw(std::invalid_argument, "The limit must be greater than 0.");
+        pagmo_throw(invalid_parameter_error, "The limit must be greater than 0.");
     }
 }
 
@@ -75,19 +75,19 @@ population bee_colony::evolve(population pop) const
     // PREAMBLE-------------------------------------------------------------------------------------------------
     // Check whether the problem/population are suitable for bee_colony
     if (prob.get_nc() != 0u) {
-        pagmo_throw(std::invalid_argument, "Constraints detected in " + prob.get_name() + " instance. " + get_name()
+        pagmo_throw(incompatible_problem_error, "Constraints detected in " + prob.get_name() + " instance. " + get_name()
                                                + " cannot deal with them");
     }
     if (prob.get_nf() != 1u) {
-        pagmo_throw(std::invalid_argument, "Multiple objectives detected in " + prob.get_name() + " instance. "
+        pagmo_throw(incompatible_problem_error, "Multiple objectives detected in " + prob.get_name() + " instance. "
                                                + get_name() + " cannot deal with them");
     }
     if (prob.is_stochastic()) {
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(invalid_parameter_error,
                     "The problem appears to be stochastic. " + get_name() + " cannot deal with it");
     }
     if (NP < 2u) {
-        pagmo_throw(std::invalid_argument, prob.get_name() + " needs at least 2 individuals in the population, "
+        pagmo_throw(insufficient_population_error, prob.get_name() + " needs at least 2 individuals in the population, "
                                                + std::to_string(NP) + " detected");
     }
     // Get out if there is nothing to do.
@@ -258,13 +258,6 @@ std::string bee_colony::get_extra_info() const
     stream(ss, "\n\tVerbosity: ", m_verbosity);
     stream(ss, "\n\tSeed: ", m_seed);
     return ss.str();
-}
-
-// Object serialization
-template <typename Archive>
-void bee_colony::serialize(Archive &ar, unsigned)
-{
-    detail::archive(ar, m_gen, m_limit, m_e, m_seed, m_verbosity, m_log);
 }
 
 } // namespace pagmo

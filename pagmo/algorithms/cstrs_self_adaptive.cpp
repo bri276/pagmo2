@@ -414,19 +414,19 @@ population cstrs_self_adaptive::evolve(population pop) const
 
     // PREAMBLE-------------------------------------------------------------------------------------------------
     if (prob.get_nobj() != 1u) {
-        pagmo_throw(std::invalid_argument, "Multiple objectives detected in " + prob.get_name() + " instance. "
+        pagmo_throw(incompatible_problem_error, "Multiple objectives detected in " + prob.get_name() + " instance. "
                                                + get_name() + " cannot deal with them");
     }
     if (prob.is_stochastic()) {
-        pagmo_throw(std::invalid_argument, "The input problem " + prob.get_name() + " appears to be stochastic, "
+        pagmo_throw(incompatible_problem_error, "The input problem " + prob.get_name() + " appears to be stochastic, "
                                                + get_name() + " cannot deal with it");
     }
     if (prob.get_nc() == 0u) {
-        pagmo_throw(std::invalid_argument, "No constraints detected in " + prob.get_name() + " instance. " + get_name()
+        pagmo_throw(incompatible_problem_error, "No constraints detected in " + prob.get_name() + " instance. " + get_name()
                                                + " needs a constrained problem");
     }
     if (NP < 4u) {
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(insufficient_population_error,
                     "Cannot use " + prob.get_name() + " on a population with less than 4 individuals");
     }
     // ---------------------------------------------------------------------------------------------------------
@@ -544,13 +544,6 @@ std::string cstrs_self_adaptive::get_extra_info() const
 thread_safety cstrs_self_adaptive::get_thread_safety() const
 {
     return std::min(m_algorithm.get_thread_safety(), thread_safety::basic);
-}
-
-// Object serialization
-template <typename Archive>
-void cstrs_self_adaptive::serialize(Archive &ar, unsigned)
-{
-    detail::archive(ar, m_algorithm, m_iters, m_e, m_seed, m_verbosity, m_log);
 }
 
 } // namespace pagmo

@@ -50,15 +50,15 @@ compass_search::compass_search(unsigned max_fevals, double start_range, double s
       m_reduction_coeff(reduction_coeff), m_verbosity(0u), m_log()
 {
     if (start_range > 1. || start_range <= 0. || std::isnan(start_range)) {
-        pagmo_throw(std::invalid_argument, "The start range must be in (0, 1], while a value of "
+        pagmo_throw(invalid_parameter_error, "The start range must be in (0, 1], while a value of "
                                                + std::to_string(start_range) + " was detected.");
     }
     if (stop_range > 1. || stop_range >= start_range || std::isnan(stop_range)) {
-        pagmo_throw(std::invalid_argument, "the stop range must be in (start_range, 1], while a value of "
+        pagmo_throw(invalid_parameter_error, "the stop range must be in (start_range, 1], while a value of "
                                                + std::to_string(stop_range) + " was detected.");
     }
     if (reduction_coeff >= 1. || reduction_coeff <= 0. || std::isnan(reduction_coeff)) {
-        pagmo_throw(std::invalid_argument, "The reduction coefficient must be in (0,1), while a value of "
+        pagmo_throw(invalid_parameter_error, "The reduction coefficient must be in (0,1), while a value of "
                                                + std::to_string(reduction_coeff) + " was detected.");
     }
 }
@@ -91,15 +91,15 @@ population compass_search::evolve(population pop) const
     // We start by checking that the problem is suitable for this
     // particular algorithm.
     if (prob.get_nobj() != 1u) {
-        pagmo_throw(std::invalid_argument, "Multiple objectives detected in " + prob.get_name() + " instance. "
+        pagmo_throw(incompatible_problem_error, "Multiple objectives detected in " + prob.get_name() + " instance. "
                                                + get_name() + " cannot deal with them");
     }
     if (prob.is_stochastic()) {
-        pagmo_throw(std::invalid_argument,
+        pagmo_throw(invalid_parameter_error,
                     "The problem appears to be stochastic " + get_name() + " cannot deal with it");
     }
     if (pop.size() == 0u) {
-        pagmo_throw(std::invalid_argument, get_name() + " does not work on an empty population");
+        pagmo_throw(insufficient_population_error, get_name() + " does not work on an empty population");
     }
     // Get out if there is nothing to do.
     if (m_max_fevals == 0u) {
@@ -208,14 +208,6 @@ std::string compass_search::get_extra_info() const
     stream(ss, "\n\tReduction coefficient: ", m_reduction_coeff);
     stream(ss, "\n\tVerbosity: ", m_verbosity);
     return ss.str();
-}
-
-// Object serialization
-template <typename Archive>
-void compass_search::serialize(Archive &ar, unsigned)
-{
-    detail::archive(ar, boost::serialization::base_object<not_population_based>(*this), m_max_fevals, m_start_range,
-                    m_stop_range, m_reduction_coeff, m_verbosity, m_log);
 }
 
 } // namespace pagmo

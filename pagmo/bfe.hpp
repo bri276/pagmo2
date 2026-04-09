@@ -39,8 +39,6 @@ see https://www.gnu.org/licenses/. */
 #include <typeinfo>
 #include <utility>
 
-#include <boost/type_traits/integral_constant.hpp>
-
 #include <pagmo/concepts.hpp>
 #include <pagmo/config.hpp>
 #include <pagmo/detail/pagmo.fwd.hpp>
@@ -55,10 +53,10 @@ see https://www.gnu.org/licenses/. */
 #include <pagmo/types.hpp>
 
 #define PAGMO_S11N_BFE_EXPORT_KEY(b)                                                                                   \
-    BOOST_CLASS_EXPORT_KEY2(pagmo::detail::bfe_inner<b>, "udbfe " #b)                                                  \
-    BOOST_CLASS_TRACKING(pagmo::detail::bfe_inner<b>, boost::serialization::track_never)
+    CEREAL_REGISTER_TYPE(pagmo::detail::bfe_inner<b>)                                                                  \
+    CEREAL_REGISTER_POLYMORPHIC_RELATION(pagmo::detail::bfe_inner_base, pagmo::detail::bfe_inner<b>)
 
-#define PAGMO_S11N_BFE_IMPLEMENT(b) BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::detail::bfe_inner<b>)
+#define PAGMO_S11N_BFE_IMPLEMENT(b)
 
 #define PAGMO_S11N_BFE_EXPORT(b)                                                                                       \
     PAGMO_S11N_BFE_EXPORT_KEY(b)                                                                                       \
@@ -117,9 +115,9 @@ struct PAGMO_DLL_PUBLIC_INLINE_CLASS bfe_inner_base {
     virtual void *get_ptr() = 0;
 
 private:
-    friend class boost::serialization::access;
+    friend class cereal::access;
     template <typename Archive>
-    void serialize(Archive &, unsigned)
+    void serialize(Archive &)
     {
     }
 };
@@ -211,12 +209,12 @@ struct PAGMO_DLL_PUBLIC_INLINE_CLASS bfe_inner final : bfe_inner_base {
     }
 
 private:
-    friend class boost::serialization::access;
+    friend class cereal::access;
     // Serialization.
     template <typename Archive>
-    void serialize(Archive &ar, unsigned)
+    void serialize(Archive &ar)
     {
-        detail::archive(ar, boost::serialization::base_object<bfe_inner_base>(*this), m_value);
+        detail::archive(ar, cereal::base_class<bfe_inner_base>(this), m_value);
     }
 
 public:
@@ -229,7 +227,6 @@ public:
 
 // Disable Boost.Serialization tracking for the implementation
 // details of algorithm.
-BOOST_CLASS_TRACKING(pagmo::detail::bfe_inner_base, boost::serialization::track_never)
 
 namespace pagmo
 {
@@ -342,14 +339,14 @@ public:
     void *get_ptr();
 
 private:
-    friend class boost::serialization::access;
+    friend class cereal::access;
     template <typename Archive>
-    void save(Archive &ar, unsigned) const
+    void save(Archive &ar) const
     {
         detail::to_archive(ar, m_ptr, m_name, m_thread_safety);
     }
     template <typename Archive>
-    void load(Archive &ar, unsigned)
+    void load(Archive &ar)
     {
         try {
             detail::from_archive(ar, m_ptr, m_name, m_thread_safety);
@@ -358,7 +355,6 @@ private:
             throw;
         }
     }
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
 
     // Just two small helpers to make sure that whenever we require
     // access to the pointer it actually points to something.

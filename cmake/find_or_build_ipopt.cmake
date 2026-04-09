@@ -6,8 +6,16 @@ if(PAGMO_WITH_IPOPT)
     
     include(ExternalProject)
     
+    # Place ipopt in the shared deps cache when available so all build types
+    # (release, debug, etc.) share the same build and installation of ipopt
+    if(DEFINED CPM_SOURCE_CACHE)
+        set(_IPOPT_BASE_DIR "${CPM_SOURCE_CACHE}/ipopt")
+    else()
+        set(_IPOPT_BASE_DIR "${CMAKE_CURRENT_BINARY_DIR}/ipopt")
+    endif()
+
     # Set the install directory
-    set(IPOPT_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/ipopt_install)
+    set(IPOPT_INSTALL_DIR "${_IPOPT_BASE_DIR}_install")
     
     # Create the include directory structure beforehand
     file(MAKE_DIRECTORY ${IPOPT_INSTALL_DIR}/include/coin-or)
@@ -17,7 +25,7 @@ if(PAGMO_WITH_IPOPT)
     ExternalProject_Add(
         ipopt_external
         URL https://github.com/coin-or/Ipopt/archive/releases/3.14.12.tar.gz
-        PREFIX ${CMAKE_CURRENT_BINARY_DIR}/ipopt
+        PREFIX ${_IPOPT_BASE_DIR}
         CONFIGURE_COMMAND <SOURCE_DIR>/configure 
             --prefix=${IPOPT_INSTALL_DIR}
             --disable-shared
