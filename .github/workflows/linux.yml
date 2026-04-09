@@ -120,4 +120,3 @@ jobs:
                build
       - name: Test
         run: make CMAKE=cmake BUILD_TYPE=Debug test
-

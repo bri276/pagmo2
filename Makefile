@@ -20,6 +20,7 @@ endif
 # Shared CPM source cache so all build types reuse the same downloaded deps
 DEPS_CACHE_DIR = $(CURDIR)/build/_deps
 CMAKE = /home/jay/projects/astrea/.venv/bin/cmake
+CTEST ?= ctest
 MAKE = make
 INSTALL_PREFIX = ~/.local
 NUM_JOBS = $(shell nproc)
@@ -134,17 +135,17 @@ minsizerel:
 .PHONY: test
 test: build
 	@echo "==> Running tests..."
-	@cd $(BUILD_DIR) && /usr/bin/ctest -j$(NUM_JOBS) --output-on-failure
+	@cd $(BUILD_DIR) && $(CTEST) -j$(NUM_JOBS) --output-on-failure
 
 .PHONY: test-verbose
 test-verbose: build
 	@echo "==> Running tests (verbose)..."
-	@cd $(BUILD_DIR) && /usr/bin/ctest -j$(NUM_JOBS) -V
+	@cd $(BUILD_DIR) && $(CTEST) -j$(NUM_JOBS) -V
 
 .PHONY: test-parallel
 test-parallel: build
 	@echo "==> Running tests in parallel..."
-	@cd $(BUILD_DIR) && /usr/bin/ctest -j$(NUM_JOBS) --parallel $(NUM_JOBS) --output-on-failure
+	@cd $(BUILD_DIR) && $(CTEST) -j$(NUM_JOBS) --parallel $(NUM_JOBS) --output-on-failure
 
 # Installation targets
 .PHONY: install
