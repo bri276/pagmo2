@@ -53,6 +53,13 @@ see https://www.gnu.org/licenses/. */
 
 using namespace pagmo;
 
+#ifndef _PAGMO_TEST_ROOT_
+
+#define _PAGMO_TEST_ROOT_
+static_assert(false, "_PAGMO_TEST_ROOT_ environment variable not set or passed to compiler.");
+
+#endif // _PAGMO_TEST_ROOT_
+
 /**
  * Assertion method that tests correct computation of contributions for the whole contribution method
  * and the single exclusive method.
@@ -662,7 +669,7 @@ TEST(hypervolume_utils_test, hypervolume_test_instances)
     std::string line;
 
     // root directory of the hypervolume data
-    std::string input_data_dir("./tests/hypervolume_test_data/");
+    std::string input_data_dir(std::string(_PAGMO_TEST_ROOT_) + "/utils/hypervolume_test_data/");
 
     // root directory of the testcases
     std::string input_data_testcases_dir(input_data_dir + "testcases/");
