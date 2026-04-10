@@ -22,7 +22,7 @@ The pagmo C++ library has the following **mandatory** dependencies:
 
 Additionally, pagmo has the following **optional** dependencies:
 
-* `Eigen3 <http://eigen.tuxfamily.org/index.php?title=Main_Page>`__ (which is required
+* `Eigen3 <https://libeigen.gitlab.io/>`__ (which is required
   by some algorithms, e.g., :cpp:class:`pagmo::cmaes`), version 3.3 or later,
 * `NLopt <https://nlopt.readthedocs.io/en/latest/>`__ (which is required by
   the :cpp:class:`pagmo::nlopt` wrapper), version 2.6 or later,
