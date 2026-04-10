@@ -159,7 +159,7 @@ The following options are currently recognised by pagmo’s build system:
 * ``PAGMO_BUILD_TESTS``: build the test suite (defaults to ``OFF``),
 * ``PAGMO_BUILD_TUTORIALS``: build the C++
   :ref:`tutorials <tutorial>` (defaults to ``OFF``),
-* ``PAGMO_WITH_EIGEN3``: enable features depending on `Eigen3 <http://eigen.tuxfamily.org/index.php?title=Main_Page>`__
+* ``PAGMO_WITH_EIGEN3``: enable features depending on `Eigen3 <https://libeigen.gitlab.io/>`__
   (defaults to ``OFF``),
 * ``PAGMO_WITH_NLOPT``: enable the `NLopt <https://nlopt.readthedocs.io/en/latest/>`__
   wrappers (defaults to ``OFF``),
