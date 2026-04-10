@@ -161,11 +161,6 @@ jobs:
             --directory build \
             --output-file lcov.info \
             --no-external
-          conda run -p "$HOME/local" lcov \
-            --remove lcov.info \
-            '*/tests/*' '*/tutorials/*' \
-            '*/cec2013_data.cpp' '*/cec2014_data.cpp' \
-            --output-file lcov.info
       - name: Upload coverage report
         uses: codecov/codecov-action@v5
         with:
