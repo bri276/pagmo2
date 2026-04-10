@@ -96,8 +96,8 @@ jobs:
           $env:PATH = "$PWD\build\Release;$env:USERPROFILE\local\Library\bin;$env:USERPROFILE\local\bin;$env:PATH"
           ctest --test-dir build -VV --output-on-failure -j4 -C Release
 
-  linux_release_coverage_docs:
-    name: Linux release + coverage + docs${{ github.event_name == 'push' && github.ref == 'refs/heads/master' && ' and deploy' || '' }}
+  linux_coverage_docs:
+    name: Linux coverage + docs${{ github.event_name == 'push' && github.ref == 'refs/heads/master' && ' and deploy' || '' }}
     runs-on: ubuntu-22.04
     permissions:
       contents: write
@@ -115,27 +115,11 @@ jobs:
           conda create -y -q -p "$HOME/local" \
             c-compiler cxx-compiler cmake ninja boost-cpp tbb tbb-devel eigen nlopt ipopt \
             python=3.10 sphinx=4.5.0 sphinx-book-theme breathe "doxygen<1.13" graphviz lcov
-      - name: Release build and test
+      - name: Build and test (coverage, no torture)
         shell: bash
         run: |
           set -e
-          conda run -p "$HOME/local" cmake -S . -B build-release -G Ninja \
-            -DCMAKE_PREFIX_PATH="$HOME/local" \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DBoost_NO_BOOST_CMAKE=ON \
-            -DPAGMO_BUILD_TESTS=ON \
-            -DPAGMO_WITH_EIGEN3=ON \
-            -DPAGMO_WITH_NLOPT=ON \
-            -DPAGMO_WITH_IPOPT=ON \
-            -DPAGMO_ENABLE_IPO=ON
-          conda run -p "$HOME/local" cmake --build build-release --parallel
-          # Keep runtime manageable in this consolidated job.
-          conda run -p "$HOME/local" ctest --test-dir build-release -VV --output-on-failure -j4 -E torture
-      - name: Coverage build and test
-        shell: bash
-        run: |
-          set -e
-          conda run -p "$HOME/local" cmake -S . -B build-coverage -G Ninja \
+          conda run -p "$HOME/local" cmake -S . -B build -G Ninja \
             -DCMAKE_PREFIX_PATH="$HOME/local" \
             -DCMAKE_BUILD_TYPE=Debug \
             -DBoost_NO_BOOST_CMAKE=ON \
@@ -146,9 +130,9 @@ jobs:
             -DPAGMO_ENABLE_IPO=ON \
             -DCMAKE_CXX_FLAGS="--coverage" \
             -DCMAKE_EXE_LINKER_FLAGS="--coverage"
-          conda run -p "$HOME/local" cmake --build build-coverage --parallel
-          conda run -p "$HOME/local" ctest --test-dir build-coverage -VV --output-on-failure -j4 -E torture
-      - name: Generate and upload coverage
+          conda run -p "$HOME/local" cmake --build build --parallel
+          conda run -p "$HOME/local" ctest --test-dir build -VV --output-on-failure -j4 -E torture
+      - name: Generate coverage
         shell: bash
         run: |
           set -e
@@ -156,7 +140,7 @@ jobs:
           conda run -p "$HOME/local" lcov \
             --gcov-tool "$GCOV" \
             --capture \
-            --directory build-coverage \
+            --directory build \
             --output-file lcov.info \
             --no-external
       - name: Upload coverage report
